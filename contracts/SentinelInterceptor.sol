@@ -66,8 +66,7 @@ contract SentinelInterceptor is AccessControl, Pausable {
     event AnomalyDetected(
         uint256 tvlPercentage,
         uint256 threshold,
-        uint256 timestamp,
-        string detectionMethod
+        uint256 timestamp
     );
 
     /// @notice Emitted when autonomous pause is triggered
@@ -104,9 +103,9 @@ contract SentinelInterceptor is AccessControl, Pausable {
      */
     constructor(address _bridgeAddress, address initialAdmin) {
         if (_bridgeAddress == address(0)) revert InvalidTVL();
-        
+
         bridgeAddress = _bridgeAddress;
-        
+
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
         _grantRole(SENTINEL_ROLE, initialAdmin);
         _grantRole(ORACLE_ROLE, initialAdmin);
@@ -116,9 +115,8 @@ contract SentinelInterceptor is AccessControl, Pausable {
 
     /**
      * @notice Report potential anomaly (called by anomaly detector oracle)
-     * @param tvlPercentage Current TVL withdrawal percentage (in basis points or z-score * 100)
+     * @param tvlPercentage Current TVL withdrawal percentage (in basis points)
      * @param currentTVL Current total value locked
-     * @dev CLARITY Act 'Reasonable Care' Compliance: Uses statistical analysis for anomaly detection
      */
     function reportAnomaly(
         uint256 tvlPercentage,
@@ -127,31 +125,28 @@ contract SentinelInterceptor is AccessControl, Pausable {
         // Update sliding window
         _updateWithdrawalWindow(currentTVL);
 
-        // CLARITY Act Compliance: Check statistical significance
-        // tvlPercentage can be traditional percentage (0-10000 bps) or z-score * 100
-        bool isStatisticalAnomaly = tvlPercentage >= TVL_SPIKE_THRESHOLD ||
-                                   (tvlPercentage >= 350 && tvlPercentage < TVL_SPIKE_THRESHOLD); // z-score > 3.5
-
-        if (isStatisticalAnomaly) {
+        // Check if TVL spike exceeds threshold
+        if (tvlPercentage >= TVL_SPIKE_THRESHOLD) {
             _triggerAutonomousPause(currentTVL);
         }
 
-        string memory method = tvlPercentage >= TVL_SPIKE_THRESHOLD ? "percentage_threshold" : "statistical_analysis";
-        emit AnomalyDetected(tvlPercentage, TVL_SPIKE_THRESHOLD, block.timestamp, method);
+        emit AnomalyDetected(
+            tvlPercentage,
+            TVL_SPIKE_THRESHOLD,
+            block.timestamp
+        );
     }
 
     /**
      * @notice Manual emergency pause by sentinel
      * @param reason Reason for the pause
      */
-    function emergencyPause(string calldata reason) 
-        external 
-        onlyRole(SENTINEL_ROLE) 
-        whenNotPaused 
-    {
+    function emergencyPause(
+        string calldata reason
+    ) external onlyRole(SENTINEL_ROLE) whenNotPaused {
         _pause();
         lastPauseTimestamp = block.timestamp;
-        
+
         // Attempt to pause the bridge
         _pauseBridge();
 
@@ -166,11 +161,9 @@ contract SentinelInterceptor is AccessControl, Pausable {
      * @notice Resume bridge operations after manual review
      * @param newTVL Updated TVL after review
      */
-    function resumeBridge(uint256 newTVL) 
-        external 
-        onlyRole(SENTINEL_ROLE) 
-        whenPaused 
-    {
+    function resumeBridge(
+        uint256 newTVL
+    ) external onlyRole(SENTINEL_ROLE) whenPaused {
         if (block.timestamp - lastPauseTimestamp > MAX_PAUSE_DURATION) {
             revert MaxPauseDurationExceeded();
         }
@@ -197,7 +190,9 @@ contract SentinelInterceptor is AccessControl, Pausable {
      * @notice Toggle autonomous mode (enables/disables auto-pause)
      * @param enabled Whether to enable autonomous mode
      */
-    function setAutonomousMode(bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setAutonomousMode(
+        bool enabled
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         autonomousMode = enabled;
         emit AutonomousModeToggled(enabled);
     }
@@ -206,10 +201,9 @@ contract SentinelInterceptor is AccessControl, Pausable {
      * @notice Update TVL spike threshold
      * @param newThreshold New threshold in basis points
      */
-    function updateThreshold(uint256 newThreshold) 
-        external 
-        onlyRole(DEFAULT_ADMIN_ROLE) 
-    {
+    function updateThreshold(
+        uint256 newThreshold
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 oldThreshold = TVL_SPIKE_THRESHOLD;
         // In production, this would update a state variable
         emit ThresholdUpdated(oldThreshold, newThreshold);
@@ -221,14 +215,10 @@ contract SentinelInterceptor is AccessControl, Pausable {
      * @return currentTVL Current TVL
      * @return isAutonomous Whether autonomous mode is enabled
      */
-    function getSecurityStatus() 
-        external 
-        view 
-        returns (
-            bool isPaused,
-            uint256 currentTVL,
-            bool isAutonomous
-        ) 
+    function getSecurityStatus()
+        external
+        view
+        returns (bool isPaused, uint256 currentTVL, bool isAutonomous)
     {
         return (paused(), totalValueLocked, autonomousMode);
     }
@@ -246,8 +236,10 @@ contract SentinelInterceptor is AccessControl, Pausable {
         lastPauseTimestamp = block.timestamp;
 
         // Trigger bridge pause via low-level call
-        (bool success, ) = bridgeAddress.call(abi.encodeWithSignature("emergencyPause()"));
-        
+        (bool success, ) = bridgeAddress.call(
+            abi.encodeWithSignature("emergencyPause()")
+        );
+
         if (!success) {
             // Bridge may already be paused or doesn't implement emergencyPause
             // This is fine - we still pause ourselves
@@ -266,7 +258,7 @@ contract SentinelInterceptor is AccessControl, Pausable {
      */
     function _updateWithdrawalWindow(uint256 currentTVL) internal {
         uint256 windowStart = block.timestamp - WITHDRAWAL_WINDOW;
-        
+
         // Reset window if needed (simple implementation)
         if (lastWithdrawalUpdate < windowStart) {
             cumulativeWithdrawals = 0;
@@ -302,14 +294,14 @@ contract SentinelInterceptor is AccessControl, Pausable {
      * @return executionLatencyMs Execution latency in milliseconds
      * @return totalInterceptTimeMs Total intercept time in milliseconds
      */
-    function getResponseMetrics() 
-        external 
-        pure 
+    function getResponseMetrics()
+        external
+        pure
         returns (
             uint256 detectionLatencyMs,
             uint256 executionLatencyMs,
             uint256 totalInterceptTimeMs
-        ) 
+        )
     {
         return (4, 10, 14);
     }

@@ -10,7 +10,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
  *      - ECDH (Elliptic Curve Diffie-Hellman) for key exchange
  *      - AES-256-GCM simulation for symmetric encryption
  *      - Post-quantum KEM (Kyber) ready interface
- * 
+ *
  * @dev This enables secure communication that survives quantum attacks
  */
 contract HybridEncryption is AccessControl {
@@ -21,9 +21,10 @@ contract HybridEncryption is AccessControl {
 
     /// @notice Security level in bits
     uint256 public constant SECURITY_BITS = 256;
-    
+
     /// @notice Salt for key derivation
-    bytes32 public constant ENCRYPTION_SALT = keccak256("AETHERON_QUANTUM_SALT_V1");
+    bytes32 public constant ENCRYPTION_SALT =
+        keccak256("AETHERON_QUANTUM_SALT_V1");
 
     // ============ State Variables ============
 
@@ -43,8 +44,8 @@ contract HybridEncryption is AccessControl {
 
     struct EncryptedData {
         bytes ciphertext;
-        bytes32 encapsulation;  // KEM ciphertext
-        bytes32 keyHash;         // Hash of derived key (for verification)
+        bytes32 encapsulation; // KEM ciphertext
+        bytes32 keyHash; // Hash of derived key (for verification)
         address sender;
         uint256 timestamp;
         bool exists;
@@ -175,12 +176,14 @@ contract HybridEncryption is AccessControl {
         );
 
         // Generate data ID
-        dataId = keccak256(abi.encode(
-            recipient,
-            ciphertext,
-            exchange.derivedKey,
-            block.timestamp
-        ));
+        dataId = keccak256(
+            abi.encode(
+                recipient,
+                ciphertext,
+                exchange.derivedKey,
+                block.timestamp
+            )
+        );
 
         // Store encrypted data
         encryptedVault[dataId] = EncryptedData({
@@ -193,7 +196,11 @@ contract HybridEncryption is AccessControl {
         });
 
         emit DataEncrypted(dataId, msg.sender, recipient, block.timestamp);
-        emit KeyExchangeComplete(msg.sender, recipient, keccak256(abi.encode(exchange.sharedSecret)));
+        emit KeyExchangeComplete(
+            msg.sender,
+            recipient,
+            keccak256(abi.encode(exchange.sharedSecret))
+        );
     }
 
     /**
@@ -206,16 +213,15 @@ contract HybridEncryption is AccessControl {
         bytes calldata privateKeyProof
     ) external onlyRole(DECRYPTOR_ROLE) returns (bytes memory plaintext) {
         EncryptedData storage data = encryptedVault[dataId];
-        
+
         if (!data.exists) {
             revert DataNotFound(dataId);
         }
 
         // Verify sender's ephemeral key commitment
-        bytes32 derivedKeyHash = keccak256(abi.encode(
-            data.encapsulation,
-            publicKeys[msg.sender]
-        ));
+        bytes32 derivedKeyHash = keccak256(
+            abi.encode(data.encapsulation, publicKeys[msg.sender])
+        );
 
         if (derivedKeyHash != data.keyHash) {
             revert KeyMismatch();
@@ -246,21 +252,18 @@ contract HybridEncryption is AccessControl {
     function seal(
         address recipient,
         bytes calldata plaintext
-    ) external onlyRole(ENCRYPTOR_ROLE) returns (bytes memory sealedData) {
+    ) external onlyRole(ENCRYPTOR_ROLE) returns (bytes memory sealed) {
         if (publicKeys[recipient] == bytes32(0)) {
             revert PublicKeyNotRegistered(recipient);
         }
 
         // Generate ephemeral keypair
-        bytes32 ephemeralPrivate = keccak256(abi.encode(
-            msg.sender,
-            block.timestamp,
-            plaintext
-        ));
-        bytes32 ephemeralPublic = keccak256(abi.encode(
-            ephemeralPrivate,
-            recipient
-        ));
+        bytes32 ephemeralPrivate = keccak256(
+            abi.encode(msg.sender, block.timestamp, plaintext)
+        );
+        bytes32 ephemeralPublic = keccak256(
+            abi.encode(ephemeralPrivate, recipient)
+        );
 
         // Perform key exchange
         bytes32 sharedSecret = _deriveSharedSecret(
@@ -272,7 +275,7 @@ contract HybridEncryption is AccessControl {
         bytes32 symmetricKey = _deriveSymmetricKey(sharedSecret, recipient);
 
         // Encrypt
-        sealedData = abi.encode(
+        sealed = abi.encode(
             ephemeralPublic,
             _symmetricEncrypt(plaintext, symmetricKey, 0)
         );
@@ -280,23 +283,27 @@ contract HybridEncryption is AccessControl {
 
     /**
      * @notice Open sealed data
-     * @param sealedData Sealed data
+     * @param sealed Sealed data
      * @param privateKey Sender's private key
      */
     function open(
-        bytes calldata sealedData,
+        bytes calldata sealed,
         bytes32 privateKey
     ) external pure returns (bytes memory plaintext) {
         (bytes32 ephemeralPublic, bytes memory ciphertext) = abi.decode(
-            sealedData,
+            sealed,
             (bytes32, bytes)
         );
 
         // Derive shared secret
-        bytes32 sharedSecret = keccak256(abi.encode(ephemeralPublic, privateKey));
+        bytes32 sharedSecret = keccak256(
+            abi.encode(ephemeralPublic, privateKey)
+        );
 
         // Derive symmetric key
-        bytes32 symmetricKey = keccak256(abi.encode(sharedSecret, ENCRYPTION_SALT));
+        bytes32 symmetricKey = keccak256(
+            abi.encode(sharedSecret, ENCRYPTION_SALT)
+        );
 
         // Decrypt
         return _symmetricDecrypt(ciphertext, symmetricKey, 0);
@@ -308,18 +315,13 @@ contract HybridEncryption is AccessControl {
      * @notice Generate quantum-resistant key commitment
      * @param entropy External entropy (from quantum RNG)
      */
-    function generateQuantumKey(bytes32 entropy)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-        returns (bytes32 commitment)
-    {
+    function generateQuantumKey(
+        bytes32 entropy
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) returns (bytes32 commitment) {
         // Combine multiple sources for true randomness
-        bytes32 quantumEntropy = keccak256(abi.encode(
-            entropy,
-            block.timestamp,
-            gasleft(),
-            block.difficulty
-        ));
+        bytes32 quantumEntropy = keccak256(
+            abi.encode(entropy, block.timestamp, gasleft(), block.difficulty)
+        );
 
         commitment = keccak256(abi.encode(quantumEntropy, ENCRYPTION_SALT));
 
@@ -331,11 +333,10 @@ contract HybridEncryption is AccessControl {
      * @param key Key to verify
      * @param commitment Previously committed key
      */
-    function verifyQuantumKey(bytes32 key, bytes32 commitment)
-        external
-        pure
-        returns (bool)
-    {
+    function verifyQuantumKey(
+        bytes32 key,
+        bytes32 commitment
+    ) external pure returns (bool) {
         return keccak256(abi.encode(key, ENCRYPTION_SALT)) == commitment;
     }
 
@@ -346,14 +347,16 @@ contract HybridEncryption is AccessControl {
         bytes32 recipientPublicKey
     ) internal pure returns (KeyExchange memory exchange) {
         exchange.ephemeralPublicKey = keccak256(abi.encode(ephemeralPrivate));
-        exchange.sharedSecret = keccak256(abi.encode(
-            exchange.ephemeralPublicKey,
-            recipientPublicKey,
-            ephemeralPrivate
-        ));
+        exchange.sharedSecret = keccak256(
+            abi.encode(
+                exchange.ephemeralPublicKey,
+                recipientPublicKey,
+                ephemeralPrivate
+            )
+        );
         exchange.derivedKey = _deriveSymmetricKey(
             exchange.sharedSecret,
-            address(uint160(uint256(exchange.sharedSecret)))
+            address(uint160(recipientPublicKey))
         );
         exchange.nonce = 0;
 
@@ -381,11 +384,12 @@ contract HybridEncryption is AccessControl {
         uint256 nonce
     ) internal pure returns (bytes memory) {
         // Simplified encryption (in production, use AES-256-GCM via precompile)
-        return abi.encode(
-            keccak256(abi.encode(plaintext, key, nonce)),
-            plaintext,
-            keccak256(abi.encode(key, nonce, "AUTH"))
-        );
+        return
+            abi.encode(
+                keccak256(abi.encode(plaintext, key, nonce)),
+                plaintext,
+                keccak256(abi.encode(key, nonce, "AUTH"))
+            );
     }
 
     function _symmetricDecrypt(
@@ -393,10 +397,8 @@ contract HybridEncryption is AccessControl {
         bytes32 key,
         uint256 nonce
     ) internal pure returns (bytes memory) {
-        (bytes32 expectedTag, bytes memory plaintext, bytes32 authTag) = abi.decode(
-            ciphertext,
-            (bytes32, bytes, bytes32)
-        );
+        (bytes32 expectedTag, bytes memory plaintext, bytes32 authTag) = abi
+            .decode(ciphertext, (bytes32, bytes, bytes32));
 
         bytes32 computedTag = keccak256(abi.encode(key, nonce, "AUTH"));
         if (computedTag != authTag) {
@@ -426,15 +428,9 @@ contract HybridEncryption is AccessControl {
 
     // ============ View Functions ============
 
-    function getEncryptedData(bytes32 dataId)
-        external
-        view
-        returns (
-            address sender,
-            uint256 timestamp,
-            uint256 size
-        )
-    {
+    function getEncryptedData(
+        bytes32 dataId
+    ) external view returns (address sender, uint256 timestamp, uint256 size) {
         EncryptedData storage data = encryptedVault[dataId];
         require(data.exists, "Not found");
         return (data.sender, data.timestamp, data.ciphertext.length);

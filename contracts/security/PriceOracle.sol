@@ -19,8 +19,8 @@ contract PriceOracle is AccessControl, Pausable {
     }
 
     struct AnomalyThresholds {
-        uint256 maxDeviation;      // Max % deviation from last price (500 = 5%)
-        uint256 maxStaleness;      // Max seconds before price is stale
+        uint256 maxDeviation; // Max % deviation from last price (500 = 5%)
+        uint256 maxStaleness; // Max seconds before price is stale
         uint256 heartbeatInterval; // Expected update frequency
     }
 
@@ -49,11 +49,23 @@ contract PriceOracle is AccessControl, Pausable {
         uint256 newPrice,
         uint256 deviation
     );
-    event ThresholdUpdated(address indexed asset, uint256 maxDeviation, uint256 maxStaleness);
+    event ThresholdUpdated(
+        address indexed asset,
+        uint256 maxDeviation,
+        uint256 maxStaleness
+    );
     event FeedAuthorized(address indexed feed, bool authorized);
 
-    error PriceStale(address asset, uint256 lastUpdate, uint256 stalenessTolerance);
-    error PriceDeviationExceeded(address asset, uint256 deviation, uint256 maxDeviation);
+    error PriceStale(
+        address asset,
+        uint256 lastUpdate,
+        uint256 stalenessTolerance
+    );
+    error PriceDeviationExceeded(
+        address asset,
+        uint256 deviation,
+        uint256 maxDeviation
+    );
     error UnauthorizedFeed(address feed);
     error InvalidPrice(address asset);
 
@@ -77,11 +89,11 @@ contract PriceOracle is AccessControl, Pausable {
         AnomalyThresholds memory threshold = thresholds[asset];
 
         // Set defaults if not configured
-        uint256 maxDev = threshold.maxDeviation != 0 
-            ? threshold.maxDeviation 
+        uint256 maxDev = threshold.maxDeviation != 0
+            ? threshold.maxDeviation
             : defaultMaxDeviation;
-        uint256 maxStale = threshold.maxStaleness != 0 
-            ? threshold.maxStaleness 
+        uint256 maxStale = threshold.maxStaleness != 0
+            ? threshold.maxStaleness
             : defaultStalenessTolerance;
 
         // Check for price anomaly if we have a previous price
@@ -120,7 +132,7 @@ contract PriceOracle is AccessControl, Pausable {
         if (assets.length != newPrices.length) revert InvalidPrice(address(0));
 
         for (uint256 i = 0; i < assets.length; i++) {
-            this.updatePrice(assets[i], newPrices[i]);
+            updatePrice(assets[i], newPrices[i]);
         }
     }
 
@@ -130,8 +142,8 @@ contract PriceOracle is AccessControl, Pausable {
     function getPrice(address asset) external view returns (uint256) {
         PriceData memory data = prices[asset];
         AnomalyThresholds memory threshold = thresholds[asset];
-        uint256 maxStale = threshold.maxStaleness != 0 
-            ? threshold.maxStaleness 
+        uint256 maxStale = threshold.maxStaleness != 0
+            ? threshold.maxStaleness
             : defaultStalenessTolerance;
 
         if (block.timestamp - data.timestamp > maxStale) {
@@ -144,11 +156,13 @@ contract PriceOracle is AccessControl, Pausable {
     /**
      * @notice Get price allowing stale prices (for view functions)
      */
-    function getPriceAllowStale(address asset) external view returns (uint256, bool) {
+    function getPriceAllowStale(
+        address asset
+    ) external view returns (uint256, bool) {
         PriceData memory data = prices[asset];
         AnomalyThresholds memory threshold = thresholds[asset];
-        uint256 maxStale = threshold.maxStaleness != 0 
-            ? threshold.maxStaleness 
+        uint256 maxStale = threshold.maxStaleness != 0
+            ? threshold.maxStaleness
             : defaultStalenessTolerance;
 
         bool isStale = block.timestamp - data.timestamp > maxStale;
@@ -163,8 +177,8 @@ contract PriceOracle is AccessControl, Pausable {
         uint256 newPrice
     ) internal pure returns (uint256) {
         if (oldPrice == 0) return 0;
-        uint256 diff = newPrice > oldPrice 
-            ? newPrice - oldPrice 
+        uint256 diff = newPrice > oldPrice
+            ? newPrice - oldPrice
             : oldPrice - newPrice;
         return (diff * 10000) / oldPrice; // Basis points
     }
@@ -204,16 +218,23 @@ contract PriceOracle is AccessControl, Pausable {
 
     function getPriceData(
         address asset
-    ) external view returns (
-        uint256 price,
-        uint256 timestamp,
-        uint256 deviation,
-        bool isStale
-    ) {
+    )
+        external
+        view
+        returns (
+            uint256 price,
+            uint256 timestamp,
+            uint256 deviation,
+            bool isStale
+        )
+    {
         PriceData memory data = prices[asset];
-        uint256 deviation = _calculateDeviation(previousPrices[asset], data.price);
-        uint256 maxStale = thresholds[asset].maxStaleness != 0 
-            ? thresholds[asset].maxStaleness 
+        uint256 deviation = _calculateDeviation(
+            previousPrices[asset],
+            data.price
+        );
+        uint256 maxStale = thresholds[asset].maxStaleness != 0
+            ? thresholds[asset].maxStaleness
             : defaultStalenessTolerance;
 
         return (

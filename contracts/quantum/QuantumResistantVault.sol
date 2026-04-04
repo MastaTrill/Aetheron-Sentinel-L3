@@ -24,7 +24,8 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
     using ECDSA for bytes32;
 
     bytes32 public constant GUARDIAN_ROLE = keccak256("GUARDIAN_ROLE");
-    bytes32 public constant QUANTUM_ADMIN_ROLE = keccak256("QUANTUM_ADMIN_ROLE");
+    bytes32 public constant QUANTUM_ADMIN_ROLE =
+        keccak256("QUANTUM_ADMIN_ROLE");
 
     /// @notice Minimum number of guardians required for recovery
     uint256 public constant MIN_GUARDIAN_THRESHOLD = 3;
@@ -39,7 +40,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
 
     /// @notice Guardian addresses
     address[] public guardians;
-    
+
     /// @notice Number of guardians required for multi-sig
     uint256 public guardianThreshold;
 
@@ -76,9 +77,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
     }
 
     struct QuantumSignature {
-        bytes classicalSig;      // ECDSA component
-        bytes32 hashCommitment;   // HTSS commitment
-        uint256 timestamp;       // Timelock component
+        bytes classicalSig; // ECDSA component
+        bytes32 hashCommitment; // HTSS commitment
+        uint256 timestamp; // Timelock component
         bytes32 domainSeparator; // Domain binding
     }
 
@@ -92,10 +93,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         address indexed target,
         uint256 executeAfter
     );
-    event OperationConfirmed(
-        bytes32 indexed opHash,
-        address indexed guardian
-    );
+    event OperationConfirmed(bytes32 indexed opHash, address indexed guardian);
     event OperationExecuted(bytes32 indexed opHash);
     event OperationCancelled(bytes32 indexed opHash);
     event KeyRotated(bytes32 newCommitment, uint256 timestamp);
@@ -109,7 +107,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
     error GuardianNotFound(address guardian);
     error InvalidThreshold();
     error OperationNotFound(bytes32 opHash);
-    error TimeLockNotExpired(uint256 executeAfterTime);
+    error TimeLockNotExpired(bytes256 executeAfter);
     error AlreadyConfirmed(bytes32 opHash, address guardian);
     error SignatureAlreadyUsed(bytes32 sigHash);
     error InvalidQuantumSignature();
@@ -128,7 +126,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         );
         require(
             _guardianThreshold >= MIN_GUARDIAN_THRESHOLD &&
-            _guardianThreshold <= initialGuardians.length,
+                _guardianThreshold <= initialGuardians.length,
             "Invalid threshold"
         );
 
@@ -203,10 +201,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
     /**
      * @notice Confirm a time-locked operation
      */
-    function confirmTimeLockedOp(bytes32 opHash)
-        external
-        onlyRole(GUARDIAN_ROLE)
-    {
+    function confirmTimeLockedOp(
+        bytes32 opHash
+    ) external onlyRole(GUARDIAN_ROLE) {
         TimeLockedOp storage op = pendingOperations[opHash];
         if (op.target == address(0)) revert OperationNotFound(opHash);
 
@@ -231,10 +228,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
     /**
      * @notice Cancel a pending operation
      */
-    function cancelOperation(bytes32 opHash)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function cancelOperation(
+        bytes32 opHash
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         delete pendingOperations[opHash];
         emit OperationCancelled(opHash);
     }
@@ -243,10 +239,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
      * @notice Rotate quantum commitments (recommended every 90 days)
      * @param newCommitment New Merkle root or hash commitment
      */
-    function rotateQuantumKey(bytes32 newCommitment)
-        external
-        onlyRole(QUANTUM_ADMIN_ROLE)
-    {
+    function rotateQuantumKey(
+        bytes32 newCommitment
+    ) external onlyRole(QUANTUM_ADMIN_ROLE) {
         if (block.timestamp - lastKeyRotation < KEY_ROTATION_INTERVAL) {
             revert KeyRotationTooSoon();
         }
@@ -262,11 +257,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
      * @notice Emergency quantum threat response
      * @param reason Description of the quantum threat
      */
-    function quantumThreatResponse(string calldata reason)
-        external
-        onlyRole(GUARDIAN_ROLE)
-        whenNotPaused
-    {
+    function quantumThreatResponse(
+        string calldata reason
+    ) external onlyRole(GUARDIAN_ROLE) whenNotPaused {
         emit QuantumAlert(reason);
 
         // Pause all operations
@@ -280,10 +273,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
      * @notice Update security level based on quantum computing advances
      * @param newLevel New security level in bits
      */
-    function updateSecurityLevel(uint256 newLevel)
-        external
-        onlyRole(QUANTUM_ADMIN_ROLE)
-    {
+    function updateSecurityLevel(
+        uint256 newLevel
+    ) external onlyRole(QUANTUM_ADMIN_ROLE) {
         uint256 oldLevel = securityLevel;
         securityLevel = newLevel;
         emit SecurityLevelUpdated(newLevel);
@@ -291,10 +283,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
 
     // ============ Guardian Management ============
 
-    function addGuardian(address guardian)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function addGuardian(
+        address guardian
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (guardians.length >= MAX_GUARDIANS) revert NotEnoughGuardians();
         if (_guardianExists(guardian)) revert GuardianAlreadyExists(guardian);
 
@@ -304,12 +295,12 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         emit GuardianAdded(guardian);
     }
 
-    function removeGuardian(address guardian)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function removeGuardian(
+        address guardian
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (!_guardianExists(guardian)) revert GuardianNotFound(guardian);
-        if (guardians.length <= MIN_GUARDIAN_THRESHOLD) revert NotEnoughGuardians();
+        if (guardians.length <= MIN_GUARDIAN_THRESHOLD)
+            revert NotEnoughGuardians();
 
         _removeGuardian(guardian);
         _revokeRole(GUARDIAN_ROLE, guardian);
@@ -317,11 +308,13 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         emit GuardianRemoved(guardian);
     }
 
-    function updateThreshold(uint256 newThreshold)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        if (newThreshold < MIN_GUARDIAN_THRESHOLD || newThreshold > guardians.length) {
+    function updateThreshold(
+        uint256 newThreshold
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (
+            newThreshold < MIN_GUARDIAN_THRESHOLD ||
+            newThreshold > guardians.length
+        ) {
             revert InvalidThreshold();
         }
 
@@ -364,7 +357,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         }
 
         // Verify domain separator
-        if (sig.domainSeparator != _domainSeparatorV4()) {
+        if (sig.domainSeparator != _domainSeparator()) {
             revert InvalidQuantumSignature();
         }
 
@@ -372,10 +365,10 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         usedSignatures[sigHash] = true;
     }
 
-    function _confirmOperation(bytes32 opHash, address guardian)
-        internal
-        returns (bool executed)
-    {
+    function _confirmOperation(
+        bytes32 opHash,
+        address guardian
+    ) internal returns (bool executed) {
         // Simplified - in production, track confirmations properly
         return false;
     }
@@ -409,11 +402,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         delete pendingOperations[opHash];
     }
 
-    function _guardianExists(address guardian)
-        internal
-        view
-        returns (bool)
-    {
+    function _guardianExists(address guardian) internal view returns (bool) {
         for (uint256 i = 0; i < guardians.length; i++) {
             if (guardians[i] == guardian) return true;
         }
@@ -469,11 +458,9 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         );
     }
 
-    function isOperationPending(bytes32 opHash)
-        external
-        view
-        returns (bool, uint256)
-    {
+    function isOperationPending(
+        bytes32 opHash
+    ) external view returns (bool, uint256) {
         TimeLockedOp storage op = pendingOperations[opHash];
         return (op.target != address(0), op.executeAfter);
     }
