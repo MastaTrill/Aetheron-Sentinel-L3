@@ -308,16 +308,16 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
 
     /**
      * @notice Get bridge statistics
-     * @return paused Whether bridge is paused
+     * @return isPaused Whether bridge is paused
      * @return supportedChainCount Number of supported chains
      * @return fee Current fee percentage
      */
     function getBridgeStats()
         external
         view
-        returns (bool paused, uint256 supportedChainCount, uint256 fee)
+        returns (bool isPaused, uint256 supportedChainCount, uint256 fee)
     {
-        return (paused(), 0, bridgeFeePercent); // supportedChainCount would need iteration
+        return (this.paused(), 0, bridgeFeePercent); // supportedChainCount would need iteration
     }
 
     /**

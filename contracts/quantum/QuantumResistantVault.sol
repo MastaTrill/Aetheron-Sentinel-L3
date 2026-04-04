@@ -107,7 +107,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
     error GuardianNotFound(address guardian);
     error InvalidThreshold();
     error OperationNotFound(bytes32 opHash);
-    error TimeLockNotExpired(bytes256 executeAfter);
+    error TimeLockNotExpired(uint256 executeAfter);
     error AlreadyConfirmed(bytes32 opHash, address guardian);
     error SignatureAlreadyUsed(bytes32 sigHash);
     error InvalidQuantumSignature();
@@ -357,7 +357,7 @@ contract QuantumResistantVault is AccessControl, Pausable, EIP712 {
         }
 
         // Verify domain separator
-        if (sig.domainSeparator != _domainSeparator()) {
+        if (sig.domainSeparator != _domainSeparatorV4()) {
             revert InvalidQuantumSignature();
         }
 

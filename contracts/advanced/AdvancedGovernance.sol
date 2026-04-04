@@ -5,6 +5,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /**
  * @title AdvancedGovernance
@@ -23,6 +24,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
  */
 contract AdvancedGovernance is AccessControl, Pausable {
     using ECDSA for bytes32;
+    using MessageHashUtils for bytes32;
 
     // ============ Constants ============
 
@@ -36,7 +38,7 @@ contract AdvancedGovernance is AccessControl, Pausable {
     uint256 public constant EXECUTION_DELAY_EMERGENCY = 24 hours;
     uint256 public constant PROPOSAL_THRESHOLD = 100e18; // 100 tokens to propose
     uint256 public constant QUORUM_BASE = 400; // 4% base quorum
-    uint256 public constant MAX_LOCK_PERIOD = 4 years;
+    uint256 public constant MAX_LOCK_PERIOD = 4 * 365 days;
 
     // ============ State Variables ============
 
@@ -230,7 +232,7 @@ contract AdvancedGovernance is AccessControl, Pausable {
     /**
      * @notice Create a new proposal
      */
-    function propose(
+    function _createProposal(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
@@ -238,7 +240,7 @@ contract AdvancedGovernance is AccessControl, Pausable {
         Category category,
         bool emergency,
         bytes32 ipfsHash
-    ) external returns (uint256 proposalId) {
+    ) internal returns (uint256 proposalId) {
         if (targets.length == 0) revert InvalidTargets();
         if (
             targets.length != values.length ||
@@ -313,7 +315,7 @@ contract AdvancedGovernance is AccessControl, Pausable {
         if (signer != msg.sender) revert InvalidSignature();
 
         return
-            propose(
+            _createProposal(
                 targets,
                 values,
                 calldatas,
@@ -378,7 +380,7 @@ contract AdvancedGovernance is AccessControl, Pausable {
 
         if (signer != voter) revert InvalidSignature();
 
-        _castVote(proposalId, voter, voteType, reason);
+        _castVote(proposalId, voter, voteType, string(reason));
     }
 
     /**
@@ -524,14 +526,7 @@ contract AdvancedGovernance is AccessControl, Pausable {
      * @notice Get voting power with delegation
      */
     function getVotingPower(address account) public view returns (uint256) {
-        uint256 balance = governanceToken.balanceOf(account);
-        address delegatee = governanceToken.delegatees(account);
-
-        if (delegatee != address(0) && delegatee != account) {
-            balance += governanceToken.balanceOf(delegatee);
-        }
-
-        return balance;
+        return governanceToken.balanceOf(account);
     }
 
     /**

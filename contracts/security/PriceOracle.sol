@@ -132,7 +132,7 @@ contract PriceOracle is AccessControl, Pausable {
         if (assets.length != newPrices.length) revert InvalidPrice(address(0));
 
         for (uint256 i = 0; i < assets.length; i++) {
-            updatePrice(assets[i], newPrices[i]);
+            this.updatePrice(assets[i], newPrices[i]);
         }
     }
 

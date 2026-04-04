@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
-import {CrossChainEnabled} from "@openzeppelin/contracts-cross-chain/extensions/CrossChainEnabled.sol";
+import {CrossChainEnabled} from "../interfaces/ICrossChainEnabled.sol";
 
 /**
  * @title CrossChainMessenger
@@ -15,7 +15,7 @@ import {CrossChainEnabled} from "@openzeppelin/contracts-cross-chain/extensions/
  *      - Retry mechanisms
  *      - Cross-chain call execution
  */
-contract CrossChainMessenger is AccessControl, Pausable, CrossChainEnabled {
+contract CrossChainMessenger is AccessControl, Pausable {
     // ============ Constants ============
 
     bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
@@ -194,7 +194,7 @@ contract CrossChainMessenger is AccessControl, Pausable, CrossChainEnabled {
         address recipient,
         bytes calldata data
     ) external payable whenNotPaused returns (bytes32 messageId) {
-        messageId = sendMessage(destinationChain, recipient, data);
+        messageId = this.sendMessage(destinationChain, recipient, data);
 
         // Store value for cross-chain transfer
         messages[messageId].data = abi.encodePacked(
@@ -217,7 +217,7 @@ contract CrossChainMessenger is AccessControl, Pausable, CrossChainEnabled {
         messageIds = new bytes32[](recipients.length);
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            messageIds[i] = sendMessage(
+            messageIds[i] = this.sendMessage(
                 destinationChain,
                 recipients[i],
                 dataArray[i]
@@ -335,7 +335,7 @@ contract CrossChainMessenger is AccessControl, Pausable, CrossChainEnabled {
         }
 
         // Retry execution
-        (bool success, bytes memory returnData) = executeMessage(
+        (bool success, bytes memory returnData) = this.executeMessage(
             messageId,
             proof
         );
@@ -373,7 +373,7 @@ contract CrossChainMessenger is AccessControl, Pausable, CrossChainEnabled {
         );
 
         // Send message with call data
-        bytes32 messageId = sendMessage(
+        bytes32 messageId = this.sendMessage(
             destinationChain,
             address(this),
             abi.encode(callId, target, data)

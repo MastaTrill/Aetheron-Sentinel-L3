@@ -252,7 +252,7 @@ contract HybridEncryption is AccessControl {
     function seal(
         address recipient,
         bytes calldata plaintext
-    ) external onlyRole(ENCRYPTOR_ROLE) returns (bytes memory sealed) {
+    ) external onlyRole(ENCRYPTOR_ROLE) returns (bytes memory sealedData) {
         if (publicKeys[recipient] == bytes32(0)) {
             revert PublicKeyNotRegistered(recipient);
         }
@@ -275,7 +275,7 @@ contract HybridEncryption is AccessControl {
         bytes32 symmetricKey = _deriveSymmetricKey(sharedSecret, recipient);
 
         // Encrypt
-        sealed = abi.encode(
+        sealedData = abi.encode(
             ephemeralPublic,
             _symmetricEncrypt(plaintext, symmetricKey, 0)
         );
@@ -283,15 +283,15 @@ contract HybridEncryption is AccessControl {
 
     /**
      * @notice Open sealed data
-     * @param sealed Sealed data
+     * @param sealedData Sealed data
      * @param privateKey Sender's private key
      */
     function open(
-        bytes calldata sealed,
+        bytes calldata sealedData,
         bytes32 privateKey
     ) external pure returns (bytes memory plaintext) {
         (bytes32 ephemeralPublic, bytes memory ciphertext) = abi.decode(
-            sealed,
+            sealedData,
             (bytes32, bytes)
         );
 
@@ -320,7 +320,7 @@ contract HybridEncryption is AccessControl {
     ) external onlyRole(DEFAULT_ADMIN_ROLE) returns (bytes32 commitment) {
         // Combine multiple sources for true randomness
         bytes32 quantumEntropy = keccak256(
-            abi.encode(entropy, block.timestamp, gasleft(), block.difficulty)
+            abi.encode(entropy, block.timestamp, gasleft(), block.prevrandao)
         );
 
         commitment = keccak256(abi.encode(quantumEntropy, ENCRYPTION_SALT));

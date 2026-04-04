@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {CrossChainEnabled} from "@openzeppelin/contracts-cross-chain/extensions/CrossChainEnabled.sol";
+import {CrossChainEnabled} from "../interfaces/ICrossChainEnabled.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -21,8 +21,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract L2OptimismBridge is
     AccessControl,
     Pausable,
-    ReentrancyGuard,
-    CrossChainEnabled
+    ReentrancyGuard
 {
     using SafeERC20 for IERC20;
 
@@ -49,6 +48,9 @@ contract L2OptimismBridge is
 
     /// @notice Chain ID
     uint256 public chainId;
+
+    /// @notice Nonce for message uniqueness
+    uint256 public nonce;
 
     /// @notice Total bridged amount
     uint256 public totalBridged;
@@ -107,6 +109,8 @@ contract L2OptimismBridge is
         address relayer
     );
 
+    event BridgePaused();
+
     event CrossChainMessageReceived(
         bytes32 indexed messageId,
         uint256 indexed sourceChain,
@@ -121,6 +125,11 @@ contract L2OptimismBridge is
     error InvalidProof();
     error BridgePaused();
     error InvalidCrossChainSender();
+
+    modifier onlyCrossChainSource(address messengerAddress) {
+        if (msg.sender != messengerAddress) revert InvalidCrossChainSender();
+        _;
+    }
 
     // ============ Constructor ============
 
@@ -406,8 +415,17 @@ contract L2OptimismBridge is
     function _parseMessage(
         bytes memory message
     ) internal pure returns (bytes4 selector, bytes memory data) {
-        selector = bytes4(message[:4]);
-        data = message[4:];
+        require(message.length >= 4, "Message too short");
+        assembly {
+            selector := mload(add(message, 32))
+        }
+        if (message.length > 4) {
+            data = new bytes(message.length - 4);
+            assembly {
+                mstore(add(data, 32), mload(add(message, 36)))
+            }
+        }
+    }
     }
 
     // ============ View Functions ============

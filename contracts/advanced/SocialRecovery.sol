@@ -149,6 +149,8 @@ contract SocialRecovery is AccessControl, Pausable {
     error RecoveryAttackDetectedError(address attacker);
     error AccountIsLocked(address account);
     error InvalidRecoveryThreshold();
+    error RecoveryExpired(bytes32 requestId);
+    error InsufficientConfirmations();
 
     // ============ Constructor ============
 

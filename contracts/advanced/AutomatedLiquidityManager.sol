@@ -434,7 +434,7 @@ contract AutomatedLiquidityManager is AccessControl, Pausable, ReentrancyGuard {
     function harvestAllYields() external nonReentrant {
         for (uint256 i = 0; i < pools.length; i++) {
             if (pools[i].active) {
-                claimYield(pools[i].poolAddress);
+                this.claimYield(pools[i].poolAddress);
             }
         }
     }
