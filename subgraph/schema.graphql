@@ -1,0 +1,471 @@
+# Aetheron Sentinel L3 - The Graph Subgraph Schema
+
+# =============================================================================
+# THREAT INTELLIGENCE NETWORK
+# =============================================================================
+
+type ThreatIndicator @entity {
+  id: ID! # Unique indicator ID
+  signature: Bytes! # Unique threat signature
+  threatLevel: String! # LOW/MEDIUM/HIGH/CRITICAL
+  affectedChains: [Int!]!
+  firstSeen: BigInt!
+  lastSeen: BigInt!
+  mitigationHash: Bytes
+  affectedContracts: [Bytes!]
+  attackerAddresses: [Bytes!]
+  reportsCount: BigInt!
+  confidence: BigDecimal!
+  description: String
+  mitigated: Boolean!
+}
+
+type ThreatReport @entity {
+  id: ID!
+  indicator: ThreatIndicator!
+  reporter: Bytes!
+  chainId: Int!
+  evidence: String! # IPFS hash of evidence
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  verified: Boolean!
+  confidence: BigDecimal!
+}
+
+type MitigationAction @entity {
+  id: ID!
+  threatSignature: Bytes!
+  actionType: String! # PAUSE / BLACKLIST / RATE_LIMIT
+  targetAddress: Bytes
+  effectiveFrom: BigInt!
+  effectiveUntil: BigInt!
+  appliedBy: Bytes!
+  successCount: BigInt!
+  failureCount: BigInt!
+}
+
+# =============================================================================
+# VULNERABILITY DATABASE
+# =============================================================================
+
+type Vulnerability @entity {
+  id: ID! # CVE-style identifier
+  signature: Bytes!
+  severity: String!
+  cvssScore: BigDecimal!
+  affectedProtocols: [String!]
+  affectedContracts: [Bytes!]
+  firstReported: BigInt!
+  patchedAt: BigInt
+  exploitAvailable: Boolean!
+  exploitInWild: Boolean!
+  mitigationContract: Bytes
+  description: String!
+}
+
+type VulnerabilityScan @entity {
+  id: ID!
+  scanner: Bytes!
+  contractAddress: Bytes!
+  vulnerabilities: [Vulnerability!]!
+  scanTimestamp: BigInt!
+  riskScore: BigDecimal!
+  criticalCount: Int!
+  highCount: Int!
+  mediumCount: Int!
+  lowCount: Int!
+  mitigated: Boolean!
+}
+
+# =============================================================================
+# BMNR INTEGRATION ENTITIES
+# =============================================================================
+
+type BMNRMetrics @entity {
+  id: ID! # Unique metric ID
+  bridgeId: String!
+  tvl: BigInt!
+  volume24h: BigInt!
+  activeUsers: BigInt!
+  securityScore: BigInt!
+  lastUpdated: BigInt!
+}
+
+type BMNRAlert @entity {
+  id: ID! # Alert ID
+  type: String!
+  severity: String!
+  message: String!
+  bridgeId: String!
+  timestamp: BigInt!
+  resolved: Boolean!
+}
+
+type BMNRBridgeStatus @entity {
+  id: ID! # Bridge ID
+  status: String!
+  lastChecked: BigInt!
+  uptime: BigDecimal!
+  latency: BigInt!
+}
+
+# =============================================================================
+# ENTITY TYPES
+# =============================================================================
+
+type Bridge @entity {
+  id: ID! # Contract address
+  isPaused: Boolean!
+  totalValueLocked: BigInt!
+  totalTransfers: BigInt!
+  supportedChains: [Int!]!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type Sentinel @entity {
+  id: ID! # Contract address
+  isPaused: Boolean!
+  autonomousMode: Boolean!
+  tvlSpikeThreshold: BigInt!
+  totalValueLocked: BigInt!
+  totalAlerts: BigInt!
+  totalPauses: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type Transfer @entity {
+  id: ID! # Transfer ID (bytes32)
+  sender: Bytes!
+  recipient: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  destinationChain: Int!
+  transferId: Bytes!
+  status: TransferStatus!
+  fee: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type AnomalyAlert @entity {
+  id: ID! # Event transaction hash + log index
+  sentinel: Sentinel!
+  tvlPercentage: BigInt!
+  threshold: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+  autoTriggered: Boolean!
+}
+
+type PauseEvent @entity {
+  id: ID!
+  sentinel: Sentinel!
+  trigger: Bytes!
+  tvlAtPause: BigInt!
+  reason: String
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+  resumedAt: BigInt
+}
+
+type Guardian @entity {
+  id: ID! # Guardian address
+  quantumVault: QuantumVault!
+  weight: BigInt!
+  isActive: Boolean!
+  recoveryConfirmed: BigInt!
+  addedAt: BigInt!
+}
+
+type RecoveryRequest @entity {
+  id: ID! # Request hash
+  guardian: Guardian!
+  lostAccount: Bytes!
+  newOwner: Bytes!
+  initiateTime: BigInt!
+  confirmations: BigInt!
+  executed: Boolean!
+  canceled: Boolean!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type RateLimitStats @entity {
+  id: ID!
+  windowStart: BigInt!
+  windowDuration: BigInt!
+  currentWindowAmount: BigInt!
+  maxWithdrawalPerWindow: BigInt!
+  windowRemaining: BigInt!
+  timestamp: BigInt!
+}
+
+type CircuitBreakerState @entity {
+  id: ID!
+  state: CircuitState!
+  failureCount: BigInt!
+  successCount: BigInt!
+  lastStateChange: BigInt!
+  untilReset: BigInt!
+  timestamp: BigInt!
+}
+
+type Claim @entity {
+  id: ID! # Claim hash
+  insurancePool: InsurancePool!
+  claimant: Bytes!
+  amount: BigInt!
+  claimType: ClaimType!
+  status: ClaimStatus!
+  evidenceIPFS: String
+  votesFor: BigInt!
+  votesAgainst: BigInt!
+  payoutAmount: BigInt
+  submittedAt: BigInt!
+  resolvedAt: BigInt
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type GovernanceProposal @entity {
+  id: ID!
+  proposalId: BigInt!
+  proposer: Bytes!
+  category: ProposalCategory!
+  description: String!
+  status: ProposalStatus!
+  forVotes: BigInt!
+  againstVotes: BigInt!
+  abstainVotes: BigInt!
+  quorumVotes: BigInt!
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  eta: BigInt
+  emergency: Boolean!
+  createdAt: BigInt!
+  executedAt: BigInt
+}
+
+type GovernanceVote @entity {
+  id: ID!
+  proposal: GovernanceProposal!
+  voter: Bytes!
+  voteType: VoteType!
+  votingPower: BigInt!
+  quadraticWeight: BigInt!
+  reason: String
+  timestamp: BigInt!
+}
+
+type InsuranceStake @entity {
+  id: ID!
+  user: Bytes!
+  insurancePool: InsurancePool!
+  amount: BigInt!
+  coverage: BigInt!
+  lockEnd: BigInt!
+  epoch: BigInt!
+  timestamp: BigInt!
+}
+
+type LiquidityPool @entity {
+  id: ID!
+  poolAddress: Bytes!
+  token0: Bytes!
+  token1: Bytes!
+  liquidity: BigInt!
+  allocatedAmount: BigInt!
+  targetAllocation: BigInt!
+  actualAllocation: BigInt!
+  isActive: Boolean!
+  lastRebalance: BigInt!
+}
+
+type MEVTransaction @entity {
+  id: ID!
+  commitHash: Bytes!
+  committer: Bytes!
+  revealed: Boolean!
+  executed: Boolean!
+  mevTaxPaid: BigInt!
+  bundleHash: Bytes
+  sandwichAttack: Boolean!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type CrossChainMessage @entity {
+  id: ID!
+  messageId: Bytes!
+  sourceChain: Int!
+  destinationChain: Int!
+  sender: Bytes!
+  recipient: Bytes!
+  status: MessageStatus!
+  confirmations: BigInt!
+  executedAt: BigInt
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type ZKDeposit @entity {
+  id: ID!
+  commitment: Bytes!
+  nullifier: Bytes!
+  sender: Bytes!
+  amount: BigInt!
+  leafIndex: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type ZKWithdrawal @entity {
+  id: ID!
+  nullifier: Bytes!
+  recipient: Bytes!
+  amount: BigInt!
+  relayer: Bytes
+  fee: BigInt
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+# =============================================================================
+# ENUMS
+# =============================================================================
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum CircuitState {
+  CLOSED
+  OPEN
+  HALF_OPEN
+}
+
+enum ClaimType {
+  BRIDGE_EXPLOIT
+  ORACLE_ATTACK
+  SMART_CONTRACT_FAILURE
+  SOCIALIZED_LOSS
+  OTHER
+}
+
+enum ClaimStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VOTING
+  APPROVED
+  REJECTED
+  EXPIRED
+  PAID
+}
+
+enum ProposalCategory {
+  PARAMETER
+  TREASURY
+  EMERGENCY
+  UPGRADE
+  GUARDIAN
+  META
+}
+
+enum ProposalStatus {
+  PENDING
+  ACTIVE
+  CANCELED
+  DEFEATED
+  SUCCEEDED
+  QUEUED
+  EXPIRED
+  EXECUTED
+  VETOED
+}
+
+enum VoteType {
+  AGAINST
+  FOR
+  ABSTAIN
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  RECEIVED
+  VERIFIED
+  FAILED
+  EXPIRED
+  EXECUTED
+}
+
+# =============================================================================
+# HISTORICAL STATS (Denormalized for fast queries)
+# =============================================================================
+
+type DailyStats @entity {
+  id: ID! # Date string (YYYY-MM-DD)
+  date: String!
+  totalTransfers: BigInt!
+  totalVolume: BigInt!
+  totalAlerts: BigInt!
+  totalPauses: BigInt!
+  newUsers: BigInt!
+  activeUsers: BigInt!
+}
+
+type ChainStats @entity {
+  id: ID! # Chain ID
+  chainId: Int!
+  totalTransfers: BigInt!
+  totalVolume: BigInt!
+  activeUsers: BigInt!
+}
+
+type SentinelStats @entity {
+  id: ID!
+  day: String!
+  alertsTriggered: BigInt!
+  pausesTriggered: BigInt!
+  avgResponseTime: BigInt!
+  tvlProtected: BigInt!
+}
+
+# =============================================================================
+# ANOMALY DETECTION DATA
+# =============================================================================
+
+type AnomalyPattern @entity {
+  id: ID!
+  patternHash: Bytes!
+  patternType: String! # TVL_SPIKE / RAPID_DRAIN / FLASH_LOAN / etc.
+  occurrences: BigInt!
+  lastDetected: BigInt!
+  falsePositives: BigInt!
+  truePositives: BigInt!
+  precision: BigDecimal!
+  recall: BigDecimal!
+  trainingDataCount: BigInt!
+}
+
+type MLModelMetrics @entity {
+  id: ID!
+  modelVersion: String!
+  accuracy: BigDecimal!
+  precision: BigDecimal!
+  recall: BigDecimal!
+  f1Score: BigDecimal!
+  trainingTimestamp: BigInt!
+  featuresUsed: [String!]
+  truePositives: BigInt!
+  falsePositives: BigInt!
+  falseNegatives: BigInt!
+}

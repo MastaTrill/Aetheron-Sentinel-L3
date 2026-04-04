@@ -1,0 +1,16 @@
+{
+  "name": "aetheron-sentinel-subgraph",
+  "version": "1.0.0",
+  "description": "The Graph subgraph for Aetheron Sentinel L3 analytics",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy",
+    "create-local": "graph create --node http://localhost:8020/ aetheron/sentinel",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron/sentinel"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.66.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}
