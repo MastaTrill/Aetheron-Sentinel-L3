@@ -35,6 +35,10 @@ class TestRpcIntegration(unittest.TestCase):
             JsonRpcOnChainAdapter(
                 JsonRpcAdapterConfig(chain_name="eth", endpoint="http://example", confirmations_required=0)
             )
+        with self.assertRaises(ValueError):
+            JsonRpcOnChainAdapter(
+                JsonRpcAdapterConfig(chain_name="eth", endpoint="http://example", transport_retries=-1)
+            )
 
     def test_apply_and_finalize(self) -> None:
         transport = FakeTransport()
@@ -88,6 +92,27 @@ class TestRpcIntegration(unittest.TestCase):
         )
         with self.assertRaises(RpcTransportError):
             adapter.apply("pause_bridge", "op-5")
+
+    def test_transport_retry_then_success(self) -> None:
+        calls = {"count": 0}
+
+        def flaky_transport(_endpoint: str, payload: dict) -> dict:
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise TimeoutError("network timeout")
+            if payload["method"].startswith("aetheron_"):
+                return {"result": "0xtxhash"}
+            if payload["method"] == "eth_getTransactionReceipt":
+                return {"result": {"confirmations": 3}}
+            return {"result": True}
+
+        adapter = JsonRpcOnChainAdapter(
+            JsonRpcAdapterConfig(chain_name="eth-sepolia", endpoint="http://example", transport_retries=1),
+            transport=flaky_transport,
+        )
+        receipt = adapter.apply("pause_bridge", "op-retry")
+        self.assertTrue(receipt.finalized)
+        self.assertGreaterEqual(calls["count"], 2)
 
     def test_non_dict_response_raises(self) -> None:
         def invalid_response_transport(_endpoint: str, _payload: dict):

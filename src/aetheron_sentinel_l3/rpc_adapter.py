@@ -17,6 +17,8 @@ class JsonRpcAdapterConfig:
     confirmations_required: int = 1
     poll_attempts: int = 3
     poll_interval_seconds: float = 0.0
+    transport_retries: int = 0
+    retry_backoff_seconds: float = 0.0
 
 
 class JsonRpcAdapterError(RuntimeError):
@@ -45,6 +47,10 @@ class JsonRpcOnChainAdapter(OnChainAdapter):
             raise ValueError("poll_attempts must be >= 1")
         if config.poll_interval_seconds < 0:
             raise ValueError("poll_interval_seconds must be >= 0")
+        if config.transport_retries < 0:
+            raise ValueError("transport_retries must be >= 0")
+        if config.retry_backoff_seconds < 0:
+            raise ValueError("retry_backoff_seconds must be >= 0")
         self.config = config
         self._transport = transport or self._default_transport
         self._finalized: dict[str, bool] = {}
@@ -90,13 +96,19 @@ class JsonRpcOnChainAdapter(OnChainAdapter):
         }.get(control, "aetheron_applyControl")
 
     def _rpc(self, method: str, params: dict):
-        try:
-            response = self._transport(
-                self.config.endpoint,
-                {"jsonrpc": "2.0", "id": next(self._request_ids), "method": method, "params": [params]},
-            )
-        except Exception as exc:
-            raise RpcTransportError(f"transport failure for method {method}") from exc
+        response = None
+        for attempt in range(self.config.transport_retries + 1):
+            try:
+                response = self._transport(
+                    self.config.endpoint,
+                    {"jsonrpc": "2.0", "id": next(self._request_ids), "method": method, "params": [params]},
+                )
+                break
+            except Exception as exc:
+                if attempt >= self.config.transport_retries:
+                    raise RpcTransportError(f"transport failure for method {method}") from exc
+                if self.config.retry_backoff_seconds > 0:
+                    time.sleep(self.config.retry_backoff_seconds * (attempt + 1))
         if not isinstance(response, dict):
             raise RpcResponseError(f"rpc response is not an object for method {method}")
         if "error" in response:
