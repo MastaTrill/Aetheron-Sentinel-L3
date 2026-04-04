@@ -1,12 +1,20 @@
 import { ethers } from "ethers";
 import { EventEmitter } from "events";
+import {
+  BlockchainDataIngestion,
+  TVLDataPoint,
+  BridgeEvent,
+} from "./blockchain-data";
 
 interface DetectorConfig {
   bridgeAddress: string;
   sentinelAddress: string;
+  anomalyOracleAddress: string;
   tvlSpikeThreshold: number;
   withdrawalWindow: number;
   monitoringInterval: number;
+  rpcUrl: string;
+  startBlock?: number;
 }
 
 interface TVLData {
@@ -25,8 +33,9 @@ interface WithdrawalEvent {
 export class AnomalyDetector extends EventEmitter {
   private provider: ethers.JsonRpcProvider;
   private config: DetectorConfig;
+  private dataIngestion: BlockchainDataIngestion;
   private intervalId: NodeJS.Timeout | null = null;
-  private tvlHistory: TVLData[] = [];
+  private tvlHistory: TVLDataPoint[] = [];
   private withdrawalHistory: WithdrawalEvent[] = [];
   private isRunning = false;
 
@@ -46,6 +55,55 @@ export class AnomalyDetector extends EventEmitter {
     super();
     this.provider = provider;
     this.config = config;
+
+    // Initialize blockchain data ingestion
+    this.dataIngestion = new BlockchainDataIngestion({
+      rpcUrl: config.rpcUrl,
+      bridgeAddress: config.bridgeAddress,
+      startBlock: config.startBlock,
+      batchSize: 100,
+      pollInterval: config.monitoringInterval,
+    });
+
+    // Listen for data ingestion events
+    this.setupDataIngestionListeners();
+  }
+
+  private setupDataIngestionListeners(): void {
+    this.dataIngestion.on("tvlUpdate", (tvlData: TVLDataPoint) => {
+      // Convert to our internal format
+      const tvlPoint: TVLData = {
+        currentTVL: tvlData.tvl,
+        previousTVL:
+          this.tvlHistory.length > 0
+            ? this.tvlHistory[this.tvlHistory.length - 1].currentTVL
+            : tvlData.tvl,
+        timestamp: tvlData.timestamp * 1000, // Convert to milliseconds
+      };
+
+      this.tvlHistory.push(tvlPoint);
+
+      // Keep last 100 data points
+      if (this.tvlHistory.length > 100) {
+        this.tvlHistory.shift();
+      }
+
+      // Check for TVL spike
+      this.checkTVLSpike();
+    });
+
+    this.dataIngestion.on("bridgeEvent", (bridgeEvent: BridgeEvent) => {
+      if (bridgeEvent.eventName === "TokensBridged") {
+        const withdrawal: WithdrawalEvent = {
+          user: bridgeEvent.args[0], // sender
+          amount: bridgeEvent.args[2], // amount
+          chainId: Number(bridgeEvent.args[3]), // destinationChain
+          timestamp: bridgeEvent.timestamp * 1000,
+        };
+
+        this.recordWithdrawal(withdrawal);
+      }
+    });
   }
 
   start(): void {
@@ -54,11 +112,8 @@ export class AnomalyDetector extends EventEmitter {
 
     console.log("Starting anomaly detection...");
 
-    // Initial TVL fetch
-    this.fetchTVL();
-
-    // Subscribe to events
-    this.subscribeToEvents();
+    // Start data ingestion
+    this.dataIngestion.start();
 
     // Start monitoring loop
     this.intervalId = setInterval(() => {
@@ -75,45 +130,16 @@ export class AnomalyDetector extends EventEmitter {
       this.intervalId = null;
     }
 
+    this.dataIngestion.stop();
+
     console.log("Anomaly detection stopped");
   }
 
-  private async subscribeToEvents(): Promise<void> {
-    const bridge = new ethers.Contract(
-      this.config.bridgeAddress,
-      [
-        "event TokensBridged(address indexed sender, address indexed token, uint256 amount, uint256 destinationChain, address recipient, bytes32 transferId)",
-        "event TokensUnbridged(address indexed recipient, address indexed token, uint256 amount, bytes32 indexed transferId)",
-        "event AutonomousPauseTriggered(address indexed trigger, uint256 tvlAtPause, uint256 duration)",
-      ],
-      this.provider,
-    );
-
-    // Listen for bridge events
-    bridge.on(
-      "TokensBridged",
-      (sender, token, amount, destChain, recipient, transferId) => {
-        this.recordWithdrawal({
-          user: sender,
-          amount: amount,
-          chainId: Number(destChain),
-          timestamp: Date.now(),
-        });
-      },
-    );
-
-    bridge.on("AutonomousPauseTriggered", (trigger, tvl, duration) => {
-      this.emit("bridgePaused", {
-        trigger,
-        tvl: Number(tvl),
-        duration: Number(duration),
-      });
-    });
-  }
+  // Event subscription is now handled by BlockchainDataIngestion
 
   private async monitor(): Promise<void> {
     try {
-      await this.fetchTVL();
+      // TVL fetching is now handled by BlockchainDataIngestion
       this.analyzePatterns();
       this.checkPerformance();
     } catch (error) {
@@ -163,43 +189,16 @@ export class AnomalyDetector extends EventEmitter {
     }
   }
 
-  private async fetchTVL(): Promise<void> {
-    const startTime = Date.now();
-    try {
-      // In production, fetch actual TVL from bridge/sentinel
-      // For now, using mock data structure
-      const block = await this.provider.getBlockNumber();
-      const currentTVL = await this.getCurrentTVL();
-
-      this.tvlHistory.push({
-        currentTVL,
-        previousTVL:
-          this.tvlHistory.length > 0
-            ? this.tvlHistory[this.tvlHistory.length - 1].currentTVL
-            : currentTVL,
-        timestamp: Date.now(),
-      });
-
-      // Keep last 100 data points
-      if (this.tvlHistory.length > 100) {
-        this.tvlHistory.shift();
-      }
-
-      // Check for TVL spike
-      this.checkTVLSpike();
-
-      // Update metrics
-      this.metrics.tvlFetchCount++;
-      this.metrics.tvlFetchTotalTime += Date.now() - startTime;
-    } catch (error) {
-      console.error("TVL fetch error:", error);
-    }
-  }
-
   private async getCurrentTVL(): Promise<bigint> {
-    // In production: fetch from bridge contract
-    // return await bridge.totalValueLocked();
-    return ethers.parseEther("1000000"); // Mock
+    try {
+      return await this.dataIngestion.getCurrentTVL();
+    } catch (error) {
+      console.error("Error fetching current TVL:", error);
+      // Fallback to last known TVL
+      return this.tvlHistory.length > 0
+        ? this.tvlHistory[this.tvlHistory.length - 1].currentTVL
+        : ethers.parseEther("1000000");
+    }
   }
 
   private checkTVLSpike(): void {
@@ -222,6 +221,13 @@ export class AnomalyDetector extends EventEmitter {
       });
 
       this.triggerSentinel(current.currentTVL, zScore * 100); // Convert to basis points for contract
+
+      // Report to oracle
+      const data = ethers.AbiCoder.defaultAbiCoder().encode(
+        ["uint256"],
+        [Math.floor(zScore * 100)],
+      );
+      await this.reportToOracle(0, Math.floor(zScore * 100), 90, data); // TVLSpike = 0
     }
 
     // Also check traditional percentage threshold as backup
@@ -244,6 +250,13 @@ export class AnomalyDetector extends EventEmitter {
         });
 
         this.triggerSentinel(current.currentTVL, drop);
+
+        // Report to oracle
+        const data = ethers.AbiCoder.defaultAbiCoder().encode(
+          ["uint256"],
+          [drop],
+        );
+        await this.reportToOracle(0, drop, 85, data); // TVLSpike = 0
       }
     }
   }
@@ -326,6 +339,18 @@ export class AnomalyDetector extends EventEmitter {
           windowMs: this.config.withdrawalWindow,
           compliance: "CLARITY Act - Statistical Pattern Analysis",
         });
+
+        // Report to oracle
+        const data = ethers.AbiCoder.defaultAbiCoder().encode(
+          ["uint256", "uint256"],
+          [recentWithdrawals.length, Number(totalAmount)],
+        );
+        await this.reportToOracle(
+          2,
+          Math.floor(withdrawalZScore * 100),
+          90,
+          data,
+        ); // RapidDrain = 2
       }
     }
 
@@ -352,6 +377,18 @@ export class AnomalyDetector extends EventEmitter {
               timestamp: withdrawal.timestamp,
               compliance: "CLARITY Act - Outlier Detection",
             });
+
+            // Report to oracle
+            const data = ethers.AbiCoder.defaultAbiCoder().encode(
+              ["address", "uint256", "uint256"],
+              [withdrawal.user, Number(withdrawal.amount), withdrawal.chainId],
+            );
+            await this.reportToOracle(
+              1,
+              Math.floor(withdrawalZScore * 100),
+              85,
+              data,
+            ); // LargeWithdrawal = 1
             break; // Only alert on the most significant outlier
           }
         }
@@ -383,6 +420,13 @@ export class AnomalyDetector extends EventEmitter {
       // This would trigger the sentinel pause
       const totalAmount = withdrawals.reduce((sum, w) => sum + w.amount, 0n);
       this.triggerSentinel(totalAmount, zScore * 100); // Report as basis points
+
+      // Report to oracle
+      const data = ethers.AbiCoder.defaultAbiCoder().encode(
+        ["uint256", "uint256"],
+        [withdrawals.length, this.config.withdrawalWindow],
+      );
+      await this.reportToOracle(1, Math.floor(zScore * 100), 85, data); // LargeWithdrawal = 1
     }
   }
 
@@ -516,6 +560,37 @@ export class AnomalyDetector extends EventEmitter {
     if (this.tvlHistory.length === 0) return 0n;
     const sum = this.tvlHistory.reduce((acc, t) => acc + t.currentTVL, 0n);
     return sum / BigInt(this.tvlHistory.length);
+  }
+
+  private async reportToOracle(
+    anomalyType: number,
+    severity: number,
+    confidence: number,
+    data: Uint8Array,
+  ): Promise<void> {
+    const startTime = Date.now();
+    try {
+      const oracle = new ethers.Contract(
+        this.config.anomalyOracleAddress,
+        [
+          "function reportAnomaly(uint8 anomalyType, uint256 severity, uint256 confidence, bytes data)",
+        ],
+        this.provider,
+      );
+
+      // Report anomaly to oracle
+      const tx = await oracle.reportAnomaly(anomalyType, severity, confidence, data);
+      await tx.wait();
+
+      this.metrics.alertsSent++;
+      this.emit("oracleRequest", { success: true, responseTime: Date.now() - startTime });
+      console.log(`Oracle notified: Anomaly type ${anomalyType} with severity ${severity}`);
+    } catch (error) {
+      console.error("Failed to report to oracle:", error);
+      this.metrics.falsePositives++;
+      this.emit("oracleRequest", { success: false, responseTime: Date.now() - startTime });
+    }
+  }
   }
 
   private async triggerSentinel(

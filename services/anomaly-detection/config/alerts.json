@@ -1,0 +1,80 @@
+{
+  "channels": {
+    "webhook": {
+      "type": "webhook",
+      "enabled": true,
+      "config": {
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+      }
+    },
+    "pagerduty": {
+      "type": "pagerduty",
+      "enabled": true,
+      "config": {
+        "routingKey": "your-pagerduty-integration-key"
+      }
+    },
+    "slack": {
+      "type": "slack",
+      "enabled": false,
+      "config": {
+        "webhookUrl": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+      }
+    },
+    "discord": {
+      "type": "discord",
+      "enabled": false,
+      "config": {
+        "webhookUrl": "https://discord.com/api/webhooks/YOUR/WEBHOOK/ID/TOKEN"
+      }
+    },
+    "telegram": {
+      "type": "telegram",
+      "enabled": false,
+      "config": {
+        "botToken": "your-telegram-bot-token",
+        "chatId": "@your-channel-or-chat-id"
+      }
+    },
+    "email": {
+      "type": "email",
+      "enabled": false,
+      "config": {
+        "recipient": "alerts@yourcompany.com",
+        "smtpHost": "smtp.yourcompany.com",
+        "smtpPort": 587,
+        "username": "alerts@yourcompany.com",
+        "password": "your-smtp-password"
+      }
+    }
+  },
+  "escalationRules": [
+    {
+      "severity": "CRITICAL",
+      "channels": ["webhook", "pagerduty"],
+      "retryAttempts": 3,
+      "retryDelay": 5,
+      "escalationDelay": 300,
+      "escalationChannels": ["slack", "telegram"]
+    },
+    {
+      "severity": "WARNING",
+      "channels": ["webhook"],
+      "retryAttempts": 2,
+      "retryDelay": 10,
+      "escalationDelay": 600,
+      "escalationChannels": ["slack"]
+    },
+    {
+      "severity": "INFO",
+      "channels": ["webhook"],
+      "retryAttempts": 1,
+      "retryDelay": 15
+    }
+  ],
+  "deduplicationWindow": 300,
+  "rateLimit": {
+    "maxAlertsPerMinute": 10,
+    "maxAlertsPerHour": 100
+  }
+}

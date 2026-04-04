@@ -3,12 +3,16 @@ import { AnomalyDetector } from "./detector";
 import { VulnerabilityDetector } from "./vulnerability-detector";
 import { Logger } from "./logger";
 import { AlertManager } from "./alerts";
+import { ServiceHealthMonitor } from "./health-monitor";
 
 const config = {
   // Contract addresses
   sentinelAddress: process.env.SENTINEL_ADDRESS || "0x...",
   bridgeAddress: process.env.BRIDGE_ADDRESS || "0x...",
+  anomalyOracleAddress: process.env.ANOMALY_ORACLE_ADDRESS || "0x...",
   monitorAddress: process.env.MONITOR_ADDRESS || "0x...",
+  // Blockchain connection
+  rpcUrl: process.env.RPC_URL || "http://localhost:8545",
 
   // RPC endpoints
   rpcUrl: process.env.RPC_URL || "http://localhost:8545",
@@ -19,7 +23,7 @@ const config = {
   monitoringInterval: 1000, // 1 second
   confidenceThreshold: 0.8, // 80%
 
-  // Alerting
+  // Alerting - now configured via alerts.json
   alertWebhook: process.env.ALERT_WEBHOOK || "",
   pagerdutyKey: process.env.PAGERDUTY_KEY || "",
 };
@@ -46,7 +50,31 @@ async function main() {
 
   const alerts = new AlertManager(config);
 
+  // Initialize health monitor
+  const healthMonitor = new ServiceHealthMonitor(provider, {
+    rpcUrl: config.rpcUrl,
+    bridgeAddress: config.bridgeAddress,
+    sentinelAddress: config.sentinelAddress,
+    anomalyOracleAddress: config.anomalyOracleAddress,
+  });
+
+  // Health monitor event handlers
+  healthMonitor.on("alert", (alert) => {
+    logger.critical("Health Alert:", alert);
+    alerts.sendAlert("CRITICAL", `Health Alert: ${alert.type}`, alert);
+  });
+
+  healthMonitor.on("healthCheck", (check) => {
+    if (check.status !== "healthy") {
+      logger.warn(`Health check ${check.status}: ${check.name}`);
+    }
+  });
+
   // Anomaly detector event handlers
+  anomalyDetector.on("oracleRequest", (data) => {
+    healthMonitor.recordRequest(data.success, data.responseTime);
+  });
+
   anomalyDetector.on("tvlSpike", async (data) => {
     logger.warn("TVL Spike Detected!", data);
     await alerts.sendAlert("CRITICAL", "TVL Spike Detected", data);
@@ -88,15 +116,18 @@ async function main() {
     await alerts.sendAlert("CRITICAL", "Coordinated Attack Detected", data);
   });
 
-  // Start all detectors
+  // Start all services
+  healthMonitor.start();
   anomalyDetector.start();
   vulnerabilityDetector.start();
 
   logger.info("Detection service running. Press Ctrl+C to stop.");
+  logger.info(`Health monitoring: ${healthMonitor.getOverallHealth()}`);
 
   // Graceful shutdown
   process.on("SIGINT", () => {
     logger.info("Shutting down...");
+    healthMonitor.stop();
     anomalyDetector.stop();
     vulnerabilityDetector.stop();
     process.exit(0);

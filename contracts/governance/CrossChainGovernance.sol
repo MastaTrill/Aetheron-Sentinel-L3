@@ -18,6 +18,7 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
     bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
     bytes32 public constant CHAIN_REGISTRAR_ROLE =
         keccak256("CHAIN_REGISTRAR_ROLE");
+    bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
 
     // Structs
     struct Chain {
@@ -47,8 +48,13 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
         uint256[] chainVoteCounts;
         ProposalStatus status;
         ProposalType proposalType;
-        bytes[] executedCalls;
+        address[] executionTargets; // Targets for execution
+        bytes[] executionCalldatas; // Calldatas for execution
         bool executed;
+        uint256 queuedTime; // When proposal was queued for execution
+        uint256 executionTime; // When it can be executed (timelock)
+        uint256 executorApprovals; // Number of executor approvals for multi-sig
+        mapping(address => bool) executorApproved; // Track who approved
     }
 
     enum ProposalStatus {
@@ -98,6 +104,11 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
         uint256 relayerReward;
         bool isActive;
     }
+
+    // Timelock and Multi-sig Configuration
+    uint256 public timelockDelay = 2 days; // Default 2 days delay
+    uint256 public executorThreshold = 3; // Number of executors required for multi-sig
+    uint256 public totalExecutors;
 
     struct Message {
         bytes32 messageId;
@@ -190,6 +201,8 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
         bytes32 hash
     );
     event ProposalExecuted(uint256 indexed proposalId, bool success);
+    event ProposalQueued(uint256 indexed proposalId, uint256 executionTime);
+    event ExecutionApproved(uint256 indexed proposalId, address indexed executor, uint256 totalApprovals);
     event RelayerRegistered(address indexed relayer, uint256 stake);
     event RelayerSlashed(address indexed relayer, uint256 amount);
     event QuorumUpdated(uint256 newQuorum);
@@ -628,11 +641,14 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
 
     // ============ Proposal Execution ============
 
-    function executeProposal(
+    /**
+     * @notice Queue a successful proposal for execution after timelock
+     */
+    function queueProposal(
         uint256 _proposalId,
         address[] calldata _targets,
         bytes[] calldata _datas
-    ) external nonReentrant returns (bool success) {
+    ) external nonReentrant {
         CrossChainProposal storage proposal = proposals[_proposalId];
         require(proposal.status == ProposalStatus.Active, "Not active");
         require(block.timestamp >= proposal.endTime, "Voting not ended");
@@ -655,20 +671,73 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
             );
         }
 
+        // Store execution data
+        proposal.executionTargets = _targets;
+        proposal.executionCalldatas = _datas;
+
+        proposal.status = ProposalStatus.Queued;
+        proposal.queuedTime = block.timestamp;
+        proposal.executionTime = block.timestamp + timelockDelay;
+
+        emit ProposalQueued(_proposalId, proposal.executionTime);
+    }
+
+    /**
+     * @notice Approve execution as an executor (multi-sig)
+     */
+    function approveExecution(uint256 _proposalId) external onlyRole(EXECUTOR_ROLE) {
+        CrossChainProposal storage proposal = proposals[_proposalId];
+        require(proposal.status == ProposalStatus.Queued, "Not queued");
+        require(!proposal.executorApproved[msg.sender], "Already approved");
+
+        proposal.executorApproved[msg.sender] = true;
+        proposal.executorApprovals++;
+
+        emit ExecutionApproved(_proposalId, msg.sender, proposal.executorApprovals);
+
+        // Auto-execute if threshold reached and timelock passed
+        if (proposal.executorApprovals >= executorThreshold &&
+            block.timestamp >= proposal.executionTime) {
+            _executeQueuedProposal(_proposalId);
+        }
+    }
+
+    /**
+     * @notice Execute a queued proposal after timelock and multi-sig approval
+     */
+    function executeQueuedProposal(uint256 _proposalId) external nonReentrant returns (bool success) {
+        CrossChainProposal storage proposal = proposals[_proposalId];
+        require(proposal.status == ProposalStatus.Queued, "Not queued");
+        require(block.timestamp >= proposal.executionTime, "Timelock not expired");
+        require(proposal.executorApprovals >= executorThreshold, "Insufficient approvals");
+
+        _executeQueuedProposal(_proposalId);
+    }
+
+    /**
+     * @dev Internal function to execute the queued proposal
+     */
+    function _executeQueuedProposal(uint256 _proposalId) internal returns (bool success) {
+        CrossChainProposal storage proposal = proposals[_proposalId];
+        require(proposal.status == ProposalStatus.Queued, "Not queued");
+
         proposal.status = ProposalStatus.Executed;
+        proposal.executed = true;
 
         // Execute calls
-        bytes[] memory results = new bytes[](_targets.length);
-        for (uint256 i = 0; i < _targets.length; i++) {
-            (success, results[i]) = _targets[i].call(_datas[i]);
-            proposal.executedCalls.push(_datas[i]);
+        bytes[] memory results = new bytes[](proposal.executionTargets.length);
+        bool allSuccess = true;
+        for (uint256 i = 0; i < proposal.executionTargets.length; i++) {
+            (bool callSuccess, bytes memory result) = proposal.executionTargets[i].call(proposal.executionCalldatas[i]);
+            results[i] = result;
+            if (!callSuccess) allSuccess = false;
         }
 
         // Broadcast execution to all chains
         bytes memory payload = abi.encode(
             MessageType.ProposalExecuted,
             _proposalId,
-            success
+            allSuccess
         );
 
         for (uint256 i = 0; i < chainCount; i++) {
@@ -922,4 +991,67 @@ contract CrossChainGovernance is AccessControl, ReentrancyGuard {
 
         return (proposalCount, active, executed, chainCount, activeChainCount);
     }
+
+    // ============ Timelock and Multi-sig Management ============
+
+    /**
+     * @notice Update timelock delay
+     * @param _delay New delay in seconds
+     */
+    function updateTimelockDelay(uint256 _delay) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_delay >= 1 hours && _delay <= 30 days, "Invalid delay");
+        timelockDelay = _delay;
+        emit TimelockDelayUpdated(_delay);
+    }
+
+    /**
+     * @notice Update executor threshold for multi-sig
+     * @param _threshold Number of approvals required
+     */
+    function updateExecutorThreshold(uint256 _threshold) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_threshold > 0 && _threshold <= totalExecutors, "Invalid threshold");
+        executorThreshold = _threshold;
+        emit ExecutorThresholdUpdated(_threshold);
+    }
+
+    /**
+     * @notice Add an executor
+     * @param _executor Address to add as executor
+     */
+    function addExecutor(address _executor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_executor != address(0), "Invalid address");
+        grantRole(EXECUTOR_ROLE, _executor);
+        totalExecutors++;
+        emit ExecutorAdded(_executor);
+    }
+
+    /**
+     * @notice Remove an executor
+     * @param _executor Address to remove as executor
+     */
+    function removeExecutor(address _executor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(EXECUTOR_ROLE, _executor);
+        totalExecutors--;
+        emit ExecutorRemoved(_executor);
+    }
+
+    /**
+     * @notice Cancel a queued proposal
+     * @param _proposalId Proposal to cancel
+     */
+    function cancelQueuedProposal(uint256 _proposalId) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        CrossChainProposal storage proposal = proposals[_proposalId];
+        require(proposal.status == ProposalStatus.Queued, "Not queued");
+
+        proposal.status = ProposalStatus.Cancelled;
+        emit ProposalCancelled(_proposalId);
+    }
+
+    // ============ Events ============
+
+    event TimelockDelayUpdated(uint256 newDelay);
+    event ExecutorThresholdUpdated(uint256 newThreshold);
+    event ExecutorAdded(address indexed executor);
+    event ExecutorRemoved(address indexed executor);
+    event ProposalCancelled(uint256 indexed proposalId);
 }

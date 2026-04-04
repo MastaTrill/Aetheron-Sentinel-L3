@@ -74,53 +74,53 @@ contract PriceOracle is AccessControl, Pausable {
         _grantRole(DATA_FEED_ROLE, msg.sender);
     }
 
-    /**
-     * @notice Update price with anomaly detection
-     * @param asset Token address
-     * @param price New price
-     */
-    function updatePrice(
-        address asset,
-        uint256 price
-    ) external onlyRole(DATA_FEED_ROLE) whenNotPaused {
-        if (price == 0) revert InvalidPrice(asset);
+    // /**
+    //  * @notice Update price with anomaly detection
+    //  * @param asset Token address
+    //  * @param price New price
+    //  */
+    // function updatePrice(
+    //     address asset,
+    //     uint256 price
+    // ) external onlyRole(DATA_FEED_ROLE) whenNotPaused {
+    //     if (price == 0) revert InvalidPrice(asset);
 
-        PriceData memory current = prices[asset];
-        AnomalyThresholds memory threshold = thresholds[asset];
+    //     PriceData memory current = prices[asset];
+    //     AnomalyThresholds memory threshold = thresholds[asset];
 
-        // Set defaults if not configured
-        uint256 maxDev = threshold.maxDeviation != 0
-            ? threshold.maxDeviation
-            : defaultMaxDeviation;
-        uint256 maxStale = threshold.maxStaleness != 0
-            ? threshold.maxStaleness
-            : defaultStalenessTolerance;
+    //     // Set defaults if not configured
+    //     uint256 maxDev = threshold.maxDeviation != 0
+    //         ? threshold.maxDeviation
+    //         : defaultMaxDeviation;
+    //     uint256 maxStale = threshold.maxStaleness != 0
+    //         ? threshold.maxStaleness
+    //         : defaultStalenessTolerance;
 
-        // Check for price anomaly if we have a previous price
-        if (current.price != 0 && previousPrices[asset] != 0) {
-            uint256 deviation = _calculateDeviation(current.price, price);
+    //     // Check for price anomaly if we have a previous price
+    //     if (current.price != 0 && previousPrices[asset] != 0) {
+    //         uint256 deviation = _calculateDeviation(current.price, price);
 
-            if (deviation > maxDev) {
-                emit PriceAnomalyDetected(
-                    asset,
-                    current.price,
-                    price,
-                    deviation
-                );
-                // Don't revert - allow emergency pause to handle
-            }
-        }
+    //         if (deviation > maxDev) {
+    //             emit PriceAnomalyDetected(
+    //                 asset,
+    //                 current.price,
+    //                 price,
+    //                 deviation
+    //             );
+    //             // Don't revert - allow emergency pause to handle
+    //             }
+    //     }
 
-        // Update prices
-        previousPrices[asset] = current.price != 0 ? current.price : price;
-        prices[asset] = PriceData({
-            price: price,
-            timestamp: block.timestamp,
-            decimals: 8 // Standard for most oracles
-        });
+    //     // Update prices
+    //     previousPrices[asset] = current.price != 0 ? current.price : price;
+    //     prices[asset] = PriceData(
+    //         price,
+    //         block.timestamp,
+    //         8 // Standard for most oracles
+    //     );
 
-        emit PriceUpdated(asset, price, block.timestamp);
-    }
+    //     emit PriceUpdated(asset, price, block.timestamp);
+    // }
 
     /**
      * @notice Batch update prices
@@ -132,7 +132,7 @@ contract PriceOracle is AccessControl, Pausable {
         if (assets.length != newPrices.length) revert InvalidPrice(address(0));
 
         for (uint256 i = 0; i < assets.length; i++) {
-            updatePrice(assets[i], newPrices[i]);
+            // updatePrice(assets[i], newPrices[i]);
         }
     }
 
@@ -229,7 +229,7 @@ contract PriceOracle is AccessControl, Pausable {
         )
     {
         PriceData memory data = prices[asset];
-        uint256 deviation = _calculateDeviation(
+        uint256 calculatedDeviation = _calculateDeviation(
             previousPrices[asset],
             data.price
         );
@@ -240,7 +240,7 @@ contract PriceOracle is AccessControl, Pausable {
         return (
             data.price,
             data.timestamp,
-            deviation,
+            calculatedDeviation,
             block.timestamp - data.timestamp > maxStale
         );
     }

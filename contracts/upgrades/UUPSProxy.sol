@@ -71,7 +71,6 @@ contract SentinelInterceptorV2 is
         bool _autonomousMode
     ) public initializer {
         __AccessControl_init();
-        __UUPSUpgradeable_init();
         __Pausable_init();
 
         tvlSpikeThreshold = _tvlSpikeThreshold;

@@ -13,25 +13,31 @@ describe("AetheronBridge", function () {
     const [owner, admin, relayer, user, attacker, treasury] =
       await ethers.getSigners();
 
-    // Get valid non-zero address for bridge
-    const bridgeAddr = "0x" + "11".repeat(20);
+    // Deploy bridge first with dummy sentinel
+    const dummySentinel = "0x" + "11".repeat(20);
+    const AetheronBridge = await ethers.getContractFactory("AetheronBridge");
+    const bridge = await AetheronBridge.deploy(
+      dummySentinel, // Will update later
+      treasury.address,
+      owner.address,
+    );
 
-    // First deploy sentinel interceptor with valid bridge
+    // Deploy sentinel interceptor with actual bridge address
     const SentinelInterceptor = await ethers.getContractFactory(
       "SentinelInterceptor",
     );
     const sentinel = await SentinelInterceptor.deploy(
-      bridgeAddr,
+      await bridge.getAddress(),
       owner.address,
     );
 
-    // Deploy bridge with sentinel address
-    const AetheronBridge = await ethers.getContractFactory("AetheronBridge");
-    const bridge = await AetheronBridge.deploy(
-      await sentinel.getAddress(),
-      treasury.address,
-      owner.address,
-    );
+    // Update bridge with correct sentinel address
+    await bridge.connect(owner).setSentinel(await sentinel.getAddress());
+
+    // Grant ORACLE_ROLE to bridge on sentinel so it can update TVL
+    await sentinel
+      .connect(owner)
+      .grantRole(await sentinel.ORACLE_ROLE(), await bridge.getAddress());
 
     // Deploy mock token
     const MockToken = await ethers.getContractFactory("MockToken");
@@ -89,12 +95,19 @@ describe("AetheronBridge", function () {
   });
 
   describe("Bridging", function () {
-    it.skip("Should allow user to bridge tokens", async function () {
-      const { bridge, mockToken, user } = await loadFixture(deployFixture);
+    it("Should allow user to bridge tokens", async function () {
+      const { bridge, mockToken, user, treasury } =
+        await loadFixture(deployFixture);
 
       const amount = ethers.parseEther("1000");
+      const feeAmount = (amount * 30n) / 10000n; // 0.30% fee
       const tokenAddress = await mockToken.getAddress();
       const bridgeAddress = await bridge.getAddress();
+
+      // Check initial balances
+      const userBalanceBefore = await mockToken.balanceOf(user.address);
+      const bridgeBalanceBefore = await mockToken.balanceOf(bridgeAddress);
+      const treasuryBalanceBefore = await mockToken.balanceOf(treasury.address);
 
       await mockToken.connect(user).approve(bridgeAddress, amount);
 
@@ -107,21 +120,23 @@ describe("AetheronBridge", function () {
         deadline: 0,
       };
 
-      await expect(
-        bridge
-          .connect(user)
-          .bridge(request, { value: ethers.parseEther("0.001") }),
-      )
-        .to.emit(bridge, "TokensBridged")
-        .to.emit(bridge, "TokensBridged")
-        .withArgs(
-          user.address,
-          tokenAddress,
-          amount,
-          1,
-          request.recipient,
-          // TransferId will be generated
-        );
+      const tx = await bridge
+        .connect(user)
+        .bridge(request, { value: ethers.parseEther("0.001") });
+
+      // Check balances after
+      const userBalanceAfter = await mockToken.balanceOf(user.address);
+      const bridgeBalanceAfter = await mockToken.balanceOf(bridgeAddress);
+      const treasuryBalanceAfter = await mockToken.balanceOf(treasury.address);
+
+      expect(userBalanceAfter).to.equal(userBalanceBefore - amount);
+      expect(bridgeBalanceAfter).to.equal(
+        bridgeBalanceBefore + amount - feeAmount,
+      );
+      expect(treasuryBalanceAfter).to.equal(treasuryBalanceBefore + feeAmount);
+
+      // Check event is emitted
+      await expect(tx).to.emit(bridge, "TokensBridged");
     });
 
     it("Should reject zero amount", async function () {
@@ -201,6 +216,142 @@ describe("AetheronBridge", function () {
           .bridge(request, { value: ethers.parseEther("0.001") }),
       ).to.be.reverted;
     });
+
+    it("Should calculate fees correctly", async function () {
+      const { bridge, mockToken, user, treasury } =
+        await loadFixture(deployFixture);
+
+      const amount = ethers.parseEther("10000");
+      const expectedFee = (amount * 30n) / 10000n; // 0.30%
+      const tokenAddress = await mockToken.getAddress();
+      const bridgeAddress = await bridge.getAddress();
+
+      await mockToken.connect(user).approve(bridgeAddress, amount);
+
+      const request = {
+        token: tokenAddress,
+        amount,
+        destinationChain: 1,
+        recipient: user.address,
+        maxSlippage: 50,
+        deadline: 0,
+      };
+
+      const treasuryBalanceBefore = await mockToken.balanceOf(treasury.address);
+
+      await bridge
+        .connect(user)
+        .bridge(request, { value: ethers.parseEther("0.001") });
+
+      const treasuryBalanceAfter = await mockToken.balanceOf(treasury.address);
+      expect(treasuryBalanceAfter - treasuryBalanceBefore).to.equal(
+        expectedFee,
+      );
+    });
+
+    it("Should generate unique transfer IDs", async function () {
+      const { bridge, mockToken, user, admin } =
+        await loadFixture(deployFixture);
+
+      const tokenAddress = await mockToken.getAddress();
+      const bridgeAddress = await bridge.getAddress();
+
+      await mockToken
+        .connect(user)
+        .approve(bridgeAddress, ethers.parseEther("200"));
+
+      const request1 = {
+        token: tokenAddress,
+        amount: ethers.parseEther("100"),
+        destinationChain: 1,
+        recipient: user.address,
+        maxSlippage: 50,
+        deadline: 0,
+      };
+
+      const request2 = {
+        token: tokenAddress,
+        amount: ethers.parseEther("50"), // Different amount
+        destinationChain: 1,
+        recipient: user.address,
+        maxSlippage: 50,
+        deadline: 0,
+      };
+
+      const tx1 = await bridge
+        .connect(user)
+        .bridge(request1, { value: ethers.parseEther("0.001") });
+
+      // Transfer tokens to admin and approve
+      await mockToken.transfer(admin.address, ethers.parseEther("100"));
+      await mockToken
+        .connect(admin)
+        .approve(bridgeAddress, ethers.parseEther("100"));
+
+      const tx2 = await bridge
+        .connect(admin)
+        .bridge(request2, { value: ethers.parseEther("0.001") });
+
+      const receipt1 = await tx1.wait();
+      const receipt2 = await tx2.wait();
+
+      const transferId1 = receipt1?.logs[0]?.topics[1];
+      const transferId2 = receipt2?.logs[0]?.topics[1];
+
+      expect(transferId1).to.not.equal(transferId2);
+    });
+
+    it("Should handle multiple supported chains", async function () {
+      const { bridge, mockToken, user, owner } =
+        await loadFixture(deployFixture);
+
+      // Add more chains
+      await bridge.connect(owner).setSupportedChain(2, true);
+      await bridge.connect(owner).setSupportedChain(42161, true); // Arbitrum
+
+      const tokenAddress = await mockToken.getAddress();
+      const bridgeAddress = await bridge.getAddress();
+
+      await mockToken
+        .connect(user)
+        .approve(bridgeAddress, ethers.parseEther("300"));
+
+      // Bridge to different chains
+      const requests = [
+        {
+          token: tokenAddress,
+          amount: ethers.parseEther("100"),
+          destinationChain: 1,
+          recipient: user.address,
+          maxSlippage: 50,
+          deadline: 0,
+        },
+        {
+          token: tokenAddress,
+          amount: ethers.parseEther("100"),
+          destinationChain: 2,
+          recipient: user.address,
+          maxSlippage: 50,
+          deadline: 0,
+        },
+        {
+          token: tokenAddress,
+          amount: ethers.parseEther("100"),
+          destinationChain: 42161,
+          recipient: user.address,
+          maxSlippage: 50,
+          deadline: 0,
+        },
+      ];
+
+      for (const request of requests) {
+        await expect(
+          bridge
+            .connect(user)
+            .bridge(request, { value: ethers.parseEther("0.001") }),
+        ).to.emit(bridge, "TokensBridged");
+      }
+    });
   });
 
   describe("Complete Bridge", function () {
@@ -237,8 +388,9 @@ describe("AetheronBridge", function () {
         );
     });
 
-    it.skip("Should prevent double completion of same transfer", async function () {
-      const { bridge, mockToken, relayer } = await loadFixture(deployFixture);
+    it("Should prevent double completion of same transfer", async function () {
+      const { bridge, mockToken, relayer, user } =
+        await loadFixture(deployFixture);
 
       const tokenAddr = await mockToken.getAddress();
       const bridgeAddr = await bridge.getAddress();
@@ -250,14 +402,12 @@ describe("AetheronBridge", function () {
       );
 
       // First completion
-      await bridge
-        .connect(relayer)
-        .completeBridge(
-          transferId,
-          tokenAddr,
-          ethers.parseEther("500"),
-          ethers.ZeroAddress,
-        );
+      await bridge.connect(relayer).completeBridge(
+        transferId,
+        tokenAddr,
+        ethers.parseEther("500"),
+        user.address, // Use valid recipient
+      );
 
       // Second completion should fail
       await expect(
@@ -267,9 +417,39 @@ describe("AetheronBridge", function () {
             transferId,
             tokenAddr,
             ethers.parseEther("500"),
-            ethers.ZeroAddress,
+            user.address,
           ),
       ).to.be.revertedWithCustomError(bridge, "TransferAlreadyCompleted");
+    });
+
+    it("Should complete bridge and transfer tokens to recipient", async function () {
+      const { bridge, mockToken, relayer, user } =
+        await loadFixture(deployFixture);
+
+      const tokenAddr = await mockToken.getAddress();
+      const bridgeAddr = await bridge.getAddress();
+      const amount = ethers.parseEther("500");
+
+      await mockToken.transfer(bridgeAddr, amount);
+
+      const transferId = ethers.keccak256(
+        ethers.toUtf8Bytes("test-transfer-complete"),
+      );
+
+      const recipientBalanceBefore = await mockToken.balanceOf(user.address);
+
+      await expect(
+        bridge
+          .connect(relayer)
+          .completeBridge(transferId, tokenAddr, amount, user.address),
+      )
+        .to.emit(bridge, "TokensUnbridged")
+        .withArgs(user.address, tokenAddr, amount, transferId)
+        .to.emit(bridge, "TransferCompleted")
+        .withArgs(transferId);
+
+      const recipientBalanceAfter = await mockToken.balanceOf(user.address);
+      expect(recipientBalanceAfter - recipientBalanceBefore).to.equal(amount);
     });
 
     it("Should reject non-relayer from completing bridge", async function () {
@@ -384,6 +564,156 @@ describe("AetheronBridge", function () {
 
       expect(paused).to.equal(false);
       expect(fee).to.equal(30);
+    });
+  });
+
+  describe("Cross-Chain Flow", function () {
+    it("Should simulate full cross-chain bridge flow", async function () {
+      const { bridge, mockToken, relayer, user, treasury } =
+        await loadFixture(deployFixture);
+
+      const amount = ethers.parseEther("1000");
+      const feeAmount = (amount * 30n) / 10000n;
+      const tokenAddress = await mockToken.getAddress();
+      const bridgeAddress = await bridge.getAddress();
+
+      // Step 1: User initiates bridge
+      await mockToken.connect(user).approve(bridgeAddress, amount);
+
+      const request = {
+        token: tokenAddress,
+        amount,
+        destinationChain: 1,
+        recipient: user.address,
+        maxSlippage: 50,
+        deadline: 0,
+      };
+
+      const bridgeTx = await bridge
+        .connect(user)
+        .bridge(request, { value: ethers.parseEther("0.001") });
+
+      const bridgeReceipt = await bridgeTx.wait();
+      const transferId = bridgeReceipt?.logs[0]?.topics[1];
+
+      // Verify tokens are locked in bridge (minus fee)
+      expect(await mockToken.balanceOf(bridgeAddress)).to.equal(
+        amount - feeAmount,
+      );
+      expect(await mockToken.balanceOf(treasury.address)).to.equal(feeAmount);
+
+      // Step 2: Simulate cross-chain transfer (add tokens to destination bridge)
+      // In real scenario, this would be done by relayers moving tokens
+      await mockToken.transfer(bridgeAddress, amount - feeAmount);
+
+      // Step 3: Complete bridge on destination
+      const recipientBalanceBefore = await mockToken.balanceOf(user.address);
+
+      await bridge.connect(relayer).completeBridge(
+        transferId,
+        tokenAddress,
+        amount - feeAmount, // Amount after fee
+        user.address,
+      );
+
+      const recipientBalanceAfter = await mockToken.balanceOf(user.address);
+      expect(recipientBalanceAfter - recipientBalanceBefore).to.equal(
+        amount - feeAmount,
+      );
+    });
+
+    it("Should handle large volume transfers", async function () {
+      const { bridge, mockToken, relayer, user } =
+        await loadFixture(deployFixture);
+
+      const amounts = [
+        ethers.parseEther("1000"),
+        ethers.parseEther("2000"),
+        ethers.parseEther("3000"),
+      ];
+
+      const tokenAddress = await mockToken.getAddress();
+      const bridgeAddress = await bridge.getAddress();
+
+      // Approve large amount
+      await mockToken
+        .connect(user)
+        .approve(bridgeAddress, ethers.parseEther("200000"));
+
+      for (const amount of amounts) {
+        const request = {
+          token: tokenAddress,
+          amount,
+          destinationChain: 1,
+          recipient: user.address,
+          maxSlippage: 50,
+          deadline: 0,
+        };
+
+        await expect(
+          bridge
+            .connect(user)
+            .bridge(request, { value: ethers.parseEther("0.001") }),
+        ).to.emit(bridge, "TokensBridged");
+
+        // Check tokens are locked
+        const feeAmount = (amount * 30n) / 10000n;
+        expect(await mockToken.balanceOf(bridgeAddress)).to.be.at.least(
+          amount - feeAmount,
+        );
+      }
+    });
+
+    it("Should reject invalid recipient", async function () {
+      const { bridge, mockToken, user } = await loadFixture(deployFixture);
+
+      const request = {
+        token: await mockToken.getAddress(),
+        amount: ethers.parseEther("100"),
+        destinationChain: 1,
+        recipient: ethers.ZeroAddress, // Invalid
+        maxSlippage: 50,
+        deadline: 0,
+      };
+
+      await expect(
+        bridge
+          .connect(user)
+          .bridge(request, { value: ethers.parseEther("0.001") }),
+      ).to.be.revertedWithCustomError(bridge, "InvalidRecipient");
+    });
+
+    it("Should handle zero fee tokens", async function () {
+      const { bridge, mockToken, user, treasury, owner } =
+        await loadFixture(deployFixture);
+
+      // Set fee to 0
+      await bridge.connect(owner).setBridgeFee(0);
+
+      const amount = ethers.parseEther("1000");
+      const tokenAddress = await mockToken.getAddress();
+      const bridgeAddress = await bridge.getAddress();
+
+      await mockToken.connect(user).approve(bridgeAddress, amount);
+
+      const request = {
+        token: tokenAddress,
+        amount,
+        destinationChain: 1,
+        recipient: user.address,
+        maxSlippage: 50,
+        deadline: 0,
+      };
+
+      const treasuryBalanceBefore = await mockToken.balanceOf(treasury.address);
+
+      await bridge
+        .connect(user)
+        .bridge(request, { value: ethers.parseEther("0.001") });
+
+      const treasuryBalanceAfter = await mockToken.balanceOf(treasury.address);
+      expect(treasuryBalanceAfter).to.equal(treasuryBalanceBefore); // No fee
+      expect(await mockToken.balanceOf(bridgeAddress)).to.equal(amount);
     });
   });
 });

@@ -6,6 +6,7 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 
 /**
  * @title AetheronBridge
@@ -33,6 +34,15 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
 
     /// @notice Supported chain IDs
     mapping(uint256 => bool) public supportedChains;
+
+    /// @notice Supported tokens for bridging
+    mapping(address => bool) public supportedTokens;
+
+    /// @notice Array of supported tokens for iteration
+    address[] public supportedTokensList;
+
+    /// @notice Price oracle for TVL calculations
+    address public priceOracle;
 
     // ============ State Variables ============
 
@@ -79,6 +89,8 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
     );
 
     event ChainSupportUpdated(uint256 indexed chainId, bool supported);
+
+    event TokenSupportUpdated(address indexed token, bool supported);
 
     event TransferCompleted(bytes32 indexed transferId);
 
@@ -185,8 +197,8 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
             transferId
         );
 
-        // Emit event for relayers to pick up
-        _notifySentinel(transferId, request.amount);
+        // Update TVL after receiving tokens
+        _notifySentinel();
     }
 
     /**
@@ -212,6 +224,9 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
 
         emit TokensUnbridged(recipient, token, amount, transferId);
         emit TransferCompleted(transferId);
+
+        // Update TVL after releasing tokens
+        _notifySentinel();
     }
 
     // ============ Admin Functions ============
@@ -302,6 +317,43 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 balance = IERC20(token).balanceOf(address(this));
         IERC20(token).safeTransfer(to, balance);
+        _updateTVL();
+    }
+
+    /**
+     * @notice Add supported token for bridging
+     * @param token Token address to support
+     */
+    function addSupportedToken(
+        address token
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (!supportedTokens[token]) {
+            supportedTokens[token] = true;
+            supportedTokensList.push(token);
+            emit TokenSupportUpdated(token, true);
+        }
+    }
+
+    /**
+     * @notice Remove supported token
+     * @param token Token address to remove
+     */
+    function removeSupportedToken(
+        address token
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        supportedTokens[token] = false;
+        emit TokenSupportUpdated(token, false);
+        _updateTVL();
+    }
+
+    /**
+     * @notice Set price oracle address
+     * @param oracle New price oracle address
+     */
+    function setPriceOracle(
+        address oracle
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        priceOracle = oracle;
     }
 
     // ============ View Functions ============
@@ -317,7 +369,7 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
         view
         returns (bool paused, uint256 supportedChainCount, uint256 fee)
     {
-        return (paused(), 0, bridgeFeePercent); // supportedChainCount would need iteration
+        return (super.paused(), 0, bridgeFeePercent); // supportedChainCount would need iteration
     }
 
     /**
@@ -356,16 +408,56 @@ contract AetheronBridge is AccessControl, Pausable, ReentrancyGuard {
     }
 
     /**
-     * @notice Notify sentinel of new transfer (for TVL monitoring)
+     * @notice Calculate total value locked across all supported tokens
+     * @return tvl Total value locked in USD (8 decimals)
      */
-    function _notifySentinel(bytes32 transferId, uint256 amount) internal {
-        // Notify sentinel interceptor of TVL change
+    function calculateTVL() public view returns (uint256 tvl) {
+        if (priceOracle == address(0)) return 0;
+
+        uint256 totalValue = 0;
+
+        for (uint256 i = 0; i < supportedTokensList.length; i++) {
+            address token = supportedTokensList[i];
+            if (!supportedTokens[token]) continue; // Skip if removed
+
+            uint256 balance = IERC20(token).balanceOf(address(this));
+            if (balance == 0) continue;
+
+            // Get price from oracle (assuming 8 decimals like Chainlink)
+            (uint256 price, bool isStale) = IPriceOracle(priceOracle).getPriceAllowStale(token);
+            if (price == 0 || isStale) continue; // Skip if no price or stale
+
+            // Calculate value: balance * price / 10^(tokenDecimals)
+            // Assuming token has 18 decimals, price has 8 decimals, result has 8 decimals
+            uint256 tokenValue = (balance * price) / 1e18;
+            totalValue += tokenValue;
+        }
+
+        return totalValue;
+    }
+
+    /**
+     * @notice Update TVL in sentinel interceptor
+     */
+    function _updateTVL() internal {
+        if (sentinelInterceptor == address(0)) return;
+
+        uint256 tvl = calculateTVL();
+        // Call sentinel.updateTVL(tvl)
+        // This requires the sentinel interface
         (bool success, ) = sentinelInterceptor.call(
-            abi.encodeWithSignature(
-                "updateTVL(uint256)",
-                IERC20(address(this)).balanceOf(address(this))
-            )
+            abi.encodeWithSignature("updateTVL(uint256)", tvl)
         );
-        // Silently continue if sentinel call fails
+        // Don't revert if sentinel call fails - just log
+        if (!success) {
+            // In production, emit event or handle failure
+        }
+    }
+
+    /**
+     * @notice Notify sentinel of TVL change
+     */
+    function _notifySentinel() internal {
+        _updateTVL();
     }
 }
