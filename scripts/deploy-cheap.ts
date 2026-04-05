@@ -9,55 +9,47 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log("Balance:", ethers.formatEther(balance), "ETH\n");
 
-  // Deploy SentinelInterceptor with low gas
-  console.log("1. Deploying SentinelInterceptor...");
-  const SentinelInterceptor = await ethers.getContractFactory(
-    "SentinelInterceptor",
-    {
-      overrides: { gasPrice: ethers.parseUnits("0.1", "gwei") },
-    },
-  );
+  const gasPrice = { gasPrice: ethers.parseUnits("0.1", "gwei") };
 
-  try {
-    const sentinel = await SentinelInterceptor.deploy(
-      "0x0000000000000000000000000000000000000001",
-      deployer.address,
-    );
-    await sentinel.waitForDeployment();
-    console.log("   SentinelInterceptor:", await sentinel.getAddress());
-  } catch (e: any) {
-    console.log("   Failed:", e.message);
-    return;
-  }
-
-  // Deploy AetheronBridge
-  console.log("\n2. Deploying AetheronBridge...");
+  // Deploy AetheronBridge first (with placeholder sentinel)
+  console.log("1. Deploying AetheronBridge...");
   const AetheronBridge = await ethers.getContractFactory("AetheronBridge", {
-    overrides: { gasPrice: ethers.parseUnits("0.1", "gwei") },
+    overrides: gasPrice,
   });
 
   try {
-    const sentinelAddr = (
-      await SentinelInterceptor.deploy(
-        "0x0000000000000000000000000000000000000001",
-        deployer.address,
-      )
-    ).waitForDeployment
-      ? "0x"
-      : "0x";
-
+    const placeholderSentinel = "0x" + "00".repeat(19) + "01";
     const bridge = await AetheronBridge.deploy(
-      "0x0000000000000000000000000000000000000001",
+      placeholderSentinel,
       deployer.address,
       deployer.address,
     );
     await bridge.waitForDeployment();
     console.log("   AetheronBridge:", await bridge.getAddress());
+
+    // Deploy SentinelInterceptor
+    console.log("\n2. Deploying SentinelInterceptor...");
+    const SentinelInterceptor = await ethers.getContractFactory(
+      "SentinelInterceptor",
+      { overrides: gasPrice },
+    );
+
+    const sentinel = await SentinelInterceptor.deploy(
+      await bridge.getAddress(),
+      deployer.address,
+    );
+    await sentinel.waitForDeployment();
+    console.log("   SentinelInterceptor:", await sentinel.getAddress());
+
+    // Update Bridge with sentinel address
+    const tx = await bridge.setSentinel(await sentinel.getAddress());
+    await tx.wait();
+    console.log("\n✅ Deployment Complete!");
+    console.log("Bridge:", await bridge.getAddress());
+    console.log("Sentinel:", await sentinel.getAddress());
   } catch (e: any) {
     console.log("   Failed:", e.message);
   }
-
-  console.log("\n✅ Deployment Complete!");
 }
 
 main()

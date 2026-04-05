@@ -26,6 +26,10 @@ contract AetheronModuleHub is AccessControl, ReentrancyGuard, IAetheronModuleHub
     mapping(address => ModuleInfo) public modules;
     string[] public moduleNames;
     
+    // Core contract addresses
+    address public bridgeAddress;
+    address public sentinelAddress;
+    
     // Emergency state
     bool public emergencyActive;
     
@@ -38,6 +42,20 @@ contract AetheronModuleHub is AccessControl, ReentrancyGuard, IAetheronModuleHub
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MODULE_ADMIN_ROLE, msg.sender);
+    }
+    
+    // ============ Core Contract Configuration ============
+    
+    function setCoreContracts(
+        address _bridge,
+        address _sentinel
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_bridge != address(0)) {
+            bridgeAddress = _bridge;
+        }
+        if (_sentinel != address(0)) {
+            sentinelAddress = _sentinel;
+        }
     }
     
     // ============ Module Registration ============
@@ -206,6 +224,16 @@ contract AetheronModuleHub is AccessControl, ReentrancyGuard, IAetheronModuleHub
             }
         }
         stats.activeModules = active;
+        
+        // Get TVL from sentinel if available
+        if (sentinelAddress != address(0)) {
+            (bool success, bytes memory data) = sentinelAddress.staticcall(
+                abi.encodeWithSignature("totalValueLocked()")
+            );
+            if (success && data.length == 32) {
+                stats.tvl = abi.decode(data, (uint256));
+            }
+        }
         
         return stats;
     }
