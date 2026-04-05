@@ -18,8 +18,8 @@ contract TimeLockVaultTest is Test {
     uint256 constant TWO_YEARS = 730 days;
     
     function setUp() public {
-        token = new MockToken();
-        vault = new TimeLockVault(address(token));
+        token = new MockToken("Time Lock Token", "TLT", 0);
+        vault = new TimeLockVault(address(token), address(this));
         
         // Setup roles
         vault.grantRole(vault.ADMIN_ROLE(), admin);
@@ -370,7 +370,7 @@ contract TimeLockVaultTest is Test {
         // Try to execute immediately - should fail
         vm.prank(guardian);
         vm.expectRevert("Delay not passed");
-        vault.executeEmergencyWithdrawal(beneficiary1);
+        vault.executeEmergencyWithdrawal(beneficiary1, 0);
     }
     
     function testExecuteEmergencyWithdrawalAfterDelay() public {
@@ -386,7 +386,7 @@ contract TimeLockVaultTest is Test {
         uint256 balanceBefore = token.balanceOf(beneficiary1);
         
         vm.prank(guardian);
-        vault.executeEmergencyWithdrawal(beneficiary1);
+        vault.executeEmergencyWithdrawal(beneficiary1, 0);
         
         assertEq(token.balanceOf(beneficiary1), balanceBefore + 100 ether);
     }

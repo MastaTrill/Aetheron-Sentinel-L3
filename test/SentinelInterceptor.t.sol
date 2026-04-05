@@ -30,18 +30,14 @@ contract SentinelInterceptorTest is Test {
         vm.prank(owner);
         mockBridge = new MockBridge();
 
-        vm.prank(owner);
         sentinel = new SentinelInterceptor(address(mockBridge), owner);
 
-        // Grant roles
-        vm.prank(owner);
-        sentinel.grantRole(sentinel.ORACLE_ROLE(), oracle);
-
+        // Grant roles (owner already has ORACLE_ROLE from constructor)
         vm.prank(owner);
         sentinel.grantRole(sentinel.SENTINEL_ROLE(), sentinelRole);
 
         // Set initial TVL
-        vm.prank(oracle);
+        vm.prank(owner);
         sentinel.updateTVL(1_000_000e18);
     }
 

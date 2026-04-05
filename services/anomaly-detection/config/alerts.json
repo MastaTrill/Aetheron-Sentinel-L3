@@ -76,5 +76,10 @@
   "rateLimit": {
     "maxAlertsPerMinute": 10,
     "maxAlertsPerHour": 100
+  },
+  "oracle": {
+    "address": "0x0000000000000000000000000000000000000000",
+    "rpcUrl": "http://localhost:8545",
+    "privateKey": "0x0000000000000000000000000000000000000000000000000000000000000000"
   }
 }

@@ -19,7 +19,7 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
  *      │  (10,000)   │    │   (4ms)     │    │   (10ms)    │
  *      └─────────────┘    └─────────────┘    └─────────────┘
  */
-contract SentinelInterceptor is AccessControl, Pausable {
+contract SentinelInterceptor is Pausable, AccessControl {
     // ============ Constants ============
 
     /// @notice Role authorized to trigger emergency pause
@@ -109,6 +109,13 @@ contract SentinelInterceptor is AccessControl, Pausable {
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
         _grantRole(SENTINEL_ROLE, initialAdmin);
         _grantRole(ORACLE_ROLE, initialAdmin);
+        
+        // Initialize state variables
+        totalValueLocked = 0;
+        lastPauseTimestamp = 0;
+        autonomousMode = true;
+        cumulativeWithdrawals = 0;
+        lastWithdrawalUpdate = block.timestamp;
     }
 
     // ============ Core Functions ============

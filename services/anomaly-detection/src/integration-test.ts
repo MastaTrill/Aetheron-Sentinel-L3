@@ -9,6 +9,7 @@ async function testOracleIntegration() {
     bridgeAddress: "0x...",
     sentinelAddress: "0x...",
     anomalyOracleAddress: "0x...",
+    rpcUrl: "http://localhost:8545",
     tvlSpikeThreshold: 1520,
     withdrawalWindow: 60 * 1000,
     monitoringInterval: 5000, // 5 seconds for testing

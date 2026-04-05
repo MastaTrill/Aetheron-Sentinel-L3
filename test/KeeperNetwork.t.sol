@@ -17,7 +17,7 @@ contract KeeperNetworkTest is Test {
     uint256 constant MIN_BOND = 100 ether;
     
     function setUp() public {
-        bondToken = new MockToken();
+        bondToken = new MockToken("Bond Token", "BOND", 0);
         keeperNetwork = new KeeperNetwork(address(bondToken));
         
         // Setup keeper as minter

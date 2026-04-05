@@ -17,7 +17,7 @@ contract CoveragePoolTest is Test {
     address public protocol = address(0x6);
     
     function setUp() public {
-        coverageToken = new MockToken();
+        coverageToken = new MockToken("Coverage Token", "COV", 0);
         coveragePool = new CoveragePool(address(coverageToken));
         
         // Setup roles

@@ -182,6 +182,10 @@ type Guardian @entity {
   addedAt: BigInt!
 }
 
+type QuantumVault @entity {
+  id: ID!
+}
+
 type RecoveryRequest @entity {
   id: ID! # Request hash
   guardian: Guardian!
@@ -230,6 +234,10 @@ type Claim @entity {
   resolvedAt: BigInt
   blockNumber: BigInt!
   transactionHash: Bytes!
+}
+
+type InsurancePool @entity {
+  id: ID!
 }
 
 type GovernanceProposal @entity {

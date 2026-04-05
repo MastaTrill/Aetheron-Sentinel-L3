@@ -19,7 +19,7 @@ contract MultiSigGovernanceTest is Test {
     uint256 constant PROPOSAL_THRESHOLD = 1000e18;
     
     function setUp() public {
-        governanceToken = new MockToken();
+        governanceToken = new MockToken("Governance Token", "GOV", 0);
         governance = new MultiSigGovernance(address(governanceToken));
         
         // Setup roles
@@ -222,7 +222,7 @@ contract MultiSigGovernanceTest is Test {
         governance.queueProposal(proposalId);
         
         MultiSigGovernance.ProposalState state = governance.getProposalState(proposalId);
-        assertEq(uint8(state), uint8(MultiSigGovernance.ProposalState.Defeated));
+        assertEq(uint8(state), uint8(MultiSigGovernance.ProposalState.Failed));
     }
     
     // ============ Execution ============

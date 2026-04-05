@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
+import { ethers } from "ethers";
 
 interface Module {
   name: string;
@@ -18,115 +19,96 @@ interface Stats {
   avgHealth: number;
 }
 
-interface HubStats {
-  moduleHub: string;
-  timeLockVault: string;
-  yieldAggregator: string;
-  multiSigGovernance: string;
-  gasOptimizer: string;
-  slippageProtection: string;
-  bridgeHealthMonitor: string;
-  liquidityRebalancer: string;
-  oracleFallbackSystem: string;
-  automatedTaxModule: string;
-  smartWallet: string;
-  coveragePool: string;
-  predictiveAnalytics: string;
-  keeperNetwork: string;
-  taskScheduler: string;
-  revenueDistributor: string;
-  crossChainGovernance: string;
-}
-
-const HUB_ADDRESS = '0x0000000000000000000000000000000000000000'; // Update with actual address
+const HUB_ADDRESS =
+  import.meta.env.VITE_HUB_ADDRESS ||
+  "0x0000000000000000000000000000000000000000";
 const HUB_ABI = [
-  'function getHubStats() view returns (uint256 totalModules, uint256 activeModules, uint256 tvl, uint256 totalVolume, uint256 governanceProposals, uint256 activeKeepers)',
-  'function getAllModules() view returns (tuple(address moduleAddress, string name, bool isActive, bool isPaused, uint256 lastActivity)[])',
-  'function isEmergencyActive() view returns (bool)',
-  'function emergencyActive() view returns (bool)',
+  "function getHubStats() view returns (uint256 totalModules, uint256 activeModules, uint256 tvl, uint256 totalVolume, uint256 governanceProposals, uint256 activeKeepers)",
+  "function getAllModules() view returns (tuple(address moduleAddress, string name, bool isActive, bool isPaused, uint256 lastActivity)[])",
+  "function isEmergencyActive() view returns (bool)",
 ];
 
 const DEFAULT_MODULES: Module[] = [
   {
-    name: 'TimeLockVault',
-    address: '',
+    name: "TimeLockVault",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'YieldAggregator',
-    address: '',
+    name: "YieldAggregator",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'MultiSigGovernance',
-    address: '',
+    name: "MultiSigGovernance",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'GasOptimizer',
-    address: '',
+    name: "GasOptimizer",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'BridgeHealthMonitor',
-    address: '',
+    name: "BridgeHealthMonitor",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'LiquidityRebalancer',
-    address: '',
+    name: "LiquidityRebalancer",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'OracleFallbackSystem',
-    address: '',
+    name: "OracleFallbackSystem",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'CoveragePool',
-    address: '',
+    name: "CoveragePool",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'KeeperNetwork',
-    address: '',
+    name: "KeeperNetwork",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'TaskScheduler',
-    address: '',
+    name: "TaskScheduler",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'RevenueDistributor',
-    address: '',
+    name: "RevenueDistributor",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
   },
   {
-    name: 'CrossChainGovernance',
-    address: '',
+    name: "CrossChainGovernance",
+    address: "",
     isActive: true,
     isPaused: false,
     lastActivity: Date.now(),
@@ -151,53 +133,104 @@ export const useAetheron = () => {
   const [emergencyActive, setEmergencyActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Provider and contract refs (not state to avoid re-renders)
+  let provider: ethers.Provider | null = null;
+  let hubContract: ethers.Contract | null = null;
+
+  const initContract = useCallback(async () => {
+    if (
+      !HUB_ADDRESS ||
+      HUB_ADDRESS === "0x0000000000000000000000000000000000000000"
+    ) {
+      console.warn("Hub address not configured");
+      return;
+    }
+    if (typeof window !== "undefined" && window.ethereum) {
+      provider = new ethers.BrowserProvider(window.ethereum);
+    } else {
+      provider = ethers.getDefaultProvider("sepolia");
+    }
+    hubContract = new ethers.Contract(HUB_ADDRESS, HUB_ABI, provider);
+  }, []);
+
+  const refreshStats = useCallback(async () => {
+    if (!hubContract) return;
+    try {
+      const statsData = await hubContract.getHubStats();
+      const [
+        totalModules,
+        activeModules,
+        tvl,
+        totalVolume,
+        governanceProposals,
+        activeKeepers,
+      ] = statsData as bigint[];
+      setStats({
+        tvl: Number(tvl),
+        tvlChange: 0,
+        activeModules: Number(activeModules),
+        totalModules: Number(totalModules),
+        activeProposals: Number(governanceProposals),
+        activeKeepers: Number(activeKeepers),
+        avgHealth: 0,
+      });
+    } catch (error) {
+      console.error("Failed to fetch hub stats:", error);
+    }
+  }, []);
+
+  const loadModules = useCallback(async () => {
+    if (!hubContract) return;
+    try {
+      const modulesData = await hubContract.getAllModules();
+      const formattedModules: Module[] = modulesData.map(
+        (mod: [string, string, boolean, boolean, bigint]) => ({
+          name: mod[1],
+          address: mod[0],
+          isActive: mod[2],
+          isPaused: mod[3],
+          lastActivity: Number(mod[4]),
+        }),
+      );
+      setModules(formattedModules);
+    } catch (error) {
+      console.error("Failed to fetch modules:", error);
+    }
+  }, []);
+
   const connect = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Check for ethereum
-      if (typeof window.ethereum !== 'undefined') {
+      let account: string | undefined;
+      if (typeof window !== "undefined" && window.ethereum) {
         const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
+          method: "eth_requestAccounts",
         });
-        if (accounts.length > 0) {
-          setWalletAddress(accounts[0]);
-          setIsConnected(true);
-        }
+        account = accounts[0];
+        setWalletAddress(account || null);
       } else {
-        // Demo mode - just set connected without wallet
-        setIsConnected(true);
+        setWalletAddress(null);
       }
+      setIsConnected(true);
+      await initContract();
+      await refreshStats();
+      await loadModules();
     } catch (error) {
-      console.error('Failed to connect:', error);
+      console.error("Failed to connect:", error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [initContract, refreshStats, loadModules]);
 
   const disconnect = useCallback(() => {
     setIsConnected(false);
     setWalletAddress(null);
-  }, []);
-
-  const refreshStats = useCallback(async () => {
-    // In production, fetch from blockchain
-    setStats((prev) => ({
-      ...prev,
-      tvl: prev.tvl + Math.random() * 10000,
-    }));
+    provider = null;
+    hubContract = null;
   }, []);
 
   const getModuleStats = useCallback(async (moduleName: string) => {
-    // Return mock stats for each module
-    const moduleStats: Record<string, any> = {
-      TimeLockVault: { tvl: 2_400_000, schedules: 15, beneficiaries: 45 },
-      YieldAggregator: { tvl: 5_200_000, apy: 8.5, sources: 5 },
-      MultiSigGovernance: { proposals: 8, active: 3, voters: 124 },
-      KeeperNetwork: { active: 8, pendingTasks: 12, totalExecutions: 1_456 },
-      BridgeHealthMonitor: { bridges: 4, healthScore: 94, alerts: 2 },
-      CoveragePool: { tvl: 890_000, policies: 23, claims: 4 },
-    };
-    return moduleStats[moduleName] || {};
+    return {};
   }, []);
 
   return {
@@ -210,6 +243,7 @@ export const useAetheron = () => {
     emergencyActive,
     isLoading,
     refreshStats,
+    loadModules,
     getModuleStats,
   };
 };

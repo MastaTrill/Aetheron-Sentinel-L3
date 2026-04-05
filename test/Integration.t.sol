@@ -111,7 +111,8 @@ contract IntegrationTest is Test {
 
         // Should succeed within rate limits
         yieldAggregator.deposit(5_000e18, sourceId);
-        assertEq(yieldAggregator.userPositions(user1).accumulatedShares, 5_000e18);
+        ( , , uint256 accumulatedShares, ) = yieldAggregator.userPositions(user1);
+        assertEq(accumulatedShares, 5_000e18);
 
         vm.stopPrank();
         vm.startPrank(user2);
@@ -124,7 +125,8 @@ contract IntegrationTest is Test {
         vm.startPrank(user1);
         // Should succeed after window reset
         (uint256 amount, uint256 yield) = yieldAggregator.withdraw(2_500e18);
-        assertEq(yieldAggregator.userPositions(user1).accumulatedShares, 2_500e18);
+        ( , , uint256 accumulatedSharesAfter, ) = yieldAggregator.userPositions(user1);
+        assertEq(accumulatedSharesAfter, 2_500e18);
     }
 
     function testCircuitBreakerIntegration() public {
@@ -201,7 +203,8 @@ contract IntegrationTest is Test {
         token.approve(address(yieldAggregator), 1_000e18);
         yieldAggregator.deposit(1_000e18, sourceId);
 
-        assertEq(yieldAggregator.userPositions(user1).accumulatedShares, 1_000e18);
+        ( , , uint256 accumulatedSharesDeposit, ) = yieldAggregator.userPositions(user1);
+        assertEq(accumulatedSharesDeposit, 1_000e18);
     }
 
     function testEndToEndAnomalyResponse() public {

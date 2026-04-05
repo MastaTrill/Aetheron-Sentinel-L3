@@ -6,6 +6,7 @@ import {
   ThresholdUpdated,
 } from "../generated/SentinelInterceptor/SentinelInterceptor";
 import { Sentinel } from "../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleAnomalyDetected(event: AnomalyDetected): void {
   // Create or update Sentinel entity
@@ -14,14 +15,14 @@ export function handleAnomalyDetected(event: AnomalyDetected): void {
     sentinel = new Sentinel(event.address.toHex());
     sentinel.isPaused = false;
     sentinel.autonomousMode = true;
-    sentinel.tvlSpikeThreshold = 1520;
-    sentinel.totalValueLocked = 0;
-    sentinel.totalAlerts = 0;
-    sentinel.totalPauses = 0;
+    sentinel.tvlSpikeThreshold = BigInt.fromI32(1520);
+    sentinel.totalValueLocked = BigInt.fromI32(0);
+    sentinel.totalAlerts = BigInt.fromI32(0);
+    sentinel.totalPauses = BigInt.fromI32(0);
     sentinel.createdAt = event.block.timestamp;
   }
 
-  sentinel.totalAlerts = sentinel.totalAlerts.plus(1);
+  sentinel.totalAlerts = sentinel.totalAlerts.plus(BigInt.fromI32(1));
   sentinel.updatedAt = event.block.timestamp;
   sentinel.save();
 }
@@ -32,7 +33,7 @@ export function handleAutonomousPauseTriggered(
   let sentinel = Sentinel.load(event.address.toHex());
   if (sentinel) {
     sentinel.isPaused = true;
-    sentinel.totalPauses = sentinel.totalPauses.plus(1);
+    sentinel.totalPauses = sentinel.totalPauses.plus(BigInt.fromI32(1));
     sentinel.updatedAt = event.block.timestamp;
     sentinel.save();
   }

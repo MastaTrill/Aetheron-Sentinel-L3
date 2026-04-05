@@ -35,7 +35,7 @@ contract YieldAggregatorTest is Test {
     bytes32 public sourceId;
     
     function setUp() public {
-        depositToken = new MockToken();
+        depositToken = new MockToken("Deposit Token", "DEP", 0);
         aggregator = new YieldAggregator(address(depositToken));
         mockSource = new MockYieldSource();
         
@@ -227,16 +227,12 @@ contract YieldAggregatorTest is Test {
     
     function testSecurityScan() public {
         vm.prank(security);
-        address scannedProtocol;
-        bool isSafe;
-        uint256 riskScore;
-        uint256 scanTimestamp;
-        (scannedProtocol, isSafe, riskScore, scanTimestamp) = aggregator
+        YieldAggregator.SecurityScan memory scan = aggregator
             .performSecurityScan(address(mockSource));
-        
+
         // Mock source has no code, should be flagged
-        assertFalse(isSafe);
-        assertGt(riskScore, 0);
+        assertFalse(scan.isSafe);
+        assertGt(scan.riskScore, 0);
     }
     
     // ============ Emergency Controls ============

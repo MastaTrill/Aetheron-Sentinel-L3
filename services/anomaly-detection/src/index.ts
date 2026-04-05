@@ -4,6 +4,22 @@ import { VulnerabilityDetector } from "./vulnerability-detector";
 import { Logger } from "./logger";
 import { AlertManager } from "./alerts";
 import { ServiceHealthMonitor } from "./health-monitor";
+import * as fs from "fs";
+import * as path from "path";
+
+// Load alerts configuration
+const alertsConfigPath = path.join(__dirname, "../config/alerts.json");
+const alertsConfig = JSON.parse(fs.readFileSync(alertsConfigPath, "utf8"));
+
+// Update oracle config with environment variables
+if (alertsConfig.oracle) {
+  alertsConfig.oracle.address =
+    process.env.ANOMALY_ORACLE_ADDRESS || alertsConfig.oracle.address;
+  alertsConfig.oracle.rpcUrl =
+    process.env.RPC_URL || alertsConfig.oracle.rpcUrl;
+  alertsConfig.oracle.privateKey =
+    process.env.ORACLE_PRIVATE_KEY || alertsConfig.oracle.privateKey;
+}
 
 const config = {
   // Contract addresses
@@ -12,9 +28,6 @@ const config = {
   anomalyOracleAddress: process.env.ANOMALY_ORACLE_ADDRESS || "0x...",
   monitorAddress: process.env.MONITOR_ADDRESS || "0x...",
   // Blockchain connection
-  rpcUrl: process.env.RPC_URL || "http://localhost:8545",
-
-  // RPC endpoints
   rpcUrl: process.env.RPC_URL || "http://localhost:8545",
 
   // Thresholds
@@ -48,7 +61,7 @@ async function main() {
     monitoringInterval: config.monitoringInterval,
   });
 
-  const alerts = new AlertManager(config);
+  const alerts = new AlertManager(alertsConfig);
 
   // Initialize health monitor
   const healthMonitor = new ServiceHealthMonitor(provider, {

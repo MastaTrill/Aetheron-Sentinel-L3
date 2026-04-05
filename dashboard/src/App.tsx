@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Shield,
@@ -12,35 +12,35 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-} from 'lucide-react';
-import { useAetheron } from './hooks/useAetheron';
-import ModuleCard from './components/ModuleCard';
-import StatsCard from './components/StatsCard';
-import ProposalList from './components/ProposalList';
-import KeeperStatus from './components/KeeperStatus';
-import HealthMonitor from './components/HealthMonitor';
-import YieldDashboard from './components/YieldDashboard';
+} from "lucide-react";
+import { useAetheron } from "./hooks/useAetheron";
+import ModuleCard from "./components/ModuleCard";
+import StatsCard from "./components/StatsCard";
+import ProposalList from "./components/ProposalList";
+import KeeperStatus from "./components/KeeperStatus";
+import HealthMonitor from "./components/HealthMonitor";
+import YieldDashboard from "./components/YieldDashboard";
 
 type TabType =
-  | 'overview'
-  | 'governance'
-  | 'yield'
-  | 'keepers'
-  | 'health'
-  | 'treasury';
+  | "overview"
+  | "governance"
+  | "yield"
+  | "keepers"
+  | "health"
+  | "treasury";
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
   const { isConnected, connect, stats, modules, emergencyActive, isLoading } =
     useAetheron();
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'governance', label: 'Governance', icon: Vote },
-    { id: 'yield', label: 'Yield', icon: TrendingUp },
-    { id: 'keepers', label: 'Keepers', icon: Users },
-    { id: 'health', label: 'Health', icon: Activity },
-    { id: 'treasury', label: 'Treasury', icon: DollarSign },
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "governance", label: "Governance", icon: Vote },
+    { id: "yield", label: "Yield", icon: TrendingUp },
+    { id: "keepers", label: "Keepers", icon: Users },
+    { id: "health", label: "Health", icon: Activity },
+    { id: "treasury", label: "Treasury", icon: DollarSign },
   ];
 
   if (!isConnected) {
@@ -114,8 +114,8 @@ const App: React.FC = () => {
               onClick={() => setActiveTab(tab.id as TabType)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'text-blue-500 border-b-2 border-blue-500'
-                  : 'text-gray-400 hover:text-white'
+                  ? "text-blue-500 border-b-2 border-blue-500"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
               <tab.icon size={18} />
@@ -127,14 +127,14 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="p-6">
-        {activeTab === 'overview' && (
+        {activeTab === "overview" && (
           <OverviewDashboard modules={modules} stats={stats} />
         )}
-        {activeTab === 'governance' && <GovernanceDashboard />}
-        {activeTab === 'yield' && <YieldDashboard />}
-        {activeTab === 'keepers' && <KeeperStatus />}
-        {activeTab === 'health' && <HealthMonitor />}
-        {activeTab === 'treasury' && <TreasuryDashboard />}
+        {activeTab === "governance" && <GovernanceDashboard />}
+        {activeTab === "yield" && <YieldDashboard />}
+        {activeTab === "keepers" && <KeeperStatus />}
+        {activeTab === "health" && <HealthMonitor />}
+        {activeTab === "treasury" && <TreasuryDashboard />}
       </main>
     </div>
   );
@@ -171,7 +171,7 @@ const OverviewDashboard: React.FC<{ modules: any[]; stats: any }> = ({
           title="Health Score"
           value={`${stats?.avgHealth || 0}%`}
           icon={Activity}
-          color={stats?.avgHealth > 80 ? 'green' : 'red'}
+          color={stats?.avgHealth > 80 ? "green" : "red"}
         />
       </div>
 
@@ -201,13 +201,14 @@ const QuickStatCard: React.FC<{
   title: string;
   value: string;
   icon: React.ElementType;
-  color: 'blue' | 'purple' | 'green' | 'red';
+  color: "blue" | "purple" | "green" | "red" | "yellow";
 }> = ({ title, value, icon: Icon, color }) => {
   const colors = {
-    blue: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    purple: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-    green: 'bg-green-500/10 text-green-500 border-green-500/20',
-    red: 'bg-red-500/10 text-red-500 border-red-500/20',
+    blue: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    purple: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    green: "bg-green-500/10 text-green-500 border-green-500/20",
+    red: "bg-red-500/10 text-red-500 border-red-500/20",
+    yellow: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
   };
 
   return (
@@ -225,34 +226,34 @@ const QuickStatCard: React.FC<{
 const RecentActivity: React.FC = () => {
   const activities = [
     {
-      type: 'proposal',
-      text: 'Proposal #42 passed',
-      time: '5m ago',
-      status: 'success',
+      type: "proposal",
+      text: "Proposal #42 passed",
+      time: "5m ago",
+      status: "success",
     },
     {
-      type: 'keeper',
-      text: 'Task #128 executed',
-      time: '12m ago',
-      status: 'success',
+      type: "keeper",
+      text: "Task #128 executed",
+      time: "12m ago",
+      status: "success",
     },
     {
-      type: 'rebalance',
-      text: 'Liquidity rebalanced',
-      time: '1h ago',
-      status: 'success',
+      type: "rebalance",
+      text: "Liquidity rebalanced",
+      time: "1h ago",
+      status: "success",
     },
     {
-      type: 'alert',
-      text: 'High volatility detected',
-      time: '2h ago',
-      status: 'warning',
+      type: "alert",
+      text: "High volatility detected",
+      time: "2h ago",
+      status: "warning",
     },
     {
-      type: 'claim',
-      text: 'Coverage claim submitted',
-      time: '3h ago',
-      status: 'pending',
+      type: "claim",
+      text: "Coverage claim submitted",
+      time: "3h ago",
+      status: "pending",
     },
   ];
 
@@ -266,13 +267,13 @@ const RecentActivity: React.FC = () => {
             className="flex items-center justify-between py-2 border-b border-gray-700 last:border-0"
           >
             <div className="flex items-center gap-3">
-              {activity.status === 'success' && (
+              {activity.status === "success" && (
                 <CheckCircle className="text-green-500" size={16} />
               )}
-              {activity.status === 'warning' && (
+              {activity.status === "warning" && (
                 <AlertTriangle className="text-yellow-500" size={16} />
               )}
-              {activity.status === 'pending' && (
+              {activity.status === "pending" && (
                 <Clock className="text-blue-500" size={16} />
               )}
               <span className="text-gray-300">{activity.text}</span>
@@ -290,15 +291,15 @@ const SystemAlerts: React.FC = () => {
   const [alerts] = useState([
     {
       id: 1,
-      message: 'Slippage protection activated on ETH/ARB',
-      severity: 'info',
+      message: "Slippage protection activated on ETH/ARB",
+      severity: "info",
     },
     {
       id: 2,
-      message: 'Oracle fallback triggered - using Chainlink',
-      severity: 'warning',
+      message: "Oracle fallback triggered - using Chainlink",
+      severity: "warning",
     },
-    { id: 3, message: 'New keeper registered: 0x7a3...', severity: 'success' },
+    { id: 3, message: "New keeper registered: 0x7a3...", severity: "success" },
   ]);
 
   return (
@@ -309,21 +310,21 @@ const SystemAlerts: React.FC = () => {
           <div
             key={alert.id}
             className={`p-3 rounded-lg ${
-              alert.severity === 'warning'
-                ? 'bg-yellow-500/10 border border-yellow-500/20'
-                : alert.severity === 'info'
-                  ? 'bg-blue-500/10 border border-blue-500/20'
-                  : 'bg-green-500/10 border border-green-500/20'
+              alert.severity === "warning"
+                ? "bg-yellow-500/10 border border-yellow-500/20"
+                : alert.severity === "info"
+                  ? "bg-blue-500/10 border border-blue-500/20"
+                  : "bg-green-500/10 border border-green-500/20"
             }`}
           >
             <div className="flex items-center gap-2">
-              {alert.severity === 'warning' && (
+              {alert.severity === "warning" && (
                 <AlertTriangle className="text-yellow-500" size={16} />
               )}
-              {alert.severity === 'info' && (
+              {alert.severity === "info" && (
                 <Activity className="text-blue-500" size={16} />
               )}
-              {alert.severity === 'success' && (
+              {alert.severity === "success" && (
                 <CheckCircle className="text-green-500" size={16} />
               )}
               <span className="text-gray-300">{alert.message}</span>
@@ -416,24 +417,24 @@ const TreasuryDashboard: React.FC = () => {
         <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           />
         </div>
         <div className="grid grid-cols-4 gap-4 mt-4 text-sm">
           <div>
-            <span className="text-gray-400">Treasury:</span>{' '}
+            <span className="text-gray-400">Treasury:</span>{" "}
             <span className="text-white">40%</span>
           </div>
           <div>
-            <span className="text-gray-400">Staking:</span>{' '}
+            <span className="text-gray-400">Staking:</span>{" "}
             <span className="text-white">30%</span>
           </div>
           <div>
-            <span className="text-gray-400">Insurance:</span>{' '}
+            <span className="text-gray-400">Insurance:</span>{" "}
             <span className="text-white">20%</span>
           </div>
           <div>
-            <span className="text-gray-400">Development:</span>{' '}
+            <span className="text-gray-400">Development:</span>{" "}
             <span className="text-white">10%</span>
           </div>
         </div>

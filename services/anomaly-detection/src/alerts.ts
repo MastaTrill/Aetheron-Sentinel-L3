@@ -15,7 +15,7 @@ interface EscalationRule {
   escalationChannels?: string[]; // additional channels for escalation
 }
 
-interface AlertConfig {
+export interface AlertConfig {
   channels: Record<string, AlertChannel>;
   escalationRules: EscalationRule[];
   deduplicationWindow: number; // seconds to deduplicate similar alerts
@@ -179,8 +179,8 @@ export class AlertManager {
         await this.sendToChannel(channel, alert, rule.retryAttempts, rule.retryDelay);
       } catch (error) {
         console.error(`Failed to send alert to ${channelName}:`, error);
-      }
     }
+  }
   }
 
   private async sendToChannel(
@@ -402,5 +402,4 @@ export class AlertManager {
       this.recentAlerts.splice(0, this.recentAlerts.length - 100);
     }
   }
-}
 }

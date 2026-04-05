@@ -1,4 +1,4 @@
-import { ethers, FeeData } from "hardhat";
+import { ethers } from "hardhat";
 
 async function main() {
   console.log("Deploying to Amoy (Low Gas)...\n");
@@ -8,11 +8,6 @@ async function main() {
 
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log("Balance:", ethers.formatEther(balance), "ETH\n");
-
-  // Override gas settings to minimum
-  const customFeeData = {
-    gasPrice: ethers.parseUnits("0.1", "gwei"), // Very low gas price
-  } as FeeData;
 
   // Deploy SentinelInterceptor with low gas
   console.log("1. Deploying SentinelInterceptor...");

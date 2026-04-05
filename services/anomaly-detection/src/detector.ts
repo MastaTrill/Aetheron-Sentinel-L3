@@ -35,7 +35,7 @@ export class AnomalyDetector extends EventEmitter {
   private config: DetectorConfig;
   private dataIngestion: BlockchainDataIngestion;
   private intervalId: NodeJS.Timeout | null = null;
-  private tvlHistory: TVLDataPoint[] = [];
+  private tvlHistory: TVLData[] = [];
   private withdrawalHistory: WithdrawalEvent[] = [];
   private isRunning = false;
 
@@ -51,19 +51,27 @@ export class AnomalyDetector extends EventEmitter {
     lastMetricsReset: Date.now(),
   };
 
-  constructor(provider: ethers.JsonRpcProvider, config: DetectorConfig) {
+  constructor(
+    provider: ethers.JsonRpcProvider,
+    config: DetectorConfig,
+    dataIngestion?: BlockchainDataIngestion,
+  ) {
     super();
     this.provider = provider;
     this.config = config;
 
     // Initialize blockchain data ingestion
-    this.dataIngestion = new BlockchainDataIngestion({
-      rpcUrl: config.rpcUrl,
-      bridgeAddress: config.bridgeAddress,
-      startBlock: config.startBlock,
-      batchSize: 100,
-      pollInterval: config.monitoringInterval,
-    });
+    if (dataIngestion) {
+      this.dataIngestion = dataIngestion;
+    } else {
+      this.dataIngestion = new BlockchainDataIngestion({
+        rpcUrl: config.rpcUrl,
+        bridgeAddress: config.bridgeAddress,
+        startBlock: config.startBlock,
+        batchSize: 100,
+        pollInterval: config.monitoringInterval,
+      });
+    }
 
     // Listen for data ingestion events
     this.setupDataIngestionListeners();
@@ -140,7 +148,7 @@ export class AnomalyDetector extends EventEmitter {
   private async monitor(): Promise<void> {
     try {
       // TVL fetching is now handled by BlockchainDataIngestion
-      this.analyzePatterns();
+      await this.analyzePatterns();
       this.checkPerformance();
     } catch (error) {
       console.error("Monitoring error:", error);
@@ -223,11 +231,10 @@ export class AnomalyDetector extends EventEmitter {
       this.triggerSentinel(current.currentTVL, zScore * 100); // Convert to basis points for contract
 
       // Report to oracle
-      const data = ethers.AbiCoder.defaultAbiCoder().encode(
-        ["uint256"],
-        [Math.floor(zScore * 100)],
-      );
-      await this.reportToOracle(0, Math.floor(zScore * 100), 90, data); // TVLSpike = 0
+      const data = JSON.stringify({ zScore: Math.floor(zScore * 100) });
+      this.reportToOracle(0, Math.floor(zScore * 100), 90, data).catch(
+        console.error,
+      ); // TVLSpike = 0
     }
 
     // Also check traditional percentage threshold as backup
@@ -252,11 +259,8 @@ export class AnomalyDetector extends EventEmitter {
         this.triggerSentinel(current.currentTVL, drop);
 
         // Report to oracle
-        const data = ethers.AbiCoder.defaultAbiCoder().encode(
-          ["uint256"],
-          [drop],
-        );
-        await this.reportToOracle(0, drop, 85, data); // TVLSpike = 0
+        const data = JSON.stringify({ drop });
+        this.reportToOracle(0, drop, 85, data).catch(console.error); // TVLSpike = 0
       }
     }
   }
@@ -304,7 +308,7 @@ export class AnomalyDetector extends EventEmitter {
     return zScore;
   }
 
-  private analyzePatterns(): void {
+  private async analyzePatterns(): Promise<void> {
     const startTime = Date.now();
     const now = Date.now();
 
@@ -341,10 +345,10 @@ export class AnomalyDetector extends EventEmitter {
         });
 
         // Report to oracle
-        const data = ethers.AbiCoder.defaultAbiCoder().encode(
-          ["uint256", "uint256"],
-          [recentWithdrawals.length, Number(totalAmount)],
-        );
+        const data = JSON.stringify({
+          withdrawalsCount: recentWithdrawals.length,
+          totalAmount: Number(totalAmount),
+        });
         await this.reportToOracle(
           2,
           Math.floor(withdrawalZScore * 100),
@@ -379,10 +383,11 @@ export class AnomalyDetector extends EventEmitter {
             });
 
             // Report to oracle
-            const data = ethers.AbiCoder.defaultAbiCoder().encode(
-              ["address", "uint256", "uint256"],
-              [withdrawal.user, Number(withdrawal.amount), withdrawal.chainId],
-            );
+            const data = JSON.stringify({
+              user: withdrawal.user,
+              amount: Number(withdrawal.amount),
+              chainId: withdrawal.chainId,
+            });
             await this.reportToOracle(
               1,
               Math.floor(withdrawalZScore * 100),
@@ -422,11 +427,13 @@ export class AnomalyDetector extends EventEmitter {
       this.triggerSentinel(totalAmount, zScore * 100); // Report as basis points
 
       // Report to oracle
-      const data = ethers.AbiCoder.defaultAbiCoder().encode(
-        ["uint256", "uint256"],
-        [withdrawals.length, this.config.withdrawalWindow],
-      );
-      await this.reportToOracle(1, Math.floor(zScore * 100), 85, data); // LargeWithdrawal = 1
+      const data = JSON.stringify({
+        withdrawalsCount: withdrawals.length,
+        window: this.config.withdrawalWindow,
+      });
+      this.reportToOracle(1, Math.floor(zScore * 100), 85, data).catch(
+        console.error,
+      ); // LargeWithdrawal = 1
     }
   }
 
@@ -566,7 +573,7 @@ export class AnomalyDetector extends EventEmitter {
     anomalyType: number,
     severity: number,
     confidence: number,
-    data: Uint8Array,
+    data: string,
   ): Promise<void> {
     const startTime = Date.now();
     try {
@@ -579,18 +586,30 @@ export class AnomalyDetector extends EventEmitter {
       );
 
       // Report anomaly to oracle
-      const tx = await oracle.reportAnomaly(anomalyType, severity, confidence, data);
+      const tx = await oracle.reportAnomaly(
+        anomalyType,
+        severity,
+        confidence,
+        data,
+      );
       await tx.wait();
 
       this.metrics.alertsSent++;
-      this.emit("oracleRequest", { success: true, responseTime: Date.now() - startTime });
-      console.log(`Oracle notified: Anomaly type ${anomalyType} with severity ${severity}`);
+      this.emit("oracleRequest", {
+        success: true,
+        responseTime: Date.now() - startTime,
+      });
+      console.log(
+        `Oracle notified: Anomaly type ${anomalyType} with severity ${severity}`,
+      );
     } catch (error) {
       console.error("Failed to report to oracle:", error);
       this.metrics.falsePositives++;
-      this.emit("oracleRequest", { success: false, responseTime: Date.now() - startTime });
+      this.emit("oracleRequest", {
+        success: false,
+        responseTime: Date.now() - startTime,
+      });
     }
-  }
   }
 
   private async triggerSentinel(

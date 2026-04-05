@@ -14,9 +14,13 @@ contract SmartWalletTest is Test {
     
     function setUp() public {
         wallet = new SmartWallet();
-        
+
         // Transfer ownership to our test owner
         wallet.grantRole(wallet.DEFAULT_ADMIN_ROLE(), owner);
+
+        // Add guardian for social recovery tests
+        vm.prank(owner);
+        wallet.addGuardian(guardian, 1);
     }
     
     // ============ Session Keys ============
@@ -27,7 +31,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             10 ether,
             7 days,
-            bytes32(1) // permissions
+            bytes32(uint256(1)) // permissions
         );
         
         assertTrue(sessionId != bytes32(0));
@@ -48,7 +52,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             0, // Invalid limit
             7 days,
-            bytes32(1)
+            bytes32(uint256(1))
         );
     }
     
@@ -59,7 +63,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             10 ether,
             0, // Invalid duration
-            bytes32(1)
+            bytes32(uint256(1))
         );
     }
     
@@ -69,7 +73,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             10 ether,
             7 days,
-            bytes32(1)
+            bytes32(uint256(1))
         );
         
         vm.prank(owner);
@@ -85,7 +89,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             10 ether,
             7 days,
-            bytes32(1)
+            bytes32(uint256(1))
         );
         
         vm.prank(owner);
@@ -104,7 +108,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             10 ether,
             7 days,
-            bytes32(1)
+            bytes32(uint256(1))
         );
         
         // Fund wallet
@@ -124,7 +128,7 @@ contract SmartWalletTest is Test {
             sessionKey,
             0.5 ether, // 0.5 ETH limit
             7 days,
-            bytes32(1)
+            bytes32(uint256(1))
         );
         
         vm.deal(address(wallet), 100 ether);
@@ -180,8 +184,8 @@ contract SmartWalletTest is Test {
         vm.prank(owner);
         wallet.addGuardian(guardian, 1);
         
-        (address[] memory guardians) = wallet.getGuardians(owner);
-        
+        SmartWallet.Guardian[] memory guardians = wallet.getGuardians(owner);
+
         assertEq(guardians.length, 1);
         assertEq(guardians[0].guardian, guardian);
     }
@@ -202,7 +206,7 @@ contract SmartWalletTest is Test {
         vm.prank(owner);
         wallet.removeGuardian(guardian);
         
-        (address[] memory guardians) = wallet.getGuardians(owner);
+        SmartWallet.Guardian[] memory guardians = wallet.getGuardians(owner);
         assertEq(guardians.length, 0);
     }
     
@@ -277,21 +281,25 @@ contract SmartWalletTest is Test {
     }
     
     function testToggleGasless() public {
-        assertTrue(wallet.config().gaslessEnabled);
-        
+        ( , , , bool gaslessEnabled, , ) = wallet.config();
+        assertTrue(gaslessEnabled);
+
         vm.prank(owner);
         wallet.toggleGasless();
-        
-        assertFalse(wallet.config().gaslessEnabled);
+
+        ( , , , bool gaslessEnabledAfter, , ) = wallet.config();
+        assertFalse(gaslessEnabledAfter);
     }
     
     function testToggleMultiSig() public {
-        assertFalse(wallet.config().multiSigEnabled);
+        ( , , , , bool multiSigEnabled, ) = wallet.config();
+        assertFalse(multiSigEnabled);
         
         vm.prank(owner);
         wallet.toggleMultiSig();
-        
-        assertTrue(wallet.config().multiSigEnabled);
+
+        ( , , , , bool multiSigEnabledAfter, ) = wallet.config();
+        assertTrue(multiSigEnabledAfter);
     }
     
     // ============ Token Management ============

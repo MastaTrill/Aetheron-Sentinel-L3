@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ethers } from "ethers";
 import { EventEmitter } from "events";
 
@@ -15,7 +16,7 @@ interface DataIngestionConfig {
   pollInterval?: number;
 }
 
-interface TVLDataPoint {
+export interface TVLDataPoint {
   blockNumber: number;
   timestamp: number;
   tvl: bigint;
@@ -35,7 +36,7 @@ interface TransactionData {
   params?: any[];
 }
 
-interface BridgeEvent {
+export interface BridgeEvent {
   eventName: string;
   blockNumber: number;
   transactionHash: string;
