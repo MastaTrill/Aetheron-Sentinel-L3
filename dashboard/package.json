@@ -1,27 +1,31 @@
 {
-  "name": "@aetheron/sentinel-dashboard",
+  "name": "sentinel-dashboard",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src --ext ts,tsx"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "ethers": "^6.9.0",
-    "lucide-react": "^0.294.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@react-three/drei": "^9.56.0",
+    "@react-three/fiber": "^8.15.12",
+    "classnames": "^2.5.1",
+    "framer-motion": "^12.38.0",
+    "next": "^14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "recharts": "^3.8.1",
+    "three": "^0.152.2",
+    "ws": "^8.20.0",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.6",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.0"
   }
 }

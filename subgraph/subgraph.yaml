@@ -10,7 +10,7 @@ dataSources:
     name: SentinelInterceptor
     network: sepolia
     source:
-      address: "0x..." # Deploy after deployment
+      address: "0x0000000000000000000000000000000000000000" # Deploy after deployment
       abi: SentinelInterceptor
       startBlock: 0
     mapping:
@@ -25,7 +25,7 @@ dataSources:
         - name: SentinelInterceptor
           file: ../abis/SentinelInterceptor.json
       eventHandlers:
-        - event: AnomalyDetected(uint256,uint256,uint256,string)
+        - event: AnomalyDetected(uint256,uint256,uint256)
           handler: handleAnomalyDetected
       file: ./src/sentinel-interceptor.ts
 
@@ -33,7 +33,7 @@ dataSources:
     name: AetheronBridge
     network: sepolia
     source:
-      address: "0x..." # Deploy after deployment
+      address: "0x0000000000000000000000000000000000000000" # Deploy after deployment
       abi: AetheronBridge
       startBlock: 0
     mapping:
@@ -47,202 +47,69 @@ dataSources:
         - name: AetheronBridge
           file: ../abis/AetheronBridge.json
       eventHandlers:
-        - event: TokensBridged(address,address,uint256,uint256,address,bytes32)
+        - event: TokensBridged(indexed address,indexed address,uint256,uint256,address,bytes32)
           handler: handleTokensBridged
-        - event: TokensUnbridged(address,address,uint256,bytes32)
+        - event: TokensUnbridged(indexed address,indexed address,uint256,indexed bytes32)
           handler: handleTokensUnbridged
-        - event: TransferCompleted(bytes32)
+        - event: TransferCompleted(indexed bytes32)
           handler: handleTransferCompleted
-        - event: BridgeInitialized(address,address,uint256)
+        - event: BridgeInitialized(indexed address,indexed address,uint256)
           handler: handleBridgeInitialized
       file: ./src/bridge-events.ts
 
-  - kind: ethereum
-    name: RateLimiter
-    network: sepolia
-    source:
-      address: "0x..."
-      abi: RateLimiter
-      startBlock: 0
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - RateLimitStats
-      abis:
-        - name: RateLimiter
-          file: ../abis/RateLimiter.json
-      eventHandlers:
-        - event: WithdrawalProcessed(address,uint256,uint256,uint256)
-          handler: handleWithdrawalProcessed
-        - event: RateLimitUpdated(uint256,uint256)
-          handler: handleRateLimitUpdated
-        - event: ChainLimitSet(uint256,uint256)
-          handler: handleChainLimitSet
+  # Temporarily disabled - need to fix event handler imports
+  # - kind: ethereum
+  #   name: RateLimiter
+  #   network: sepolia
+  #   source:
+  #     address: "0x0000000000000000000000000000000000000000"
+  #     abi: RateLimiter
+  #     startBlock: 0
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.8
+  #     language: wasm/AssemblyScript
+  #     entities:
+  #       - RateLimitStats
+  #     abis:
+  #       - name: RateLimiter
+  #         file: ../abis/RateLimiter.json
+  #     eventHandlers:
+  #       - event: WithdrawalProcessed(indexed address,uint256,uint256,uint256)
+  #         handler: handleWithdrawalProcessed
+  #       - event: RateLimitUpdated(uint256,uint256)
+  #         handler: handleRateLimitUpdated
+  #       - event: ChainLimitSet(indexed uint256,uint256)
+  #         handler: handleChainLimitSet
+  #     file: ./src/rate-limiter.ts
 
-  - kind: ethereum
-    name: CircuitBreaker
-    network: sepolia
-    source:
-      address: "0x..."
-      abi: CircuitBreaker
-      startBlock: 0
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - CircuitBreakerState
-      abis:
-        - name: CircuitBreaker
-          file: ../abis/CircuitBreaker.json
-      eventHandlers:
-        - event: CircuitOpened(uint256,uint256)
-          handler: handleCircuitOpened
-        - event: CircuitHalfOpened(uint256)
-          handler: handleCircuitHalfOpened
-        - event: CircuitClosed(uint256)
-          handler: handleCircuitClosed
-        - event: FailureRecorded(address,uint256)
-          handler: handleFailureRecorded
-        - event: SuccessRecorded(address,uint256)
-          handler: handleSuccessRecorded
+  # - kind: ethereum
+  #   name: CircuitBreaker
+  #   network: sepolia
+  #   source:
+  #     address: "0x0000000000000000000000000000000000000000"
+  #     abi: CircuitBreaker
+  #     startBlock: 0
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.8
+  #     language: wasm/AssemblyScript
+  #     entities:
+  #       - CircuitBreakerState
+  #     abis:
+  #       - name: CircuitBreaker
+  #         file: ../abis/CircuitBreaker.json
+  #     eventHandlers:
+  #       - event: CircuitOpened(uint256,uint256)
+  #         handler: handleCircuitOpened
+  #       - event: CircuitHalfOpened(uint256)
+  #         handler: handleCircuitHalfOpened
+  #       - event: CircuitClosed(uint256)
+  #         handler: handleCircuitClosed
+  #       - event: FailureRecorded(indexed address,uint256)
+  #         handler: handleFailureRecorded
+  #       - event: SuccessRecorded(indexed address,uint256)
+  #         handler: handleSuccessRecorded
+  #     file: ./src/circuit-breaker.ts
 
-  - kind: ethereum
-    name: AdvancedGovernance
-    network: sepolia
-    source:
-      address: "0x..."
-      abi: AdvancedGovernance
-      startBlock: 0
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - GovernanceProposal
-        - GovernanceVote
-      abis:
-        - name: AdvancedGovernance
-          file: ../abis/AdvancedGovernance.json
-      eventHandlers:
-        - event: ProposalCreated(uint256,address,uint8,string,bytes32)
-          handler: handleProposalCreated
-        - event: VoteCast(uint256,address,uint8,uint256,uint256,string)
-          handler: handleVoteCast
-        - event: ProposalExecuted(uint256)
-          handler: handleProposalExecuted
-        - event: VetoCast(uint256,address)
-          handler: handleVetoCast
-
-  - kind: ethereum
-    name: InsurancePool
-    network: sepolia
-    source:
-      address: "0x..."
-      abi: InsurancePool
-      startBlock: 0
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - Claim
-        - InsuranceStake
-      abis:
-        - name: InsurancePool
-          file: ../abis/InsurancePool.json
-      eventHandlers:
-        - event: ClaimSubmitted(bytes32,address,uint256,uint8)
-          handler: handleClaimSubmitted
-        - event: ClaimApproved(bytes32,uint256)
-          handler: handleClaimApproved
-        - event: ClaimPaid(bytes32,address,uint256)
-          handler: handleClaimPaid
-        - event: ClaimRejected(bytes32)
-          handler: handleClaimRejected
-        - event: Staked(address,uint256,uint256,uint256)
-          handler: handleStaked
-        - event: Unstaked(address,uint256,uint256)
-          handler: handleUnstaked
-
-  # BMNR API Integration
-  - kind: api
-    name: BMNRAPI
-    network: sepolia
-    source:
-      api: BMNR
-      baseURL: ${BMNR_API_URL}
-      headers:
-        Authorization: Bearer ${BMNR_API_KEY}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - BMNRMetrics
-        - BMNRAlert
-        - BMNRBridgeStatus
-      abis: []
-      apiHandlers:
-        - api: getMetrics
-          handler: handleBMNRMetrics
-        - api: getAlerts
-          handler: handleBMNRAlerts
-        - api: getBridgeStatus
-          handler: handleBMNRBridgeStatus
-      blockHandlers:
-        - handler: handleBMNRBlockUpdate
-
-templates:
-  - kind: ethereum
-    name: QuantumResistantVault
-    network: sepolia
-    source:
-      abi: QuantumResistantVault
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - Guardian
-        - RecoveryRequest
-      abis:
-        - name: QuantumResistantVault
-          file: ../abis/QuantumResistantVault.json
-      eventHandlers:
-        - event: GuardianAdded(address)
-          handler: handleGuardianAdded
-        - event: GuardianRemoved(address)
-          handler: handleGuardianRemoved
-        - event: RecoveryInitiated(bytes32,address,address)
-          handler: handleRecoveryInitiated
-        - event: RecoveryExecuted(bytes32,address)
-          handler: handleRecoveryExecuted
-        - event: QuantumAlert(string)
-          handler: handleQuantumAlert
-
-  - kind: ethereum
-    name: MEVProtection
-    network: sepolia
-    source:
-      abi: MEVProtection
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - MEVTransaction
-      abis:
-        - name: MEVProtection
-          file: ../abis/MEVProtection.json
-      eventHandlers:
-        - event: Committed(bytes32,address,uint256,uint256)
-          handler: handleCommitted
-        - event: Revealed(bytes32,bytes32,address,uint256)
-          handler: handleRevealed
-        - event: Executed(bytes32,address,uint256)
-          handler: handleExecuted
-        - event: SandwichAttackDetected(address,address,uint256,uint256)
-          handler: handleSandwichAttackDetected
+templates: []

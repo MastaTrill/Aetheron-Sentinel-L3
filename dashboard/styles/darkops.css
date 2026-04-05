@@ -1,0 +1,20 @@
+/* Dark‑Ops Mode Overrides */
+[data-theme="void-black"][data-mode="Dark‑Ops"] {
+  --bg: #000000;
+  --panel-bg: #0a0a0a;
+  --accent: #ff0033;
+  --accent-soft: rgba(255, 0, 51, 0.4);
+  --text: #e2e8f0;
+  --text-dim: #64748b;
+  --glow: 0 0 18px rgba(255, 0, 51, 0.8);
+}
+
+[data-mode="Dark‑Ops"] .panel {
+  background: var(--panel-bg);
+  border-color: var(--accent-soft);
+  box-shadow: var(--glow);
+}
+
+[data-mode="Dark‑Ops"] .text-accent {
+  color: var(--accent);
+}
