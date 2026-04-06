@@ -1,0 +1,5 @@
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/
+@openzeppelin/contracts-cross-chain/=lib/openzeppelin-contracts-cross-chain/contracts/
+@account-abstraction/contracts/=node_modules/@account-abstraction/contracts/
+forge-std/=lib/forge-std/src/

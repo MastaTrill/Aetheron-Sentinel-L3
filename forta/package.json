@@ -1,0 +1,23 @@
+{
+  "name": "aetheron-sentinel-forta-bot",
+  "version": "1.0.0",
+  "description": "Forta bot for monitoring Aetheron Bridge security",
+  "scripts": {
+    "build": "npm run compile && npm run generate",
+    "compile": "hardhat compile",
+    "generate": "forta-sdk generate",
+    "deploy": "forta-agent deploy",
+    "start": "forta-agent start",
+    "disable": "forta-agent disable",
+    "enable": "forta-agent enable"
+  },
+  "dependencies": {
+    "forta-agent": "^0.1.25",
+    "ethers": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "hardhat": "^2.19.0",
+    "typescript": "^5.3.0"
+  }
+}

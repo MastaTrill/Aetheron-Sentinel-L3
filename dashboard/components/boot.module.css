@@ -1,0 +1,46 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeOut 1s ease forwards;
+}
+
+.sigil {
+  font-size: 4rem;
+  letter-spacing: 0.2em;
+  color: #9b59ff;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+
+.glyphs {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 2.5rem;
+  color: #6f3bff;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
+}
+
+.online {
+  font-size: 1.5rem;
+  color: #00ffcc;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
