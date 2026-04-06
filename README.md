@@ -1,87 +1,37 @@
 # Aetheron-Sentinel-L3
 
-Autonomous security interceptor for cross-chain bridges - blocks liquidity drain attacks in 14ms.
+Aetheron Sentinel L3 is a reference implementation of an autonomous bridge-defense interceptor.
 
-## Deployment
+## What was added now
 
-### Quick Start (Local)
+1. **JSON-RPC adapter with real polling flow**
+   - `JsonRpcOnChainAdapter` now supports pluggable transport, control-method routing, transaction submission, receipt polling, and finality checks.
+2. **Integration test coverage for RPC path**
+   - Added `tests/test_rpc_integration.py` with transport-mocked flow for submit, polling/finality, and rollback.
+3. **CI command matrix script**
+   - Added `scripts/ci_matrix.sh` to run `test_interceptor`, `test_readiness`, and `test_rpc_integration` suites separately.
 
-```bash
-npm install
-npx hardhat compile
-npx hardhat node
-```
+## Capability stack
 
-Then in another terminal:
+- `interceptor.py`: risk engine with actor/bridge/global breakers, policy-pack overrides, governance auto-rollback, crypto-agility compliance checks, and audit hooks.
+- `execution.py`: on-chain adapter abstraction + verified rollback-safe executor with failure budgets and operation receipts.
+- `rpc_adapter.py`: JSON-RPC integration adapter with polling and finality checks.
+- `policy_pack.py`: signed/versioned policy packs with staged rollout, dual-sign support, external PQ hooks, and rollback.
+- `pq_backend.py`: PQ backend protocol and mock implementation.
+- `state.py`: in-memory and Redis state backends for distributed counters/idempotency.
+- `governance.py`: calibration record tracking, drift alarming, and crypto-agility rules.
+- `simulation.py`: adversarial simulation + tournament KPI reporting.
+- `telemetry.py`: audit event sink interface.
 
-```bash
-npx hardhat run scripts/deploy-local.ts --network localhost
-```
-
-### Networks
-
-- `localhost` - Local Hardhat node
-- `sepolia` - Ethereum Sepolia testnet
-- `amoy` - Polygon Amoy testnet
-- `basegork` - Base Gork testnet
-
-### Deployment Order
-
-The correct deployment order is critical due to immutable addresses:
-
-1. **AetheronBridge** - Deploy first with placeholder sentinel
-2. **SentinelInterceptor** - Deploy with bridge address
-3. **Update Bridge** - Set sentinel address in bridge
-4. **(Optional) AetheronModuleHub** - For dashboard integration
-5. **Security Oracles** - Deploy and configure anomaly detection
-
-### Scripts
-
-| Script                       | Purpose                               |
-| ---------------------------- | ------------------------------------- |
-| `deploy-local.ts`            | Full local deployment with mock token |
-| `deploy.ts`                  | Production deployment                 |
-| `deploy-minimal.ts`          | Minimal deployment (core only)        |
-| `deploy-cheap.ts`            | Low-gas deployment for testnets       |
-| `deploy-hub.ts`              | Deploy dashboard hub                  |
-| `deploy-security-modules.ts` | Deploy anomaly detection oracles      |
-
-### Environment Variables
+## Quick start
 
 ```bash
-# .env
-DEPLOYER_PRIVATE_KEY=...
-RPC_URL=https://...
-ETHERSCAN_API_KEY=...
-SEPOLIA_RPC_URL=...
-AMOY_RPC_URL=...
+PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
-### Dashboard
+## Recommendations
 
-```bash
-cd dashboard
-npm install
-npm run dev
-```
-
-Set `VITE_HUB_ADDRESS` to the deployed hub address for full dashboard functionality.
-
-## Architecture
-
-- **SentinelInterceptor** - Autonomous security agent (TVL spike detection, auto-pause)
-- **AetheronBridge** - Cross-chain bridge with fee extraction
-- **Security Modules** - RateLimiter, CircuitBreaker, FlashLoanProtection
-- **Anomaly Detection** - TypeScript service for on-chain monitoring
-
-## Testing
-
-```bash
-npx hardhat test
-```
-
-## Performance
-
-- **Throughput:** 10,000+ TPS
-- **Response Time:** 14ms (4ms detection + 10ms execution)
-- **Gas Compression:** 95.4% vs L1
+- Run `scripts/ci_matrix.sh` in CI for explicit suite boundaries.
+- Run `scripts/premerge_stress.sh 5` before merge to execute repeated matrix runs with varying `PYTHONHASHSEED`.
+- Run `docs/BUG_BOUNTY_READINESS.md` checklist before public bounty launch.
+- Launch private bounty first, then widen scope after two clean staging cycles.
