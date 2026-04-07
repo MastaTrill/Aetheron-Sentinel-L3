@@ -1,20 +1,15 @@
 import { config } from "dotenv";
 import { ethers } from "ethers";
-import { AnomalyDetector } from "./detector.js";
-import { VulnerabilityDetector } from "./vulnerability-detector.js";
-import { Logger } from "./logger.js";
-import { AlertManager } from "./alerts.js";
-import { ServiceHealthMonitor } from "./health-monitor.js";
+import { AnomalyDetector } from "./detector";
+import { VulnerabilityDetector } from "./vulnerability-detector";
+import { Logger } from "./logger";
+import { AlertManager } from "./alerts";
+import { ServiceHealthMonitor } from "./health-monitor";
 import * as fs from "fs";
 import * as path from "path";
-import { fileURLToPath } from "url";
 
 // Load environment variables
 config();
-
-// ES module equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Load alerts configuration
 const alertsConfigPath = path.join(__dirname, "../config/alerts.json");

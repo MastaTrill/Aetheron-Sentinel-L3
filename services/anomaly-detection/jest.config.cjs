@@ -7,4 +7,8 @@ module.exports = {
     "^.+\\.tsx?$": "ts-jest",
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  transformIgnorePatterns: [
+    "node_modules/(?!(ethers|@ethersproject|ws|@ws|axios)/)",
+  ],
+  extensionsToTreatAsEsm: [".ts"],
 };
