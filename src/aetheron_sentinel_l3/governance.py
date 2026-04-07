@@ -28,8 +28,9 @@ class CryptoAgilityRule:
 class GovernanceRegistry:
     """Tracks per-chain/asset calibration records, drift alarms, and crypto posture."""
 
-    def __init__(self, alarm_threshold: float = 0.2) -> None:
+    def __init__(self, alarm_threshold: float = 0.2, alert_callback=None) -> None:
         self.alarm_threshold = alarm_threshold
+        self.alert_callback = alert_callback
         self.records: list[CalibrationRecord] = []
         self.alarms: list[DriftAlarm] = []
         self.crypto_rules: list[CryptoAgilityRule] = []
@@ -37,15 +38,20 @@ class GovernanceRegistry:
     def record_calibration(self, record: CalibrationRecord) -> None:
         self.records.append(record)
         if record.observed_drift >= self.alarm_threshold:
-            severity = "critical" if record.observed_drift >= self.alarm_threshold * 1.5 else "warning"
-            self.alarms.append(
-                DriftAlarm(
-                    chain_id=record.chain_id,
-                    asset_symbol=record.asset_symbol,
-                    drift=record.observed_drift,
-                    severity=severity,
-                )
+            severity = (
+                "critical"
+                if record.observed_drift >= self.alarm_threshold * 1.5
+                else "warning"
             )
+            alarm = DriftAlarm(
+                chain_id=record.chain_id,
+                asset_symbol=record.asset_symbol,
+                drift=record.observed_drift,
+                severity=severity,
+            )
+            self.alarms.append(alarm)
+            if self.alert_callback:
+                self.alert_callback(alarm)
 
     def register_crypto_rule(self, rule: CryptoAgilityRule) -> None:
         self.crypto_rules.append(rule)
