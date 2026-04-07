@@ -38,6 +38,7 @@ contract TimeLockVault is AccessControl, ReentrancyGuard {
     mapping(bytes32 => VestingSchedule) public vestingSchedules;
     mapping(address => bytes32[]) public beneficiarySchedules;
     mapping(bytes32 => address[]) public scheduleBeneficiaries;
+    mapping(bytes32 => mapping(address => uint256)) public beneficiaryReleased;
 
     // Emergency controls
     bool public emergencyPause;
@@ -174,7 +175,7 @@ contract TimeLockVault is AccessControl, ReentrancyGuard {
                 _beneficiary
             );
             if (releasable > 0) {
-                vestingSchedules[schedules[i]].released += releasable;
+                beneficiaryReleased[schedules[i]][_beneficiary] += releasable;
                 emit TokensReleased(_beneficiary, schedules[i], releasable);
             }
         }
@@ -223,19 +224,13 @@ contract TimeLockVault is AccessControl, ReentrancyGuard {
         }
 
         uint256 vested = _vestedAmount(schedule);
-        uint256 released = schedule.released;
+        uint256 numBeneficiaries = beneficiaries.length;
+        uint256 beneficiaryShare = schedule.totalAmount / numBeneficiaries;
+        uint256 beneficiaryVested = vested / numBeneficiaries;
+        if (beneficiaryVested > beneficiaryShare) beneficiaryVested = beneficiaryShare;
 
-        // Distribute evenly among beneficiaries
-        uint256 beneficiaryShare = schedule.totalAmount / beneficiaries.length;
-        uint256 beneficiaryVested = vested * beneficiaries.length >
-            schedule.totalAmount
-            ? schedule.totalAmount
-            : vested;
-        uint256 totalReleasable = (beneficiaryVested *
-            (schedule.totalAmount / beneficiaries.length)) /
-            schedule.totalAmount;
-
-        return totalReleasable - released;
+        uint256 released = beneficiaryReleased[_scheduleId][_beneficiary];
+        return beneficiaryVested - released;
     }
 
     function _vestedAmount(
@@ -259,8 +254,18 @@ contract TimeLockVault is AccessControl, ReentrancyGuard {
 
         schedule.revoked = true;
 
-        uint256 released = schedule.released;
-        uint256 revokedAmount = schedule.totalAmount - released;
+        address[] memory beneficiaries = scheduleBeneficiaries[_scheduleId];
+        uint256 totalReleased;
+        uint256 numBeneficiaries = beneficiaries.length;
+        uint256 beneficiaryShare = schedule.totalAmount / numBeneficiaries;
+
+        for (uint256 i = 0; i < numBeneficiaries; i++) {
+            totalReleased += beneficiaryReleased[_scheduleId][beneficiaries[i]];
+            // Set released to max to prevent further claims
+            beneficiaryReleased[_scheduleId][beneficiaries[i]] = beneficiaryShare;
+        }
+
+        uint256 revokedAmount = schedule.totalAmount - totalReleased;
 
         if (revokedAmount > 0) {
             require(
@@ -280,7 +285,7 @@ contract TimeLockVault is AccessControl, ReentrancyGuard {
     }
 
     function initiateEmergencyWithdrawal(
-        address _to
+        address /* _to */
     ) external onlyRole(GUARDIAN_ROLE) {
         require(!emergencyApproved[msg.sender], "Already initiated");
         emergencyApproved[msg.sender] = true;

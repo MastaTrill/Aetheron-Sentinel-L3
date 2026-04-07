@@ -39,24 +39,27 @@ async function main() {
 
   // Update Bridge with correct sentinel address
   console.log("\n3. Updating Bridge with sentinel address...");
-  const tx = await bridge.setSentinel(await sentinel.getAddress());
-  await tx.wait();
+  const tx1 = await bridge.setSentinel(await sentinel.getAddress());
+  await tx1.wait();
   console.log("   Updated Bridge with SentinelInterceptor");
 
   // Enable supported chains
   console.log("\n4. Enabling supported chains...");
   const supportedChains = [1, 10, 42161]; // Mainnet, Optimism, Arbitrum
   for (const chainId of supportedChains) {
-    const tx = await bridge.setSupportedChain(chainId, true);
-    await tx.wait();
+    const tx2 = await bridge.setSupportedChain(chainId, true);
+    await tx2.wait();
     console.log(`   Enabled chain: ${chainId}`);
   }
 
   // Grant sentinel role to bridge for emergency pause
   console.log("\n5. Configuring roles...");
   const SENTINEL_ROLE = await sentinel.SENTINEL_ROLE();
-  const tx = await sentinel.grantRole(SENTINEL_ROLE, await bridge.getAddress());
-  await tx.wait();
+  const tx3 = await sentinel.grantRole(
+    SENTINEL_ROLE,
+    await bridge.getAddress(),
+  );
+  await tx3.wait();
   console.log("   Granted SENTINEL_ROLE to bridge");
 
   console.log("\n========================================");

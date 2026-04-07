@@ -29,6 +29,10 @@ describe("AnomalyDetector", () => {
     detector = new AnomalyDetector(provider, config, mockIngestion);
   });
 
+  afterEach(async () => {
+    await detector.stop();
+  });
+
   test("should initialize with correct config", () => {
     // The detector is created without throwing
     expect(detector).toBeDefined();

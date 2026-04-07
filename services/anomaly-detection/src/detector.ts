@@ -4,7 +4,7 @@ import {
   BlockchainDataIngestion,
   TVLDataPoint,
   BridgeEvent,
-} from "./blockchain-data";
+} from "./blockchain-data.js";
 
 interface DetectorConfig {
   bridgeAddress: string;

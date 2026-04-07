@@ -1,11 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AlertManager = void 0;
-const axios_1 = __importDefault(require("axios"));
-class AlertManager {
+import axios from "axios";
+export class AlertManager {
     config;
     alertStates = new Map();
     recentAlerts = [];
@@ -154,7 +148,7 @@ class AlertManager {
         throw lastError || new Error("All delivery attempts failed");
     }
     async sendWebhookAlert(url, alert) {
-        await axios_1.default.post(url, alert, {
+        await axios.post(url, alert, {
             timeout: 10000,
             headers: { "Content-Type": "application/json" },
         });
@@ -162,7 +156,7 @@ class AlertManager {
     async sendPagerDutyAlert(routingKey, alert) {
         const severity = alert.severity === "CRITICAL" ? "critical" :
             alert.severity === "WARNING" ? "warning" : "info";
-        await axios_1.default.post("https://events.pagerduty.com/v2/enqueue", {
+        await axios.post("https://events.pagerduty.com/v2/enqueue", {
             routing_key: routingKey,
             event_action: "trigger",
             payload: {
@@ -191,7 +185,7 @@ class AlertManager {
                     ]
                 }]
         };
-        await axios_1.default.post(webhookUrl, payload, {
+        await axios.post(webhookUrl, payload, {
             timeout: 10000,
             headers: { "Content-Type": "application/json" },
         });
@@ -212,7 +206,7 @@ class AlertManager {
                     ]
                 }]
         };
-        await axios_1.default.post(webhookUrl, payload, {
+        await axios.post(webhookUrl, payload, {
             timeout: 10000,
             headers: { "Content-Type": "application/json" },
         });
@@ -225,7 +219,7 @@ class AlertManager {
             `Source: ${alert.source}\n` +
             `Time: ${alert.timestamp}\n\n` +
             `Data:\n\`\`\`\n${JSON.stringify(alert.data, null, 2)}\n\`\`\``;
-        await axios_1.default.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
             chat_id: chatId,
             text: message,
             parse_mode: "Markdown",
@@ -295,5 +289,4 @@ class AlertManager {
         }
     }
 }
-exports.AlertManager = AlertManager;
 //# sourceMappingURL=alerts.js.map

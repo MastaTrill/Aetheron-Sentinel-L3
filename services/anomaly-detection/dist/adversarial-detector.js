@@ -1,43 +1,7 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AdversarialDetector = exports.ADVERSARIAL_PATTERNS = void 0;
-const ethers_1 = require("ethers");
-const events_1 = require("events");
-const tf = __importStar(require("@tensorflow/tfjs-node"));
-exports.ADVERSARIAL_PATTERNS = {
+import { ethers } from "ethers";
+import { EventEmitter } from "events";
+import * as tf from '@tensorflow/tfjs-node';
+export const ADVERSARIAL_PATTERNS = {
     FGSM: {
         signature: "0x7a9f3d1c",
         confidence: 0.92,
@@ -59,7 +23,7 @@ exports.ADVERSARIAL_PATTERNS = {
         description: "Universal adversarial perturbation"
     }
 };
-class AdversarialDetector extends events_1.EventEmitter {
+export class AdversarialDetector extends EventEmitter {
     modelPath;
     autoencoderPath;
     model = null;
@@ -176,7 +140,7 @@ class AdversarialDetector extends events_1.EventEmitter {
      */
     classifyAttackType(transactionData, score) {
         const hash = this.hashTransactionData(transactionData);
-        for (const [type, pattern] of Object.entries(exports.ADVERSARIAL_PATTERNS)) {
+        for (const [type, pattern] of Object.entries(ADVERSARIAL_PATTERNS)) {
             if (hash.startsWith(pattern.signature.slice(0, 6))) {
                 return type;
             }
@@ -284,7 +248,7 @@ class AdversarialDetector extends events_1.EventEmitter {
      * @notice Hash transaction data for pattern matching
      */
     hashTransactionData(data) {
-        const hash = ethers_1.ethers.keccak256(ethers_1.ethers.toUtf8Bytes(data.join(',')));
+        const hash = ethers.keccak256(ethers.toUtf8Bytes(data.join(',')));
         return hash;
     }
     /**
@@ -315,5 +279,4 @@ class AdversarialDetector extends events_1.EventEmitter {
         }
     }
 }
-exports.AdversarialDetector = AdversarialDetector;
 //# sourceMappingURL=adversarial-detector.js.map

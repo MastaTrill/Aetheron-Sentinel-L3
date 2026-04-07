@@ -5,7 +5,7 @@
  * Real-time monitoring dashboard for anomaly detection services
  */
 
-import { ServiceHealthMonitor } from "./health-monitor";
+import { ServiceHealthMonitor } from "./health-monitor.js";
 import { ethers } from "ethers";
 
 const config = {

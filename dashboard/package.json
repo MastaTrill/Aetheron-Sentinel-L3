@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "ws": "node hooks/ws-server.js"
   },
   "dependencies": {
     "@react-three/drei": "^9.56.0",

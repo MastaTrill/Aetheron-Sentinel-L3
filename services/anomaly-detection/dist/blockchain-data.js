@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BlockchainDataIngestion = void 0;
 // @ts-nocheck
-const ethers_1 = require("ethers");
-const events_1 = require("events");
-class BlockchainDataIngestion extends events_1.EventEmitter {
+import { ethers } from "ethers";
+import { EventEmitter } from "events";
+export class BlockchainDataIngestion extends EventEmitter {
     provider;
     config;
     isRunning = false;
@@ -17,9 +14,9 @@ class BlockchainDataIngestion extends events_1.EventEmitter {
     constructor(config) {
         super();
         this.config = config;
-        this.provider = new ethers_1.ethers.JsonRpcProvider(config.rpcUrl);
+        this.provider = new ethers.JsonRpcProvider(config.rpcUrl);
         // Initialize bridge contract for event listening
-        this.bridgeContract = new ethers_1.ethers.Contract(config.bridgeAddress, [
+        this.bridgeContract = new ethers.Contract(config.bridgeAddress, [
             "event TokensBridged(address indexed sender, address indexed token, uint256 amount, uint256 destinationChain, address recipient, bytes32 transferId)",
             "event TokensUnbridged(address indexed recipient, address indexed token, uint256 amount, bytes32 indexed transferId)",
             "function totalValueLocked() view returns (uint256)",
@@ -149,7 +146,7 @@ class BlockchainDataIngestion extends events_1.EventEmitter {
                     continue;
                 for (const tx of block.transactions) {
                     // Check if transaction value is significant (> 1 ETH)
-                    if (tx.value > ethers_1.ethers.parseEther("1")) {
+                    if (tx.value > ethers.parseEther("1")) {
                         const txData = {
                             hash: tx.hash,
                             blockNumber: tx.blockNumber,
@@ -218,7 +215,7 @@ class BlockchainDataIngestion extends events_1.EventEmitter {
             const block = await this.provider.getBlock(blockNumber, true);
             if (block && block.transactions) {
                 for (const tx of block.transactions) {
-                    if (tx.value > ethers_1.ethers.parseEther("10")) {
+                    if (tx.value > ethers.parseEther("10")) {
                         // Higher threshold for real-time
                         const txData = {
                             hash: tx.hash,
@@ -297,5 +294,4 @@ class BlockchainDataIngestion extends events_1.EventEmitter {
         }
     }
 }
-exports.BlockchainDataIngestion = BlockchainDataIngestion;
 //# sourceMappingURL=blockchain-data.js.map

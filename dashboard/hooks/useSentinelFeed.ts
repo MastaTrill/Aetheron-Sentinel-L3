@@ -7,12 +7,12 @@ export function useSentinelFeed() {
   const [connected, setConnected] = useState(false);
 
   // Default safe values so UI never crashes
-  const [threat, setThreat] = useState(Array(5).fill(Array(6).fill(0)));
-  const [integrity, setIntegrity] = useState(100);
-  const [state, setState] = useState("IDLE");
+  const [threats, setThreats] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [states, setStates] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:7071");
+    const ws = new WebSocket("ws://localhost:8080");
 
     ws.onopen = () => setConnected(true);
     ws.onclose = () => setConnected(false);
@@ -24,15 +24,14 @@ export function useSentinelFeed() {
         // Store raw events
         setEvents((prev) => [data, ...prev].slice(0, 50));
 
-        // Update threat grid if present
-        if (data.threat) setThreat(data.threat);
-
-        // Update integrity if present
-        if (data.integrity !== undefined) setIntegrity(data.integrity);
-
-        // Update state machine if present
-        if (data.state) setState(data.state);
-
+        // Handle different event types
+        if (data.type === "threat") {
+          setThreats((prev) => [data, ...prev].slice(0, 10));
+        } else if (data.type === "alert") {
+          setAlerts((prev) => [data, ...prev].slice(0, 20));
+        } else if (data.type === "state") {
+          setStates((prev) => [data, ...prev].slice(0, 10));
+        }
       } catch (e) {
         console.error("Failed to parse event", e);
       }
@@ -44,9 +43,8 @@ export function useSentinelFeed() {
   return {
     events,
     connected,
-    threat,
-    integrity,
-    state,
+    threats,
+    alerts,
+    states,
   };
 }
-

@@ -1,13 +1,10 @@
 #!/usr/bin/env node
-"use strict";
 /**
  * Service Health Dashboard
  * Real-time monitoring dashboard for anomaly detection services
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.startDashboard = startDashboard;
-const health_monitor_1 = require("./health-monitor");
-const ethers_1 = require("ethers");
+import { ServiceHealthMonitor } from "./health-monitor.js";
+import { ethers } from "ethers";
 const config = {
     rpcUrl: process.env.RPC_URL || "http://localhost:8545",
     bridgeAddress: process.env.BRIDGE_ADDRESS || "0x...",
@@ -15,8 +12,8 @@ const config = {
     anomalyOracleAddress: process.env.ANOMALY_ORACLE_ADDRESS || "0x...",
 };
 async function startDashboard() {
-    const provider = new ethers_1.ethers.JsonRpcProvider(config.rpcUrl);
-    const monitor = new health_monitor_1.ServiceHealthMonitor(provider, config);
+    const provider = new ethers.JsonRpcProvider(config.rpcUrl);
+    const monitor = new ServiceHealthMonitor(provider, config);
     console.log("📊 Service Health Dashboard");
     console.log("==========================");
     monitor.on("healthCheck", (check) => {
@@ -79,4 +76,5 @@ function getStatusIcon(status) {
 if (require.main === module) {
     startDashboard().catch(console.error);
 }
+export { startDashboard };
 //# sourceMappingURL=health-dashboard.js.map

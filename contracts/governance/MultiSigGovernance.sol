@@ -57,8 +57,9 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
         uint256 executionDelay;
         ProposalState state;
         bool hasTimelock;
-        mapping(address => bool) hasVoted;
-        mapping(address => uint256) voteAmount;
+         mapping(address => bool) hasVoted;
+         mapping(address => uint256) voteAmount;
+         mapping(address => bool) voteSupport;
     }
 
     struct Voter {
@@ -94,6 +95,7 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
     mapping(uint256 => Proposal) public proposals;
     mapping(bytes32 => bool) public executedSignatures;
     mapping(address => uint256) public proposerVotes; // Votes locked by proposer
+    mapping(address => uint256) public nonces;
 
     // Events
     event ProposalCreated(
@@ -140,8 +142,8 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
         require(_targets.length == _calldatas.length, "Invalid array lengths");
         require(_targets.length > 0, "No actions");
 
-        uint256 proposerVotes = getVotes(msg.sender);
-        require(proposerVotes >= proposalThreshold, "Below proposal threshold");
+        uint256 currentProposerVotes = getVotes(msg.sender);
+        require(currentProposerVotes >= proposalThreshold, "Below proposal threshold");
 
         // Calculate voting period based on proposal type
         uint256 duration = votingDuration;
@@ -218,7 +220,7 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
     function castVoteWithReason(
         uint256 _proposalId,
         bool _support,
-        string calldata _reason
+        string calldata /* _reason */
     ) external {
         _castVote(_proposalId, msg.sender, _support, 1);
     }
@@ -238,8 +240,10 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
         );
 
         address signer = digest.recover(_signature);
+        require(_nonce == nonces[signer], "Invalid nonce");
         require(getVotes(signer) >= proposalThreshold, "Invalid signer");
 
+        nonces[signer] = _nonce + 1;
         _castVote(_proposalId, signer, _support, 1);
     }
 
@@ -258,6 +262,7 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
 
         proposal.hasVoted[_voter] = true;
         proposal.voteAmount[_voter] = weight;
+        proposal.voteSupport[_voter] = _support;
 
         if (_support) {
             proposal.yesVotes += weight;
@@ -380,11 +385,12 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
                 value: proposal.values[i]
             }(proposal.calldatas[i]);
 
-            results[i] = result;
-
             if (!success) {
                 emit EmergencyExecution(_proposalId, result);
+                revert("Emergency execution failed");
             }
+
+            results[i] = result;
         }
 
         emit ProposalExecuted(_proposalId);
@@ -501,7 +507,7 @@ contract MultiSigGovernance is AccessControl, ReentrancyGuard, EIP712 {
         Proposal storage proposal = proposals[_proposalId];
         return (
             proposal.hasVoted[_voter],
-            proposal.voteAmount[_voter] > 0 ? true : false, // Simplified
+            proposal.voteSupport[_voter],
             proposal.voteAmount[_voter]
         );
     }

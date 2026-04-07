@@ -1,26 +1,58 @@
-'use client';
+"use client";
 
-export default function StateMachine({ state }) {
-  const states = ['IDLE', 'SCANNING', 'ANALYZING', 'ALERT'];
-
+export default function StateMachine({ states }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded p-4">
       <h3 className="text-lg font-semibold mb-3">State Machine</h3>
+      <svg width="800" height="300">
+        <circle
+          cx="150"
+          cy="150"
+          r="60"
+          stroke="#6A4BFF"
+          strokeWidth="10"
+          fill="#1A1A22"
+        />
+        <circle
+          cx="400"
+          cy="150"
+          r="60"
+          stroke="#6A4BFF"
+          strokeWidth="10"
+          fill="#1A1A22"
+        />
+        <circle
+          cx="650"
+          cy="150"
+          r="60"
+          stroke="#6A4BFF"
+          strokeWidth="10"
+          fill="#1A1A22"
+        />
 
-      <div className="flex space-x-4">
-        {states.map((s) => (
-          <div
-            key={s}
-            className={`px-4 py-2 rounded border ${
-              s === state
-                ? 'bg-blue-600 border-blue-400'
-                : 'bg-zinc-800 border-zinc-700'
-            }`}
-          >
-            {s}
-          </div>
+        <line
+          x1="210"
+          y1="150"
+          x2="340"
+          y2="150"
+          stroke="#3AF2FF"
+          strokeWidth="6"
+        />
+        <line
+          x1="460"
+          y1="150"
+          x2="590"
+          y2="150"
+          stroke="#3AF2FF"
+          strokeWidth="6"
+        />
+
+        {states.slice(-1).map((s, i) => (
+          <text key={i} x="400" y="260" fill="#3AF2FF" fontSize="20">
+            {s.st}
+          </text>
         ))}
-      </div>
+      </svg>
     </div>
   );
 }

@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 // Integration test for anomaly detection service with oracle
-const ethers_1 = require("ethers");
-const detector_1 = require("./detector");
+import { ethers } from "ethers";
+import { AnomalyDetector } from "./detector.js";
 async function testOracleIntegration() {
-    const provider = new ethers_1.ethers.JsonRpcProvider("http://localhost:8545");
+    const provider = new ethers.JsonRpcProvider("http://localhost:8545");
     const config = {
         bridgeAddress: "0x...",
         sentinelAddress: "0x...",
@@ -14,7 +12,7 @@ async function testOracleIntegration() {
         withdrawalWindow: 60 * 1000,
         monitoringInterval: 5000, // 5 seconds for testing
     };
-    const detector = new detector_1.AnomalyDetector(provider, config);
+    const detector = new AnomalyDetector(provider, config);
     console.log("Testing oracle integration...");
     // Listen for oracle reports
     detector.on("oracleReported", (data) => {

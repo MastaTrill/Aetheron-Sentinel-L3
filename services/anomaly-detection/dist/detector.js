@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AnomalyDetector = void 0;
-const ethers_1 = require("ethers");
-const events_1 = require("events");
-const blockchain_data_1 = require("./blockchain-data");
-class AnomalyDetector extends events_1.EventEmitter {
+import { ethers } from "ethers";
+import { EventEmitter } from "events";
+import { BlockchainDataIngestion, } from "./blockchain-data.js";
+export class AnomalyDetector extends EventEmitter {
     provider;
     config;
     dataIngestion;
@@ -32,7 +29,7 @@ class AnomalyDetector extends events_1.EventEmitter {
             this.dataIngestion = dataIngestion;
         }
         else {
-            this.dataIngestion = new blockchain_data_1.BlockchainDataIngestion({
+            this.dataIngestion = new BlockchainDataIngestion({
                 rpcUrl: config.rpcUrl,
                 bridgeAddress: config.bridgeAddress,
                 startBlock: config.startBlock,
@@ -152,7 +149,7 @@ class AnomalyDetector extends events_1.EventEmitter {
             // Fallback to last known TVL
             return this.tvlHistory.length > 0
                 ? this.tvlHistory[this.tvlHistory.length - 1].currentTVL
-                : ethers_1.ethers.parseEther("1000000");
+                : ethers.parseEther("1000000");
         }
     }
     checkTVLSpike() {
@@ -394,11 +391,11 @@ class AnomalyDetector extends events_1.EventEmitter {
     getHistoricalWithdrawalPatterns() {
         // This would track historical patterns - simplified implementation
         return [
-            { total: ethers_1.ethers.parseEther("1000"), count: 5 },
-            { total: ethers_1.ethers.parseEther("800"), count: 4 },
-            { total: ethers_1.ethers.parseEther("1200"), count: 6 },
-            { total: ethers_1.ethers.parseEther("900"), count: 5 },
-            { total: ethers_1.ethers.parseEther("1100"), count: 5 },
+            { total: ethers.parseEther("1000"), count: 5 },
+            { total: ethers.parseEther("800"), count: 4 },
+            { total: ethers.parseEther("1200"), count: 6 },
+            { total: ethers.parseEther("900"), count: 5 },
+            { total: ethers.parseEther("1100"), count: 5 },
         ];
     }
     getHistoricalWithdrawalVelocities() {
@@ -421,7 +418,7 @@ class AnomalyDetector extends events_1.EventEmitter {
     async reportToOracle(anomalyType, severity, confidence, data) {
         const startTime = Date.now();
         try {
-            const oracle = new ethers_1.ethers.Contract(this.config.anomalyOracleAddress, [
+            const oracle = new ethers.Contract(this.config.anomalyOracleAddress, [
                 "function reportAnomaly(uint8 anomalyType, uint256 severity, uint256 confidence, bytes data)",
             ], this.provider);
             // Report anomaly to oracle
@@ -445,7 +442,7 @@ class AnomalyDetector extends events_1.EventEmitter {
     }
     async triggerSentinel(currentTVL, percentage) {
         try {
-            const sentinel = new ethers_1.ethers.Contract(this.config.sentinelAddress, [
+            const sentinel = new ethers.Contract(this.config.sentinelAddress, [
                 "function reportAnomaly(uint256 tvlPercentage, uint256 currentTVL)",
                 "function emergencyPause(string calldata reason)",
             ], this.provider);
@@ -491,5 +488,4 @@ class AnomalyDetector extends events_1.EventEmitter {
         };
     }
 }
-exports.AnomalyDetector = AnomalyDetector;
 //# sourceMappingURL=detector.js.map

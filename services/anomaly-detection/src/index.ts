@@ -1,17 +1,20 @@
 import { config } from "dotenv";
 import { ethers } from "ethers";
-import { AnomalyDetector } from "./detector";
-import { VulnerabilityDetector } from "./vulnerability-detector";
-import { Logger } from "./logger";
-import { AlertManager } from "./alerts";
-import { ServiceHealthMonitor } from "./health-monitor";
+import { AnomalyDetector } from "./detector.js";
+import { VulnerabilityDetector } from "./vulnerability-detector.js";
+import { Logger } from "./logger.js";
+import { AlertManager } from "./alerts.js";
+import { ServiceHealthMonitor } from "./health-monitor.js";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 
 // Load environment variables
 config();
 
 // Load alerts configuration
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const alertsConfigPath = path.join(__dirname, "../config/alerts.json");
 const alertsConfig = JSON.parse(fs.readFileSync(alertsConfigPath, "utf8"));
 

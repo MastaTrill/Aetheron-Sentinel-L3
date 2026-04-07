@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "Forta bot for monitoring Aetheron Bridge security",
   "scripts": {
-    "build": "npm run compile && npm run generate",
+    "build": "npm run compile",
     "compile": "hardhat compile",
-    "generate": "forta-sdk generate",
     "deploy": "forta-agent deploy",
     "start": "forta-agent start",
     "disable": "forta-agent disable",

@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServiceHealthMonitor = void 0;
-const ethers_1 = require("ethers");
-const events_1 = require("events");
-class ServiceHealthMonitor extends events_1.EventEmitter {
+import { ethers } from "ethers";
+import { EventEmitter } from "events";
+export class ServiceHealthMonitor extends EventEmitter {
     provider;
     config;
     healthChecks = new Map();
@@ -99,7 +96,7 @@ class ServiceHealthMonitor extends events_1.EventEmitter {
     async checkBridgeContract() {
         const startTime = Date.now();
         try {
-            const bridge = new ethers_1.ethers.Contract(this.config.bridgeAddress, ["function totalValueLocked() view returns (uint256)"], this.provider);
+            const bridge = new ethers.Contract(this.config.bridgeAddress, ["function totalValueLocked() view returns (uint256)"], this.provider);
             const tvl = await bridge.totalValueLocked();
             const responseTime = Date.now() - startTime;
             this.updateHealthCheck("bridge_contract", "healthy", responseTime, {
@@ -114,7 +111,7 @@ class ServiceHealthMonitor extends events_1.EventEmitter {
     async checkSentinelContract() {
         const startTime = Date.now();
         try {
-            const sentinel = new ethers_1.ethers.Contract(this.config.sentinelAddress, ["function paused() view returns (bool)"], this.provider);
+            const sentinel = new ethers.Contract(this.config.sentinelAddress, ["function paused() view returns (bool)"], this.provider);
             const isPaused = await sentinel.paused();
             const responseTime = Date.now() - startTime;
             this.updateHealthCheck("sentinel_contract", "healthy", responseTime, {
@@ -129,7 +126,7 @@ class ServiceHealthMonitor extends events_1.EventEmitter {
     async checkAnomalyOracleContract() {
         const startTime = Date.now();
         try {
-            const oracle = new ethers_1.ethers.Contract(this.config.anomalyOracleAddress, ["function getCurrentRiskAssessment() view returns (uint256, uint256)"], this.provider);
+            const oracle = new ethers.Contract(this.config.anomalyOracleAddress, ["function getCurrentRiskAssessment() view returns (uint256, uint256)"], this.provider);
             const [riskLevel, avgProbability] = await oracle.getCurrentRiskAssessment();
             const responseTime = Date.now() - startTime;
             this.updateHealthCheck("anomaly_oracle", "healthy", responseTime, {
@@ -291,5 +288,4 @@ class ServiceHealthMonitor extends events_1.EventEmitter {
         return "healthy";
     }
 }
-exports.ServiceHealthMonitor = ServiceHealthMonitor;
 //# sourceMappingURL=health-monitor.js.map

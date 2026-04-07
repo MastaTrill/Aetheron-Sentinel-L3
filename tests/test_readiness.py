@@ -18,7 +18,11 @@ class TestReadiness(unittest.TestCase):
             return {"result": True}
 
         adapter = JsonRpcOnChainAdapter(
-            JsonRpcAdapterConfig(chain_name="eth-sepolia", endpoint="https://example.invalid", confirmations_required=1),
+            JsonRpcAdapterConfig(
+                chain_name="eth-sepolia",
+                endpoint="https://example.invalid",
+                confirmations_required=1,
+            ),
             transport=transport,
         )
         executor = ActionExecutor(chain_adapter=adapter)

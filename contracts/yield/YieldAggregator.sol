@@ -134,11 +134,7 @@ contract YieldAggregator is AccessControl, ReentrancyGuard {
 
         // Calculate shares
         uint256 depositAmount = _amount;
-        if (totalShares == 0) {
-            shares = depositAmount;
-        } else {
-            shares = (depositAmount * totalShares) / totalDeposited;
-        }
+        shares = (depositAmount * sharesMultiplier) / 1e18;
 
         // Transfer tokens
         DEPOSIT_TOKEN.safeTransferFrom(msg.sender, address(this), _amount);
@@ -174,10 +170,9 @@ contract YieldAggregator is AccessControl, ReentrancyGuard {
         // Calculate proportional amounts
         uint256 depositedPortion = (position.depositedAmount * _shares) /
             position.accumulatedShares;
-        uint256 pendingYield = position.pendingYield;
 
         // Calculate yield proportional to shares
-        yield = (pendingYield / totalShares) * _shares;
+        yield = (position.pendingYield * _shares) / position.accumulatedShares;
         amount = depositedPortion;
 
         // Update totals
@@ -205,11 +200,11 @@ contract YieldAggregator is AccessControl, ReentrancyGuard {
         }
 
         // Harvest all pending yield from all sources
-        uint256 pendingYield;
+        uint256 totalYield;
         for (uint256 i = 0; i < activeSourceIds.length; i++) {
             bytes32 sourceId = activeSourceIds[i];
             uint256 yield = _harvestYield(sourceId);
-            pendingYield += yield;
+            totalYield += yield;
 
             // Auto-compound if above threshold
             if (yield >= COMPOUND_THRESHOLD) {
@@ -217,7 +212,11 @@ contract YieldAggregator is AccessControl, ReentrancyGuard {
             }
         }
 
-        position.pendingYield += pendingYield;
+        // Distribute yield proportionally to user's shares
+        if (totalShares > 0) {
+            uint256 userYield = (totalYield * position.accumulatedShares) / totalShares;
+            position.pendingYield += userYield;
+        }
     }
 
     // ============ Yield Source Management ============
@@ -278,7 +277,7 @@ contract YieldAggregator is AccessControl, ReentrancyGuard {
         YieldSource storage source = yieldSources[_sourceId];
 
         // Approve protocol
-        DEPOSIT_TOKEN.forceApprove(source.protocol, _amount);
+        DEPOSIT_TOKEN.approve(source.protocol, _amount);
 
         // Call deposit on protocol (simplified - would integrate with actual protocols)
         (bool success, ) = source.protocol.call(

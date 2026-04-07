@@ -1,50 +1,18 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv_1 = require("dotenv");
-const ethers_1 = require("ethers");
-const detector_1 = require("./detector");
-const vulnerability_detector_1 = require("./vulnerability-detector");
-const logger_1 = require("./logger");
-const alerts_1 = require("./alerts");
-const health_monitor_1 = require("./health-monitor");
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
+import { config } from "dotenv";
+import { ethers } from "ethers";
+import { AnomalyDetector } from "./detector.js";
+import { VulnerabilityDetector } from "./vulnerability-detector.js";
+import { Logger } from "./logger.js";
+import { AlertManager } from "./alerts.js";
+import { ServiceHealthMonitor } from "./health-monitor.js";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 // Load environment variables
-(0, dotenv_1.config)();
+config();
 // Load alerts configuration
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const alertsConfigPath = path.join(__dirname, "../config/alerts.json");
 const alertsConfig = JSON.parse(fs.readFileSync(alertsConfigPath, "utf8"));
 // Update oracle config with environment variables
@@ -74,24 +42,24 @@ const serviceConfig = {
     pagerdutyKey: process.env.PAGERDUTY_KEY || "",
 };
 async function main() {
-    const logger = new logger_1.Logger();
+    const logger = new Logger();
     logger.info("Starting Anomaly Detection Service");
     logger.info(`Monitoring Bridge: ${serviceConfig.bridgeAddress}`);
     logger.info(`Sentinel: ${serviceConfig.sentinelAddress}`);
     // Initialize provider
-    const provider = new ethers_1.ethers.JsonRpcProvider(serviceConfig.rpcUrl);
+    const provider = new ethers.JsonRpcProvider(serviceConfig.rpcUrl);
     // Initialize detectors
-    const anomalyDetector = new detector_1.AnomalyDetector(provider, serviceConfig);
-    const vulnerabilityDetector = new vulnerability_detector_1.VulnerabilityDetector(provider, {
+    const anomalyDetector = new AnomalyDetector(provider, serviceConfig);
+    const vulnerabilityDetector = new VulnerabilityDetector(provider, {
         monitorAddress: serviceConfig.monitorAddress,
         confidenceThreshold: serviceConfig.confidenceThreshold,
         enableFlashLoanDetection: true,
         enableReentrancyDetection: true,
         monitoringInterval: serviceConfig.monitoringInterval,
     });
-    const alerts = new alerts_1.AlertManager(alertsConfig);
+    const alerts = new AlertManager(alertsConfig);
     // Initialize health monitor
-    const healthMonitor = new health_monitor_1.ServiceHealthMonitor(provider, {
+    const healthMonitor = new ServiceHealthMonitor(provider, {
         rpcUrl: serviceConfig.rpcUrl,
         bridgeAddress: serviceConfig.bridgeAddress,
         sentinelAddress: serviceConfig.sentinelAddress,

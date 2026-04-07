@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { EventEmitter } from "events";
-import { BlockchainDataIngestion } from "./blockchain-data";
+import { BlockchainDataIngestion } from "./blockchain-data.js";
 interface DetectorConfig {
     bridgeAddress: string;
     sentinelAddress: string;

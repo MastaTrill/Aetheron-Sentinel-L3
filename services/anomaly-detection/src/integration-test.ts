@@ -1,6 +1,6 @@
 // Integration test for anomaly detection service with oracle
 import { ethers } from "ethers";
-import { AnomalyDetector } from "./detector";
+import { AnomalyDetector } from "./detector.js";
 
 async function testOracleIntegration() {
   const provider = new ethers.JsonRpcProvider("http://localhost:8545");
