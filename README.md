@@ -1,38 +1,37 @@
 # Aetheron-Sentinel-L3
 
-Features an **Autonomous Interceptor** prototype that blocks transaction patterns commonly associated with liquidity-drain attacks on bridges.
+Aetheron Sentinel L3 is a reference implementation of an autonomous bridge-defense interceptor.
 
-## What is included
+## What was added now
 
-- A rule-based `LiquidityDrainInterceptor` scoring engine.
-- A small CLI for evaluating candidate transactions.
-- Basic unit tests that cover high/low risk flows and input validation.
+1. **JSON-RPC adapter with real polling flow**
+   - `JsonRpcOnChainAdapter` now supports pluggable transport, control-method routing, transaction submission, receipt polling, and finality checks.
+2. **Integration test coverage for RPC path**
+   - Added `tests/test_rpc_integration.py` with transport-mocked flow for submit, polling/finality, and rollback.
+3. **CI command matrix script**
+   - Added `scripts/ci_matrix.sh` to run `test_interceptor`, `test_readiness`, and `test_rpc_integration` suites separately.
+
+## Capability stack
+
+- `interceptor.py`: risk engine with actor/bridge/global breakers, policy-pack overrides, governance auto-rollback, crypto-agility compliance checks, and audit hooks.
+- `execution.py`: on-chain adapter abstraction + verified rollback-safe executor with failure budgets and operation receipts.
+- `rpc_adapter.py`: JSON-RPC integration adapter with polling and finality checks.
+- `policy_pack.py`: signed/versioned policy packs with staged rollout, dual-sign support, external PQ hooks, and rollback.
+- `pq_backend.py`: PQ backend protocol and mock implementation.
+- `state.py`: in-memory and Redis state backends for distributed counters/idempotency.
+- `governance.py`: calibration record tracking, drift alarming, and crypto-agility rules.
+- `simulation.py`: adversarial simulation + tournament KPI reporting.
+- `telemetry.py`: audit event sink interface.
 
 ## Quick start
 
 ```bash
-python -m pip install -e .
-python -m aetheron_sentinel.cli \
-  --amount-usd 750000 \
-  --pool-liquidity-usd 2000000 \
-  --destination-address-age-days 0.2 \
-  --txs-from-destination-last-24h 0 \
-  --contract-call-depth 7 \
-  --unusual-gas-multiplier 2.3
+PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
-Example output:
+## Recommendations
 
-```json
-{
-  "block": true,
-  "risk_score": 87.0,
-  "reason": "Blocked: suspected liquidity-drain pattern"
-}
-```
-
-## Run tests
-
-```bash
-python -m pytest
-```
+- Run `scripts/ci_matrix.sh` in CI for explicit suite boundaries.
+- Run `scripts/premerge_stress.sh 5` before merge to execute repeated matrix runs with varying `PYTHONHASHSEED`.
+- Run `docs/BUG_BOUNTY_READINESS.md` checklist before public bounty launch.
+- Launch private bounty first, then widen scope after two clean staging cycles.

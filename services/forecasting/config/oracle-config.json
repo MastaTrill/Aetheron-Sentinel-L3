@@ -1,0 +1,11 @@
+{
+  "rpc_url": "http://localhost:8545",
+  "oracle_address": "0x...",
+  "private_key": "0x...",
+  "chain_id": 31337,
+  "model_path": "models/exploit_forecaster.h5",
+  "forecast_interval_hours": 6,
+  "min_confidence": 70,
+  "gas_limit": 200000,
+  "max_forecasts_per_cycle": 10
+}

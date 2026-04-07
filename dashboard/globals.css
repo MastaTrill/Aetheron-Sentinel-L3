@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Aetheron Glyph Pulse */
+@keyframes glyphPulse {
+  0% { opacity: 0.15; transform: scale(0.95) rotate(0deg); }
+  50% { opacity: 0.35; transform: scale(1.05) rotate(3deg); }
+  100% { opacity: 0.15; transform: scale(0.95) rotate(0deg); }
+}
+
+.glyph-pulse {
+  animation: glyphPulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Aetheron Glyph Drift */
+@keyframes glyphDrift {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+  50% { transform: translateY(-6px) rotate(2deg); opacity: 0.25; }
+  100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+}
+
+.glyph-drift {
+  animation: glyphDrift 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Glitch Flicker */
+@keyframes glitchFlicker {
+  0% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.6; transform: translate(1px, -1px); }
+  94% { opacity: 1; transform: translate(0px, 0px); }
+  95% { opacity: 0.7; transform: translate(-1px, 1px); }
+  96% { opacity: 1; transform: translate(0px, 0px); }
+  100% { opacity: 1; }
+}
+/* Scanline Overlay */
+.scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03) 0px,
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Distortion Pulse */
+@keyframes distortionPulse {
+  0% { opacity: 0; }
+  40% { opacity: 0; }
+  41% { opacity: 0.05; transform: skewX(1deg); }
+  42% { opacity: 0; transform: skewX(0deg); }
+  100% { opacity: 0; }
+}
+
+.distortion {
+  animation: distortionPulse 7s infinite;
+}
+
+.scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.01) 0px,
+    rgba(255,255,255,0.01) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
