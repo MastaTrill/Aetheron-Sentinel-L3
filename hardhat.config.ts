@@ -46,7 +46,7 @@ const config: HardhatUserConfig = {
     sepolia: {
       url:
         process.env.SEPOLIA_RPC_URL ||
-        "https://ethereum-sepolia-rpc.publicnode.com/",
+        "https://sepolia.infura.io/v3/84842078b09946638c03157f83405213",
       accounts: [PRIVATE_KEY],
       chainId: 11155111,
     },
