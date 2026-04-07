@@ -1,16 +1,19 @@
 "use client";
 
-export default function ThreatHeatmap({ threat }) {
-  // If threat is undefined, null, or not an array, render a placeholder
+interface ThreatHeatmapProps {
+  threat: number[][];
+}
+
+export default function ThreatHeatmap({ threat }: ThreatHeatmapProps) {
   if (!Array.isArray(threat)) {
     return (
-      <div className="p-4 text-zinc-400 text-sm border border-zinc-800 rounded">
-        ThreatHeatmap: no data
+      <div className="text-zinc-500 text-sm">
+        No threat data
       </div>
     );
   }
 
-  function colorForThreat(v) {
+  function colorForThreat(v: number) {
     if (v < 0.33) return "rgba(0, 255, 0, 0.8)";
     if (v < 0.66) return "rgba(255, 165, 0, 0.8)";
     return "rgba(255, 0, 0, 0.8)";

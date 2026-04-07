@@ -1,5 +1,5 @@
-import { AnomalyDetector } from "../src/detector";
-import { BlockchainDataIngestion } from "../src/blockchain-data";
+import { AnomalyDetector } from "../dist/detector.js";
+import { BlockchainDataIngestion } from "../dist/blockchain-data.js";
 
 // Mock BlockchainDataIngestion
 const mockIngestion = {

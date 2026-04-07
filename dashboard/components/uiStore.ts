@@ -15,7 +15,9 @@ interface UIState {
 export const useUIStore = create<UIState>((set) => ({
   mode: "Operational",
   theme: "Void Black",
+
   setMode: (mode) => set({ mode }),
+
   setTheme: (theme) => {
     document.documentElement.setAttribute(
       "data-theme",

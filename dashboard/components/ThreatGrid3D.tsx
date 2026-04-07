@@ -1,26 +1,9 @@
-"use client";
+'use client';
 
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-
-function Cube() {
+export default function ThreatGrid3D({ threat }: { threat?: any[] }) {
   return (
-    <mesh rotation={[0.4, 0.6, 0]}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="red" emissive="darkred" emissiveIntensity={1} />
-    </mesh>
-  );
-}
-
-export default function ThreatGrid3D() {
-  return (
-    <div className="panel h-64">
-      <Canvas camera={{ position: [4, 4, 4] }}>
-        <ambientLight intensity={0.4} />
-        <pointLight position={[10, 10, 10]} />
-        <Cube />
-        <OrbitControls enableZoom={false} />
-      </Canvas>
+    <div className="w-full h-64 bg-zinc-900 border border-zinc-700 flex items-center justify-center text-zinc-400">
+      3D Threat Grid Placeholder
     </div>
   );
 }

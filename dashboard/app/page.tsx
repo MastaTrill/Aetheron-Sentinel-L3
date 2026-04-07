@@ -1,72 +1,113 @@
-"use client";
+// dashboard/app/page.tsx
+'use client';
 
-import RitualOverlay from "../components/RitualOverlay";
-import CommandBar from "../components/CommandBar";
-import ControlStrip from "../components/ControlStrip";
-import IntegrityTimeline from "../components/IntegrityTimeline";
-import ThreatHeatmap from "../components/ThreatHeatmap";
-import ThreatGrid3D from "../components/ThreatGrid3D";
-import StateMachine from "../components/StateMachine";
-import StateMachineWheel from "../components/StateMachineWheel";
-import AlertStream from "../components/AlertStream";
-import GlyphWrapper from "../components/GlyphWrapper";
-import { useSentinelFeed } from "../hooks/useSentinelFeed";
+import React from 'react';
+import { useSentinelFeed } from '../hooks/useSentinelFeed';
+import CommandBar from '../components/CommandBar';
+import ThreatGraph from '../components/ThreatGraph';
+import Heatmap from '../components/Heatmap';
+import StateMachine from '../components/StateMachine';
+import AlertFeed from '../components/AlertFeed';
 
 export default function Home() {
-  const { integrity, threat, state } = useSentinelFeed();
+  const {
+    events = [],
+    connected = false,
+    threat = [],
+    integrity = 100,
+    state = 'IDLE',
+  } = useSentinelFeed();
 
   return (
-    <div className="bg-black min-h-screen text-white flex flex-col relative scanlines distortion">
-      <RitualOverlay />
+    <div className="h-full flex flex-col gap-6">
+      <section className="console-panel px-5 py-4">
+        <div className="console-panel-header">
+          <span className="text-zinc-500">L3 // Sentinel Command Surface</span>
+          <div className="flex items-center gap-3">
+            <span className="console-chip">
+              <span
+                className={`console-chip-dot ${
+                  connected
+                    ? 'bg-emerald-400 shadow-[0_0_8px_rgba(34,197,94,0.9)]'
+                    : 'bg-red-500'
+                }`}
+              />
+              {connected ? 'WS LINKED' : 'WS OFFLINE'}
+            </span>
 
-      <header className="p-6 border-b border-zinc-800 glitch">
-        <h1 className="text-3xl font-bold tracking-widest">
-          SENTINEL‑L3 // AETHERON WATCH
-        </h1>
-      </header>
+            <span className="console-chip">
+              Integrity{' '}
+              <span
+                className={
+                  integrity > 80
+                    ? 'text-emerald-400'
+                    : integrity > 50
+                      ? 'text-amber-300'
+                      : 'text-red-400'
+                }
+              >
+                {Number(integrity).toFixed(0)}%
+              </span>
+            </span>
 
-      <main className="flex-1 p-6 grid grid-cols-12 gap-6">
-        <div className="col-span-4 space-y-6">
-          <div className="glyph-drift glyph-pulse">
-            <IntegrityTimeline />
-          </div>
-
-          <div className="glyph-drift">
-            <ThreatHeatmap threat={threat} />
-          </div>
-        </div>
-
-        <div className="col-span-5">
-          <GlyphWrapper>
-            <div className="glitch">
-              <ThreatGrid3D />
-            </div>
-          </GlyphWrapper>
-        </div>
-
-        <div className="col-span-3 space-y-6">
-          <GlyphWrapper>
-            <div className="glitch">
-              <StateMachine />
-            </div>
-          </GlyphWrapper>
-
-          <GlyphWrapper>
-            <div className="glitch">
-              <StateMachineWheel />
-            </div>
-          </GlyphWrapper>
-        </div>
-
-        <div className="col-span-12">
-          <div className="glyph-pulse">
-            <AlertStream />
+            <span className="console-chip">
+              State <span className="text-cyan-300">{state}</span>
+            </span>
           </div>
         </div>
-      </main>
 
-      <CommandBar />
-      <ControlStrip />
+        <CommandBar />
+      </section>
+
+      <section className="console-grid flex-1">
+        <div className="space-y-4">
+          <div className="console-panel p-4">
+            <div className="console-panel-header">
+              <span>Integrity Vector</span>
+              <span className="text-[10px] text-zinc-500">L3-THR / 01</span>
+            </div>
+            <ThreatGraph data={(threat as any[]).flat?.() ?? []} />
+          </div>
+
+          <div className="console-panel p-4">
+            <div className="console-panel-header">
+              <span>Surface Heatmap</span>
+              <span className="text-[10px] text-zinc-500">L3-THR / 02</span>
+            </div>
+            <Heatmap grid={threat} />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="console-panel p-4">
+            <div className="console-panel-header">
+              <span>State Machine</span>
+              <span className="text-[10px] text-zinc-500">L3-CTRL / 01</span>
+            </div>
+            <StateMachine state={state} />
+          </div>
+
+          <div className="console-panel p-4">
+            <div className="console-panel-header">
+              <span>Integrity Timeline</span>
+              <span className="text-[10px] text-zinc-500">L3-INT / 01</span>
+            </div>
+            <div className="text-xs text-zinc-500">
+              Timeline stream pending — events: {events.length}
+            </div>
+          </div>
+        </div>
+
+        <div className="console-panel p-4 flex flex-col">
+          <div className="console-panel-header">
+            <span>Alert Feed</span>
+            <span className="text-[10px] text-zinc-500">L3-ALRT / 01</span>
+          </div>
+          <div className="flex-1 min-h-0">
+            <AlertFeed alerts={events} autoScroll={true} maxItems={200} />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

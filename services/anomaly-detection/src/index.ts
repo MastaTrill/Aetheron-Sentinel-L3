@@ -1,11 +1,20 @@
+import { config } from "dotenv";
 import { ethers } from "ethers";
-import { AnomalyDetector } from "./detector";
-import { VulnerabilityDetector } from "./vulnerability-detector";
-import { Logger } from "./logger";
-import { AlertManager } from "./alerts";
-import { ServiceHealthMonitor } from "./health-monitor";
+import { AnomalyDetector } from "./detector.js";
+import { VulnerabilityDetector } from "./vulnerability-detector.js";
+import { Logger } from "./logger.js";
+import { AlertManager } from "./alerts.js";
+import { ServiceHealthMonitor } from "./health-monitor.js";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
+
+// Load environment variables
+config();
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load alerts configuration
 const alertsConfigPath = path.join(__dirname, "../config/alerts.json");
@@ -21,7 +30,7 @@ if (alertsConfig.oracle) {
     process.env.ORACLE_PRIVATE_KEY || alertsConfig.oracle.privateKey;
 }
 
-const config = {
+const serviceConfig = {
   // Contract addresses
   sentinelAddress: process.env.SENTINEL_ADDRESS || "0x...",
   bridgeAddress: process.env.BRIDGE_ADDRESS || "0x...",
@@ -45,30 +54,30 @@ async function main() {
   const logger = new Logger();
 
   logger.info("Starting Anomaly Detection Service");
-  logger.info(`Monitoring Bridge: ${config.bridgeAddress}`);
-  logger.info(`Sentinel: ${config.sentinelAddress}`);
+  logger.info(`Monitoring Bridge: ${serviceConfig.bridgeAddress}`);
+  logger.info(`Sentinel: ${serviceConfig.sentinelAddress}`);
 
   // Initialize provider
-  const provider = new ethers.JsonRpcProvider(config.rpcUrl);
+  const provider = new ethers.JsonRpcProvider(serviceConfig.rpcUrl);
 
   // Initialize detectors
-  const anomalyDetector = new AnomalyDetector(provider, config);
+  const anomalyDetector = new AnomalyDetector(provider, serviceConfig);
   const vulnerabilityDetector = new VulnerabilityDetector(provider, {
-    monitorAddress: config.monitorAddress,
-    confidenceThreshold: config.confidenceThreshold,
+    monitorAddress: serviceConfig.monitorAddress,
+    confidenceThreshold: serviceConfig.confidenceThreshold,
     enableFlashLoanDetection: true,
     enableReentrancyDetection: true,
-    monitoringInterval: config.monitoringInterval,
+    monitoringInterval: serviceConfig.monitoringInterval,
   });
 
   const alerts = new AlertManager(alertsConfig);
 
   // Initialize health monitor
   const healthMonitor = new ServiceHealthMonitor(provider, {
-    rpcUrl: config.rpcUrl,
-    bridgeAddress: config.bridgeAddress,
-    sentinelAddress: config.sentinelAddress,
-    anomalyOracleAddress: config.anomalyOracleAddress,
+    rpcUrl: serviceConfig.rpcUrl,
+    bridgeAddress: serviceConfig.bridgeAddress,
+    sentinelAddress: serviceConfig.sentinelAddress,
+    anomalyOracleAddress: serviceConfig.anomalyOracleAddress,
   });
 
   // Health monitor event handlers

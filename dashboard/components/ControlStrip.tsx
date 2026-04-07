@@ -2,14 +2,18 @@
 
 import { useUIStore } from "./uiStore";
 
-export default function ControlStrip() {
+export default function ControlStrip({ connected }: { connected?: boolean }) {
   const mode = useUIStore((s) => s.mode);
   const theme = useUIStore((s) => s.theme);
   const setMode = useUIStore((s) => s.setMode);
   const setTheme = useUIStore((s) => s.setTheme);
 
   return (
-    <div className="flex gap-4 text-sm">
+    <div className="flex gap-4 text-sm items-center">
+      <span className={connected ? "text-emerald-400" : "text-red-500"}>
+        {connected ? "WS ONLINE" : "WS OFFLINE"}
+      </span>
+
       <select
         value={mode}
         onChange={(e) => setMode(e.target.value as any)}
@@ -34,3 +38,4 @@ export default function ControlStrip() {
     </div>
   );
 }
+
