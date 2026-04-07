@@ -137,4 +137,14 @@ contract RateLimiter is AccessControl {
         chainLimits[chainId] = limit;
         emit ChainLimitSet(chainId, limit);
     }
+
+    function processWithdrawal(
+        address user,
+        uint256 amount,
+        uint256 chainId
+    ) external withinRateLimit(amount, chainId) {
+        // This function can be called by authorized contracts
+        // The rate limit check happens in the modifier
+        emit WithdrawalProcessed(user, amount, chainId, windowDuration - (block.timestamp - windowStart));
+    }
 }
