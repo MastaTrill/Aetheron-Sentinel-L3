@@ -29,6 +29,12 @@ Aetheron Sentinel L3 is a reference implementation of an autonomous bridge-defen
 PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
+## Optional post-quantum dependency
+
+- `MockDilithiumBackend` is deterministic and does **not** require external PQ libraries.
+- `RealDilithiumBackend` requires an installed provider for the `dilithium_py` module at runtime.
+- If `dilithium_py` is missing, `RealDilithiumBackend` raises `ModuleNotFoundError` during initialization.
+
 ## Recommendations
 
 - Run `scripts/ci_matrix.sh` in CI for explicit suite boundaries.
