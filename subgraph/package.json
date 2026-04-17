@@ -10,7 +10,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron/sentinel"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.66.0",
+    "@graphprotocol/graph-cli": "^0.98.1",
     "@graphprotocol/graph-ts": "^0.31.0"
   }
 }
