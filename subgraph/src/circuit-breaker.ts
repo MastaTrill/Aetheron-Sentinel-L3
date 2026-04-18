@@ -23,11 +23,12 @@ function syncState(address: string, timestamp: BigInt): void {
     entity = new CircuitBreakerState(address);
   }
 
-  entity.state = stateLabel(contract.currentState());
-  entity.failureCount = contract.failureCount();
-  entity.successCount = contract.successCount();
+  let stats = contract.getStats();
+  entity.state = stateLabel(stats.value0);
+  entity.failureCount = stats.value1;
+  entity.successCount = stats.value2;
   entity.lastStateChange = contract.lastStateChange();
-  entity.untilReset = contract.resetTimeout();
+  entity.untilReset = stats.value4;
   entity.timestamp = timestamp;
   entity.save();
 }
