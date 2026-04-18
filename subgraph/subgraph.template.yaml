@@ -1,0 +1,122 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+description: Aetheron Sentinel L3 - Quantum-resistant bridge security with autonomous threat interception
+repository: https://github.com/aetheron/sentinel-l3
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: SentinelInterceptor
+    network: sepolia
+    source:
+      address: "{{SENTINEL_INTERCEPTOR_ADDRESS}}"
+      abi: SentinelInterceptor
+      startBlock: {{SENTINEL_INTERCEPTOR_START_BLOCK}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/AssemblyScript
+      entities:
+        - Sentinel
+        - AnomalyAlert
+        - PauseEvent
+      abis:
+        - name: SentinelInterceptor
+          file: ../abis/SentinelInterceptor.json
+      eventHandlers:
+        - event: AnomalyDetected(uint256,uint256,uint256)
+          handler: handleAnomalyDetected
+        - event: AutonomousPauseTriggered(indexed address,uint256,uint256)
+          handler: handleAutonomousPauseTriggered
+        - event: TVLUpdated(uint256,uint256)
+          handler: handleTVLUpdated
+        - event: AutonomousModeToggled(bool)
+          handler: handleAutonomousModeToggled
+        - event: ThresholdUpdated(uint256,uint256)
+          handler: handleThresholdUpdated
+      file: ./src/sentinel-interceptor.ts
+
+  - kind: ethereum
+    name: AetheronBridge
+    network: sepolia
+    source:
+      address: "{{AETHERON_BRIDGE_ADDRESS}}"
+      abi: AetheronBridge
+      startBlock: {{AETHERON_BRIDGE_START_BLOCK}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/AssemblyScript
+      entities:
+        - Bridge
+        - Transfer
+      abis:
+        - name: AetheronBridge
+          file: ../abis/AetheronBridge.json
+      eventHandlers:
+        - event: TokensBridged(indexed address,indexed address,uint256,uint256,address,bytes32)
+          handler: handleTokensBridged
+        - event: TokensUnbridged(indexed address,indexed address,uint256,indexed bytes32)
+          handler: handleTokensUnbridged
+        - event: TransferCompleted(indexed bytes32)
+          handler: handleTransferCompleted
+        - event: BridgeInitialized(indexed address,indexed address,uint256)
+          handler: handleBridgeInitialized
+      file: ./src/bridge-events.ts
+
+  - kind: ethereum
+    name: RateLimiter
+    network: sepolia
+    source:
+      address: "{{RATE_LIMITER_ADDRESS}}"
+      abi: RateLimiter
+      startBlock: {{RATE_LIMITER_START_BLOCK}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/AssemblyScript
+      entities:
+        - RateLimitStats
+      abis:
+        - name: RateLimiter
+          file: ../abis/RateLimiter.json
+      eventHandlers:
+        - event: WithdrawalProcessed(indexed address,uint256,uint256,uint256)
+          handler: handleWithdrawalProcessed
+        - event: RateLimitUpdated(uint256,uint256)
+          handler: handleRateLimitUpdated
+        - event: ChainLimitSet(indexed uint256,uint256)
+          handler: handleChainLimitSet
+      file: ./src/rate-limiter.ts
+
+  - kind: ethereum
+    name: CircuitBreaker
+    network: sepolia
+    source:
+      address: "{{CIRCUIT_BREAKER_ADDRESS}}"
+      abi: CircuitBreaker
+      startBlock: {{CIRCUIT_BREAKER_START_BLOCK}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/AssemblyScript
+      entities:
+        - CircuitBreakerState
+      abis:
+        - name: CircuitBreaker
+          file: ../abis/CircuitBreaker.json
+      eventHandlers:
+        - event: CircuitOpened(uint256,uint256)
+          handler: handleCircuitOpened
+        - event: CircuitHalfOpened(uint256)
+          handler: handleCircuitHalfOpened
+        - event: CircuitClosed(uint256)
+          handler: handleCircuitClosed
+        - event: FailureRecorded(indexed address,uint256)
+          handler: handleFailureRecorded
+        - event: SuccessRecorded(indexed address,uint256)
+          handler: handleSuccessRecorded
+      file: ./src/circuit-breaker.ts
+
+templates: []
