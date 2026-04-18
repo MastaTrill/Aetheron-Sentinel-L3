@@ -14,6 +14,7 @@
     "deploy:basegork": "hardhat run scripts/deploy.ts --network baseGork",
     "deploy:amoy": "hardhat run scripts/deploy-local.ts --network amoy",
     "deploy:full": "hardhat run scripts/deploy-local.ts --network localhost && hardhat run scripts/deploy-security-modules.ts --network localhost",
+    "render:subgraph:sepolia": "python3 scripts/render_subgraph_manifest.py",
     "node": "hardhat node",
     "clean": "hardhat clean",
     "lint": "solhint 'contracts/**/*.sol'",
