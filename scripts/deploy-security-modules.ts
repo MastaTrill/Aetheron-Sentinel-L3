@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
 import { promises as fs } from "fs";
-import path from "path";
+import * as path from "path";
 
 async function updateDeploymentArtifact(entries: Record<string, { address: string; startBlock: number }>) {
   if (network.name !== "sepolia") {
@@ -126,8 +126,17 @@ async function main() {
   await tx6.wait();
   console.log("   Granted SENTINEL_ROLE to SentinelInterceptor in CircuitBreaker");
 
-  const rateLimiterReceipt = await rateLimiter.deploymentTransaction()?.wait();
-  const circuitBreakerReceipt = await circuitBreaker.deploymentTransaction()?.wait();
+  const rateLimiterDeploymentTx = rateLimiter.deploymentTransaction();
+  if (!rateLimiterDeploymentTx) {
+    throw new Error("Missing deployment transaction for RateLimiter");
+  }
+  const circuitBreakerDeploymentTx = circuitBreaker.deploymentTransaction();
+  if (!circuitBreakerDeploymentTx) {
+    throw new Error("Missing deployment transaction for CircuitBreaker");
+  }
+
+  const rateLimiterReceipt = await rateLimiterDeploymentTx.wait();
+  const circuitBreakerReceipt = await circuitBreakerDeploymentTx.wait();
 
   await updateDeploymentArtifact({
     RateLimiter: {
