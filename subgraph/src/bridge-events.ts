@@ -11,6 +11,7 @@ export function handleTokensBridged(event: TokensBridged): void {
   let bridge = Bridge.load(event.address.toHex());
   if (!bridge) {
     bridge = new Bridge(event.address.toHex());
+    bridge.isPaused = false;
     bridge.totalValueLocked = BigInt.fromI32(0);
     bridge.totalTransfers = BigInt.fromI32(0);
     bridge.supportedChains = [];
@@ -21,7 +22,6 @@ export function handleTokensBridged(event: TokensBridged): void {
   bridge.updatedAt = event.block.timestamp;
   bridge.save();
 
-  // Create transfer record
   let transfer = new Transfer(event.params.transferId.toHex());
   transfer.sender = event.params.sender;
   transfer.recipient = event.params.recipient;
@@ -30,7 +30,7 @@ export function handleTokensBridged(event: TokensBridged): void {
   transfer.destinationChain = event.params.destinationChain.toI32();
   transfer.transferId = event.params.transferId;
   transfer.status = "PENDING";
-  transfer.fee = BigInt.fromI32(0); // Would be calculated
+  transfer.fee = BigInt.fromI32(0);
   transfer.timestamp = event.block.timestamp;
   transfer.blockNumber = event.block.number;
   transfer.transactionHash = event.transaction.hash;
