@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any
 import json
 import time
-from urllib import request
 
 from .telemetry import AuditEvent, AuditSink
 
@@ -64,7 +63,8 @@ class BmnrAlertCorrelationEngine:
     ) -> CorrelatedAlert | None:
         now = timestamp if timestamp is not None else time.time()
         self._prune(now)
-        match = self._pending.get(self._correlation_key(bridge_id, "anomaly"))
+        alert_type = "resume" if action == "ALLOW" else "anomaly"
+        match = self._pending.get(self._correlation_key(bridge_id, alert_type))
         if match is None:
             return None
 
