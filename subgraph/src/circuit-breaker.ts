@@ -4,45 +4,50 @@ import {
   CircuitClosed,
   FailureRecorded,
   SuccessRecorded,
+  CircuitBreaker,
 } from "../generated/CircuitBreaker/CircuitBreaker";
 import { CircuitBreakerState } from "../generated/schema";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 
-// Event handlers for CircuitBreaker contract
+function stateLabel(raw: i32): string {
+  if (raw == 1) return "OPEN";
+  if (raw == 2) return "HALF_OPEN";
+  return "CLOSED";
+}
+
+function syncState(address: string, timestamp: BigInt): void {
+  const contract = CircuitBreaker.bind(Address.fromString(address));
+  let entity = CircuitBreakerState.load(address);
+
+  if (entity == null) {
+    entity = new CircuitBreakerState(address);
+  }
+
+  entity.state = stateLabel(contract.currentState());
+  entity.failureCount = contract.failureCount();
+  entity.successCount = contract.successCount();
+  entity.lastStateChange = contract.lastStateChange();
+  entity.untilReset = contract.resetTimeout();
+  entity.timestamp = timestamp;
+  entity.save();
+}
+
 export function handleCircuitOpened(event: CircuitOpened): void {
-  let state = new CircuitBreakerState(event.transaction.hash.toHex());
-  state.isOpen = true;
-  state.failureCount = event.params.failureCount;
-  state.timestamp = event.block.timestamp;
-  state.save();
+  syncState(event.address.toHex(), event.block.timestamp);
 }
 
 export function handleCircuitHalfOpened(event: CircuitHalfOpened): void {
-  let state = CircuitBreakerState.load(event.transaction.hash.toHex());
-  if (state) {
-    state.isHalfOpen = true;
-    state.save();
-  }
+  syncState(event.address.toHex(), event.block.timestamp);
 }
 
 export function handleCircuitClosed(event: CircuitClosed): void {
-  let state = CircuitBreakerState.load(event.transaction.hash.toHex());
-  if (state) {
-    state.isOpen = false;
-    state.isHalfOpen = false;
-    state.save();
-  }
+  syncState(event.address.toHex(), event.block.timestamp);
 }
 
 export function handleFailureRecorded(event: FailureRecorded): void {
-  let state = new CircuitBreakerState(event.transaction.hash.toHex());
-  state.failureCount = event.params.failureCount;
-  state.lastFailureTime = event.block.timestamp;
-  state.save();
+  syncState(event.address.toHex(), event.block.timestamp);
 }
 
 export function handleSuccessRecorded(event: SuccessRecorded): void {
-  let state = new CircuitBreakerState(event.transaction.hash.toHex());
-  state.successCount = event.params.successCount;
-  state.lastSuccessTime = event.block.timestamp;
-  state.save();
+  syncState(event.address.toHex(), event.block.timestamp);
 }
