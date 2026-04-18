@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
 import { promises as fs } from "fs";
-import path from "path";
+import * as path from "path";
 
 async function updateDeploymentArtifact(entries: Record<string, { address: string; startBlock: number }>) {
   if (network.name !== "sepolia") {
@@ -78,8 +78,17 @@ async function main() {
   await tx3.wait();
   console.log("   Granted SENTINEL_ROLE to bridge");
 
-  const bridgeReceipt = await bridge.deploymentTransaction()?.wait();
-  const sentinelReceipt = await sentinel.deploymentTransaction()?.wait();
+  const bridgeDeploymentTx = bridge.deploymentTransaction();
+  if (!bridgeDeploymentTx) {
+    throw new Error("Missing deployment transaction for AetheronBridge");
+  }
+  const sentinelDeploymentTx = sentinel.deploymentTransaction();
+  if (!sentinelDeploymentTx) {
+    throw new Error("Missing deployment transaction for SentinelInterceptor");
+  }
+
+  const bridgeReceipt = await bridgeDeploymentTx.wait();
+  const sentinelReceipt = await sentinelDeploymentTx.wait();
 
   await updateDeploymentArtifact({
     AetheronBridge: {
