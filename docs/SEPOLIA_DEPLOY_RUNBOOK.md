@@ -93,19 +93,40 @@ CircuitBreaker:
 - deployment block:
 ```
 
-## Step 4: patch the subgraph
+## Step 4: fill the deployment artifact
 
-Replace the placeholders in `subgraph/subgraph.yaml`:
-- contract addresses
-- `startBlock` values
+Copy the example manifest and replace the placeholder values:
+
+```bash
+cp subgraph/deployments/sepolia.example.json subgraph/deployments/sepolia.json
+```
+
+Populate:
+- `SentinelInterceptor.address`
+- `SentinelInterceptor.startBlock`
+- `AetheronBridge.address`
+- `AetheronBridge.startBlock`
+- `RateLimiter.address`
+- `RateLimiter.startBlock`
+- `CircuitBreaker.address`
+- `CircuitBreaker.startBlock`
+
+## Step 5: render the subgraph manifest
+
+The subgraph manifest is now tokenized in `subgraph/subgraph.template.yaml`.
+Render the final `subgraph/subgraph.yaml` from the deployment artifact:
+
+```bash
+npm run render:subgraph:sepolia
+```
 
 Recommended rule:
 - use the exact deployment block for each contract when known
 - if multiple contracts are deployed together and exact values are unavailable, use the earliest verified deployment block shared by the group
 
-## Step 5: validate
+## Step 6: validate
 
-After patching the subgraph config:
+After rendering the subgraph config:
 
 ```bash
 # build / deploy subgraph using the project’s standard graph workflow
@@ -119,7 +140,7 @@ After patching the subgraph config:
 ## Exit criteria
 
 PR #10 is ready to leave draft when:
-1. all placeholder addresses are replaced
-2. all `startBlock` values are replaced
+1. `subgraph/deployments/sepolia.json` contains real values
+2. `subgraph/subgraph.yaml` is rendered from the deployment artifact
 3. subgraph indexing is validated on Sepolia
 4. CI matrix (including `tests.test_orchestration`) passes
