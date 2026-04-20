@@ -36,7 +36,7 @@ Sentinel L3 represents the pinnacle of DeFi security architecture, combining qua
 
 ### Core Components
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           SENTINEL L3 ECOSYSTEM                           │
 │                  "Quantum-Resistant Bridge Guardian"                      │
@@ -404,7 +404,7 @@ Special thanks to the DeFi security research community, quantum cryptography pio
 
 ---
 
-**"In the quantum foam of possibility, Sentinel L3 is certainty. In the chaos of attacks, Sentinel L3 is order. In the darkness of uncertainty, Sentinel L3 is light. Sentinel L3 never sleeps, never falters, and never compromises on protection or performance."**
+> "In the quantum foam of possibility, Sentinel L3 is certainty. In the chaos of attacks, Sentinel L3 is order. In the darkness of uncertainty, Sentinel L3 is light. Sentinel L3 never sleeps, never falters, and never compromises on protection or performance."
 
 **Welcome to the quantum age of secure DeFi. The Sentinel is watching.** ⚡🛡️🤖
 
