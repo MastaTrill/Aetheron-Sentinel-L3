@@ -1,6 +1,7 @@
 """Unit tests for PauseResumeOrchestrator bridge control logic."""
 
 import unittest
+from typing import Optional
 
 from aetheron_sentinel_l3.bmnr_ingestion import BmnrAlert, BmnrAlertCorrelationEngine
 from aetheron_sentinel_l3.execution import ActionExecutor, RuleBasedOnChainAdapter
@@ -14,8 +15,8 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
     def make_orchestrator(
         self,
         *,
-        fail_controls: set[str] | None = None,
-        clock: float | None = None,
+        fail_controls: Optional[set[str]] = None,
+        clock: Optional[float] = None,
     ):
         """Build an orchestrator with in-memory fakes;
         optionally pin the clock to a fixed timestamp.

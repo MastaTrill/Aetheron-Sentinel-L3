@@ -1,6 +1,8 @@
 // test/AetheronBridge.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
+
+const { ethers } = await network.create();
 
 describe('AetheronBridge', function () {
   let bridge, token;

@@ -1,6 +1,8 @@
 // test/CircuitBreaker.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
+
+const { ethers } = await network.create();
 
 describe('CircuitBreaker', function () {
   let circuitBreaker;
@@ -53,8 +55,12 @@ describe('CircuitBreaker', function () {
     });
 
     it('rejects non-monitor callers', async function () {
-      await expect(circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3))
-        .to.be.reverted;
+      const monitorRole = await circuitBreaker.MONITOR_ROLE();
+      await expect(
+        circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3),
+      ).to.be.revertedWith(
+        `AccessControl: account ${attacker.address.toLowerCase()} is missing role ${monitorRole}`,
+      );
     });
   });
 

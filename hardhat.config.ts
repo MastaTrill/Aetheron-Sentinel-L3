@@ -1,8 +1,11 @@
-require('@nomicfoundation/hardhat-toolbox');
-require('dotenv').config();
+import { config as loadEnv } from 'dotenv';
+import { defineConfig } from 'hardhat/config';
+import hardhatToolboxMochaEthers from '@nomicfoundation/hardhat-toolbox-mocha-ethers';
 
-/** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+loadEnv();
+
+export default defineConfig({
+  plugins: [hardhatToolboxMochaEthers],
   solidity: {
     version: '0.8.20',
     settings: {
@@ -14,9 +17,13 @@ module.exports = {
   },
   networks: {
     hardhat: {
+      type: 'edr-simulated',
+      chainType: 'l1',
       chainId: 31337,
     },
     sepolia: {
+      type: 'http',
+      chainType: 'l1',
       url:
         process.env.SEPOLIA_RPC_URL ||
         'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
@@ -24,6 +31,8 @@ module.exports = {
       chainId: 11155111,
     },
     mainnet: {
+      type: 'http',
+      chainType: 'l1',
       url:
         process.env.MAINNET_RPC_URL ||
         'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
@@ -40,8 +49,18 @@ module.exports = {
   },
   paths: {
     sources: './contracts',
-    tests: './test',
+    tests: {
+      mocha: './test',
+    },
     cache: './cache',
     artifacts: './artifacts',
   },
-};
+  test: {
+    mocha: {
+      timeout: 40000,
+    },
+  },
+  typechain: {
+    dontOverrideCompile: true,
+  },
+});

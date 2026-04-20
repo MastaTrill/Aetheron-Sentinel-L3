@@ -1,6 +1,8 @@
 // test/SentinelInterceptor.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
+
+const { ethers } = await network.create();
 
 describe('SentinelInterceptor', function () {
   let interceptor;
@@ -38,6 +40,9 @@ describe('SentinelInterceptor', function () {
 
   describe('detectAnomaly', function () {
     it('increments anomaly count', async function () {
+      for (let i = 0; i < 10; i++) {
+        await ethers.provider.send('evm_mine', []);
+      }
       await interceptor.connect(monitorUser).detectAnomaly(1, 30);
       const [total] = await interceptor.getAnomalyStats();
       expect(total).to.equal(1);
