@@ -335,6 +335,11 @@ async function main() {
     );
   }
 
+  console.log('17. Deploying SentinelCore...');
+  const sentinelCore = await deployContract('SentinelCore', [owner]);
+  addresses.SentinelCore = await sentinelCore.getAddress();
+  console.log('   SentinelCore:', addresses.SentinelCore);
+
   console.log('\n✅ Deployment complete. Contract addresses:');
   console.log(JSON.stringify(addresses, null, 2));
   console.log('\nEnvironment summary:');

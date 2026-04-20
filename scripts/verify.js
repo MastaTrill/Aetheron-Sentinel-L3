@@ -174,6 +174,10 @@ async function main() {
       args: [owner],
     },
     {
+      name: 'SentinelCore',
+      args: [owner],
+    },
+    {
       name: 'SentinelAMM',
       args: [owner],
     },
