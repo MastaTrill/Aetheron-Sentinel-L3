@@ -19,8 +19,6 @@ dataSources:
       language: wasm/AssemblyScript
       entities:
         - Sentinel
-        - AnomalyAlert
-        - PauseEvent
       abis:
         - name: SentinelInterceptor
           file: ../abis/SentinelInterceptor.json
