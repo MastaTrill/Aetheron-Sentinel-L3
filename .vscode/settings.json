@@ -1,4 +1,6 @@
 {
-  "python.analysis.extraPaths": ["src"],
-  "python.analysis.pythonPath": "src"
+    "python.analysis.extraPaths": [
+        "src"
+    ],
+    "python.analysis.pythonPath": "src"
 }

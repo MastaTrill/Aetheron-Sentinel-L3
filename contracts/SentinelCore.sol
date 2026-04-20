@@ -17,7 +17,11 @@ contract SentinelCore is Ownable {
     uint256 public constant BASELINE_YIELD_BPS = 289;
 
     event HeartbeatReleased(uint256 newTargetYieldBps, uint256 timestamp);
-    event TelemetryReset(uint256 previousYield, uint256 newYield, uint256 timestamp);
+    event TelemetryReset(
+        uint256 previousYield,
+        uint256 newYield,
+        uint256 timestamp
+    );
     event RebalanceHookFired(uint256 currentBlock, string status);
 
     constructor(address initialOwner) {
@@ -39,7 +43,10 @@ contract SentinelCore is Ownable {
      */
     function releaseHeartbeat(uint256 _targetYieldBps) external onlyOwner {
         require(!heartbeatActive, "SentinelCore: Heartbeat is already active");
-        require(_targetYieldBps > BASELINE_YIELD_BPS, "SentinelCore: Target must exceed baseline");
+        require(
+            _targetYieldBps > BASELINE_YIELD_BPS,
+            "SentinelCore: Target must exceed baseline"
+        );
 
         uint256 previousYield = targetYieldBps;
 
@@ -60,7 +67,10 @@ contract SentinelCore is Ownable {
      * @dev In production, this would interact with localized L3 routing contracts.
      */
     function _fireDeFAIHooks() internal {
-        emit RebalanceHookFired(block.number, "Quantum-Resistant 5.0% Alpha Sync Complete");
+        emit RebalanceHookFired(
+            block.number,
+            "Quantum-Resistant 5.0% Alpha Sync Complete"
+        );
     }
 
     /**
