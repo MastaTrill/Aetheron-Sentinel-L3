@@ -31,7 +31,9 @@ class PauseResumeOrchestrator:
         correlation_engine: BmnrAlertCorrelationEngine,
         clock: Callable[[], float] = time.time,
     ) -> None:
-        """Initialize the orchestrator with an executor, audit sink, correlation engine, and clock."""
+        """Initialize the orchestrator with an executor, audit sink,
+        correlation engine, and clock.
+        """
         self.executor = executor
         self.sink = sink
         self.correlation_engine = correlation_engine

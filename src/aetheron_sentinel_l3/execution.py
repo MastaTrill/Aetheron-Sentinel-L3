@@ -56,7 +56,9 @@ class RuleBasedOnChainAdapter(OnChainAdapter):
         fail_controls: set[str] | None = None,
         pending_controls: set[str] | None = None,
     ) -> None:
-        """Initialize the adapter with optional apply/rollback function maps and simulated failure sets."""
+        """Initialize the adapter with optional apply/rollback function maps
+        and simulated failure sets.
+        """
         self.apply_map = apply_map or {}
         self.rollback_map = rollback_map or {}
         self.fail_controls = fail_controls or set()
@@ -65,7 +67,9 @@ class RuleBasedOnChainAdapter(OnChainAdapter):
         self.rollback_log: list[str] = []
 
     def apply(self, control: str, op_id: str) -> OperationReceipt:
-        """Invoke the mapped apply function and return a receipt; raise RuntimeError for fail_controls."""
+        """Invoke the mapped apply function and return a receipt;
+        raise RuntimeError for fail_controls.
+        """
         if control in self.fail_controls:
             raise RuntimeError(f"simulated failure for control: {control}")
         fn = self.apply_map.get(control)
@@ -110,7 +114,9 @@ class ActionExecutor:
         self._seq = count(1)
 
     def apply_controls(self, controls: tuple[str, ...]) -> ExecutionResult:
-        """Apply each control in order; roll back all applied controls when failure budget is exceeded."""
+        """Apply each control in order; roll back all applied controls
+        when failure budget is exceeded.
+        """
         applied: list[str] = []
         failures: list[str] = []
         receipts: list[OperationReceipt] = []
