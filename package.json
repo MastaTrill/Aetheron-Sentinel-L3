@@ -7,6 +7,7 @@
     "test:gas": "REPORT_GAS=true hardhat test",
     "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
     "deploy:testnet": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:testnet:full": "bash scripts/deploy-testnet.sh",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
     "verify:testnet": "hardhat run scripts/verify.js --network sepolia",
