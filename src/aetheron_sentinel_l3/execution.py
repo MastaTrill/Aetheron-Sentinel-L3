@@ -61,7 +61,13 @@ class RuleBasedOnChainAdapter(OnChainAdapter):
         self.applied_log.append(control)
         tx_hash = hashlib.sha256(f"{op_id}:{control}".encode("utf-8")).hexdigest()
         finalized = control not in self.pending_controls
-        return OperationReceipt(op_id=op_id, control=control, status="applied", tx_hash=tx_hash, finalized=finalized)
+        return OperationReceipt(
+            op_id=op_id,
+            control=control,
+            status="applied",
+            tx_hash=tx_hash,
+            finalized=finalized,
+        )
 
     def rollback(self, control: str, op_id: str) -> None:
         fn = self.rollback_map.get(control)
@@ -70,13 +76,19 @@ class RuleBasedOnChainAdapter(OnChainAdapter):
         self.rollback_log.append(control)
 
     def verify(self, receipt: OperationReceipt) -> bool:
-        return receipt.control in self.applied_log and receipt.control not in self.rollback_log and receipt.finalized
+        return (
+            receipt.control in self.applied_log
+            and receipt.control not in self.rollback_log
+            and receipt.finalized
+        )
 
 
 class ActionExecutor:
     """Execution adapter for controls with rollback safety and failure budget."""
 
-    def __init__(self, chain_adapter: OnChainAdapter | None = None, failure_budget: int = 1) -> None:
+    def __init__(
+        self, chain_adapter: OnChainAdapter | None = None, failure_budget: int = 1
+    ) -> None:
         self.chain_adapter = chain_adapter or RuleBasedOnChainAdapter()
         self.failure_budget = failure_budget
         self._seq = count(1)
@@ -92,17 +104,23 @@ class ActionExecutor:
                 receipt = self.chain_adapter.apply(control, op_id)
                 receipts.append(receipt)
                 applied.append(control)
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 failures.append(control)
                 if len(failures) > self.failure_budget:
                     rolled_back: list[str] = []
                     for applied_control in reversed(applied):
                         try:
-                            self.chain_adapter.rollback(applied_control, op_id=f"rollback-{next(self._seq)}")
+                            self.chain_adapter.rollback(
+                                applied_control, op_id=f"rollback-{next(self._seq)}"
+                            )
                             rolled_back.append(applied_control)
-                        except Exception:
+                        except Exception:  # pylint: disable=broad-except
                             failures.append(f"rollback:{applied_control}")
-                    return ExecutionResult((), tuple(rolled_back), tuple(failures), False, tuple(receipts))
+                    return ExecutionResult(
+                        (), tuple(rolled_back), tuple(failures), False, tuple(receipts)
+                    )
 
         verified = all(self.chain_adapter.verify(r) for r in receipts)
-        return ExecutionResult(tuple(applied), (), tuple(failures), verified, tuple(receipts))
+        return ExecutionResult(
+            tuple(applied), (), tuple(failures), verified, tuple(receipts)
+        )

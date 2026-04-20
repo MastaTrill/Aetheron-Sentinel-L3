@@ -54,6 +54,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertEqual(decision.action, "pause_bridge")
         self.assertTrue(state["paused"])
         self.assertIsNotNone(decision.execution)
+        assert decision.execution is not None
         self.assertTrue(decision.execution.verified)
         self.assertEqual(sink.events[-1].action, "orchestrated_pause")
         self.assertIn("pause_bridge", sink.events[-1].controls)
@@ -75,6 +76,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertEqual(decision.action, "resume_bridge")
         self.assertFalse(state["paused"])
         self.assertIsNotNone(decision.execution)
+        assert decision.execution is not None
         self.assertTrue(decision.execution.verified)
         self.assertEqual(sink.events[-1].action, "orchestrated_resume")
         self.assertIn("resume_bridge", sink.events[-1].controls)
@@ -103,6 +105,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertEqual(decision.action, "pause_bridge")
         self.assertTrue(state["paused"])
         self.assertIsNotNone(decision.correlated)
+        assert decision.correlated is not None
         self.assertEqual(decision.correlated.correlation_key, "eth-main:anomaly")
         self.assertEqual(sink.events[-1].action, "sentinel_pause")
 
@@ -131,6 +134,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertEqual(decision.action, "resume_bridge")
         self.assertFalse(state["paused"])
         self.assertIsNotNone(decision.correlated)
+        assert decision.correlated is not None
         self.assertEqual(decision.correlated.correlation_key, "eth-main:resume")
         self.assertEqual(sink.events[-1].action, "sentinel_resume")
         self.assertIn("resume_bridge", sink.events[-1].controls)
@@ -153,6 +157,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertEqual(decision.action, "pause_bridge")
         self.assertFalse(state["paused"])
         self.assertIsNotNone(decision.execution)
+        assert decision.execution is not None
         self.assertFalse(decision.execution.verified)
         self.assertIn("pause_bridge", decision.execution.failures)
         self.assertEqual(sink.events[-1].action, "orchestrated_pause")
