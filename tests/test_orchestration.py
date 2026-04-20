@@ -1,3 +1,5 @@
+"""Unit tests for PauseResumeOrchestrator bridge control logic."""
+
 import unittest
 
 from aetheron_sentinel_l3.bmnr_ingestion import BmnrAlert, BmnrAlertCorrelationEngine
@@ -7,12 +9,15 @@ from aetheron_sentinel_l3.telemetry import InMemoryAuditSink
 
 
 class TestPauseResumeOrchestrator(unittest.TestCase):
+    """Tests for PauseResumeOrchestrator pause/resume decision logic."""
+
     def make_orchestrator(
         self,
         *,
         fail_controls: set[str] | None = None,
         clock: float | None = None,
     ):
+        """Build an orchestrator with in-memory fakes; optionally pin the clock to a fixed timestamp."""
         state = {"paused": False}
 
         def pause() -> None:
@@ -29,7 +34,13 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         executor = ActionExecutor(chain_adapter=adapter, failure_budget=0)
         sink = InMemoryAuditSink()
         engine = BmnrAlertCorrelationEngine(sink)
-        fixed_clock = (lambda t: lambda: t)(clock) if clock is not None else None
+        fixed_clock = None
+        if clock is not None:
+
+            def _fixed() -> float:
+                return clock
+
+            fixed_clock = _fixed
         orchestrator = PauseResumeOrchestrator(
             executor=executor,
             sink=sink,
@@ -39,6 +50,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         return orchestrator, sink, state
 
     def test_bmnr_critical_anomaly_triggers_pause(self) -> None:
+        """A critical BMNR anomaly alert must pause the bridge and record the action."""
         orchestrator, sink, state = self.make_orchestrator()
         alert = BmnrAlert(
             id="bmnr-1",
@@ -60,6 +72,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertIn("pause_bridge", sink.events[-1].controls)
 
     def test_bmnr_resume_signal_triggers_resume(self) -> None:
+        """A BMNR resume-type alert must resume the bridge and record the action."""
         orchestrator, sink, state = self.make_orchestrator()
         state["paused"] = True
         alert = BmnrAlert(
@@ -82,6 +95,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertIn("resume_bridge", sink.events[-1].controls)
 
     def test_sentinel_block_triggers_pause(self) -> None:
+        """A Sentinel BLOCK decision correlated with a pending BMNR alert must pause the bridge."""
         # clock is set within the 300-second TTL window of the fixture alert timestamp
         orchestrator, sink, state = self.make_orchestrator(clock=1_700_000_210.0)
         orchestrator.handle_bmnr_alert(
@@ -110,6 +124,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertEqual(sink.events[-1].action, "sentinel_pause")
 
     def test_correlated_resume_path_triggers_resume(self) -> None:
+        """A Sentinel ALLOW decision correlated with a pending BMNR resume alert must resume the bridge."""
         # clock is set within the 300-second TTL window of the fixture alert timestamp
         orchestrator, sink, state = self.make_orchestrator(clock=1_700_000_310.0)
         state["paused"] = True
@@ -140,6 +155,7 @@ class TestPauseResumeOrchestrator(unittest.TestCase):
         self.assertIn("resume_bridge", sink.events[-1].controls)
 
     def test_failed_pause_execution_is_recorded(self) -> None:
+        """When pause_bridge fails, the execution result must record the failure and remain unverified."""
         orchestrator, sink, state = self.make_orchestrator(
             fail_controls={"pause_bridge"}
         )
