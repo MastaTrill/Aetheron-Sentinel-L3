@@ -1,0 +1,35 @@
+{
+  "name": "aetheron-sentinel-l3",
+  "license": "UNLICENSED",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "verify:testnet": "hardhat run scripts/verify.js --network sepolia",
+    "verify:mainnet": "hardhat run scripts/verify.js --network mainnet",
+    "export:abis": "node scripts/export-abis.js",
+    "update:subgraph": "node scripts/update-subgraph.js",
+    "export:site-config": "node scripts/export-site-config.js",
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy:subgraph": "graph deploy --node https://api.thegraph.com/deploy/ aetheron-sentinel-l3",
+    "create-local": "graph create --node http://localhost:8020/ aetheron-sentinel-l3",
+    "remove-local": "graph remove --node http://localhost:8020/ aetheron-sentinel-l3",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron-sentinel-l3"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.70.0",
+    "@graphprotocol/graph-ts": "0.32.0",
+    "@openzeppelin/contracts": "^4.9.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.0",
+    "matchstick-as": "0.6.0"
+  }
+}

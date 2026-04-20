@@ -1,0 +1,82 @@
+type Sentinel @entity {
+  id: ID!
+  anomalyCount: BigInt!
+  lastAnomalyBlock: BigInt!
+  autonomousMode: Boolean!
+  thresholds: [Threshold!] @derivedFrom(field: "sentinel")
+  tvlUpdates: [TVLUpdate!] @derivedFrom(field: "sentinel")
+}
+
+type Threshold @entity {
+  id: ID!
+  sentinel: Sentinel!
+  thresholdType: BigInt!
+  value: BigInt!
+  updatedAt: BigInt!
+}
+
+type TVLUpdate @entity {
+  id: ID!
+  sentinel: Sentinel!
+  tvl: BigInt!
+  timestamp: BigInt!
+}
+
+type Bridge @entity {
+  id: ID!
+  bridgeAddress: Bytes!
+  totalValueLocked: BigInt!
+  transfers: [Transfer!] @derivedFrom(field: "bridge")
+  initializedAt: BigInt!
+}
+
+type Transfer @entity {
+  id: ID!
+  bridge: Bridge!
+  sender: Bytes!
+  recipient: Bytes!
+  amount: BigInt!
+  chainId: BigInt!
+  tokenAddress: Bytes!
+  transferId: Bytes!
+  status: TransferStatus!
+  timestamp: BigInt!
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+type RateLimitStats @entity {
+  id: ID!
+  chainId: BigInt!
+  currentUsage: BigInt!
+  limit: BigInt!
+  lastUpdate: BigInt!
+  withdrawals: [Withdrawal!] @derivedFrom(field: "rateLimit")
+}
+
+type Withdrawal @entity {
+  id: ID!
+  rateLimit: RateLimitStats!
+  user: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+}
+
+type CircuitBreakerState @entity {
+  id: ID!
+  chainId: BigInt!
+  state: CircuitState!
+  failureCount: BigInt!
+  lastFailure: BigInt!
+  lastSuccess: BigInt!
+}
+
+enum CircuitState {
+  CLOSED
+  OPEN
+  HALF_OPEN
+}
