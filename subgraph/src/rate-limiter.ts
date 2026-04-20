@@ -2,24 +2,46 @@ import {
   WithdrawalProcessed,
   RateLimitUpdated,
   ChainLimitSet,
+  RateLimiter,
 } from "../generated/RateLimiter/RateLimiter";
 import { RateLimitStats } from "../generated/schema";
 
-// Event handlers for RateLimiter contract
-export function handleWithdrawalProcessed(event: WithdrawalProcessed): void {
-  let stats = new RateLimitStats(event.transaction.hash.toHex());
-  stats.withdrawalAmount = event.params.amount;
-  stats.timestamp = event.block.timestamp;
-  stats.chainId = event.params.chainId;
+function loadOrCreateStats(id: string): RateLimitStats {
+  let stats = RateLimitStats.load(id);
+  if (stats == null) {
+    stats = new RateLimitStats(id);
+  }
+  return stats;
+}
+
+function syncStats(id: string, contract: RateLimiter, timestamp: BigInt): void {
+  let stats = loadOrCreateStats(id);
+  let windowStats = contract.getWindowStats();
+
+  stats.windowStart = contract.windowStart();
+  stats.windowDuration = contract.windowDuration();
+  stats.currentWindowAmount = windowStats.value1;
+  stats.maxWithdrawalPerWindow = windowStats.value2;
+  stats.windowRemaining = windowStats.value0;
+  stats.timestamp = timestamp;
   stats.save();
 }
 
+export function handleWithdrawalProcessed(event: WithdrawalProcessed): void {
+  const contract = RateLimiter.bind(event.address);
+  syncStats(event.address.toHex(), contract, event.block.timestamp);
+}
+
 export function handleRateLimitUpdated(event: RateLimitUpdated): void {
-  // Update rate limit configuration
-  // This would typically update global rate limit settings
+  const contract = RateLimiter.bind(event.address);
+  syncStats(event.address.toHex(), contract, event.block.timestamp);
 }
 
 export function handleChainLimitSet(event: ChainLimitSet): void {
-  // Update chain-specific limits
-  // This would typically update per-chain rate limits
+  const contract = RateLimiter.bind(event.address);
+  syncStats(
+    event.address.toHex() + "-" + event.params.chainId.toString(),
+    contract,
+    event.block.timestamp,
+  );
 }

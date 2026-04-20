@@ -10,15 +10,17 @@ dataSources:
     name: SentinelInterceptor
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000000" # TODO: replace with BMNR joint testnet deployment
+      address: "{{SENTINEL_INTERCEPTOR_ADDRESS}}"
       abi: SentinelInterceptor
-      startBlock: 0 # TODO: replace with deployment block
+      startBlock: {{SENTINEL_INTERCEPTOR_START_BLOCK}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
       language: wasm/AssemblyScript
       entities:
         - Sentinel
+        - AnomalyAlert
+        - PauseEvent
       abis:
         - name: SentinelInterceptor
           file: ../abis/SentinelInterceptor.json
@@ -39,9 +41,9 @@ dataSources:
     name: AetheronBridge
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000000" # TODO: replace with BMNR joint testnet deployment
+      address: "{{AETHERON_BRIDGE_ADDRESS}}"
       abi: AetheronBridge
-      startBlock: 0 # TODO: replace with deployment block
+      startBlock: {{AETHERON_BRIDGE_START_BLOCK}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -67,9 +69,9 @@ dataSources:
     name: RateLimiter
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000000" # TODO: replace with BMNR joint testnet deployment
+      address: "{{RATE_LIMITER_ADDRESS}}"
       abi: RateLimiter
-      startBlock: 0 # TODO: replace with deployment block
+      startBlock: {{RATE_LIMITER_START_BLOCK}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -92,9 +94,9 @@ dataSources:
     name: CircuitBreaker
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000000" # TODO: replace with BMNR joint testnet deployment
+      address: "{{CIRCUIT_BREAKER_ADDRESS}}"
       abi: CircuitBreaker
-      startBlock: 0 # TODO: replace with deployment block
+      startBlock: {{CIRCUIT_BREAKER_START_BLOCK}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
