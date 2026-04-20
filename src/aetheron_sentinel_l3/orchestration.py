@@ -1,3 +1,5 @@
+"""Bridge pause/resume orchestration driven by BMNR alerts and Sentinel decisions."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,6 +13,8 @@ from .telemetry import AuditEvent, AuditSink
 
 @dataclass(frozen=True)
 class OrchestrationDecision:
+    """Immutable record of an orchestration action, its reason, and execution outcome."""
+
     action: str
     reason: str
     correlated: CorrelatedAlert | None
@@ -18,6 +22,8 @@ class OrchestrationDecision:
 
 
 class PauseResumeOrchestrator:
+    """Coordinates bridge pause and resume decisions from BMNR alerts and Sentinel events."""
+
     def __init__(
         self,
         executor: ActionExecutor,
@@ -25,12 +31,14 @@ class PauseResumeOrchestrator:
         correlation_engine: BmnrAlertCorrelationEngine,
         clock: Callable[[], float] = time.time,
     ) -> None:
+        """Initialize the orchestrator with an executor, audit sink, correlation engine, and clock."""
         self.executor = executor
         self.sink = sink
         self.correlation_engine = correlation_engine
         self._clock = clock
 
     def handle_bmnr_alert(self, alert: BmnrAlert) -> OrchestrationDecision:
+        """Process an incoming BMNR alert and execute the appropriate bridge control."""
         correlated = self.correlation_engine.ingest_bmnr_alert(alert)
         if correlated.action == "pause":
             execution = self.executor.apply_controls(("pause_bridge",))
@@ -55,6 +63,7 @@ class PauseResumeOrchestrator:
         action: str,
         risk_score: float,
     ) -> OrchestrationDecision:
+        """Handle a Sentinel BLOCK or ALLOW decision, correlating with any pending BMNR alert."""
         correlated = self.correlation_engine.correlate_sentinel_decision(
             event_id=event_id,
             bridge_id=bridge_id,
@@ -92,6 +101,7 @@ class PauseResumeOrchestrator:
         correlated: CorrelatedAlert | None,
         execution: ExecutionResult | None,
     ) -> None:
+        """Emit an audit event capturing the action, correlation context, and execution controls."""
         reasons = [action]
         controls: list[str] = []
 
