@@ -1,6 +1,8 @@
 // test/SentinelMonitor.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
+
+const { ethers } = await network.create();
 
 describe('SentinelMonitor', function () {
   let monitor;
@@ -96,11 +98,13 @@ describe('SentinelMonitor', function () {
             stubBridge.address,
             stubCircuit.address,
           ),
-      ).to.be.reverted;
+      ).to.be.revertedWith('Ownable: caller is not the owner');
     });
 
     it('reverts addTrackedChain when called by non-owner', async function () {
-      await expect(monitor.connect(other).addTrackedChain(1)).to.be.reverted;
+      await expect(
+        monitor.connect(other).addTrackedChain(1),
+      ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
 });

@@ -1,6 +1,8 @@
 // test/SentinelYieldMaximizer.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
+
+const { ethers } = await network.create();
 
 describe('SentinelYieldMaximizer', function () {
   let yieldMaximizer, token;
@@ -45,7 +47,7 @@ describe('SentinelYieldMaximizer', function () {
     it('is only callable by owner', async function () {
       await expect(
         yieldMaximizer.connect(user).setYieldToken(await token.getAddress()),
-      ).to.be.reverted;
+      ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
 
@@ -93,9 +95,10 @@ describe('SentinelYieldMaximizer', function () {
       await token
         .connect(user)
         .approve(await yieldMaximizer.getAddress(), ethers.parseEther('50'));
-      await expect(
-        yieldMaximizer.connect(user).deposit(ethers.parseEther('50')),
-      ).to.not.be.reverted;
+      const tx = await yieldMaximizer
+        .connect(user)
+        .deposit(ethers.parseEther('50'));
+      await tx.wait();
     });
   });
 

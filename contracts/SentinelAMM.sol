@@ -112,9 +112,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
 
     constructor(address initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
-        // Create initial pools
-        _createPool(address(0x1), address(0x2), 5); // Example tokens with 0.05% fee
-        _createPool(address(0x3), address(0x4), 30); // Higher fee for volatile pairs
+        // Create initial pools — pass feeTiers array indices (not raw fee values)
+        _createPool(address(0x1), address(0x2), 1); // feeTiers[1] = 5 → 0.05% fee
+        _createPool(address(0x3), address(0x4), 2); // feeTiers[2] = 30 → 0.30% fee
         if (initialOwner != msg.sender) {
             super.transferOwnership(initialOwner);
         }
