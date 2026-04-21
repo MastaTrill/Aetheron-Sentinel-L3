@@ -39,9 +39,31 @@ export default defineConfig({
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 1,
     },
+    hoodi: {
+      type: 'http',
+      chainType: 'l1',
+      url:
+        process.env.HOODI_RPC_URL ||
+        'https://ethereum-hoodi-rpc.publicnode.com',
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 560048,
+    },
+    baseSepolia: {
+      type: 'http',
+      chainType: 'l1',
+      url: process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org',
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 84532,
+    },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY || '',
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY || '',
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
+      hoodi: process.env.ETHERSCAN_API_KEY || '',
+      baseSepolia:
+        process.env.BASESCAN_API_KEY || process.env.ETHERSCAN_API_KEY || '',
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === 'true',
