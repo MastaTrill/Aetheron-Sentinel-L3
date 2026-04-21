@@ -1,5 +1,6 @@
 # Sentinel L3: Quantum-Resistant Bridge Guardian
 
+[![CI](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/ci.yml)
 [![Security: Quantum-Resistant](https://img.shields.io/badge/Security-Quantum--Resistant-blue.svg)](https://sentinel-l3.com/security)
 [![APY: 3.0-5.0%](https://img.shields.io/badge/APY-3.0--5.0%25-green.svg)](https://sentinel-l3.com/yield)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
