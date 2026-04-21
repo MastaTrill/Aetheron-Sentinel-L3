@@ -12,7 +12,8 @@ describe('SentinelTimelock', function () {
   beforeEach(async function () {
     [owner, proposer, executor, stranger] = await ethers.getSigners();
 
-    const SentinelTimelock = await ethers.getContractFactory('SentinelTimelock');
+    const SentinelTimelock =
+      await ethers.getContractFactory('SentinelTimelock');
     timelock = await SentinelTimelock.deploy(
       MIN_DELAY,
       [proposer.address],

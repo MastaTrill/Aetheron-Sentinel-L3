@@ -53,7 +53,8 @@ describe('SentinelStaking', function () {
 
   describe('Deployment', function () {
     it('reverts with zero staking token address', async function () {
-      const SentinelStaking = await ethers.getContractFactory('SentinelStaking');
+      const SentinelStaking =
+        await ethers.getContractFactory('SentinelStaking');
       await expect(
         SentinelStaking.deploy(
           ethers.ZeroAddress,
@@ -64,7 +65,8 @@ describe('SentinelStaking', function () {
     });
 
     it('reverts with zero reward token address', async function () {
-      const SentinelStaking = await ethers.getContractFactory('SentinelStaking');
+      const SentinelStaking =
+        await ethers.getContractFactory('SentinelStaking');
       await expect(
         SentinelStaking.deploy(
           await stakingToken.getAddress(),
@@ -75,7 +77,8 @@ describe('SentinelStaking', function () {
     });
 
     it('reverts with zero owner address', async function () {
-      const SentinelStaking = await ethers.getContractFactory('SentinelStaking');
+      const SentinelStaking =
+        await ethers.getContractFactory('SentinelStaking');
       await expect(
         SentinelStaking.deploy(
           await stakingToken.getAddress(),
@@ -200,8 +203,8 @@ describe('SentinelStaking', function () {
       await ethers.provider.send('evm_increaseTime', [BRONZE_LOCK + 1]);
       await ethers.provider.send('evm_mine', []);
 
-      await expect(staking.connect(user).unstake(ethers.parseEther('500'))).to
-        .emit(staking, 'Unstaked')
+      await expect(staking.connect(user).unstake(ethers.parseEther('500')))
+        .to.emit(staking, 'Unstaked')
         .withArgs(user.address, ethers.parseEther('500'), 0n);
     });
   });
@@ -218,9 +221,7 @@ describe('SentinelStaking', function () {
     it('owner (REWARD_MANAGER) can award anomaly_report bonus', async function () {
       // Ensure user has a stake so securityScore update is meaningful
       await staking.connect(user).stake(ethers.parseEther('100'));
-      await expect(
-        staking.awardSecurityBonus(user.address, 'anomaly_report'),
-      )
+      await expect(staking.awardSecurityBonus(user.address, 'anomaly_report'))
         .to.emit(staking, 'SecurityBonusAwarded')
         .withArgs(user.address, ethers.parseEther('10'), 'anomaly_report');
     });

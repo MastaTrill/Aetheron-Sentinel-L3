@@ -96,9 +96,9 @@ describe('SentinelToken', function () {
         30 * 86400,
         10 * 86400,
       );
-      await expect(
-        token.releaseVestedTokens(user.address),
-      ).to.be.revertedWith('No tokens to release');
+      await expect(token.releaseVestedTokens(user.address)).to.be.revertedWith(
+        'No tokens to release',
+      );
     });
 
     it('releases the full amount after the vesting duration', async function () {
@@ -108,9 +108,9 @@ describe('SentinelToken', function () {
     });
 
     it('reverts when there is no vesting schedule', async function () {
-      await expect(
-        token.releaseVestedTokens(user2.address),
-      ).to.be.revertedWith('No vesting schedule');
+      await expect(token.releaseVestedTokens(user2.address)).to.be.revertedWith(
+        'No vesting schedule',
+      );
     });
   });
 
