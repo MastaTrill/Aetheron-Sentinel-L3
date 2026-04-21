@@ -15,7 +15,8 @@
  * Set DEPLOYED_ADDRESSES as a JSON string of { ContractName: address }.
  */
 
-const hre = require('hardhat');
+let hre;
+let ethers;
 require('dotenv').config();
 
 function parseAddressList(value) {
@@ -44,6 +45,11 @@ async function verify(address, constructorArguments) {
 }
 
 async function main() {
+  const hardhatModule = await import('hardhat');
+  hre = hardhatModule.default ?? hardhatModule;
+  const connection = await hre.network.getOrCreate();
+  ethers = connection.ethers;
+
   const rawAddresses = process.env.DEPLOYED_ADDRESSES;
   if (!rawAddresses) {
     throw new Error(
@@ -55,12 +61,12 @@ async function main() {
 
   const addresses = JSON.parse(rawAddresses);
 
-  const [deployer] = await hre.ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
   const deployerAddress = await deployer.getAddress();
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
 
   const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
-  const tvlThreshold = hre.ethers.parseEther(
+  const tvlThreshold = ethers.parseEther(
     process.env.TVL_THRESHOLD_ETH || '1000',
   );
   const autonomousMode = parseBoolean(process.env.AUTONOMOUS_MODE, true);
@@ -204,7 +210,7 @@ async function main() {
                 : [deployerAddress],
               parseAddressList(process.env.TIMELOCK_EXECUTORS).length
                 ? parseAddressList(process.env.TIMELOCK_EXECUTORS)
-                : [hre.ethers.ZeroAddress],
+                : [ethers.ZeroAddress],
               process.env.TIMELOCK_ADMIN || owner,
             ],
           },

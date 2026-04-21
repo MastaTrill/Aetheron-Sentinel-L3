@@ -1,4 +1,5 @@
-const hre = require('hardhat');
+let hre;
+let ethers;
 require('dotenv').config();
 
 function parseAddressList(value) {
@@ -32,19 +33,24 @@ function parseChainLimits(value) {
       if (!chainId || !limit) {
         throw new Error(`Invalid CHAIN_LIMITS entry: ${entry}`);
       }
-      return { chainId: BigInt(chainId), limit: hre.ethers.parseEther(limit) };
+      return { chainId: BigInt(chainId), limit: ethers.parseEther(limit) };
     });
 }
 
 async function deployContract(name, args) {
-  const Factory = await hre.ethers.getContractFactory(name);
+  const Factory = await ethers.getContractFactory(name);
   const contract = await Factory.deploy(...args);
   await contract.waitForDeployment();
   return contract;
 }
 
 async function main() {
-  const [deployer] = await hre.ethers.getSigners();
+  const hardhatModule = await import('hardhat');
+  hre = hardhatModule.default ?? hardhatModule;
+  const connection = await hre.network.getOrCreate();
+  ethers = connection.ethers;
+
+  const [deployer] = await ethers.getSigners();
   const deployerAddress = await deployer.getAddress();
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
   const deployerIsOwner = deployerAddress.toLowerCase() === owner.toLowerCase();
@@ -52,9 +58,7 @@ async function main() {
   const config = {
     owner,
     anomalyThreshold: Number(process.env.ANOMALY_THRESHOLD || '10'),
-    tvlThreshold: hre.ethers.parseEther(
-      process.env.TVL_THRESHOLD_ETH || '1000',
-    ),
+    tvlThreshold: ethers.parseEther(process.env.TVL_THRESHOLD_ETH || '1000'),
     autonomousMode: parseBoolean(process.env.AUTONOMOUS_MODE, true),
     rewardPerSecond: parseUint(process.env.REWARD_PER_SECOND, 0n),
     relayers: parseAddressList(process.env.RELAYER_ADDRESSES),
@@ -91,7 +95,7 @@ async function main() {
   );
 
   const balance = await deployer.provider.getBalance(deployerAddress);
-  console.log('Account balance:', hre.ethers.formatEther(balance), 'ETH\n');
+  console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
 
   const addresses = {};
   const pendingActions = [];
@@ -212,7 +216,7 @@ async function main() {
     : [deployerAddress];
   const timelockExecutors = config.timelockExecutors.length
     ? config.timelockExecutors
-    : [hre.ethers.ZeroAddress]; // address(0) = anyone can execute
+    : [ethers.ZeroAddress]; // address(0) = anyone can execute
   const timelock = await deployContract('SentinelTimelock', [
     config.timelockMinDelay,
     timelockProposers,
