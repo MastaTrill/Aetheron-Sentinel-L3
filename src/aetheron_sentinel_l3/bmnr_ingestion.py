@@ -62,9 +62,9 @@ class BmnrAlertCorrelationEngine:
         timestamp: float | None = None,
     ) -> CorrelatedAlert | None:
         now = timestamp if timestamp is not None else time.time()
-        self._prune(now)
         alert_type = "resume" if action == "ALLOW" else "anomaly"
         match = self._pending.get(self._correlation_key(bridge_id, alert_type))
+        self._prune(now)
         if match is None:
             return None
 
@@ -73,7 +73,7 @@ class BmnrAlertCorrelationEngine:
             alert_id=event_id or match.alert_id,
             correlation_key=match.correlation_key,
             severity=match.severity,
-            action=action,
+            action=match.action,
             bridge_id=bridge_id,
             timestamp=now,
             details={
