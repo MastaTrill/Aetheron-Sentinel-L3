@@ -2,7 +2,7 @@ import { config as loadEnv } from 'dotenv';
 import { defineConfig } from 'hardhat/config';
 import hardhatToolboxMochaEthers from '@nomicfoundation/hardhat-toolbox-mocha-ethers';
 
-loadEnv();
+loadEnv({ override: true });
 
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthers],
