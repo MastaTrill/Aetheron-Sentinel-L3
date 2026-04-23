@@ -102,25 +102,23 @@ Sentinel L3 represents the pinnacle of DeFi security architecture, combining qua
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22+
 - Hardhat
-- Foundry
+- Python 3.11+
 - Git
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/aetheron/sentinel-l3.git
-cd sentinel-l3
+git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
+cd Aetheron-Sentinel-L3
 
 # Install dependencies
 npm install
-forge install
 
 # Compile contracts
 npm run compile
-forge build
 
 # Run tests
 npm test
@@ -292,10 +290,10 @@ uint256 optimizedAPY = maximizer.getUserOptimizedAPY(user);
 
 ### Community Resources
 
-- [Discord](https://discord.gg/sentinell3) - Community discussions
-- [Twitter](https://twitter.com/sentinell3) - Updates and announcements
-- [Forum](https://forum.sentinel-l3.com) - Technical discussions
-- [Documentation](https://docs.sentinel-l3.com) - Complete guides
+- [GitHub Repository](https://github.com/MastaTrill/Aetheron-Sentinel-L3) - Source code
+- [Documentation](./SYSTEM_ARCHITECTURE.md) - Architecture overview
+- [Security](./SECURITY.md) - Security policies
+- [Issues & Discussions](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues) - Bug reports and feature requests
 
 ### Bug Bounty Program
 
@@ -367,16 +365,14 @@ We welcome contributions from the community! Please see our [Contributing Guide]
 
 ```bash
 # Fork and clone
-git clone https://github.com/yourusername/sentinel-l3.git
-cd sentinel-l3
+git clone https://github.com/yourusername/Aetheron-Sentinel-L3.git
+cd Aetheron-Sentinel-L3
 
 # Install dependencies
 npm install
-forge install
 
 # Run tests
 npm test
-forge test
 
 # Start development
 npm run dev
@@ -384,9 +380,9 @@ npm run dev
 
 ### Bug Reports & Feature Requests
 
-- [GitHub Issues](https://github.com/aetheron/sentinel-l3/issues)
-- [Discord #development](https://discord.gg/sentinell3)
-- [Security Disclosures](mailto:security@sentinel-l3.com)
+- [GitHub Issues](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues)
+- [Security](./SECURITY.md) - Security vulnerability reporting
+- [Contributing](./CONTRIBUTING.md) - Contributing guidelines
 
 ## 📄 License
 
@@ -394,10 +390,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-- **Website**: [https://sentinel-l3.com](https://sentinel-l3.com)
-- **Email**: [contact@sentinel-l3.com](mailto:contact@sentinel-l3.com)
-- **Twitter**: [@sentinell3](https://twitter.com/sentinell3)
-- **Discord**: [Sentinel L3](https://discord.gg/sentinell3)
+- **Repository**: [GitHub](https://github.com/MastaTrill/Aetheron-Sentinel-L3)
+- **Issues & Discussions**: [GitHub Issues](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues)
+- **Security**: See [SECURITY.md](./SECURITY.md) for vulnerability reporting
+- **Architecture**: See [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md) for detailed design
 
 ## 🙏 Acknowledgments
 
