@@ -1,11 +1,19 @@
 import { config as loadEnv } from 'dotenv';
 import { defineConfig } from 'hardhat/config';
-import hardhatToolboxMochaEthers from '@nomicfoundation/hardhat-toolbox-mocha-ethers';
+import hardhatEthers from '@nomicfoundation/hardhat-ethers';
+import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
+import hardhatMocha from '@nomicfoundation/hardhat-mocha';
+import hardhatVerify from '@nomicfoundation/hardhat-verify';
 
 loadEnv({ override: true });
 
 export default defineConfig({
-  plugins: [hardhatToolboxMochaEthers],
+  plugins: [
+    hardhatEthers,
+    hardhatEthersChaiMatchers,
+    hardhatMocha,
+    hardhatVerify,
+  ],
   solidity: {
     version: '0.8.20',
     settings: {
