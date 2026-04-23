@@ -437,7 +437,7 @@ class SentinelInterface {
       const currentTVL = metrics[0].textContent;
       if (currentTVL && currentTVL.includes('B')) {
         const baseValue = parseFloat(
-          currentTVL.replace('$', '').replace('B+', ''),
+          currentTVL.replace(/\$/g, '').replace(/B\+/g, ''),
         );
         const newValue = (baseValue + Math.random() * 0.1).toFixed(1);
         metrics[0].textContent = `$${newValue}B+`;
