@@ -427,15 +427,27 @@ All transactions and verification commands are documented in this checklist:
 - **Configuration**: `site/contracts.js` (address map), `subgraph.yaml` (indexer config)
 - **Safe payloads**: `scripts/bridge-relayer-enablement.sepolia.safe.json` (for multisig alternative execution)
 
-### Production Lock-Down Checklist
+### Production Lock-Down Decisions (Finalized 2026-04-23)
 
-Before mainnet go-live, decide on these items:
+1. **Governance break-glass**
+   - Decision: Revoke owner EOA `PROPOSER_ROLE` and `CANCELLER_ROLE` before mainnet go-live.
+   - Target state: multisig-only governance control plane.
 
-1. **Governance break-glass**: Revoke owner EOA `PROPOSER_ROLE` and `CANCELLER_ROLE` from timelock (fully multisig-only), or keep current state (multisig primary + owner EOA emergency).
-2. **Relayer wallet**: Use dedicated relayer account for production instead of owner EOA, or keep owner EOA as relayer for testnet/initial mainnet phase.
-3. **Optional components**: Deploy and wire `liquidityMining` and `rewardAggregator` on mainnet, or continue deferring.
-4. **Token support & chain limits**: Configure `setTokenSupport(...)` and `setChainLimit(...)` on bridge for target chains before traffic.
-5. **Monitor/reporter expansion**: Add dedicated monitor/reporter wallets on `CircuitBreaker` and `SentinelInterceptor` if deployer is not sufficient for operations.
+2. **Relayer wallet**
+   - Decision: Use dedicated relayer wallet(s) for production.
+   - Target state: owner EOA is not an active production relayer.
+
+3. **Optional components**
+   - Decision: Keep `liquidityMining` and `rewardAggregator` deferred to Phase 2.
+   - Target state: both remain unset at initial mainnet launch.
+
+4. **Token support & chain limits**
+   - Decision: Allowlist-only launch.
+   - Target state: no bridge traffic until governance executes explicit `setTokenSupport(...)` and `setChainLimit(...)` calls.
+
+5. **Monitor/reporter expansion**
+   - Decision: Use dedicated monitor/reporter wallets (primary + backup).
+   - Target state: deployer wallet not used for ongoing operations.
 
 ### Next Steps
 

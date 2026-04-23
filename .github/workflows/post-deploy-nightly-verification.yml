@@ -1,0 +1,60 @@
+name: Post-deploy and nightly verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why this run is being triggered (for example: post-deploy)'
+        required: false
+        default: post-deploy
+  schedule:
+    - cron: '15 2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verification-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-sepolia:
+    name: Verify Sepolia controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Section 7 ownership sweep
+        run: |
+          mkdir -p logs/verification/ci
+          node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep.log
+
+      - name: Run allowlist audit
+        run: |
+          node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
+
+      - name: Run bridge relayer verification
+        env:
+          RELAYER_ADDRESSES: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
+        run: |
+          node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
+
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sepolia-verification-logs-${{ github.run_id }}
+          path: logs/verification/ci/*.log
+          if-no-files-found: warn

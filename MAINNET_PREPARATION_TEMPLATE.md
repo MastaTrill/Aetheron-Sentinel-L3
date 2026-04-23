@@ -2,6 +2,28 @@
 
 This document guides mainnet deployment using the exact same workflow validated on Sepolia.
 
+## Finalized Mainnet Decisions (Approved 2026-04-23)
+
+1. Governance break-glass:
+   - Decision: **multisig-only** at mainnet go-live.
+   - Action: revoke owner EOA `PROPOSER_ROLE` and `CANCELLER_ROLE` in the final lock-down proposal.
+
+2. Relayer architecture:
+   - Decision: use **dedicated relayer wallet(s)**, not owner EOA.
+   - Action: enable only approved relayer addresses via Safe payload and verify with `verify-bridge-relayers.cjs`.
+
+3. Optional components:
+   - Decision: keep `liquidityMining` and `rewardAggregator` **deferred to Phase 2** for initial mainnet launch.
+   - Action: leave both zero until separate governance approval and deployment.
+
+4. Bridge token support and chain limits:
+   - Decision: **allowlist-only launch**.
+   - Action: no bridge traffic until explicit `setTokenSupport(...)` and `setChainLimit(...)` governance transactions are executed.
+
+5. Monitoring and reporting:
+   - Decision: use **dedicated monitor/reporter wallets** (primary + backup), not deployer wallet.
+   - Action: grant/revoke monitor/operator roles during the final mainnet lock-down runbook.
+
 ## Pre-Deployment Decisions
 
 Before deploying to mainnet, confirm:

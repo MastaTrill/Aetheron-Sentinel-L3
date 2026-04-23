@@ -174,6 +174,14 @@ node scripts/verify-bridge-relayers.cjs
 
 This confirms relayer has RELAYER_ROLE on AetheronBridge.
 
+### 4. Daily Verification Log (2026-04-23)
+
+- Daily baseline log: [logs/verification/2026-04-23/DAILY_VERIFICATION_LOG.md](./logs/verification/2026-04-23/DAILY_VERIFICATION_LOG.md)
+- Archived outputs:
+  - [logs/verification/2026-04-23/section7-final-sweep.log](./logs/verification/2026-04-23/section7-final-sweep.log)
+  - [logs/verification/2026-04-23/audit-allowlists.log](./logs/verification/2026-04-23/audit-allowlists.log)
+  - [logs/verification/2026-04-23/verify-bridge-relayers.log](./logs/verification/2026-04-23/verify-bridge-relayers.log)
+
 ---
 
 ## Production Decisions Locked

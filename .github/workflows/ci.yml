@@ -58,3 +58,44 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -p "test_*.py" -v
+
+  sepolia-verification-gate:
+    name: Sepolia verification gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Section 7 ownership sweep
+        run: node scripts/section7-final-sweep.cjs
+
+      - name: Run allowlist audit
+        run: node scripts/audit-allowlists.cjs
+
+      - name: Run bridge relayer verification
+        env:
+          RELAYER_ADDRESSES: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
+        run: node scripts/verify-bridge-relayers.cjs
+
+  promote-gate:
+    name: Promote gate
+    runs-on: ubuntu-latest
+    needs:
+      - hardhat
+      - python-tests
+      - sepolia-verification-gate
+
+    steps:
+      - name: Promotion gate summary
+        run: echo "All CI and Sepolia verification checks passed. Safe to promote/deploy."
