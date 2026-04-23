@@ -1,410 +1,174 @@
-# Sentinel L3: Quantum-Resistant Bridge Guardian
+# Aetheron Sentinel L3
 
-[![CI](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/ci.yml)
-[![Security: Quantum-Resistant](https://img.shields.io/badge/Security-Quantum--Resistant-blue.svg)](https://sentinel-l3.com/security)
-[![APY: 3.0-5.0%](https://img.shields.io/badge/APY-3.0--5.0%25-green.svg)](https://sentinel-l3.com/yield)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and a Python orchestration package for BMNR-driven pause and resume flows.
 
-> **The most advanced autonomous security system for cross-chain DeFi. Quantum-secured, AI-optimized, and unbreakable by design.**
+## Repository Scope
 
-![Sentinel L3 Banner](https://sentinel-l3.com/banner.png)
+This repository includes:
 
-## 🌟 Overview
+- Solidity contracts under `contracts/` for bridge controls, governance, staking, monitoring, and automated response flows
+- Hardhat-based scripts under `scripts/` for deployment, verification, ownership checks, exports, and audits
+- A Python package under `src/aetheron_sentinel_l3/` with unit tests in `tests/`
+- The Graph subgraph sources in `schema.graphql`, `subgraph.yaml`, and `generated/`
+- Remix-related workspaces in `apps/remix-dashboard/` and `imports/remix_-aetheron-sentinel-l3/`
+- CI and nightly verification workflows under `.github/workflows/`
 
-Sentinel L3 represents the pinnacle of DeFi security architecture, combining quantum-resistant cryptography, AI-powered yield optimization, and autonomous threat interception in a single, unbreakable ecosystem.
-
-### 🛡️ Key Features
-
-- **Quantum-Resistant Security**: Protected against both classical and quantum computing attacks
-- **AI Yield Optimization**: 3.0-5.0% APY through intelligent strategy allocation
-- **Autonomous Operation**: Self-sustaining system that never sleeps
-- **Cross-Chain Security**: Unified protection across multiple blockchain networks
-- **Real-Time Monitoring**: Sub-second threat detection and automated response
-- **Economic Incentives**: Security participation directly enhances yields
-
-## 📊 Performance Metrics
-
-| Metric               | Value          | Description                                |
-| -------------------- | -------------- | ------------------------------------------ |
-| **Security Level**   | 100% Certainty | Quantum-resistant with multi-layer defense |
-| **APY Range**        | 3.0% - 5.0%    | AI-optimized yield generation              |
-| **TPS Capacity**     | 1000+          | High-throughput bridge operations          |
-| **Oracle Network**   | 50+ Validators | Decentralized quantum-secured data feeds   |
-| **Uptime Guarantee** | 99.9%          | Autonomous operation reliability           |
-| **Response Time**    | <5 seconds     | Critical threat mitigation                 |
-
-## 🏗️ Architecture
-
-### Core Components
-
-```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           SENTINEL L3 ECOSYSTEM                           │
-│                  "Quantum-Resistant Bridge Guardian"                      │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                    ┌─────────────────┴─────────────────┐
-                    │                                   │
-          ┌─────────▼─────────┐               ┌─────────▼─────────┐
-          │                   │               │                   │
-          │ SENTINEL CORE LOOP│               │  SECURITY LAYER  │
-          │                   │               │                   │
-          │ • Autonomous      │               │ • Quantum Guard  │
-          │   Orchestration   │               │ • Multi-Sig Vault│
-          │ • Quantum State   │               │ • Oracle Network │
-          │   Management      │               │ • Security Audit │
-          │ • Threat          │               │                   │
-          │   Interception    │               └─────────┬─────────┘
-          │ • Yield           │                         │
-          │   Optimization    │               ┌─────────▼─────────┐
-          └─────────┬─────────┘               │                   │
-                    │                         │   YIELD LAYER    │
-                    │                         │                   │
-          ┌─────────▼─────────┐               │ • Staking System  │
-          │                   │               │ • Liquidity Mining│
-          │   BRIDGE LAYER    │               │ • Token Rewards   │
-          │                   │               │ • Referral Bonuses│
-          │ • Aetheron Bridge │◄──────────────►• Yield Maximizer │
-          │ • Rate Limiter    │               │                   │
-          │ • Circuit Breaker │               └─────────┬─────────┘
-          └─────────┬─────────┘                         │
-                    │                         ┌─────────▼─────────┐
-                    └─────────────────────────┤                   │
-                                              │   GOVERNANCE     │
-                                              │   & ADVANCED     │
-                                              │   FEATURES       │
-                                              │                   │
-                                              │ • ZK Oracles      │
-                                              │ • Governance DAO  │
-                                              │ • AMM Integration │
-                                              │ • Monitoring      │
-                                              └───────────────────┘
-```
-
-### Contract Ecosystem
-
-| Contract                    | Purpose                       | Security Level     |
-| --------------------------- | ----------------------------- | ------------------ |
-| **SentinelCoreLoop**        | Central orchestration engine  | Quantum-Resistant  |
-| **SentinelQuantumGuard**    | Zero-knowledge security layer | Unbreakable        |
-| **SentinelMultiSigVault**   | Quantum-safe governance       | Multi-Party        |
-| **SentinelInterceptor**     | Autonomous threat detection   | AI-Powered         |
-| **AetheronBridge**          | Cross-chain bridge security   | Signature-Verified |
-| **SentinelYieldMaximizer**  | AI-powered yield optimization | Risk-Adjusted      |
-| **SentinelStaking**         | Tiered staking rewards        | Performance-Based  |
-| **SentinelLiquidityMining** | Multi-pool farming            | Boost-Optimized    |
-| **SentinelZKOracle**        | Privacy-preserving data feeds | Cryptographic      |
-| **SentinelGovernance**      | Advanced DAO system           | Emergency-Ready    |
-| **SentinelAMM**             | Automated market maker        | IL-Protected       |
-| **SentinelSecurityAuditor** | Automated threat monitoring   | Real-Time          |
-
-## 🚀 Quick Start
-
-### Prerequisites
+## Requirements
 
 - Node.js 22+
-- Hardhat
+- npm 10+
 - Python 3.11+
 - Git
 
-### Installation
+## Quick Start
 
 ```bash
-# Clone the repository
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
 cd Aetheron-Sentinel-L3
+npm ci
+```
 
-# Install dependencies
-npm install
+Compile contracts:
 
-# Compile contracts
+```bash
 npm run compile
-
-# Run tests
-npm test
-forge test
 ```
 
-### Deployment
+Run the Solidity test suite:
 
 ```bash
-# Copy and fill deployment environment
-copy .env.example .env
+npm test
+```
 
-# Deploy to local hardhat
+Run the Python orchestration tests.
+
+PowerShell:
+
+```powershell
+$env:PYTHONPATH="src"
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Bash:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Build the subgraph artifacts:
+
+```bash
+npm run codegen
+npm run build
+```
+
+Build the dashboard workspace:
+
+```bash
+npm run dashboard:build
+```
+
+## Common Commands
+
+### Deploy and Verify
+
+```bash
 npm run deploy:local
-
-# Deploy to testnet
-npm run deploy:testnet
-
-# Deploy to mainnet
+npm run deploy:sepolia
 npm run deploy:mainnet
-
-# Alternate shell wrapper
-chmod +x deploy-sentinel.sh
-./deploy-sentinel.sh
+npm run verify:testnet
+npm run verify:mainnet
+npm run setup:ownership
 ```
 
-### Frontend Setup
+### Verification and Audit Scripts
 
 ```bash
-cd site
-npm install
-npm run dev
+node scripts/section7-final-sweep.cjs
+node scripts/audit-allowlists.cjs
+node scripts/verify-bridge-relayers.cjs
+npm audit
 ```
 
-## 📚 Documentation
-
-### Core Concepts
-
-- [Sentinel Core Loop](docs/core-loop.md) - Autonomous orchestration engine
-- [Quantum Security](docs/quantum-security.md) - Post-quantum cryptography
-- [AI Yield Optimization](docs/yield-optimization.md) - 3.0-5.0% APY strategies
-- [Bridge Architecture](docs/bridge-security.md) - Cross-chain protection
-- [Governance System](docs/governance.md) - DAO and emergency protocols
-
-### Technical Guides
-
-- [API Reference](docs/api.md) - Complete contract interfaces
-- [Integration Guide](docs/integration.md) - Third-party integration
-- [Security Audit](docs/audit.md) - Comprehensive security analysis
-- [Performance Metrics](docs/metrics.md) - System performance data
-
-### Development
-
-- [Contributing](CONTRIBUTING.md) - Development guidelines
-- [Testing](docs/testing.md) - Test suite and coverage
-- [Deployment](docs/deployment.md) - Production deployment guide
-
-## 🔧 Usage Examples
-
-### Basic Staking
-
-```solidity
-// Stake tokens for enhanced APY
-SentinelStaking staking = SentinelStaking(stakingAddress);
-staking.stake(1000 ether);
-
-// Check current APY
-uint256 apy = staking.getUserAPY(msg.sender);
-```
-
-### Bridge Security
-
-```solidity
-// Create secure bridge transfer
-AetheronBridge bridge = AetheronBridge(bridgeAddress);
-bridge.bridgeTokens(recipient, amount, chainId, tokenAddress);
-
-// Verify with quantum guard
-SentinelQuantumGuard guard = SentinelQuantumGuard(guardAddress);
-bool valid = guard.validateTransaction(txHash, proofs);
-```
-
-### Yield Optimization
-
-```solidity
-// Auto-optimize yields across strategies
-SentinelYieldMaximizer maximizer = SentinelYieldMaximizer(maximizerAddress);
-maximizer.deposit(amount);
-
-// Check optimized APY
-uint256 optimizedAPY = maximizer.getUserOptimizedAPY(user);
-```
-
-## 🔐 Security Features
-
-### Quantum Resistance
-
-- **Lattice-Based Cryptography**: Immune to Shor's algorithm
-- **Zero-Knowledge Proofs**: Privacy without revealing data
-- **Multi-Party Computation**: Distributed security validation
-
-### Threat Protection
-
-- **AI Anomaly Detection**: Machine learning threat identification
-- **Circuit Breakers**: Automatic system shutdown on threats
-- **Rate Limiting**: DDoS and spam protection
-- **Access Control**: Hierarchical permission system
-
-### Recovery Mechanisms
-
-- **Emergency Protocols**: Instant system protection
-- **State Synchronization**: Cross-component consistency
-- **Invariant Validation**: Continuous system health checks
-
-## 💰 Yield Strategies
-
-### Staking Tiers
-
-- **Bronze**: 3.5% APY (1000+ tokens, 7-day lock)
-- **Silver**: 4.2% APY (10,000+ tokens, 14-day lock)
-- **Gold**: 5.0% APY (50,000+ tokens, 30-day lock)
-
-### Liquidity Mining
-
-- **Multi-Pool System**: 10+ pools with different risk/reward profiles
-- **Boost Multipliers**: 1.1x - 2x based on commitment level
-- **Impermanent Loss Protection**: Automatic compensation mechanisms
-
-### Referral Program
-
-- **Network Bonuses**: Exponential rewards for growing networks
-- **Tier Progression**: Bronze → Silver → Gold based on referrals
-- **Activity Rewards**: Additional incentives for platform engagement
-
-## 🌐 Ecosystem Integration
-
-### Supported Networks
-
-- Ethereum Mainnet
-- Arbitrum
-- Optimism
-- Polygon
-- BSC
-- Avalanche
-
-### Partner Protocols
-
-- Uniswap V3
-- Aave
-- Compound
-- Curve Finance
-- Yearn Finance
-
-### Oracle Networks
-
-- Chainlink (Enhanced)
-- Pyth Network
-- UMA Optimistic Oracle
-- Custom ZK Oracles
-
-## 🤝 Community & Governance
-
-### Governance Structure
-
-- **Sentinel Token (SENT)**: Governance and utility token
-- **DAO Governance**: Community-controlled protocol upgrades
-- **Emergency Council**: Multi-signature emergency response
-- **Guardian Network**: Decentralized security validation
-
-### Community Resources
-
-- [GitHub Repository](https://github.com/MastaTrill/Aetheron-Sentinel-L3) - Source code
-- [Documentation](./SYSTEM_ARCHITECTURE.md) - Architecture overview
-- [Security](./SECURITY.md) - Security policies
-- [Issues & Discussions](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues) - Bug reports and feature requests
-
-### Bug Bounty Program
-
-- **Critical Vulnerabilities**: Up to $500,000
-- **High Severity**: Up to $50,000
-- **Medium Severity**: Up to $10,000
-- **Low Severity**: Up to $1,000
-
-## 📈 Roadmap
-
-### Phase 1: Core Launch (Q2 2026) ✅
-
-- Quantum-resistant bridge security
-- AI yield optimization system
-- Basic governance framework
-
-### Phase 2: Ecosystem Expansion (Q3 2026)
-
-- Cross-chain bridge expansion
-- Advanced AMM integration
-- ZK oracle network deployment
-
-### Phase 3: Advanced Features (Q4 2026)
-
-- Multi-chain governance
-- Advanced AI strategies
-- Institutional-grade security
-
-### Phase 4: Quantum Age (2027+)
-
-- Native quantum computing compatibility
-- Interoperability with quantum networks
-- Advanced cryptographic primitives
-
-## 🔬 Research & Innovation
-
-### Active Research Areas
-
-- **Post-Quantum Cryptography**: Lattice-based signature schemes
-- **Zero-Knowledge Machine Learning**: Privacy-preserving AI
-- **Cross-Chain Communication**: Secure inter-blockchain messaging
-- **Economic Incentive Design**: Optimal security-economy alignment
-
-### Publications
-
-- [Quantum-Resistant DeFi Security](https://research.sentinel-l3.com/quantum-defi)
-- [AI-Optimized Yield Strategies](https://research.sentinel-l3.com/ai-yield)
-- [Cross-Chain Bridge Security](https://research.sentinel-l3.com/bridge-security)
-
-## ⚖️ Legal & Compliance
-
-### Regulatory Compliance
-
-- **KYC/AML Ready**: Modular compliance framework
-- **Jurisdictional Flexibility**: Multi-region compliance support
-- **Audit Trail**: Complete transaction and governance history
-
-### Security Audits
-
-- **Quantum Security**: Post-quantum cryptography validation
-- **Smart Contract Audit**: Comprehensive code review
-- **Economic Analysis**: Incentive mechanism validation
-
-## 🤝 Contributing
-
-We welcome contributions from the community! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
+### Exports and Subgraph
 
 ```bash
-# Fork and clone
-git clone https://github.com/yourusername/Aetheron-Sentinel-L3.git
-cd Aetheron-Sentinel-L3
+npm run export:abis
+npm run export:site-config
+npm run update:subgraph
+npm run codegen
+npm run build
+```
 
-# Install dependencies
-npm install
+### Dashboard Workspace
 
-# Run tests
+```bash
+npm run dashboard:dev
+npm run dashboard:lint
+npm run dashboard:build
+```
+
+## CI and Automation
+
+The main CI workflow in `.github/workflows/ci.yml` runs:
+
+- Hardhat compile and test on Node 22
+- Python unit tests on Python 3.11
+- Sepolia verification gate scripts
+- subgraph code generation and build
+- Remix import workspace lint and build
+
+The nightly and manual verification workflow in `.github/workflows/post-deploy-nightly-verification.yml` runs:
+
+- Sepolia ownership sweep
+- allowlist audit
+- bridge relayer verification
+- npm dependency audits for the root workspace and both Remix workspaces
+
+## Project Layout
+
+```text
+contracts/                            Solidity contracts
+scripts/                              Deploy, verify, export, and audit scripts
+src/aetheron_sentinel_l3/             Python orchestration package
+tests/                                Python unit tests
+test/                                 Hardhat test suite
+apps/remix-dashboard/                 Dashboard workspace
+imports/remix_-aetheron-sentinel-l3/  Remix import workspace
+generated/                            Generated subgraph files
+logs/verification/                    Verification logs and audit evidence
+```
+
+## Documentation
+
+These top-level documents are present in the repository and are the best starting points for deeper context:
+
+- `DOCUMENTATION_INDEX.md`
+- `SYSTEM_ARCHITECTURE.md`
+- `SECURITY.md`
+- `TEST_COVERAGE_SUMMARY.md`
+- `DEPLOYMENT_OWNERSHIP_CHECKLIST.md`
+- `HARDENING_CERTIFICATION.md`
+- `BMNR_INTEGRATION_READINESS.md`
+- `RELEASE_SUMMARY_2026-04-23.md`
+
+## Security
+
+Security reporting guidance lives in `SECURITY.md`.
+
+For routine local verification, run:
+
+```bash
 npm test
-
-# Start development
-npm run dev
+npm audit
 ```
 
-### Bug Reports & Feature Requests
+For Python validation, run the unit tests with `PYTHONPATH=src` set as shown above.
 
-- [GitHub Issues](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues)
-- [Security](./SECURITY.md) - Security vulnerability reporting
-- [Contributing](./CONTRIBUTING.md) - Contributing guidelines
+## Contributing
 
-## 📄 License
+Open an issue or pull request in this repository for proposed changes. If the change affects deployment, verification, security posture, or ownership state, include the relevant command output or workflow evidence in the pull request description.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
 
-## 📞 Contact
-
-- **Repository**: [GitHub](https://github.com/MastaTrill/Aetheron-Sentinel-L3)
-- **Issues & Discussions**: [GitHub Issues](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues)
-- **Security**: See [SECURITY.md](./SECURITY.md) for vulnerability reporting
-- **Architecture**: See [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md) for detailed design
-
-## 🙏 Acknowledgments
-
-Special thanks to the DeFi security research community, quantum cryptography pioneers, and our amazing contributor community for making Sentinel L3 possible.
-
----
-
-> "In the quantum foam of possibility, Sentinel L3 is certainty. In the chaos of attacks, Sentinel L3 is order. In the darkness of uncertainty, Sentinel L3 is light. Sentinel L3 never sleeps, never falters, and never compromises on protection or performance."
-
-**Welcome to the quantum age of secure DeFi. The Sentinel is watching.** ⚡🛡️🤖
-
----
-
-_Built for the quantum computing era. Protected against all known threats. Optimized for maximum yield. The Sentinel never fails._
+This project is marked `UNLICENSED` in `package.json`.
