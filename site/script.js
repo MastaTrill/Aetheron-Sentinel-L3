@@ -22,11 +22,10 @@ class SentinelInterface {
     this.quantumParticles = [];
     this.telemetryData = null;
     this.telemetryTimer = null;
-    this.telemetryConfig =
-      window.SENTINEL_TELEMETRY_CONFIG || {
-        endpoint: '/api/telemetry',
-        refreshMs: 15000,
-      };
+    this.telemetryConfig = window.SENTINEL_TELEMETRY_CONFIG || {
+      endpoint: '/api/telemetry',
+      refreshMs: 15000,
+    };
     this.filters = {
       severity: 'all',
       operator: 'all',
@@ -119,7 +118,8 @@ class SentinelInterface {
     );
 
     const live = await this.fetchTelemetry();
-    const fallback = window.SENTINEL_TELEMETRY_SEED || window.SENTINEL_PHASE_A || {};
+    const fallback =
+      window.SENTINEL_TELEMETRY_SEED || window.SENTINEL_PHASE_A || {};
     this.telemetryData = live || fallback;
 
     if (live) {
@@ -140,7 +140,10 @@ class SentinelInterface {
     if (this.telemetryTimer) {
       clearInterval(this.telemetryTimer);
     }
-    const pollEvery = Math.max(5000, Number(this.telemetryConfig.refreshMs) || 15000);
+    const pollEvery = Math.max(
+      5000,
+      Number(this.telemetryConfig.refreshMs) || 15000,
+    );
     this.telemetryTimer = setInterval(() => {
       this.refreshTelemetry();
     }, pollEvery);
@@ -148,7 +151,8 @@ class SentinelInterface {
 
   async fetchTelemetry() {
     const endpoints = [];
-    if (this.telemetryConfig.endpoint) endpoints.push(this.telemetryConfig.endpoint);
+    if (this.telemetryConfig.endpoint)
+      endpoints.push(this.telemetryConfig.endpoint);
     if (Array.isArray(this.telemetryConfig.fallbackEndpoints)) {
       endpoints.push(...this.telemetryConfig.fallbackEndpoints);
     }
@@ -185,7 +189,8 @@ class SentinelInterface {
   }
 
   normalizeTelemetryPayload(payload) {
-    const raw = payload && payload.telemetry ? payload.telemetry : payload || {};
+    const raw =
+      payload && payload.telemetry ? payload.telemetry : payload || {};
     return {
       anomalies: Array.isArray(raw.anomalies) ? raw.anomalies : [],
       watchpoints: Array.isArray(raw.watchpoints) ? raw.watchpoints : [],
@@ -239,7 +244,9 @@ class SentinelInterface {
 
     const unique = [...new Set(values.filter(Boolean))].sort();
     const desiredValue =
-      currentValue === 'all' || unique.includes(currentValue) ? currentValue : 'all';
+      currentValue === 'all' || unique.includes(currentValue)
+        ? currentValue
+        : 'all';
 
     select.innerHTML = `<option value="all">${allLabel}</option>${unique
       .map((value) => `<option value="${value}">${value}</option>`)
@@ -614,7 +621,8 @@ class SentinelInterface {
       if (severity === 'critical') return item.status === 'critical';
       if (severity === 'high') return item.status === 'warning';
       if (severity === 'medium') return item.status === 'resolved';
-      if (severity === 'low') return item.status === 'verified' || item.status === 'stable';
+      if (severity === 'low')
+        return item.status === 'verified' || item.status === 'stable';
       return true;
     });
     const operators = (telemetry.operators || []).filter(
@@ -622,8 +630,10 @@ class SentinelInterface {
     );
     const threatLocations = (telemetry.threatLocations || []).filter(
       (item) =>
-        (region === 'all' || (item.region || item.label || 'unknown') === region) &&
-        (severity === 'all' || this.intensityToSeverity(item.intensity) === severity),
+        (region === 'all' ||
+          (item.region || item.label || 'unknown') === region) &&
+        (severity === 'all' ||
+          this.intensityToSeverity(item.intensity) === severity),
     );
     const transitions = (telemetry.stateTransitions || []).filter(
       (item) => severity === 'all' || (item.severity || 'low') === severity,
@@ -741,8 +751,14 @@ class SentinelInterface {
       items.forEach((item) => {
         const lat = Number(item.lat || 0);
         const lng = Number(item.lng || 0);
-        const row = Math.max(0, Math.min(5, Math.floor(((lat + 90) / 180) * 6)));
-        const col = Math.max(0, Math.min(5, Math.floor(((lng + 180) / 360) * 6)));
+        const row = Math.max(
+          0,
+          Math.min(5, Math.floor(((lat + 90) / 180) * 6)),
+        );
+        const col = Math.max(
+          0,
+          Math.min(5, Math.floor(((lng + 180) / 360) * 6)),
+        );
         const index = row * 6 + col;
         cells[index] = Math.max(cells[index], Number(item.intensity || 0));
       });
