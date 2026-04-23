@@ -22,18 +22,17 @@
     "export:abis": "node scripts/export-abis.cjs",
     "update:subgraph": "node scripts/update-subgraph.cjs",
     "export:site-config": "node scripts/export-site-config.cjs",
-    "codegen": "graph codegen",
-    "build": "graph build",
-    "deploy:subgraph": "graph deploy --node https://api.thegraph.com/deploy/ aetheron-sentinel-l3",
-    "create-local": "graph create --node http://localhost:8020/ aetheron-sentinel-l3",
-    "remove-local": "graph remove --node http://localhost:8020/ aetheron-sentinel-l3",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron-sentinel-l3"
+    "codegen": "npx -y @graphprotocol/graph-cli@0.98.1 codegen",
+    "build": "npx -y @graphprotocol/graph-cli@0.98.1 build",
+    "deploy:subgraph": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node https://api.thegraph.com/deploy/ aetheron-sentinel-l3",
+    "create-local": "npx -y @graphprotocol/graph-cli@0.98.1 create --node http://localhost:8020/ aetheron-sentinel-l3",
+    "remove-local": "npx -y @graphprotocol/graph-cli@0.98.1 remove --node http://localhost:8020/ aetheron-sentinel-l3",
+    "deploy-local": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron-sentinel-l3"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.6"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.98.1",
     "@graphprotocol/graph-ts": "0.32.0",
     "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.4",
     "dotenv": "^16.4.5",
