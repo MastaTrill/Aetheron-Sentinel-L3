@@ -47,12 +47,20 @@ async function deployContract(name, args) {
 async function getTxOverrides(provider) {
   const feeData = await provider.getFeeData();
   if (feeData.maxFeePerGas != null) {
+    const priorityFee =
+      feeData.maxPriorityFeePerGas ?? feeData.maxFeePerGas / 2n;
     return {
       maxFeePerGas: (feeData.maxFeePerGas * 3n) / 2n,
-      maxPriorityFeePerGas: (feeData.maxPriorityFeePerGas * 3n) / 2n,
+      maxPriorityFeePerGas: (priorityFee * 3n) / 2n,
     };
   }
-  return { gasPrice: (feeData.gasPrice * 3n) / 2n };
+
+  if (feeData.gasPrice != null) {
+    return { gasPrice: (feeData.gasPrice * 3n) / 2n };
+  }
+
+  // Fallback to provider defaults when RPC omits both EIP-1559 and legacy gas data.
+  return {};
 }
 
 async function main() {
