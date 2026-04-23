@@ -134,7 +134,11 @@ function short(addr) {
 
   // 4) Allowlist summary (from prior audited state)
   console.log('4) Allowlists summary (live state)');
-  const bridge = new ethers.Contract(c.AetheronBridge.address, bridgeIface, provider);
+  const bridge = new ethers.Contract(
+    c.AetheronBridge.address,
+    bridgeIface,
+    provider,
+  );
   const relayerRole = await bridge.RELAYER_ROLE();
   const ownerIsRelayer = await bridge.hasRole(relayerRole, EXPECTED_OWNER);
   console.log(
