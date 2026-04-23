@@ -112,6 +112,35 @@ jobs:
       - name: Build subgraph WASM
         run: npm run build
 
+  remix-import-build:
+    name: Remix import build
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    defaults:
+      run:
+        working-directory: imports/remix_-aetheron-sentinel-l3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: imports/remix_-aetheron-sentinel-l3/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run lint
+
+      - name: Build Remix import app
+        run: npm run build
+
   promote-gate:
     name: Promote gate
     runs-on: ubuntu-latest
@@ -120,6 +149,7 @@ jobs:
       - python-tests
       - sepolia-verification-gate
       - subgraph-build
+      - remix-import-build
 
     steps:
       - name: Promotion gate summary
