@@ -218,6 +218,35 @@ If deployment fails partway through:
 
 ---
 
+## Latest Verification Evidence (2026-04-23)
+
+Most recent verification run executed after subgraph validation and push:
+
+- Sweep script: `node scripts/section7-final-sweep.cjs`
+- Allowlists script: `node scripts/audit-allowlists.cjs`
+- Relayer script: `RELAYER_ADDRESSES=0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB node scripts/verify-bridge-relayers.cjs`
+
+Archived outputs:
+
+- `logs/verification/2026-04-23/section7-final-sweep.log`
+- `logs/verification/2026-04-23/audit-allowlists.log`
+- `logs/verification/2026-04-23/verify-bridge-relayers.log`
+
+Outcome summary:
+
+- Section 7 final sweep: `PASS`
+- Allowlists audit: `PASS` (no unexpected addresses)
+- Relayer verification: `PASS` for `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`
+
+Related stabilization commits:
+
+- `f0886b0` - CI workflow fix for quoted relayer env value
+- `f782234` - Workspace diagnostics cleanup
+- `37ef705` - Remaining Remix import workspace files
+- `3d3ce1e` - Subgraph mapping/schema normalization
+
+---
+
 ## Reference Documents
 
 - **Sepolia deployment record**: [RELEASE_NOTES_SEPOLIA_2026-04-23.md](./RELEASE_NOTES_SEPOLIA_2026-04-23.md)

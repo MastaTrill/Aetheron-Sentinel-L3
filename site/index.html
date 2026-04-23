@@ -30,6 +30,7 @@
                 <a href="#technology" class="nav-link">Technology</a>
                 <a href="#security" class="nav-link">Security</a>
                 <a href="#yield" class="nav-link">Yield</a>
+                <a href="#telemetry" class="nav-link">Telemetry</a>
                 <a href="#ecosystem" class="nav-link">Ecosystem</a>
                 <a href="#community" class="nav-link">Community</a>
             </div>
@@ -77,6 +78,66 @@
             </div>
             <div class="hero-visual">
                 <div id="sentinel-core"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Telemetry Section -->
+    <section id="telemetry" class="telemetry">
+        <div class="container">
+            <h2 class="section-title">Sentinel Telemetry Feed</h2>
+            <div class="telemetry-controls" aria-label="Telemetry Filters">
+                <div class="telemetry-control">
+                    <label for="filter-severity">Severity</label>
+                    <select id="filter-severity">
+                        <option value="all">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="telemetry-control">
+                    <label for="filter-operator">Operator</label>
+                    <select id="filter-operator">
+                        <option value="all">All Operators</option>
+                    </select>
+                </div>
+                <div class="telemetry-control">
+                    <label for="filter-region">Region</label>
+                    <select id="filter-region">
+                        <option value="all">All Regions</option>
+                    </select>
+                </div>
+                <button id="telemetry-refresh" class="telemetry-refresh" type="button">Refresh</button>
+            </div>
+            <div id="telemetry-status" class="telemetry-statusline" aria-live="polite">Bootstrapping telemetry...</div>
+            <div class="telemetry-grid">
+                <div class="telemetry-card">
+                    <h3>Active Anomalies</h3>
+                    <div id="anomalies-feed" class="telemetry-list"></div>
+                </div>
+                <div class="telemetry-card">
+                    <h3>Watchpoints</h3>
+                    <div id="watchpoints-feed" class="telemetry-list"></div>
+                </div>
+                <div class="telemetry-card">
+                    <h3>Recent Verdicts</h3>
+                    <div id="verdicts-feed" class="telemetry-list"></div>
+                </div>
+                <div class="telemetry-card">
+                    <h3>Operator Activity</h3>
+                    <div id="operators-feed" class="telemetry-list"></div>
+                </div>
+                <div class="telemetry-card">
+                    <h3>Threat Map Hotspots</h3>
+                    <div id="threat-heat-grid" class="threat-heat-grid" aria-label="Threat heat grid"></div>
+                    <div id="threats-feed" class="telemetry-list"></div>
+                </div>
+                <div class="telemetry-card">
+                    <h3>State Transitions</h3>
+                    <div id="transitions-feed" class="telemetry-list"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -322,6 +383,7 @@
         </div>
     </footer>
 
+    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 

@@ -58,3 +58,66 @@ jobs:
           name: sepolia-verification-logs-${{ github.run_id }}
           path: logs/verification/ci/*.log
           if-no-files-found: warn
+
+  audit-dependencies:
+    name: Audit npm dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Create audit directory
+        run: mkdir -p logs/verification/ci/audit
+
+      - name: Audit root workspace
+        run: |
+          npm audit --json > logs/verification/ci/audit/root-audit.json || true
+          npm audit | tee logs/verification/ci/audit/root-audit.txt
+
+      - name: Audit apps/remix-dashboard workspace
+        run: |
+          npm audit --workspace=apps/remix-dashboard --json > logs/verification/ci/audit/apps-remix-dashboard-audit.json || true
+          npm audit --workspace=apps/remix-dashboard | tee logs/verification/ci/audit/apps-remix-dashboard-audit.txt
+
+      - name: Audit imports/remix_-aetheron-sentinel-l3 workspace
+        run: |
+          npm audit --workspace=imports/remix_-aetheron-sentinel-l3 --json > logs/verification/ci/audit/imports-remix-audit.json || true
+          npm audit --workspace=imports/remix_-aetheron-sentinel-l3 | tee logs/verification/ci/audit/imports-remix-audit.txt
+
+      - name: Check for vulnerabilities
+        run: |
+          echo "=== Audit Summary ==="
+          for file in logs/verification/ci/audit/*.json; do
+            echo "File: $file"
+            cat "$file" | jq '.metadata | {vulnerabilities, audited}'
+          done
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-logs-${{ github.run_id }}
+          path: logs/verification/ci/audit/
+          if-no-files-found: warn
+
+      - name: Fail if vulnerabilities found
+        run: |
+          TOTAL_VULNS=0
+          for file in logs/verification/ci/audit/*.json; do
+            VULNS=$(cat "$file" | jq '.metadata.vulnerabilities' 2>/dev/null || echo 0)
+            TOTAL_VULNS=$((TOTAL_VULNS + VULNS))
+          done
+          if [ $TOTAL_VULNS -gt 0 ]; then
+            echo "❌ Found $TOTAL_VULNS vulnerabilities across workspaces"
+            exit 1
+          else
+            echo "✅ No vulnerabilities found across all workspaces"
+          fi
