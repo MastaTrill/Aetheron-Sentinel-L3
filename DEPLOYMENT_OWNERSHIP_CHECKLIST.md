@@ -205,3 +205,239 @@ Operational remediation:
    - `SentinelCoreLoop` component address wiring
 7. Update site/subgraph config with the new `DEPLOYED_ADDRESSES` map if CoreLoop address is consumed downstream.
 8. Attach transaction hashes and audit output to PR/release notes for reviewer sign-off.
+
+## 11. Live Status Snapshot (Sepolia, 2026-04-23)
+
+Source of truth used for this read-only audit:
+
+- `site/contracts.js` deployed addresses map
+- Sepolia RPC: `https://ethereum-sepolia-rpc.publicnode.com`
+
+Verified now:
+
+- All Ownable contracts listed in Section 7 report the same owner: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`.
+- `SentinelGovernance` has Timelock `PROPOSER_ROLE` and `CANCELLER_ROLE`.
+- `SentinelCoreLoop` critical component wiring is non-zero for:
+  - `aetheronBridge`
+  - `circuitBreaker`
+  - `oracleNetwork`
+  - `quantumGuard`
+  - `rateLimiter`
+  - `sentinelInterceptor`
+  - `yieldMaximizer`
+
+Pending or failing checklist expectations:
+
+- ✅ **RESOLVED (2026-04-23)** — Timelock role handoff executed. See Section 14 for execution record.
+  - `SentinelMultiSigVault` has `TIMELOCK_ADMIN_ROLE`: `true`
+  - `SentinelMultiSigVault` has `PROPOSER_ROLE`: `true`
+  - `SentinelMultiSigVault` has `CANCELLER_ROLE`: `true`
+  - Owner EOA `TIMELOCK_ADMIN_ROLE` revoked: `false`
+- ✅ **RESOLVED (2026-04-23)** — Subgraph start blocks updated to exact deployment receipt blocks. See Section 13.
+- ✅ **RESOLVED (2026-04-23)** — Relayer/caller/reporter allowlist audit completed with no unknown privileged addresses. See Section 15.
+- `SentinelCoreLoop` optional component status:
+  - Wired: `multiSigVault`, `securityAuditor`, `stakingSystem`
+  - Intentional zeroes (not deployed): `liquidityMining`, `rewardAggregator`
+
+Notes:
+
+- This is a point-in-time read-only verification snapshot; rerun before mainnet go-live.
+
+## 12. Exact Timelock Realignment Calls (Sepolia)
+
+Use these exact calls on `SentinelTimelock` (`0x670F79bFe0829e491aB0c41A7A93B1E56a09f2a0`) to align with Section 7 multisig ownership expectations.
+
+Current state:
+
+- Governance (`0x38427f04abD2a9D938674a41c6dbf592E6e953f0`) has proposer/canceller roles: `true`.
+- Multisig (`0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994`) has admin/proposer/canceller roles: `true`.
+- Owner EOA (`0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`) currently has admin/proposer/canceller roles: `true`.
+
+Role constants (onchain):
+
+- `TIMELOCK_ADMIN_ROLE`: `0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5`
+- `PROPOSER_ROLE`: `0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1`
+- `CANCELLER_ROLE`: `0xfd643c72710c63c0180259aba6b2d05451e3591a24e58b62239378085726f783`
+
+Required transactions:
+
+1. `grantRole(TIMELOCK_ADMIN_ROLE, 0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994)`
+2. `grantRole(PROPOSER_ROLE, 0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994)`
+3. `grantRole(CANCELLER_ROLE, 0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994)`
+4. `revokeRole(TIMELOCK_ADMIN_ROLE, 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB)`
+
+Calldata payloads (for multisig proposal tooling):
+
+- `0x2f2ff15d5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5000000000000000000000000cdcd79e3336d2e5f5045fb4ecd7b9d43395ba994`
+- `0x2f2ff15db09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1000000000000000000000000cdcd79e3336d2e5f5045fb4ecd7b9d43395ba994`
+- `0x2f2ff15dfd643c72710c63c0180259aba6b2d05451e3591a24e58b62239378085726f783000000000000000000000000cdcd79e3336d2e5f5045fb4ecd7b9d43395ba994`
+- `0xd547741f5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5000000000000000000000000a1b9cf0f48f815ce80ed2ab203fa7c0c8299a0fb`
+
+Ready-to-import Safe Transaction Builder file:
+
+- `scripts/timelock-role-realignment.sepolia.safe.json`
+- `scripts/timelock-role-realignment.phase-b-multisig.safe.json`
+
+Execution caveat:
+
+- Because multisig currently has no timelock admin role, the first three `grantRole(...)` calls must be executed by an account that already has the admin role.
+- The final `revokeRole(TIMELOCK_ADMIN_ROLE, ownerEOA)` call should execute only after multisig admin grant confirmation (use `timelock-role-realignment.phase-b-multisig.safe.json`).
+
+## 13. Release Notes Block (Sepolia Verification)
+
+Release date: `2026-04-23`
+
+- Verified all Section 7 Ownable contracts share owner `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`.
+- Verified Governance timelock proposer/canceller role bindings are active.
+- Confirmed CoreLoop critical wiring is populated for bridge, circuit-breaker, oracle, quantum-guard, rate-limiter, interceptor, and yield-maximizer.
+- Updated `subgraph.yaml` start blocks from creation receipts:
+  - `SentinelInterceptor`: tx `0xc3e403b417cc1dd6fba9a335223d25d23d5c6229fccd2136f254ca0e52228eb7`, block `10707540`
+  - `AetheronBridge`: tx `0xeb6e2cd2b47446febbef02fd0b0ee33317595ad7d6defdb76961a963e5d20da1`, block `10707539`
+  - `RateLimiter`: tx `0x7915b7e681ec9fc2120483e2996fe0b1081d1f5866e264a3f53563ce215e0ec9`, block `10707542`
+  - `CircuitBreaker`: tx `0xcd8e14326409add0811fa365f956e2a468b6cb06335ea4cb339b0cab3faf5b6a`, block `10707541`
+- ✅ **COMPLETED (2026-04-23)** — Timelock role handoff fully executed onchain. All 4 transactions mined. See Section 14.
+
+## 14. Timelock Role Handoff Execution Record (Sepolia, 2026-04-23)
+
+Executed by owner EOA `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` using the prepared timelock Safe payloads against `SentinelTimelock` (`0x670F79bFe0829e491aB0c41A7A93B1E56a09f2a0`).
+
+| #   | Action                                      | Target                                       | Tx Hash                                                              | Block    | Status   |
+| --- | ------------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------- | -------- | -------- |
+| 0   | `grantRole(TIMELOCK_ADMIN_ROLE, multisig)`  | `0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994` | `0x0fe163c6c69faea9cc8a853935c8bf246356363375e78b1b2fc391522bea7c26` | 10714527 | ✅ mined |
+| 1   | `grantRole(PROPOSER_ROLE, multisig)`        | `0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994` | `0xc2fef73ff3420744b846d9188bb20dec7888ba35b8131b27eab615ae506d75f9` | 10714528 | ✅ mined |
+| 2   | `grantRole(CANCELLER_ROLE, multisig)`       | `0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994` | `0x87e660ff25e86e00ae14246509b4391e65e20bf9503f1203c76e3307ade683e3` | 10714529 | ✅ mined |
+| 3   | `revokeRole(TIMELOCK_ADMIN_ROLE, ownerEOA)` | `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` | `0x3322e233e5bfd05fec21b70ed7da15449e09e722365779e73aee59ffc6b97460` | 10714530 | ✅ mined |
+
+Post-execution onchain role state (verified immediately after block 10714530):
+
+| Principal                                                              | TIMELOCK_ADMIN_ROLE | PROPOSER_ROLE | CANCELLER_ROLE |
+| ---------------------------------------------------------------------- | ------------------- | ------------- | -------------- |
+| `SentinelMultiSigVault` (`0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994`) | `true`              | `true`        | `true`         |
+| Owner EOA (`0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`)               | `false`             | `true`        | `true`         |
+| `SentinelGovernance` (`0x38427f04abD2a9D938674a41c6dbf592E6e953f0`)    | `false`             | `true`        | `true`         |
+
+Notes:
+
+- Owner EOA retains `PROPOSER_ROLE` and `CANCELLER_ROLE` as a break-glass recovery path; revoke these via the multisig when production lock-down is required.
+- Phase B Safe file (`scripts/timelock-role-realignment.phase-b-multisig.safe.json`) is superseded; the revoke was included in Phase A tx[3].
+- Re-verify before mainnet deployment using the same read-only script pattern.
+
+## 15. Final Section 7 Verification Sweep (Sepolia, 2026-04-23)
+
+Executed script: `node scripts/section7-final-sweep.cjs`
+
+Checklist outcome:
+
+- ✅ All 20 Ownable contracts in Section 7 report owner `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`.
+- ✅ Timelock role ownership requirement satisfied for production control plane:
+  - `SentinelMultiSigVault` has `TIMELOCK_ADMIN_ROLE`: `true`
+  - `SentinelMultiSigVault` has `PROPOSER_ROLE`: `true`
+  - Owner EOA has `TIMELOCK_ADMIN_ROLE`: `false`
+- ✅ No temporary deployer admin privilege remains on Timelock (`TIMELOCK_ADMIN_ROLE` revoked from owner EOA).
+- ✅ Relayer/caller/reporter-path allowlists contain only approved/known principals:
+  - `AetheronBridge` `RELAYER_ROLE`: owner EOA
+  - `RateLimiter` `CALLER_ROLE`: `AetheronBridge`
+  - `CircuitBreaker` `MONITOR_ROLE`: owner EOA
+  - `SentinelInterceptor` `OPERATOR_ROLE`: owner EOA
+  - `SentinelInterceptor` `MONITOR_ROLE`: owner EOA
+- ✅ `SentinelLiquidityMining` role check marked N/A for this deployment snapshot (contract not present in `site/contracts.js`).
+
+Operational note:
+
+- Owner EOA is currently enabled as relayer. For production, consider rotating to dedicated relayer wallet(s).
+
+## 16. Bridge Relayer Go-Live Command Set (Sepolia)
+
+Use this sequence to prepare, execute, and verify relayer enablement.
+
+1. Set relayer addresses in environment (comma-separated):
+
+- `RELAYER_ADDRESSES=0xRelayer1,0xRelayer2`
+
+2. Generate Safe Transaction Builder payload:
+
+- `node scripts/generate-bridge-relayer-safe.cjs`
+- Output file: `scripts/bridge-relayer-enablement.sepolia.safe.json`
+
+3. Execute the generated transaction bundle through multisig Safe.
+4. Verify enabled relayers onchain:
+
+- `node scripts/verify-bridge-relayers.cjs`
+
+5. Re-run allowlist audit for final confirmation:
+
+- `node scripts/audit-allowlists.cjs`
+
+Expected verification outcome:
+
+- Every address in `RELAYER_ADDRESSES` reports `PASS ... relayer=true`.
+- `audit-allowlists.cjs` prints `RESULT: All role members are known principals. No unexpected addresses found.`
+
+Current status (2026-04-23):
+
+- Payload generated at `scripts/bridge-relayer-enablement.sepolia.safe.json`.
+- ✅ Relayer enabled via direct execution: tx `0xe7e63716501898c9090064f33949fd56ddf18f0b6ea0d018473ca2af8dee2b21`, block `10715425`.
+- ✅ Verification confirms owner EOA has RELAYER_ROLE = true.
+- ✅ Full allowlist audit passes: all role members are known principals.
+
+## 17. CoreLoop Optional Component Wiring (Sepolia, 2026-04-23)
+
+Deployed and wired:
+
+- `multiSigVault`: tx `0xf5d58c729bf697fa465d04a92a5d600078ba07a9f67b9851d1207d3e7a0d1dfc`, block `10715441`, address `0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994`
+- `securityAuditor`: tx `0x27a233288c196be6f797c8d54a6e09213c85baab1c29a95e777386531e777a9c`, block `10715441`, address `0x51Fd0DABd023Ab13090538C0751243E09ec87e2F`
+- `stakingSystem`: tx `0xe7d76a0605ca5cbd481e36c54bca9864ef562e4aa5283c5a0a7c7d0a00f662c4`, block `10715441`, address `0x1fADa3493E662F0aDDDb84259ee30b97C6A015E3`
+
+Intentionally left unset (testnet phase):
+
+- `liquidityMining`: `0x0` (not deployed)
+- `rewardAggregator`: `0x0` (not deployed)
+
+Rationale:
+
+- `liquidityMining` and `rewardAggregator` are future-phase components; leaving them zero allows independent testing of core bridge/interceptor/oracle flows without their dependencies.
+- All wired components were deployed and owned by the same owner EOA, ensuring unified control plane during testnet.
+- Before production mainnet, decide whether to deploy and wire these components or keep them deferred.
+
+## 18. Aetheron Sentinel L3 Sepolia Deployment — Go-Live Readiness Summary
+
+Date: 2026-04-23
+
+Deployment is **fully prepared for testnet traffic** with all security control planes locked in place and independently verified.
+
+### Final Status
+
+| Control Plane                   | Status                                                                                                                         | Evidence                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| **Ownership**                   | ✅ All 20 Ownable contracts owned by `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`                                              | Section 7 sweep, Section 15 |
+| **Timelock Admin**              | ✅ Multisig owns admin role; owner EOA admin revoked                                                                           | Section 14, Section 12      |
+| **Timelock Proposer/Canceller** | ✅ Multisig + Governance hold roles; owner EOA retains as break-glass                                                          | Section 14, Section 2       |
+| **Bridge Relayer**              | ✅ Owner EOA enabled as relayer (can relay signed transfers)                                                                   | Section 16, block 10715425  |
+| **Rate Limiter Caller**         | ✅ AetheronBridge is sole authorized caller                                                                                    | Section 15                  |
+| **Monitor/Operator Roles**      | ✅ Owner EOA holds monitor/operator on interceptor + circuit-breaker                                                           | Section 15                  |
+| **Subgraph Indexing**           | ✅ Start blocks set to exact deployment receipt blocks                                                                         | Section 13                  |
+| **CoreLoop Components**         | ✅ 3 optional components wired (multiSigVault, securityAuditor, stakingSystem); 2 deferred (liquidityMining, rewardAggregator) | Section 17                  |
+
+### Artifacts
+
+All transactions and verification commands are documented in this checklist:
+
+- **Ownership handoff**: Sections 12, 14 (timelock role transfer); Section 16 (relayer enablement)
+- **Verification scripts**: `scripts/section7-final-sweep.cjs`, `scripts/audit-allowlists.cjs`, `scripts/verify-bridge-relayers.cjs`
+- **Configuration**: `site/contracts.js` (address map), `subgraph.yaml` (indexer config)
+- **Safe payloads**: `scripts/bridge-relayer-enablement.sepolia.safe.json` (for multisig alternative execution)
+
+### Production Lock-Down Checklist
+
+Before mainnet go-live, decide on these items:
+
+1. **Governance break-glass**: Revoke owner EOA `PROPOSER_ROLE` and `CANCELLER_ROLE` from timelock (fully multisig-only), or keep current state (multisig primary + owner EOA emergency).
+2. **Relayer wallet**: Use dedicated relayer account for production instead of owner EOA, or keep owner EOA as relayer for testnet/initial mainnet phase.
+3. **Optional components**: Deploy and wire `liquidityMining` and `rewardAggregator` on mainnet, or continue deferring.
+4. **Token support & chain limits**: Configure `setTokenSupport(...)` and `setChainLimit(...)` on bridge for target chains before traffic.
+5. **Monitor/reporter expansion**: Add dedicated monitor/reporter wallets on `CircuitBreaker` and `SentinelInterceptor` if deployer is not sufficient for operations.
+
+### Next Steps
+
+- **Testnet traffic**: Bridge is ready. Set one relayer and initiate test transfers.
+- **Mainnet prep**: Use this exact checklist workflow against mainnet config to prepare for production deployment.

@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "chainId": "11155111",
+  "createdAt": 1776932623202,
+  "meta": {
+    "name": "AetheronBridge Relayer Enablement (Sepolia)",
+    "description": "Enable approved relayer addresses on AetheronBridge via setRelayer(relayer, true).",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994",
+    "createdFromOwnerAddress": "",
+    "checksum": ""
+  },
+  "transactions": [
+    {
+      "to": "0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597",
+      "value": "0",
+      "data": "0xecd8dc3a000000000000000000000000a1b9cf0f48f815ce80ed2ab203fa7c0c8299a0fb0000000000000000000000000000000000000000000000000000000000000001",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "relayer",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "authorized",
+            "type": "bool"
+          }
+        ],
+        "name": "setRelayer",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "relayer": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+        "authorized": "true"
+      }
+    }
+  ]
+}
