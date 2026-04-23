@@ -420,6 +420,9 @@ class SentinelInterface {
     this.renderAnomalies(telemetry.anomalies || []);
     this.renderWatchpoints(telemetry.watchpoints || []);
     this.renderVerdicts(telemetry.verdicts || []);
+    this.renderOperators(telemetry.operators || []);
+    this.renderThreatLocations(telemetry.threatLocations || []);
+    this.renderStateTransitions(telemetry.stateTransitions || []);
   }
 
   renderAnomalies(items) {
@@ -481,6 +484,69 @@ class SentinelInterface {
               <span class="telemetry-status telemetry-${item.status}">${item.status.toUpperCase()}</span>
             </div>
             <div class="telemetry-source">Block ${item.block}</div>
+          </div>
+        `,
+      )
+      .join('');
+  }
+
+  renderOperators(items) {
+    const container = document.getElementById('operators-feed');
+    if (!container) return;
+
+    container.innerHTML = items
+      .slice(0, 6)
+      .map(
+        (item) => `
+          <div class="telemetry-item">
+            <div class="telemetry-row">
+              <span class="telemetry-label">${item.operatorId}</span>
+              <span class="telemetry-status telemetry-${item.status === 'authorized' ? 'verified' : 'warning'}">${item.status.toUpperCase()}</span>
+            </div>
+            <div class="telemetry-message">${item.action}</div>
+            <div class="telemetry-source">${new Date(item.timestamp).toLocaleTimeString()} | IDV: ${item.identityVerified ? 'PASS' : 'FAIL'}</div>
+          </div>
+        `,
+      )
+      .join('');
+  }
+
+  renderThreatLocations(items) {
+    const container = document.getElementById('threats-feed');
+    if (!container) return;
+
+    container.innerHTML = items
+      .slice(0, 6)
+      .sort((a, b) => b.intensity - a.intensity)
+      .map(
+        (item) => `
+          <div class="telemetry-item">
+            <div class="telemetry-row">
+              <span class="telemetry-label">${item.label}</span>
+              <span class="telemetry-severity telemetry-${item.intensity >= 0.8 ? 'critical' : item.intensity >= 0.6 ? 'warning' : 'stable'}">${Math.round(item.intensity * 100)}%</span>
+            </div>
+            <div class="telemetry-source">Lat ${item.lat.toFixed(2)}, Lng ${item.lng.toFixed(2)}</div>
+          </div>
+        `,
+      )
+      .join('');
+  }
+
+  renderStateTransitions(items) {
+    const container = document.getElementById('transitions-feed');
+    if (!container) return;
+
+    container.innerHTML = items
+      .slice(0, 6)
+      .map(
+        (item) => `
+          <div class="telemetry-item">
+            <div class="telemetry-row">
+              <span class="telemetry-label">${item.from} -> ${item.to}</span>
+              <span class="telemetry-severity telemetry-${item.severity === 'high' ? 'critical' : 'stable'}">${item.severity.toUpperCase()}</span>
+            </div>
+            <div class="telemetry-message">${item.trigger}</div>
+            <div class="telemetry-source">${new Date(item.timestamp).toLocaleTimeString()}</div>
           </div>
         `,
       )
