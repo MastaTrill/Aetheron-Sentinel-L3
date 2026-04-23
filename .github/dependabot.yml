@@ -10,7 +10,11 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - 'dependencies'
-      - 'security'
+    ignore:
+      # OZ v5 is a breaking major version change — pin to v4.x until contracts are migrated
+      - dependency-name: '@openzeppelin/contracts'
+        update-types:
+          - 'version-update:semver-major'
     groups:
       hardhat-stack:
         patterns:
