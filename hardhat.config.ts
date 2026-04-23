@@ -58,15 +58,6 @@ export default defineConfig({
       chainId: 84532,
     },
   },
-  verify: {
-    etherscan: {
-      apiKey: process.env.ETHERSCAN_API_KEY || '',
-    },
-  },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS === 'true',
-    currency: 'USD',
-  },
   paths: {
     sources: './contracts',
     tests: {
@@ -79,8 +70,5 @@ export default defineConfig({
     mocha: {
       timeout: 40000,
     },
-  },
-  typechain: {
-    dontOverrideCompile: true,
   },
 });
