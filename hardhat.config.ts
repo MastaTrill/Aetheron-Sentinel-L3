@@ -6,6 +6,22 @@ import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 
 loadEnv({ override: true });
 
+function readEnvValue(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+
+  if (!value || value.startsWith('YOUR_')) {
+    return undefined;
+  }
+
+  return value;
+}
+
+function readPrivateKey(): string[] {
+  const privateKey = readEnvValue('PRIVATE_KEY');
+
+  return privateKey ? [privateKey] : [];
+}
+
 export default defineConfig({
   plugins: [hardhatEthers, hardhatEthersChaiMatchers, hardhatMocha],
   solidity: {
@@ -27,34 +43,34 @@ export default defineConfig({
       type: 'http',
       chainType: 'l1',
       url:
-        process.env.SEPOLIA_RPC_URL ||
+        readEnvValue('SEPOLIA_RPC_URL') ||
         'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: readPrivateKey(),
       chainId: 11155111,
     },
     mainnet: {
       type: 'http',
       chainType: 'l1',
       url:
-        process.env.MAINNET_RPC_URL ||
+        readEnvValue('MAINNET_RPC_URL') ||
         'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: readPrivateKey(),
       chainId: 1,
     },
     hoodi: {
       type: 'http',
       chainType: 'l1',
       url:
-        process.env.HOODI_RPC_URL ||
+        readEnvValue('HOODI_RPC_URL') ||
         'https://ethereum-hoodi-rpc.publicnode.com',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: readPrivateKey(),
       chainId: 560048,
     },
     baseSepolia: {
       type: 'http',
       chainType: 'l1',
-      url: process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      url: readEnvValue('BASE_SEPOLIA_RPC_URL') || 'https://sepolia.base.org',
+      accounts: readPrivateKey(),
       chainId: 84532,
     },
   },
