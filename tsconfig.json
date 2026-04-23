@@ -13,5 +13,5 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["hardhat.config.ts", "scripts/**/*", "test/**/*"]
+  "include": ["hardhat.config.ts", "scripts/**/*", "test/**/*", "typechain-types/**/*"]
 }

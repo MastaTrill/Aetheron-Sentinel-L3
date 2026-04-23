@@ -594,7 +594,7 @@ describe("AetheronBridge", function () {
         .bridge(request, { value: ethers.parseEther("0.001") });
 
       const bridgeReceipt = await bridgeTx.wait();
-      const transferId = bridgeReceipt?.logs[0]?.topics[1];
+      const transferId = bridgeReceipt!.logs[0].topics[1];
 
       // Verify tokens are locked in bridge (minus fee)
       expect(await mockToken.balanceOf(bridgeAddress)).to.equal(
