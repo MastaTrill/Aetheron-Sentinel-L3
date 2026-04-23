@@ -6,7 +6,8 @@ class SentinelInterface {
     this.init();
     this.setupEventListeners();
     this.initializeQuantumCore();
-    this.renderTelemetry();
+    this.refreshTelemetry();
+    this.startTelemetryPolling();
     this.startAnimations();
   }
 
@@ -19,6 +20,18 @@ class SentinelInterface {
     // Performance metrics display
     this.metricsInterval = null;
     this.quantumParticles = [];
+    this.telemetryData = null;
+    this.telemetryTimer = null;
+    this.telemetryConfig =
+      window.SENTINEL_TELEMETRY_CONFIG || {
+        endpoint: '/api/telemetry',
+        refreshMs: 15000,
+      };
+    this.filters = {
+      severity: 'all',
+      operator: 'all',
+      region: 'all',
+    };
   }
 
   setupEventListeners() {
@@ -69,6 +82,171 @@ class SentinelInterface {
 
     // Animate elements on scroll
     this.setupScrollAnimations();
+
+    // Telemetry controls
+    this.setupTelemetryControls();
+  }
+
+  setupTelemetryControls() {
+    const severity = document.getElementById('filter-severity');
+    const operator = document.getElementById('filter-operator');
+    const region = document.getElementById('filter-region');
+    const refresh = document.getElementById('telemetry-refresh');
+
+    severity?.addEventListener('change', (e) => {
+      this.filters.severity = e.target.value;
+      this.renderTelemetry();
+    });
+
+    operator?.addEventListener('change', (e) => {
+      this.filters.operator = e.target.value;
+      this.renderTelemetry();
+    });
+
+    region?.addEventListener('change', (e) => {
+      this.filters.region = e.target.value;
+      this.renderTelemetry();
+    });
+
+    refresh?.addEventListener('click', () => {
+      this.refreshTelemetry(true);
+    });
+  }
+
+  async refreshTelemetry(manual = false) {
+    this.setTelemetryStatus(
+      manual ? 'Refreshing telemetry...' : 'Loading live telemetry...',
+    );
+
+    const live = await this.fetchTelemetry();
+    const fallback = window.SENTINEL_TELEMETRY_SEED || window.SENTINEL_PHASE_A || {};
+    this.telemetryData = live || fallback;
+
+    if (live) {
+      this.setTelemetryStatus(
+        `Live telemetry synced at ${new Date().toLocaleTimeString()}`,
+      );
+    } else {
+      this.setTelemetryStatus(
+        'Live endpoint unavailable. Showing fallback telemetry snapshot.',
+      );
+    }
+
+    this.updateFilterOptions();
+    this.renderTelemetry();
+  }
+
+  startTelemetryPolling() {
+    if (this.telemetryTimer) {
+      clearInterval(this.telemetryTimer);
+    }
+    const pollEvery = Math.max(5000, Number(this.telemetryConfig.refreshMs) || 15000);
+    this.telemetryTimer = setInterval(() => {
+      this.refreshTelemetry();
+    }, pollEvery);
+  }
+
+  async fetchTelemetry() {
+    const endpoints = [];
+    if (this.telemetryConfig.endpoint) endpoints.push(this.telemetryConfig.endpoint);
+    if (Array.isArray(this.telemetryConfig.fallbackEndpoints)) {
+      endpoints.push(...this.telemetryConfig.fallbackEndpoints);
+    }
+
+    const authToken =
+      window.SENTINEL_TELEMETRY_TOKEN ||
+      localStorage.getItem('sentinelTelemetryToken') ||
+      '';
+    const headers = { Accept: 'application/json' };
+    if (authToken) {
+      headers.Authorization = `Bearer ${authToken}`;
+    }
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers,
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          continue;
+        }
+
+        const payload = await response.json();
+        return this.normalizeTelemetryPayload(payload);
+      } catch (_err) {
+        // Try next endpoint
+      }
+    }
+
+    return null;
+  }
+
+  normalizeTelemetryPayload(payload) {
+    const raw = payload && payload.telemetry ? payload.telemetry : payload || {};
+    return {
+      anomalies: Array.isArray(raw.anomalies) ? raw.anomalies : [],
+      watchpoints: Array.isArray(raw.watchpoints) ? raw.watchpoints : [],
+      verdicts: Array.isArray(raw.verdicts) ? raw.verdicts : [],
+      operators: Array.isArray(raw.operators)
+        ? raw.operators
+        : Array.isArray(raw.operatorActivity)
+          ? raw.operatorActivity
+          : [],
+      threatLocations: Array.isArray(raw.threatLocations)
+        ? raw.threatLocations
+        : Array.isArray(raw.threats)
+          ? raw.threats
+          : [],
+      stateTransitions: Array.isArray(raw.stateTransitions)
+        ? raw.stateTransitions
+        : Array.isArray(raw.transitions)
+          ? raw.transitions
+          : [],
+    };
+  }
+
+  setTelemetryStatus(text) {
+    const status = document.getElementById('telemetry-status');
+    if (status) {
+      status.textContent = text;
+    }
+  }
+
+  updateFilterOptions() {
+    const telemetry = this.telemetryData || {};
+    this.updateFilterSelect(
+      'filter-operator',
+      'All Operators',
+      (telemetry.operators || []).map((item) => item.operatorId || item.id),
+      this.filters.operator,
+    );
+    this.updateFilterSelect(
+      'filter-region',
+      'All Regions',
+      (telemetry.threatLocations || []).map(
+        (item) => item.region || item.label || 'unknown',
+      ),
+      this.filters.region,
+    );
+  }
+
+  updateFilterSelect(selectId, allLabel, values, currentValue) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    const unique = [...new Set(values.filter(Boolean))].sort();
+    const desiredValue =
+      currentValue === 'all' || unique.includes(currentValue) ? currentValue : 'all';
+
+    select.innerHTML = `<option value="all">${allLabel}</option>${unique
+      .map((value) => `<option value="${value}">${value}</option>`)
+      .join('')}`;
+    select.value = desiredValue;
+    if (selectId === 'filter-operator') this.filters.operator = desiredValue;
+    if (selectId === 'filter-region') this.filters.region = desiredValue;
   }
 
   initializeQuantumCore() {
@@ -414,15 +592,57 @@ class SentinelInterface {
   }
 
   renderTelemetry() {
-    const telemetry = window.SENTINEL_PHASE_A;
+    const telemetry = this.telemetryData;
     if (!telemetry) return;
 
-    this.renderAnomalies(telemetry.anomalies || []);
-    this.renderWatchpoints(telemetry.watchpoints || []);
-    this.renderVerdicts(telemetry.verdicts || []);
-    this.renderOperators(telemetry.operators || []);
-    this.renderThreatLocations(telemetry.threatLocations || []);
-    this.renderStateTransitions(telemetry.stateTransitions || []);
+    const severity = this.filters.severity;
+    const operator = this.filters.operator;
+    const region = this.filters.region;
+
+    const anomalies = (telemetry.anomalies || []).filter(
+      (item) => severity === 'all' || item.severity === severity,
+    );
+    const watchpoints = (telemetry.watchpoints || []).filter((item) => {
+      if (severity === 'all') return true;
+      if (severity === 'critical') return item.status === 'critical';
+      if (severity === 'high') return item.status === 'warning';
+      if (severity === 'medium') return item.status === 'stable';
+      return true;
+    });
+    const verdicts = (telemetry.verdicts || []).filter((item) => {
+      if (severity === 'all') return true;
+      if (severity === 'critical') return item.status === 'critical';
+      if (severity === 'high') return item.status === 'warning';
+      if (severity === 'medium') return item.status === 'resolved';
+      if (severity === 'low') return item.status === 'verified' || item.status === 'stable';
+      return true;
+    });
+    const operators = (telemetry.operators || []).filter(
+      (item) => operator === 'all' || (item.operatorId || item.id) === operator,
+    );
+    const threatLocations = (telemetry.threatLocations || []).filter(
+      (item) =>
+        (region === 'all' || (item.region || item.label || 'unknown') === region) &&
+        (severity === 'all' || this.intensityToSeverity(item.intensity) === severity),
+    );
+    const transitions = (telemetry.stateTransitions || []).filter(
+      (item) => severity === 'all' || (item.severity || 'low') === severity,
+    );
+
+    this.renderAnomalies(anomalies);
+    this.renderWatchpoints(watchpoints);
+    this.renderVerdicts(verdicts);
+    this.renderOperators(operators);
+    this.renderThreatLocations(threatLocations);
+    this.renderStateTransitions(transitions);
+  }
+
+  intensityToSeverity(intensity) {
+    const value = Number(intensity || 0);
+    if (value >= 0.8) return 'critical';
+    if (value >= 0.6) return 'high';
+    if (value >= 0.35) return 'medium';
+    return 'low';
   }
 
   renderAnomalies(items) {
@@ -513,7 +733,27 @@ class SentinelInterface {
 
   renderThreatLocations(items) {
     const container = document.getElementById('threats-feed');
+    const heatGrid = document.getElementById('threat-heat-grid');
     if (!container) return;
+
+    if (heatGrid) {
+      const cells = new Array(36).fill(0);
+      items.forEach((item) => {
+        const lat = Number(item.lat || 0);
+        const lng = Number(item.lng || 0);
+        const row = Math.max(0, Math.min(5, Math.floor(((lat + 90) / 180) * 6)));
+        const col = Math.max(0, Math.min(5, Math.floor(((lng + 180) / 360) * 6)));
+        const index = row * 6 + col;
+        cells[index] = Math.max(cells[index], Number(item.intensity || 0));
+      });
+
+      heatGrid.innerHTML = cells
+        .map((value) => {
+          const level = value >= 0.8 ? 3 : value >= 0.5 ? 2 : value > 0 ? 1 : 0;
+          return `<div class="threat-cell ${level ? `threat-cell-${level}` : ''}" title="Intensity ${Math.round(value * 100)}%"></div>`;
+        })
+        .join('');
+    }
 
     container.innerHTML = items
       .slice(0, 6)
@@ -523,9 +763,9 @@ class SentinelInterface {
           <div class="telemetry-item">
             <div class="telemetry-row">
               <span class="telemetry-label">${item.label}</span>
-              <span class="telemetry-severity telemetry-${item.intensity >= 0.8 ? 'critical' : item.intensity >= 0.6 ? 'warning' : 'stable'}">${Math.round(item.intensity * 100)}%</span>
+              <span class="telemetry-severity telemetry-${this.intensityToSeverity(item.intensity)}">${Math.round(item.intensity * 100)}%</span>
             </div>
-            <div class="telemetry-source">Lat ${item.lat.toFixed(2)}, Lng ${item.lng.toFixed(2)}</div>
+            <div class="telemetry-source">${item.region || 'Region N/A'} | Lat ${Number(item.lat).toFixed(2)}, Lng ${Number(item.lng).toFixed(2)}</div>
           </div>
         `,
       )
