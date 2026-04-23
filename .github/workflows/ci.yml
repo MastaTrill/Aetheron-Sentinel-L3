@@ -55,9 +55,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run Python unit tests
-        env:
-          PYTHONPATH: src
-        run: python -m unittest discover -s tests -p "test_*.py" -v
+        run: PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
 
   sepolia-verification-gate:
     name: Sepolia verification gate
