@@ -1,0 +1,42 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'security'
+    groups:
+      hardhat-stack:
+        patterns:
+          - 'hardhat'
+          - '@nomicfoundation/*'
+      graph-stack:
+        patterns:
+          - '@graphprotocol/*'
+      test-stack:
+        patterns:
+          - 'chai'
+          - 'mocha'
+          - 'matchstick-as'
+      misc-dev:
+        dependency-type: 'development'
+        patterns:
+          - '*'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:30'
+      timezone: 'UTC'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+      - 'ci'
