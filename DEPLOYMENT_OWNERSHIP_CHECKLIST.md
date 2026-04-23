@@ -354,17 +354,17 @@ Use this sequence to prepare, execute, and verify relayer enablement.
 
 - `RELAYER_ADDRESSES=0xRelayer1,0xRelayer2`
 
-2. Generate Safe Transaction Builder payload:
+1. Generate Safe Transaction Builder payload:
 
 - `node scripts/generate-bridge-relayer-safe.cjs`
 - Output file: `scripts/bridge-relayer-enablement.sepolia.safe.json`
 
-3. Execute the generated transaction bundle through multisig Safe.
-4. Verify enabled relayers onchain:
+1. Execute the generated transaction bundle through multisig Safe.
+1. Verify enabled relayers onchain:
 
 - `node scripts/verify-bridge-relayers.cjs`
 
-5. Re-run allowlist audit for final confirmation:
+1. Re-run allowlist audit for final confirmation:
 
 - `node scripts/audit-allowlists.cjs`
 
