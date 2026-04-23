@@ -13,7 +13,7 @@
     "deploy:mainnet": "hardhat run scripts/deploy.cjs --network mainnet",
     "redeploy:coreloop": "node scripts/redeploy-coreloop.cjs --network sepolia",
     "verify:testnet": "node scripts/verify.cjs --network sepolia",
-    "setup:verify-tooling": "npm install --prefix tools/verify",
+    "setup:verify-tooling": "node scripts/setup-verify-tooling.cjs",
     "setup:ownership": "node scripts/setup-ownership.cjs --network sepolia",
     "verify:mainnet": "node scripts/verify.cjs --network mainnet",
     "deploy:hoodi": "hardhat run scripts/deploy.cjs --network hoodi",

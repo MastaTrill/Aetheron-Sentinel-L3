@@ -52,8 +52,12 @@ function parseBoolean(value, fallback) {
 }
 
 function getVerifyCliConfig() {
-  const verifyToolsDir = path.join(process.cwd(), 'tools', 'verify');
-  const verifyConfigPath = path.join(verifyToolsDir, 'hardhat.config.cjs');
+  const verifyToolsDir = path.join(process.cwd(), '.verify-tools');
+  const verifyConfigPath = path.join(
+    process.cwd(),
+    'scripts',
+    'verify-hardhat.config.cjs',
+  );
   const hardhatCmd = path.join(
     verifyToolsDir,
     'node_modules',

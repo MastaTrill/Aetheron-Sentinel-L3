@@ -2,15 +2,23 @@ const path = require('path');
 const { config: loadEnv } = require('dotenv');
 const { defineConfig } = require('hardhat/config');
 
-const verifyPluginModule = require('@nomicfoundation/hardhat-verify');
+const verifyPluginModule = require(
+  path.join(
+    process.cwd(),
+    '.verify-tools',
+    'node_modules',
+    '@nomicfoundation',
+    'hardhat-verify',
+  ),
+);
 const hardhatVerify = verifyPluginModule.default || verifyPluginModule;
 
 loadEnv({
-  path: path.resolve(__dirname, '..', '..', '.env'),
+  path: path.resolve(__dirname, '..', '.env'),
   override: true,
 });
 
-const projectRoot = path.resolve(__dirname, '..', '..');
+const projectRoot = path.resolve(__dirname, '..');
 
 module.exports = defineConfig({
   plugins: [hardhatVerify],
