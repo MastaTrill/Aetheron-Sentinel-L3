@@ -121,7 +121,7 @@ See [site/contracts.js](./site/contracts.js) for all 27 contract addresses.
 
 ### ✅ Section 7 Final Verification (All Checks Pass)
 
-```
+```text
 ✅ All 20 Ownable contracts owned by 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
 ✅ Timelock governance roles correctly assigned to multisig
 ✅ Allowlist audit: All role members are known principals (no suspicious addresses)
