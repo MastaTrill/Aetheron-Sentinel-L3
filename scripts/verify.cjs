@@ -18,6 +18,7 @@
 require('dotenv').config();
 const { ethers } = require('ethers');
 const path = require('path');
+const fsSync = require('fs');
 const fs = require('fs/promises');
 const { execFile, exec } = require('child_process');
 const { promisify } = require('util');
@@ -50,8 +51,28 @@ function parseBoolean(value, fallback) {
   return value === 'true' || value === '1';
 }
 
+function getVerifyCliConfig() {
+  const verifyToolsDir = path.join(process.cwd(), 'tools', 'verify');
+  const verifyConfigPath = path.join(verifyToolsDir, 'hardhat.config.cjs');
+  const hardhatCmd = path.join(
+    verifyToolsDir,
+    'node_modules',
+    '.bin',
+    process.platform === 'win32' ? 'hardhat.cmd' : 'hardhat',
+  );
+
+  if (!fsSync.existsSync(hardhatCmd) || !fsSync.existsSync(verifyConfigPath)) {
+    throw new Error(
+      'Verification tooling is not installed. Run: npm run setup:verify-tooling',
+    );
+  }
+
+  return { hardhatCmd, verifyConfigPath };
+}
+
 async function verify(address, constructorArguments) {
   const networkName = getCliNetworkName();
+  const { hardhatCmd, verifyConfigPath } = getVerifyCliConfig();
   const argsFilePath = path.join(
     process.cwd(),
     '.verify-args',
@@ -73,6 +94,8 @@ async function verify(address, constructorArguments) {
 
     const cliArgs = [
       'verify',
+      '--config',
+      verifyConfigPath,
       '--network',
       networkName,
       '--constructor-args-path',
@@ -81,25 +104,13 @@ async function verify(address, constructorArguments) {
     ];
 
     if (process.platform === 'win32') {
-      const hardhatCmd = path.join(
-        process.cwd(),
-        'node_modules',
-        '.bin',
-        'hardhat.cmd',
-      );
       const command = `"${hardhatCmd}" ${cliArgs.map((arg) => `"${arg}"`).join(' ')}`;
       await execAsync(command, {
         cwd: process.cwd(),
         env: process.env,
       });
     } else {
-      const hardhatExecutable = path.join(
-        process.cwd(),
-        'node_modules',
-        '.bin',
-        'hardhat',
-      );
-      await execFileAsync(hardhatExecutable, cliArgs, {
+      await execFileAsync(hardhatCmd, cliArgs, {
         cwd: process.cwd(),
         env: process.env,
       });

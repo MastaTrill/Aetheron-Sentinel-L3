@@ -13,6 +13,7 @@
     "deploy:mainnet": "hardhat run scripts/deploy.cjs --network mainnet",
     "redeploy:coreloop": "node scripts/redeploy-coreloop.cjs --network sepolia",
     "verify:testnet": "node scripts/verify.cjs --network sepolia",
+    "setup:verify-tooling": "npm install --prefix tools/verify",
     "setup:ownership": "node scripts/setup-ownership.cjs --network sepolia",
     "verify:mainnet": "node scripts/verify.cjs --network mainnet",
     "deploy:hoodi": "hardhat run scripts/deploy.cjs --network hoodi",
@@ -37,7 +38,6 @@
     "@nomicfoundation/hardhat-ethers": "^4.0.3",
     "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.0",
     "@nomicfoundation/hardhat-mocha": "^3.0.0",
-    "@nomicfoundation/hardhat-verify": "^3.0.0",
     "dotenv": "^16.4.5",
     "hardhat": "^3.4.0",
     "matchstick-as": "0.6.0"

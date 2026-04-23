@@ -1,13 +1,19 @@
-import { config as loadEnv } from 'dotenv';
-import { defineConfig } from 'hardhat/config';
-import hardhatEthers from '@nomicfoundation/hardhat-ethers';
-import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
-import hardhatMocha from '@nomicfoundation/hardhat-mocha';
+const path = require('path');
+const { config: loadEnv } = require('dotenv');
+const { defineConfig } = require('hardhat/config');
 
-loadEnv({ override: true });
+const verifyPluginModule = require('@nomicfoundation/hardhat-verify');
+const hardhatVerify = verifyPluginModule.default || verifyPluginModule;
 
-export default defineConfig({
-  plugins: [hardhatEthers, hardhatEthersChaiMatchers, hardhatMocha],
+loadEnv({
+  path: path.resolve(__dirname, '..', '..', '.env'),
+  override: true,
+});
+
+const projectRoot = path.resolve(__dirname, '..', '..');
+
+module.exports = defineConfig({
+  plugins: [hardhatVerify],
   solidity: {
     version: '0.8.20',
     settings: {
@@ -63,24 +69,9 @@ export default defineConfig({
       apiKey: process.env.ETHERSCAN_API_KEY || '',
     },
   },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS === 'true',
-    currency: 'USD',
-  },
   paths: {
-    sources: './contracts',
-    tests: {
-      mocha: './test',
-    },
-    cache: './cache',
-    artifacts: './artifacts',
-  },
-  test: {
-    mocha: {
-      timeout: 40000,
-    },
-  },
-  typechain: {
-    dontOverrideCompile: true,
+    sources: path.join(projectRoot, 'contracts'),
+    cache: path.join(projectRoot, 'cache'),
+    artifacts: path.join(projectRoot, 'artifacts'),
   },
 });
