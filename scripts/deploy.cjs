@@ -38,6 +38,12 @@ function parseChainLimits(value) {
 }
 
 async function deployContract(name, args) {
+  const sandboxContracts = new Set(['Base', 'Lottery', 'Staking', 'Vault']);
+  if (sandboxContracts.has(name)) {
+    throw new Error(
+      `Refusing to deploy sandbox contract \"${name}\" from imported Remix sandbox`,
+    );
+  }
   const Factory = await ethers.getContractFactory(name);
   const contract = await Factory.deploy(...args);
   await contract.waitForDeployment();

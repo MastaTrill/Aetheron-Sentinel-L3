@@ -28,7 +28,10 @@
     "deploy:subgraph": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node https://api.studio.thegraph.com/deploy/ aetheron-sentinel-l3",
     "create-local": "npx -y @graphprotocol/graph-cli@0.98.1 create --node http://localhost:8020/ aetheron-sentinel-l3",
     "remove-local": "npx -y @graphprotocol/graph-cli@0.98.1 remove --node http://localhost:8020/ aetheron-sentinel-l3",
-    "deploy-local": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron-sentinel-l3"
+    "deploy-local": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron-sentinel-l3",
+    "dashboard:dev": "npm --prefix apps/remix-dashboard run dev",
+    "dashboard:build": "npm --prefix apps/remix-dashboard run build",
+    "dashboard:lint": "npm --prefix apps/remix-dashboard run lint"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.6"
