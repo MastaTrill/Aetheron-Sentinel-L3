@@ -85,7 +85,7 @@ jobs:
 
       - name: Run bridge relayer verification
         env:
-          RELAYER_ADDRESSES: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
+          RELAYER_ADDRESSES: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
         run: node scripts/verify-bridge-relayers.cjs
 
   subgraph-build:
