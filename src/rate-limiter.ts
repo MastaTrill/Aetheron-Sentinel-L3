@@ -30,11 +30,12 @@ export function handleRateLimitUpdated(event: RateLimitUpdatedEvent): void {
   let entity = RateLimitStats.load(event.params.chainId.toString())
   if (!entity) {
     entity = new RateLimitStats(event.params.chainId.toString())
+    entity.currentUsage = BigInt.fromI32(0)
+    entity.lastUpdate = BigInt.fromI32(0)
   }
   entity.chainId = event.params.chainId
   entity.limit = event.params.newLimit
   entity.lastUpdate = event.block.timestamp
-
   entity.save()
 }
 

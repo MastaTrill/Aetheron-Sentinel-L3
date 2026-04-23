@@ -11,9 +11,9 @@ dataSources:
     name: SentinelInterceptor
     network: sepolia
     source:
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      address: "0x057c15fA83A008ba65A20b6e0dE91949Ab987954"
       abi: SentinelInterceptor
-      startBlock: 0
+      startBlock: 10707540
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -22,7 +22,7 @@ dataSources:
         - Sentinel
       abis:
         - name: SentinelInterceptor
-          file: SentinelInterceptor\abis\SentinelInterceptor.json
+          file: SentinelInterceptor\SentinelInterceptor.json
       eventHandlers:
         - event: AnomalyDetected(uint256,uint256,uint256)
           handler: handleAnomalyDetected
@@ -39,9 +39,9 @@ dataSources:
     name: AetheronBridge
     network: sepolia
     source:
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      address: "0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597"
       abi: AetheronBridge
-      startBlock: 0
+      startBlock: 10707539
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -51,7 +51,7 @@ dataSources:
         - Transfer
       abis:
         - name: AetheronBridge
-          file: AetheronBridge\abis\AetheronBridge.json
+          file: AetheronBridge\AetheronBridge.json
       eventHandlers:
         - event: TokensBridged(indexed address,indexed address,uint256,uint256,address,bytes32)
           handler: handleTokensBridged
@@ -66,9 +66,9 @@ dataSources:
     name: RateLimiter
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000001"
+      address: "0xA084B67baDC91Dd6d8cEec65af73c4F21337A888"
       abi: RateLimiter
-      startBlock: 0
+      startBlock: 10707542
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -77,7 +77,7 @@ dataSources:
         - RateLimitStats
       abis:
         - name: RateLimiter
-          file: RateLimiter\abis\RateLimiter.json
+          file: RateLimiter\RateLimiter.json
       eventHandlers:
         - event: WithdrawalProcessed(indexed address,uint256,uint256,uint256)
           handler: handleWithdrawalProcessed
@@ -90,9 +90,9 @@ dataSources:
     name: CircuitBreaker
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000002"
+      address: "0x1FC97c1C54914E9053EDF97C390bF9b3b77eA885"
       abi: CircuitBreaker
-      startBlock: 0
+      startBlock: 10707541
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -101,7 +101,7 @@ dataSources:
         - CircuitBreakerState
       abis:
         - name: CircuitBreaker
-          file: CircuitBreaker\abis\CircuitBreaker.json
+          file: CircuitBreaker\CircuitBreaker.json
       eventHandlers:
         - event: CircuitOpened(uint256,uint256)
           handler: handleCircuitOpened

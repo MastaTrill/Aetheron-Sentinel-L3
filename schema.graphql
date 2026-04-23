@@ -1,4 +1,4 @@
-type Sentinel @entity {
+type Sentinel @entity(immutable: false) {
   id: ID!
   anomalyCount: BigInt!
   lastAnomalyBlock: BigInt!
@@ -7,7 +7,7 @@ type Sentinel @entity {
   tvlUpdates: [TVLUpdate!] @derivedFrom(field: "sentinel")
 }
 
-type Threshold @entity {
+type Threshold @entity(immutable: true) {
   id: ID!
   sentinel: Sentinel!
   thresholdType: BigInt!
@@ -15,14 +15,14 @@ type Threshold @entity {
   updatedAt: BigInt!
 }
 
-type TVLUpdate @entity {
+type TVLUpdate @entity(immutable: true) {
   id: ID!
   sentinel: Sentinel!
   tvl: BigInt!
   timestamp: BigInt!
 }
 
-type Bridge @entity {
+type Bridge @entity(immutable: false) {
   id: ID!
   bridgeAddress: Bytes!
   totalValueLocked: BigInt!
@@ -30,7 +30,7 @@ type Bridge @entity {
   initializedAt: BigInt!
 }
 
-type Transfer @entity {
+type Transfer @entity(immutable: false) {
   id: ID!
   bridge: Bridge!
   sender: Bytes!
@@ -49,7 +49,7 @@ enum TransferStatus {
   FAILED
 }
 
-type RateLimitStats @entity {
+type RateLimitStats @entity(immutable: false) {
   id: ID!
   chainId: BigInt!
   currentUsage: BigInt!
@@ -58,7 +58,7 @@ type RateLimitStats @entity {
   withdrawals: [Withdrawal!] @derivedFrom(field: "rateLimit")
 }
 
-type Withdrawal @entity {
+type Withdrawal @entity(immutable: true) {
   id: ID!
   rateLimit: RateLimitStats!
   user: Bytes!
@@ -66,7 +66,7 @@ type Withdrawal @entity {
   timestamp: BigInt!
 }
 
-type CircuitBreakerState @entity {
+type CircuitBreakerState @entity(immutable: false) {
   id: ID!
   chainId: BigInt!
   state: CircuitState!

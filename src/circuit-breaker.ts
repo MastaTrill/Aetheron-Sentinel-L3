@@ -43,18 +43,27 @@ export function handleFailureRecorded(event: FailureRecordedEvent): void {
   let entity = CircuitBreakerState.load(event.params.chainId.toString())
   if (!entity) {
     entity = new CircuitBreakerState(event.params.chainId.toString())
+    entity.chainId = event.params.chainId
     entity.state = "CLOSED"
+    entity.failureCount = BigInt.fromI32(0)
+    entity.lastFailure = BigInt.fromI32(0)
+    entity.lastSuccess = BigInt.fromI32(0)
   }
   entity.failureCount = entity.failureCount.plus(BigInt.fromI32(1))
   entity.lastFailure = event.block.timestamp
-
   entity.save()
 }
 
 export function handleSuccessRecorded(event: SuccessRecordedEvent): void {
   let entity = CircuitBreakerState.load(event.params.chainId.toString())
-  if (entity) {
-    entity.lastSuccess = event.block.timestamp
-    entity.save()
+  if (!entity) {
+    entity = new CircuitBreakerState(event.params.chainId.toString())
+    entity.chainId = event.params.chainId
+    entity.state = "CLOSED"
+    entity.failureCount = BigInt.fromI32(0)
+    entity.lastFailure = BigInt.fromI32(0)
+    entity.lastSuccess = BigInt.fromI32(0)
   }
+  entity.lastSuccess = event.block.timestamp
+  entity.save()
 }
