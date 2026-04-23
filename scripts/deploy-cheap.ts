@@ -13,9 +13,7 @@ async function main() {
 
   // Deploy AetheronBridge first (with placeholder sentinel)
   console.log("1. Deploying AetheronBridge...");
-  const AetheronBridge = await ethers.getContractFactory("AetheronBridge", {
-    overrides: gasPrice,
-  });
+  const AetheronBridge = await ethers.getContractFactory("AetheronBridge");
 
   try {
     const placeholderSentinel = "0x" + "00".repeat(19) + "01";
@@ -23,6 +21,7 @@ async function main() {
       placeholderSentinel,
       deployer.address,
       deployer.address,
+      gasPrice,
     );
     await bridge.waitForDeployment();
     console.log("   AetheronBridge:", await bridge.getAddress());
@@ -31,12 +30,12 @@ async function main() {
     console.log("\n2. Deploying SentinelInterceptor...");
     const SentinelInterceptor = await ethers.getContractFactory(
       "SentinelInterceptor",
-      { overrides: gasPrice },
     );
 
     const sentinel = await SentinelInterceptor.deploy(
       await bridge.getAddress(),
       deployer.address,
+      gasPrice,
     );
     await sentinel.waitForDeployment();
     console.log("   SentinelInterceptor:", await sentinel.getAddress());

@@ -148,7 +148,7 @@ describe("SentinelInterceptor", function () {
         .withArgs(
           sentinel.address,
           await sentinelInterceptor.totalValueLocked(),
-          (await ethers.provider.getBlock())?.timestamp || 0,
+          (await ethers.provider.getBlock("latest"))?.timestamp || 0,
         );
     });
 
