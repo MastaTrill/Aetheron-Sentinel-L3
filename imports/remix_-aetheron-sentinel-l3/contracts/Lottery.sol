@@ -2,8 +2,15 @@
 pragma solidity ^0.8.0;
 
 abstract contract VRFConsumerBase {
-    function requestRandomness(bytes32 keyHash, uint256 fee) internal virtual returns (bytes32 requestId);
-    function fulfillRandomness(bytes32 requestId, uint256 randomness) internal virtual;
+    function requestRandomness(
+        bytes32 keyHash,
+        uint256 fee
+    ) internal virtual returns (bytes32 requestId);
+
+    function fulfillRandomness(
+        bytes32 requestId,
+        uint256 randomness
+    ) internal virtual;
 }
 
 abstract contract Lottery is VRFConsumerBase {
@@ -12,10 +19,13 @@ abstract contract Lottery is VRFConsumerBase {
 
     function pickWinner() public returns (bytes32) {
         // Replacing block.timestamp with secure Chainlink VRF request
-        return requestRandomness(bytes32(uint256(0xabc123)), 0.1 * 10**18);
+        return requestRandomness(bytes32(uint256(0xabc123)), 0.1 * 10 ** 18);
     }
 
-    function fulfillRandomness(bytes32 /* requestId */, uint256 randomness) internal override {
+    function fulfillRandomness(
+        bytes32 /* requestId */,
+        uint256 randomness
+    ) internal override {
         randomResult = randomness;
     }
 

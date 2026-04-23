@@ -23,6 +23,10 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "react",
+      "react-dom"
+    ]
   }
 }
