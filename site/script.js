@@ -6,6 +6,7 @@ class SentinelInterface {
     this.init();
     this.setupEventListeners();
     this.initializeQuantumCore();
+    this.renderTelemetry();
     this.startAnimations();
   }
 
@@ -410,6 +411,80 @@ class SentinelInterface {
       .forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
       });
+  }
+
+  renderTelemetry() {
+    const telemetry = window.SENTINEL_PHASE_A;
+    if (!telemetry) return;
+
+    this.renderAnomalies(telemetry.anomalies || []);
+    this.renderWatchpoints(telemetry.watchpoints || []);
+    this.renderVerdicts(telemetry.verdicts || []);
+  }
+
+  renderAnomalies(items) {
+    const container = document.getElementById('anomalies-feed');
+    if (!container) return;
+
+    container.innerHTML = items
+      .slice(0, 6)
+      .map(
+        (item) => `
+          <div class="telemetry-item">
+            <div class="telemetry-row">
+              <span class="telemetry-severity telemetry-${item.severity}">${item.severity.toUpperCase()}</span>
+              <span class="telemetry-time">${new Date(item.timestamp).toLocaleTimeString()}</span>
+            </div>
+            <div class="telemetry-message">${item.message}</div>
+            <div class="telemetry-source">${item.source}</div>
+          </div>
+        `,
+      )
+      .join('');
+  }
+
+  renderWatchpoints(items) {
+    const container = document.getElementById('watchpoints-feed');
+    if (!container) return;
+
+    container.innerHTML = items
+      .slice(0, 6)
+      .map((item) => {
+        const last = item.trend[item.trend.length - 1];
+        const prev = item.trend[item.trend.length - 2] || last;
+        const delta = last - prev;
+        const deltaText = `${delta >= 0 ? '+' : ''}${delta}`;
+        return `
+          <div class="telemetry-item">
+            <div class="telemetry-row">
+              <span class="telemetry-label">${item.label}</span>
+              <span class="telemetry-status telemetry-${item.status}">${item.status.toUpperCase()}</span>
+            </div>
+            <div class="telemetry-delta">Delta: ${deltaText}</div>
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  renderVerdicts(items) {
+    const container = document.getElementById('verdicts-feed');
+    if (!container) return;
+
+    container.innerHTML = items
+      .slice(0, 6)
+      .map(
+        (item) => `
+          <div class="telemetry-item">
+            <div class="telemetry-row">
+              <span class="telemetry-label">${item.message}</span>
+              <span class="telemetry-status telemetry-${item.status}">${item.status.toUpperCase()}</span>
+            </div>
+            <div class="telemetry-source">Block ${item.block}</div>
+          </div>
+        `,
+      )
+      .join('');
   }
 }
 
