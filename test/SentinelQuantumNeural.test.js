@@ -4,22 +4,17 @@ import { network } from 'hardhat';
 const { ethers } = await network.create();
 
 describe('SentinelQuantumNeural', function () {
-  it('deployment exceeds local hardhat transaction gas cap', async function () {
+  it('deploys successfully with explicit gas limit', async function () {
     const [owner] = await ethers.getSigners();
     const SentinelQuantumNeural = await ethers.getContractFactory(
       'SentinelQuantumNeural',
     );
 
-    let failed = false;
-    try {
-      const contract = await SentinelQuantumNeural.deploy(owner.address, {
-        gasLimit: 16_000_000,
-      });
-      await contract.waitForDeployment();
-    } catch {
-      failed = true;
-    }
+    const contract = await SentinelQuantumNeural.deploy(owner.address, {
+      gasLimit: 16_000_000,
+    });
+    await contract.waitForDeployment();
 
-    expect(failed).to.equal(true);
+    expect(await contract.owner()).to.equal(owner.address);
   });
 });
