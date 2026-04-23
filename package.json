@@ -38,11 +38,11 @@
   },
   "devDependencies": {
     "@graphprotocol/graph-ts": "0.38.2",
-    "@nomicfoundation/hardhat-ethers": "^4.0.3",
-    "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.0",
-    "@nomicfoundation/hardhat-mocha": "^3.0.0",
+    "@nomicfoundation/hardhat-ethers": "^4.0.9",
+    "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.6",
+    "@nomicfoundation/hardhat-mocha": "^3.0.17",
     "dotenv": "^17.4.2",
-    "hardhat": "^3.4.0",
+    "hardhat": "^3.4.1",
     "matchstick-as": "0.6.0"
   },
   "overrides": {
