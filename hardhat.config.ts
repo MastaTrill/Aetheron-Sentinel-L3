@@ -56,13 +56,9 @@ export default defineConfig({
       chainId: 84532,
     },
   },
-  etherscan: {
-    apiKey: {
-      sepolia: process.env.ETHERSCAN_API_KEY || '',
-      mainnet: process.env.ETHERSCAN_API_KEY || '',
-      hoodi: process.env.ETHERSCAN_API_KEY || '',
-      baseSepolia:
-        process.env.BASESCAN_API_KEY || process.env.ETHERSCAN_API_KEY || '',
+  verify: {
+    etherscan: {
+      apiKey: process.env.ETHERSCAN_API_KEY || '',
     },
   },
   gasReporter: {

@@ -390,7 +390,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "confirmations",
+        "name": "confirmationCount",
         "type": "uint256"
       },
       {

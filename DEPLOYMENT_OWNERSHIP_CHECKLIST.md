@@ -4,10 +4,15 @@ This checklist assumes you want every privileged path to terminate at your walle
 
 Deployment automation:
 
-- Use `scripts/deploy.js` with `.env` values copied from `.env.example`.
+- Use `scripts/deploy.cjs` with `.env` values copied from `.env.example`.
 - If `SENTINEL_OWNER` equals the deploying account, the script also performs owner-only post-deploy setup.
 - If `SENTINEL_OWNER` is a different account or multisig, the script deploys safely and prints the exact pending owner actions to execute afterward.
 - Use `npm run deploy:local`, `npm run deploy:testnet`, or `npm run deploy:mainnet`.
+
+Owner handoff automation:
+
+- If deployer is not the final owner, run `npm run setup:ownership -- --network sepolia` from an environment where `OWNER_PRIVATE_KEY` is the `SENTINEL_OWNER` key.
+- This script executes the checklist actions for timelock role grants, monitor/reporter authorization, bridge/rate-limiter limits, and core loop component wiring.
 
 ## 1. Deploy With Explicit Ownership
 
@@ -148,11 +153,55 @@ After deploying, export ABIs and verify source on Etherscan:
 # Export compiled ABIs to abis/
 npm run export:abis
 
-# Verify on Sepolia (set DEPLOYED_ADDRESSES to the JSON from deploy.js output)
+# Verify on Sepolia (set DEPLOYED_ADDRESSES to the JSON from deploy.cjs output)
 DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run verify:testnet
 
 # Verify on mainnet
 DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run verify:mainnet
 ```
 
-The `verify.js` script accepts all the same env vars as `deploy.js` (owner, thresholds, token addresses) to reconstruct the exact constructor arguments used.
+The `verify.cjs` script accepts all the same env vars as `deploy.cjs` (owner, thresholds, token addresses) to reconstruct the exact constructor arguments used.
+
+## 9. CoreLoop Bootstrap Issue Summary (Reviewer Packet)
+
+Issue ID: `coreloop-bootstrap-deadlock`
+
+Impact:
+
+- `SentinelCoreLoop.setSystemComponent(...)` can deadlock on first-time setup when all components are unset.
+- The function validated critical components after each single update, which prevented any first component from being set in some call orders.
+
+Observed on Sepolia:
+
+- Ownership and role setup succeeded for bridge/interceptor/rate-limiter/timelock paths.
+- `SentinelCoreLoop` component wiring remained at zero addresses because first writes reverted under validation constraints.
+
+Root cause:
+
+- Per-component setter performed strict critical-component validation after every write.
+- No atomic bootstrap path existed for first-time initialization.
+
+Code remediation:
+
+- Added guarded one-time `initializeCoreComponents(...)` to set critical components atomically.
+- Updated per-component `setSystemComponent(...)` to defer strict validation until all critical components exist.
+- Added `coreComponentsBootstrapped` state guard.
+
+Operational remediation:
+
+- Added `scripts/redeploy-coreloop.cjs` for CoreLoop-only redeploy while preserving all other deployed contracts.
+- Updated `scripts/setup-ownership.cjs` to call `initializeCoreComponents(...)` when available.
+
+## 10. Redeploy Remediation Checklist (CoreLoop Only)
+
+1. Compile current sources: `npm run compile`.
+2. Redeploy only CoreLoop with existing key: `npm run redeploy:coreloop`.
+3. Copy the script output JSON and update `DEPLOYED_ADDRESSES` in environment.
+4. Re-run owner automation: `npm run setup:ownership -- --network sepolia`.
+5. Verify CoreLoop source: `DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run verify:testnet`.
+6. Run read-only audit checks for:
+   - `owner()` alignment
+   - Timelock proposer/canceller roles
+   - `SentinelCoreLoop` component address wiring
+7. Update site/subgraph config with the new `DEPLOYED_ADDRESSES` map if CoreLoop address is consumed downstream.
+8. Attach transaction hashes and audit output to PR/release notes for reviewer sign-off.

@@ -15,9 +15,28 @@
  * Set DEPLOYED_ADDRESSES as a JSON string of { ContractName: address }.
  */
 
-let hre;
-let ethers;
 require('dotenv').config();
+const { ethers } = require('ethers');
+const path = require('path');
+const fs = require('fs/promises');
+const { execFile, exec } = require('child_process');
+const { promisify } = require('util');
+
+const execFileAsync = promisify(execFile);
+const execAsync = promisify(exec);
+
+function getCliNetworkName() {
+  const envNetwork =
+    process.env.HARDHAT_NETWORK || process.env.npm_config_network;
+  if (envNetwork) return envNetwork;
+
+  const networkIndex = process.argv.indexOf('--network');
+  if (networkIndex >= 0 && process.argv[networkIndex + 1]) {
+    return process.argv[networkIndex + 1];
+  }
+
+  return 'sepolia';
+}
 
 function parseAddressList(value) {
   return (value || '')
@@ -32,24 +51,78 @@ function parseBoolean(value, fallback) {
 }
 
 async function verify(address, constructorArguments) {
+  const networkName = getCliNetworkName();
+  const argsFilePath = path.join(
+    process.cwd(),
+    '.verify-args',
+    `${address.toLowerCase()}.cjs`,
+  );
+
+  // Hardhat verify accepts constructor args from a JS module path.
+  const encodedArgs = JSON.stringify(constructorArguments, (_, value) =>
+    typeof value === 'bigint' ? value.toString() : value,
+  );
+
   try {
-    await hre.run('verify:verify', { address, constructorArguments });
+    await fs.mkdir(path.dirname(argsFilePath), { recursive: true });
+    await fs.writeFile(
+      argsFilePath,
+      `module.exports = ${encodedArgs};\n`,
+      'utf8',
+    );
+
+    const cliArgs = [
+      'verify',
+      '--network',
+      networkName,
+      '--constructor-args-path',
+      argsFilePath,
+      address,
+    ];
+
+    if (process.platform === 'win32') {
+      const hardhatCmd = path.join(
+        process.cwd(),
+        'node_modules',
+        '.bin',
+        'hardhat.cmd',
+      );
+      const command = `"${hardhatCmd}" ${cliArgs.map((arg) => `"${arg}"`).join(' ')}`;
+      await execAsync(command, {
+        cwd: process.cwd(),
+        env: process.env,
+      });
+    } else {
+      const hardhatExecutable = path.join(
+        process.cwd(),
+        'node_modules',
+        '.bin',
+        'hardhat',
+      );
+      await execFileAsync(hardhatExecutable, cliArgs, {
+        cwd: process.cwd(),
+        env: process.env,
+      });
+    }
+
     console.log(`  ✅ Verified: ${address}`);
   } catch (err) {
-    if (err.message && err.message.includes('Already Verified')) {
+    const output = `${err.stdout || ''}\n${err.stderr || ''}\n${err.message || ''}`;
+    if (/already verified/i.test(output)) {
       console.log(`  ℹ️  Already verified: ${address}`);
     } else {
-      console.warn(`  ⚠️  Verification failed for ${address}: ${err.message}`);
+      const reason =
+        (err.stderr && err.stderr.trim()) ||
+        (err.stdout && err.stdout.trim()) ||
+        err.message;
+      console.warn(`  ⚠️  Verification failed for ${address}: ${reason}`);
     }
+  } finally {
+    await fs.rm(argsFilePath, { force: true }).catch(() => {});
   }
 }
 
 async function main() {
-  const hardhatModule = await import('hardhat');
-  hre = hardhatModule.default ?? hardhatModule;
-  const connection = await hre.network.getOrCreate();
-  ethers = connection.ethers;
-
   const rawAddresses = process.env.DEPLOYED_ADDRESSES;
   if (!rawAddresses) {
     throw new Error(
@@ -61,8 +134,9 @@ async function main() {
 
   const addresses = JSON.parse(rawAddresses);
 
-  const [deployer] = await ethers.getSigners();
-  const deployerAddress = await deployer.getAddress();
+  const deployerAddress = process.env.PRIVATE_KEY
+    ? new ethers.Wallet(process.env.PRIVATE_KEY).address
+    : ethers.ZeroAddress;
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
 
   const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
@@ -83,7 +157,7 @@ async function main() {
   const securityAuditorAddress = addresses.SentinelSecurityAuditor || '';
   const sentinelCoreAddress = addresses.SentinelCoreLoop || '';
 
-  console.log(`Verifying contracts on network: ${hre.network.name}`);
+  console.log(`Verifying contracts on network: ${getCliNetworkName()}`);
   console.log(`Owner: ${owner}\n`);
 
   const tasks = [

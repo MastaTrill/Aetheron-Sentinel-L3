@@ -108,6 +108,9 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     address public liquidityMining;
     address public rewardAggregator;
 
+    // Bootstrap guard for first-time core component wiring
+    bool public coreComponentsBootstrapped;
+
     // ════════════════════════════════════════════════════════════════
     //                    CORE LOOP PARAMETERS
     // ════════════════════════════════════════════════════════════════
@@ -179,6 +182,12 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
     constructor(address initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
+
+        // Transfer ownership first so owner() == initialOwner during validation
+        if (initialOwner != msg.sender) {
+            super.transferOwnership(initialOwner);
+        }
+
         // Initialize roles with secure defaults
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
@@ -195,10 +204,6 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         // Post-initialization validation
         _validateInitialization();
-
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -396,9 +401,8 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
     /**
      * @dev Execute all core loop phases
-     * @param cycleNumber Current cycle number
      */
-    function _executeCoreLoopPhases(uint256 cycleNumber) external {
+    function _executeCoreLoopPhases(uint256 /* cycleNumber */) external {
         require(msg.sender == address(this), "Internal function call only");
 
         // ════════════════════════════════════════════════════════════════
@@ -469,7 +473,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
      */
     function _handleCoreLoopError(
         string memory reason,
-        uint256 cycleNumber
+        uint256 /* cycleNumber */
     ) private {
         // Log the error
         emit EmergencyProtocolActivated(
@@ -520,7 +524,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         bytes32 entropySeed = keccak256(
             abi.encodePacked(
                 block.timestamp,
-                block.difficulty,
+                block.prevrandao,
                 block.coinbase,
                 tx.origin
             )
@@ -590,7 +594,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     function _calculateNetworkActivity() private view returns (uint256) {
         // Base activity on transaction count and block properties
         uint256 txCount = 100; // Simplified - would query actual network data
-        uint256 blockUtilization = uint256(block.difficulty) % 100;
+        uint256 blockUtilization = uint256(block.prevrandao) % 100;
 
         return Math.min(txCount.add(blockUtilization), uint256(1000));
     }
@@ -643,7 +647,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             abi.encodePacked(
                 block.timestamp,
                 block.number,
-                block.difficulty,
+                block.prevrandao,
                 tx.origin,
                 quantumState.quantumSignature
             )
@@ -711,7 +715,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             keccak256(
                 abi.encodePacked(
                     block.timestamp,
-                    block.difficulty,
+                    block.prevrandao,
                     block.number,
                     address(this),
                     quantumState.entropyLevel
@@ -852,7 +856,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         bytes32 threatSeed = keccak256(
             abi.encodePacked(
                 block.timestamp,
-                block.difficulty,
+                block.prevrandao,
                 coreMetrics.activeSecurityScore,
                 quantumState.entropyLevel
             )
@@ -1248,10 +1252,118 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             revert("Unknown component");
         }
 
-        // Post-update validation
-        _validateSystemComponents();
+        // Post-update validation is skipped until critical components exist.
+        if (_hasCriticalCoreComponents()) {
+            _validateSystemComponents();
+            coreComponentsBootstrapped = true;
+        }
 
         emit SystemComponentUpdated(component, contractAddress);
+    }
+
+    /**
+     * @notice Bootstrap all critical CoreLoop components atomically
+     * @dev One-time initializer that avoids bootstrap deadlocks in per-component updates
+     */
+    function initializeCoreComponents(
+        address sentinelInterceptorAddress,
+        address aetheronBridgeAddress,
+        address quantumGuardAddress,
+        address rateLimiterAddress,
+        address circuitBreakerAddress,
+        address yieldMaximizerAddress,
+        address oracleNetworkAddress
+    ) external onlyOwner {
+        require(
+            !coreComponentsBootstrapped,
+            "Core components already bootstrapped"
+        );
+        require(
+            sentinelInterceptorAddress != address(0),
+            "Invalid SentinelInterceptor"
+        );
+        require(aetheronBridgeAddress != address(0), "Invalid AetheronBridge");
+        require(quantumGuardAddress != address(0), "Invalid QuantumGuard");
+        require(
+            sentinelInterceptorAddress.isContract(),
+            "SentinelInterceptor not a contract"
+        );
+        require(
+            aetheronBridgeAddress.isContract(),
+            "AetheronBridge not a contract"
+        );
+        require(
+            quantumGuardAddress.isContract(),
+            "QuantumGuard not a contract"
+        );
+
+        sentinelInterceptor = sentinelInterceptorAddress;
+        aetheronBridge = aetheronBridgeAddress;
+        quantumGuard = quantumGuardAddress;
+
+        if (rateLimiterAddress != address(0)) {
+            require(
+                rateLimiterAddress.isContract(),
+                "RateLimiter not a contract"
+            );
+            rateLimiter = rateLimiterAddress;
+        }
+        if (circuitBreakerAddress != address(0)) {
+            require(
+                circuitBreakerAddress.isContract(),
+                "CircuitBreaker not a contract"
+            );
+            circuitBreaker = circuitBreakerAddress;
+        }
+        if (yieldMaximizerAddress != address(0)) {
+            require(
+                yieldMaximizerAddress.isContract(),
+                "YieldMaximizer not a contract"
+            );
+            yieldMaximizer = yieldMaximizerAddress;
+        }
+        if (oracleNetworkAddress != address(0)) {
+            require(
+                oracleNetworkAddress.isContract(),
+                "OracleNetwork not a contract"
+            );
+            oracleNetwork = oracleNetworkAddress;
+        }
+
+        _validateSystemComponents();
+        coreComponentsBootstrapped = true;
+
+        emit SystemComponentUpdated(
+            "sentinelInterceptor",
+            sentinelInterceptorAddress
+        );
+        emit SystemComponentUpdated("aetheronBridge", aetheronBridgeAddress);
+        emit SystemComponentUpdated("quantumGuard", quantumGuardAddress);
+        if (rateLimiterAddress != address(0)) {
+            emit SystemComponentUpdated("rateLimiter", rateLimiterAddress);
+        }
+        if (circuitBreakerAddress != address(0)) {
+            emit SystemComponentUpdated(
+                "circuitBreaker",
+                circuitBreakerAddress
+            );
+        }
+        if (yieldMaximizerAddress != address(0)) {
+            emit SystemComponentUpdated(
+                "yieldMaximizer",
+                yieldMaximizerAddress
+            );
+        }
+        if (oracleNetworkAddress != address(0)) {
+            emit SystemComponentUpdated("oracleNetwork", oracleNetworkAddress);
+        }
+    }
+
+    function _hasCriticalCoreComponents() private view returns (bool) {
+        return
+            sentinelInterceptor != address(0) &&
+            aetheronBridge != address(0) &&
+            quantumGuard != address(0);
     }
 
     /**

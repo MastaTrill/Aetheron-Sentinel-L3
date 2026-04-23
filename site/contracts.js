@@ -2,68 +2,108 @@
 // Do not edit manually — regenerate with: npm run export:site-config
 window.SENTINEL_CONTRACTS = {
   "SentinelToken": {
-    "address": "0xf6f1E88fBF9C4C1879381557806B3D879C0e8925",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0xf6f1E88fBF9C4C1879381557806B3D879C0e8925"
+    "address": "0xFf21fF20B61469075A2b2280724E9D99dA7e06Ed",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xFf21fF20B61469075A2b2280724E9D99dA7e06Ed"
   },
   "AetheronBridge": {
-    "address": "0x2CEB900997b411476969bA39fe28F7EFF124fb24",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x2CEB900997b411476969bA39fe28F7EFF124fb24"
+    "address": "0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597"
   },
   "SentinelInterceptor": {
-    "address": "0x133BEEB85246Fba8AF7A8C488bC1056AB4AAb0fB",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x133BEEB85246Fba8AF7A8C488bC1056AB4AAb0fB"
+    "address": "0x057c15fA83A008ba65A20b6e0dE91949Ab987954",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x057c15fA83A008ba65A20b6e0dE91949Ab987954"
   },
   "CircuitBreaker": {
-    "address": "0x1b43e313Ab4173b27b3F0ea58Ecae3F55379ec12",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x1b43e313Ab4173b27b3F0ea58Ecae3F55379ec12"
+    "address": "0x1FC97c1C54914E9053EDF97C390bF9b3b77eA885",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x1FC97c1C54914E9053EDF97C390bF9b3b77eA885"
   },
   "RateLimiter": {
-    "address": "0x67ec0097e4711f7e728027091ab578C9B7dA9101",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x67ec0097e4711f7e728027091ab578C9B7dA9101"
+    "address": "0xA084B67baDC91Dd6d8cEec65af73c4F21337A888",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xA084B67baDC91Dd6d8cEec65af73c4F21337A888"
   },
   "SentinelQuantumGuard": {
-    "address": "0x3aA449f3657DEA177d300E8949C9c5Dd51Df330d",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x3aA449f3657DEA177d300E8949C9c5Dd51Df330d"
+    "address": "0x5a13Ea0B936AE6F58c84188c097f7974f0403297",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x5a13Ea0B936AE6F58c84188c097f7974f0403297"
   },
   "SentinelMultiSigVault": {
-    "address": "0xDeF7Dd2692bc1490B1DdbA46214Ae2270Fa91B27",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0xDeF7Dd2692bc1490B1DdbA46214Ae2270Fa91B27"
+    "address": "0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994"
   },
   "SentinelOracleNetwork": {
-    "address": "0xf67fCB6dC33B415810f9d2D3Ecc470BbA56CE6F7",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0xf67fCB6dC33B415810f9d2D3Ecc470BbA56CE6F7"
+    "address": "0x004B5b6a2d62b7734D0Ba9138716fd4fD22d4B3F",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x004B5b6a2d62b7734D0Ba9138716fd4fD22d4B3F"
   },
   "SentinelSecurityAuditor": {
-    "address": "0x0BA88d4088e2f45663F45fE3e82f4FaDA84B6bd2",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x0BA88d4088e2f45663F45fE3e82f4FaDA84B6bd2"
+    "address": "0x51Fd0DABd023Ab13090538C0751243E09ec87e2F",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x51Fd0DABd023Ab13090538C0751243E09ec87e2F"
   },
   "SentinelMonitor": {
-    "address": "0xbaF6973dC0FE632b367574Ad9BC6C633eC6B2200",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0xbaF6973dC0FE632b367574Ad9BC6C633eC6B2200"
+    "address": "0xc7B0363540e9d141A07e8FE5F811c4726c50750c",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xc7B0363540e9d141A07e8FE5F811c4726c50750c"
   },
   "SentinelYieldMaximizer": {
-    "address": "0x0D734Af6327b34b565f7B46407CC604bE7E047f2",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x0D734Af6327b34b565f7B46407CC604bE7E047f2"
+    "address": "0x4eDB9BDF6A58c886CC9FE3D125CDbdF837c19df0",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x4eDB9BDF6A58c886CC9FE3D125CDbdF837c19df0"
   },
   "SentinelStaking": {
-    "address": "0x155703d12e4E246AF3dE81415e2424bfb56027B0",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x155703d12e4E246AF3dE81415e2424bfb56027B0"
+    "address": "0x1fADa3493E662F0aDDDb84259ee30b97C6A015E3",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x1fADa3493E662F0aDDDb84259ee30b97C6A015E3"
   },
   "SentinelReferralSystem": {
-    "address": "0x31D5D4b9B001600B6C1b266a97dD7e55E8090163",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x31D5D4b9B001600B6C1b266a97dD7e55E8090163"
+    "address": "0x86f9a5eBbE2f87Ff829b30702Ae43d2F409E97a8",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x86f9a5eBbE2f87Ff829b30702Ae43d2F409E97a8"
   },
   "SentinelTimelock": {
-    "address": "0xBc7082Bd7cE57F0D23F3d49F9361F5D0c273D970",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0xBc7082Bd7cE57F0D23F3d49F9361F5D0c273D970"
+    "address": "0x670F79bFe0829e491aB0c41A7A93B1E56a09f2a0",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x670F79bFe0829e491aB0c41A7A93B1E56a09f2a0"
   },
   "SentinelGovernance": {
-    "address": "0xc7088A405F02D6C28FE6fA6b1Ba1325Bc71114Fd",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0xc7088A405F02D6C28FE6fA6b1Ba1325Bc71114Fd"
+    "address": "0x38427f04abD2a9D938674a41c6dbf592E6e953f0",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x38427f04abD2a9D938674a41c6dbf592E6e953f0"
   },
   "SentinelCore": {
-    "address": "0x420B3d4Ba88387Fb128D1cc7f317040C135EcEEB",
-    "explorerUrl": "https://sepolia.etherscan.io/address/0x420B3d4Ba88387Fb128D1cc7f317040C135EcEEB"
+    "address": "0x5C85D36529D1217189faf9E48C956d51e5de6211",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x5C85D36529D1217189faf9E48C956d51e5de6211"
+  },
+  "SentinelCoreLoop": {
+    "address": "0x531dfa55456a39C8c3223c87062E209D1b831378",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x531dfa55456a39C8c3223c87062E209D1b831378"
+  },
+  "SentinelAMM": {
+    "address": "0xF0a2bA5F5c24Ef8ffd1Da6B4c383b90430d22573",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xF0a2bA5F5c24Ef8ffd1Da6B4c383b90430d22573"
+  },
+  "SentinelPredictiveThreatModel": {
+    "address": "0xD023194d8f3Cf98197bDBC4252cAA19B2BdF7Db9",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xD023194d8f3Cf98197bDBC4252cAA19B2BdF7Db9"
+  },
+  "SentinelHomomorphicEncryption": {
+    "address": "0x8E245764e99695aDA58c64911feA6BCd827762DF",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x8E245764e99695aDA58c64911feA6BCd827762DF"
+  },
+  "SentinelQuantumKeyDistribution": {
+    "address": "0x85Ac8C3f21bC7DE5a0aa5e73fCE14349220605E0",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x85Ac8C3f21bC7DE5a0aa5e73fCE14349220605E0"
+  },
+  "SentinelQuantumNeural": {
+    "address": "0x9B02e12f164D76f94b880a9027351bE169886B0F",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x9B02e12f164D76f94b880a9027351bE169886B0F"
+  },
+  "SentinelZKIdentity": {
+    "address": "0x67035285fefF86926CC83D8a214946B5A73EA21C",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x67035285fefF86926CC83D8a214946B5A73EA21C"
+  },
+  "SentinelSocialRecovery": {
+    "address": "0xf1af2268aD0573916760acaB9F6FcaDF79220FC4",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xf1af2268aD0573916760acaB9F6FcaDF79220FC4"
+  },
+  "SentinelZKOracle": {
+    "address": "0xcC3327F247de53eb10318b91656531D7D9a37387",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xcC3327F247de53eb10318b91656531D7D9a37387"
+  },
+  "SentinelInsuranceProtocol": {
+    "address": "0x7390eA256FF5e113508a1AC4F2A2Ccbdd3C494D2",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x7390eA256FF5e113508a1AC4F2A2Ccbdd3C494D2"
   }
 };
 window.SENTINEL_NETWORK = "sepolia";

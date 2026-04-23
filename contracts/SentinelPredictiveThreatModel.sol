@@ -448,7 +448,7 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
         BehavioralProfile memory profile,
         uint256[] memory behavioralData,
         string memory activityType
-    ) internal view returns (uint256) {
+    ) internal pure returns (uint256) {
         uint256 anomalyScore = 0;
 
         // Check for statistical anomalies

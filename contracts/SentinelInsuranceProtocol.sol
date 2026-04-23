@@ -351,12 +351,12 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         )
     {
         InsurancePolicy memory policy = policies[policyId];
-        uint256 remainingCoverage = policy.coverageAmount - policy.totalPaid;
+        uint256 remaining = policy.coverageAmount - policy.totalPaid;
 
         return (
             policy.policyHolder,
             policy.coverageAmount,
-            remainingCoverage,
+            remaining,
             policy.insuranceType,
             policy.status,
             policy.endTime
@@ -377,7 +377,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
             uint256 totalPremiums,
             uint256 utilizationRate,
             uint256 claimReserve,
-            uint256 policyCount
+            uint256 poolPolicyCount
         )
     {
         InsurancePool memory pool = insurancePools[poolType];
@@ -399,7 +399,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         uint256 coverageAmount,
         InsuranceType insuranceType,
         uint256 coveragePeriod
-    ) external view returns (uint256) {
+    ) external pure returns (uint256) {
         return
             _calculatePremium(
                 coveredContract,
@@ -417,7 +417,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         uint256 coverageAmount,
         InsuranceType insuranceType,
         uint256 coveragePeriod
-    ) internal view returns (uint256) {
+    ) internal pure returns (uint256) {
         // Base premium calculation
         uint256 basePremium = coverageAmount
             .mul(_getBasePremiumRate(insuranceType))
@@ -461,9 +461,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @dev Assess contract risk for premium calculation
      */
     function _assessContractRisk(
-        address contractAddress,
+        address /* contractAddress */,
         InsuranceType insuranceType
-    ) internal view returns (uint256) {
+    ) internal pure returns (uint256) {
         // Simplified risk assessment
         // In production, this would query Sentinel security metrics
 
@@ -482,8 +482,8 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      */
     function _verifySecurityIncident(
         bytes32 incidentHash,
-        address coveredContract
-    ) internal view returns (uint256) {
+        address /* coveredContract */
+    ) internal pure returns (uint256) {
         // In production, this would query Sentinel security auditor
         // For demo, simulate incident verification
 

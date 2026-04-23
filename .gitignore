@@ -9,6 +9,7 @@ coverage.json
 .DS_Store
 *.log
 dist/
+.verify-args/
 
 # Python
 __pycache__/

@@ -113,7 +113,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
         bytes32 keyId = keccak256(
             abi.encodePacked(
                 block.timestamp,
-                block.difficulty,
+                block.prevrandao,
                 keyHolder,
                 keyLength,
                 entanglementEntropy
@@ -281,11 +281,10 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
     /**
      * @notice Report compromised quantum key
      * @param keyId Compromised key ID
-     * @param evidence Evidence of compromise
      */
     function reportKeyCompromise(
         bytes32 keyId,
-        bytes calldata evidence
+        bytes calldata /* evidence */
     ) external {
         QuantumKey storage key = quantumKeys[keyId];
         require(key.active, "Key not active");

@@ -20,8 +20,7 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     struct NeuralLayer {
         uint256 neurons;
         uint256 inputs;
-        int256[] weights; // Flattened weight matrix
-        int256[] biases; // Neuron biases
+        bytes32 weightSeed; // Seed for deterministic weight derivation (replaces stored arrays)
         uint256 activation; // Activation function type
     }
 
@@ -216,8 +215,9 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
         for (uint256 i = 0; i < neuralLayers.length; i++) {
             totalNeuronsCount += neuralLayers[i].neurons;
             totalParams +=
-                neuralLayers[i].weights.length +
-                neuralLayers[i].biases.length;
+                neuralLayers[i].neurons *
+                neuralLayers[i].inputs + // weights count
+                neuralLayers[i].neurons; // biases count
         }
 
         return (
@@ -287,32 +287,38 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
         require(neuralLayers.length < MAX_LAYERS, "Max layers exceeded");
         require(neurons <= MAX_NEURONS, "Too many neurons");
 
-        int256[] memory weights = new int256[](neurons * inputs);
-        int256[] memory biases = new int256[](neurons);
-
-        // Initialize with quantum-randomized weights
-        for (uint256 i = 0; i < weights.length; i++) {
-            weights[i] =
-                int256(
-                    uint256(keccak256(abi.encodePacked(block.timestamp, i))) %
-                        (QUANTUM_PRECISION * 2)
-                ) -
-                int256(QUANTUM_PRECISION);
-        }
-
-        for (uint256 i = 0; i < biases.length; i++) {
-            biases[i] = 0; // Start with zero biases
-        }
+        // Use a compact seed instead of storing full weight/bias arrays
+        bytes32 seed = keccak256(
+            abi.encodePacked(
+                block.timestamp,
+                neuralLayers.length,
+                neurons,
+                inputs
+            )
+        );
 
         neuralLayers.push(
             NeuralLayer({
                 neurons: neurons,
                 inputs: inputs,
-                weights: weights,
-                biases: biases,
+                weightSeed: seed,
                 activation: activation
             })
         );
+    }
+
+    /**
+     * @dev Derive a weight value from the layer seed deterministically
+     */
+    function _getWeight(
+        bytes32 seed,
+        uint256 index
+    ) internal pure returns (int256) {
+        return
+            int256(
+                uint256(keccak256(abi.encodePacked(seed, index))) %
+                    (QUANTUM_PRECISION * 2)
+            ) - int256(QUANTUM_PRECISION);
     }
 
     /**
@@ -332,7 +338,7 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
                 neuronIdx < layer.neurons;
                 neuronIdx++
             ) {
-                int256 neuronSum = layer.biases[neuronIdx];
+                int256 neuronSum = 0; // biases are zero by design
 
                 for (
                     uint256 inputIdx = 0;
@@ -340,8 +346,9 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
                     inputIdx++
                 ) {
                     uint256 weightIdx = neuronIdx * layer.inputs + inputIdx;
+                    int256 w = _getWeight(layer.weightSeed, weightIdx);
                     neuronSum +=
-                        (layer.weights[weightIdx] * currentInput[inputIdx]) /
+                        (w * currentInput[inputIdx]) /
                         int256(QUANTUM_PRECISION);
                 }
 

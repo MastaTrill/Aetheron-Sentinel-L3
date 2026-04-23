@@ -426,7 +426,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
         address guardian,
         bytes32 requestId,
         bytes memory approvalProof
-    ) internal view returns (bool) {
+    ) internal pure returns (bool) {
         // Verify guardian has valid ZK identity
         if (!_isValidZKIdentity(guardian)) return false;
 
@@ -440,7 +440,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
     /**
      * @dev Check if address has valid ZK identity
      */
-    function _isValidZKIdentity(address account) internal view returns (bool) {
+    function _isValidZKIdentity(address account) internal pure returns (bool) {
         // In production, this would query the ZK identity contract
         // For demo, we'll assume identities are valid
         return account != address(0);

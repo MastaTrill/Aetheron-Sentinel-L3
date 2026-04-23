@@ -438,7 +438,7 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
      */
     function _executePoolRebalance(
         uint256 poolId,
-        uint256 currentRatio,
+        uint256 /* currentRatio */,
         uint256 targetRatio
     ) internal {
         // Simplified rebalance logic

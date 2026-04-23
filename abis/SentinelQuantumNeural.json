@@ -313,6 +313,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "bytes32",
+        "name": "weightSeed",
+        "type": "bytes32"
+      },
+      {
         "internalType": "uint256",
         "name": "activation",
         "type": "uint256"

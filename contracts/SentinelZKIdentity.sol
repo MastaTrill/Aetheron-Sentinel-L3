@@ -255,7 +255,7 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
     function verifyZKCredential(
         bytes32 credentialId,
         ZKProof calldata presentationProof
-    ) external returns (bool) {
+    ) external view returns (bool) {
         ZKCredential storage credential = _getCredential(credentialId);
         require(
             credential.isValid && !credential.isRevoked,
