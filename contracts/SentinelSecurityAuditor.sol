@@ -461,7 +461,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @notice Send alerts to all recipients
      */
     function _sendAlerts(
-        uint256 eventId,
+        uint256 /* eventId */,
         uint256 severity,
         string memory message
     ) internal {
@@ -476,8 +476,8 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      */
     function _triggerAutomatedResponse(
         string memory incidentType,
-        uint256 severity
-    ) internal {
+        uint256 /* severity */
+    ) internal view {
         address responseContract = responseContracts[incidentType];
         if (responseContract != address(0)) {
             // Call response contract (simplified)

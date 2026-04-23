@@ -204,11 +204,7 @@ contract SentinelGovernance is
     )
         external
         view
-        returns (
-            uint256 votingDelay,
-            uint256 votingPeriod,
-            uint256 quorumPercentage
-        )
+        returns (uint256 delay, uint256 period, uint256 quorumPercentage)
     {
         EnhancedProposal memory proposal = enhancedProposals[proposalId];
 
@@ -226,8 +222,8 @@ contract SentinelGovernance is
             );
         } else {
             return (
-                super.votingDelay(),
-                super.votingPeriod(),
+                GovernorSettings.votingDelay(),
+                GovernorSettings.votingPeriod(),
                 quorumNumerator()
             );
         }
@@ -308,7 +304,7 @@ contract SentinelGovernance is
     // Override voting period based on proposal category
     function votingPeriod()
         public
-        view
+        pure
         override(GovernorSettings, IGovernor)
         returns (uint256)
     {
@@ -319,7 +315,7 @@ contract SentinelGovernance is
     // Override voting delay based on proposal category
     function votingDelay()
         public
-        view
+        pure
         override(GovernorSettings, IGovernor)
         returns (uint256)
     {

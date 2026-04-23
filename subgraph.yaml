@@ -10,9 +10,9 @@ dataSources:
     name: SentinelInterceptor
     network: sepolia
     source:
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" # TODO: replace with Sepolia deployment
+      address: "0x057c15fA83A008ba65A20b6e0dE91949Ab987954" # updated by update-subgraph.js
       abi: SentinelInterceptor
-      startBlock: 0 # TODO: replace with deployment block
+      startBlock: 10707538 # TODO: replace with deployment block
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -39,9 +39,9 @@ dataSources:
     name: AetheronBridge
     network: sepolia
     source:
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3" # TODO: replace with Sepolia deployment
+      address: "0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597" # updated by update-subgraph.js
       abi: AetheronBridge
-      startBlock: 0 # TODO: replace with deployment block
+      startBlock: 10707538 # TODO: replace with deployment block
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -67,9 +67,9 @@ dataSources:
     name: RateLimiter
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000001" # TODO: replace with Sepolia deployment
+      address: "0xA084B67baDC91Dd6d8cEec65af73c4F21337A888" # updated by update-subgraph.js
       abi: RateLimiter
-      startBlock: 0
+      startBlock: 10707538
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -92,9 +92,9 @@ dataSources:
     name: CircuitBreaker
     network: sepolia
     source:
-      address: "0x0000000000000000000000000000000000000002" # TODO: replace with Sepolia deployment
+      address: "0x1FC97c1C54914E9053EDF97C390bF9b3b77eA885" # updated by update-subgraph.js
       abi: CircuitBreaker
-      startBlock: 0
+      startBlock: 10707538
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8

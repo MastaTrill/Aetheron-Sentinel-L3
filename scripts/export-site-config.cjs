@@ -10,6 +10,7 @@
  * The file exports window.SENTINEL_CONTRACTS so script.js can read live addresses.
  */
 
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 

@@ -234,7 +234,7 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
      */
     function _isValidProof(
         QuantumProof memory proof,
-        bytes32 txHash
+        bytes32 /* txHash */
     ) internal view returns (bool) {
         // Check proof age
         if (block.timestamp - proof.timestamp > PROOF_VALIDITY_PERIOD) {

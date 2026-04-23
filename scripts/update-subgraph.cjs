@@ -11,6 +11,7 @@
  * Writes the result back to subgraph.yaml in place.
  */
 
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 

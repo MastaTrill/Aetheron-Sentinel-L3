@@ -42,12 +42,12 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
 
     // APY Enhancement Features
     uint256 public constant BASE_APY = 300; // 3.0% base
-    uint256 public constant MAX_APY = 500;  // 5.0% maximum
+    uint256 public constant MAX_APY = 500; // 5.0% maximum
     uint256 public constant STAKING_WEIGHT = 40; // 40% weight
     uint256 public constant LIQUIDITY_WEIGHT = 30; // 30% weight
     uint256 public constant GOVERNANCE_WEIGHT = 15; // 15% weight
     uint256 public constant REFERRAL_WEIGHT = 10; // 10% weight
-    uint256 public constant SECURITY_WEIGHT = 5;  // 5% weight
+    uint256 public constant SECURITY_WEIGHT = 5; // 5% weight
 
     // Performance multipliers
     uint256 public performanceMultiplier = 100; // 1x base
@@ -55,7 +55,11 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
 
     event RewardsUpdated(address indexed user, UserRewards rewards);
     event SystemAPYUpdated(SystemAPY newAPY);
-    event RewardClaimed(address indexed user, uint256 amount, string rewardType);
+    event RewardClaimed(
+        address indexed user,
+        uint256 amount,
+        string rewardType
+    );
 
     constructor(
         address _stakingContract,
@@ -107,14 +111,20 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
      * @notice Get user's reward breakdown
      * @param user User address
      */
-    function getUserRewardBreakdown(address user) external view returns (
-        uint256 stakingAPY,
-        uint256 liquidityAPY,
-        uint256 governanceAPY,
-        uint256 referralAPY,
-        uint256 securityAPY,
-        uint256 totalAPY
-    ) {
+    function getUserRewardBreakdown(
+        address user
+    )
+        external
+        pure
+        returns (
+            uint256 stakingAPY,
+            uint256 liquidityAPY,
+            uint256 governanceAPY,
+            uint256 referralAPY,
+            uint256 securityAPY,
+            uint256 totalAPY
+        )
+    {
         // In real implementation, call individual contracts
         uint256 staking = _simulateStakingAPY(user);
         uint256 liquidity = _simulateLiquidityAPY(user);
@@ -122,7 +132,13 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         uint256 referral = _simulateReferralAPY(user);
         uint256 security = _simulateSecurityAPY(user);
 
-        uint256 total = _calculateWeightedAPY(staking, liquidity, governance, referral, security);
+        uint256 total = _calculateWeightedAPY(
+            staking,
+            liquidity,
+            governance,
+            referral,
+            security
+        );
 
         return (staking, liquidity, governance, referral, security, total);
     }
@@ -137,9 +153,11 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         UserRewards storage rewards = userRewards[user];
 
         // Claim from individual systems (simulated)
-        uint256 totalClaimed = rewards.stakingRewards + rewards.liquidityRewards +
-                              rewards.governanceRewards + rewards.referralRewards +
-                              rewards.securityRewards;
+        uint256 totalClaimed = rewards.stakingRewards +
+            rewards.liquidityRewards +
+            rewards.governanceRewards +
+            rewards.referralRewards +
+            rewards.securityRewards;
 
         if (totalClaimed > 0) {
             // Reset rewards
@@ -170,7 +188,9 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     /**
      * @notice Calculate performance multiplier based on system health
      */
-    function updatePerformanceMultiplier(uint256 systemHealthScore) external onlyOwner {
+    function updatePerformanceMultiplier(
+        uint256 systemHealthScore
+    ) external onlyOwner {
         // System health score from 0-100
         if (systemHealthScore >= 95) {
             performanceMultiplier = MAX_MULTIPLIER; // 1.5x
@@ -186,7 +206,9 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     /**
      * @notice Simulate staking APY (would call actual contract)
      */
-    function _simulateStakingAPY(address user) internal pure returns (uint256) {
+    function _simulateStakingAPY(
+        address /* user */
+    ) internal pure returns (uint256) {
         // Simulate tier-based APY: 2.89% to 5.0%
         return 350; // 3.5% average
     }
@@ -194,7 +216,9 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     /**
      * @notice Simulate liquidity mining APY
      */
-    function _simulateLiquidityAPY(address user) internal pure returns (uint256) {
+    function _simulateLiquidityAPY(
+        address /* user */
+    ) internal pure returns (uint256) {
         // 3.0% to 5.0% based on pool and boost
         return 400; // 4.0% average
     }
@@ -202,7 +226,9 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     /**
      * @notice Simulate governance APY
      */
-    function _simulateGovernanceAPY(address user) internal pure returns (uint256) {
+    function _simulateGovernanceAPY(
+        address /* user */
+    ) internal pure returns (uint256) {
         // 3.0% base + participation bonuses
         return 325; // 3.25% with participation
     }
@@ -210,7 +236,9 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     /**
      * @notice Simulate referral APY
      */
-    function _simulateReferralAPY(address user) internal pure returns (uint256) {
+    function _simulateReferralAPY(
+        address /* user */
+    ) internal pure returns (uint256) {
         // 0.5% to 2.0% based on network size
         return 100; // 1.0% average
     }
@@ -218,7 +246,9 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     /**
      * @notice Simulate security APY
      */
-    function _simulateSecurityAPY(address user) internal pure returns (uint256) {
+    function _simulateSecurityAPY(
+        address /* user */
+    ) internal pure returns (uint256) {
         // Bonuses for security participation
         return 75; // 0.75% average
     }
@@ -233,13 +263,16 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         uint256 referral,
         uint256 security
     ) internal pure returns (uint256) {
-        uint256 weightedAPY = (
-            staking * STAKING_WEIGHT +
-            liquidity * LIQUIDITY_WEIGHT +
-            governance * GOVERNANCE_WEIGHT +
-            referral * REFERRAL_WEIGHT +
-            security * SECURITY_WEIGHT
-        ) / 100;
+        uint256 weightedAPY = (staking *
+            STAKING_WEIGHT +
+            liquidity *
+            LIQUIDITY_WEIGHT +
+            governance *
+            GOVERNANCE_WEIGHT +
+            referral *
+            REFERRAL_WEIGHT +
+            security *
+            SECURITY_WEIGHT) / 100;
 
         // Apply performance multiplier
         weightedAPY = (weightedAPY * 100) / 100; // Simplified
@@ -257,7 +290,13 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         uint256 referral = _simulateReferralAPY(user);
         uint256 security = _simulateSecurityAPY(user);
 
-        uint256 totalAPY = _calculateWeightedAPY(staking, liquidity, governance, referral, security);
+        uint256 totalAPY = _calculateWeightedAPY(
+            staking,
+            liquidity,
+            governance,
+            referral,
+            security
+        );
 
         // Apply performance multiplier
         totalAPY = (totalAPY * performanceMultiplier) / 100;
@@ -274,7 +313,7 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         currentSystemAPY.liquidityAPY = 400; // 4.0%
         currentSystemAPY.governanceAPY = 325; // 3.25%
         currentSystemAPY.referralAPY = 100; // 1.0%
-        currentSystemAPY.securityAPY = 75;  // 0.75%
+        currentSystemAPY.securityAPY = 75; // 0.75%
 
         currentSystemAPY.totalAPY = _calculateWeightedAPY(
             currentSystemAPY.stakingAPY,
@@ -290,9 +329,33 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     }
 
     // Mock functions for reward calculation (would be real contract calls)
-    function _getStakingRewards(address user) internal pure returns (uint256) { return 100 ether; }
-    function _getLiquidityRewards(address user) internal pure returns (uint256) { return 150 ether; }
-    function _getGovernanceRewards(address user) internal pure returns (uint256) { return 50 ether; }
-    function _getReferralRewards(address user) internal pure returns (uint256) { return 25 ether; }
-    function _getSecurityRewards(address user) internal pure returns (uint256) { return 10 ether; }
+    function _getStakingRewards(
+        address /* user */
+    ) internal pure returns (uint256) {
+        return 100 ether;
+    }
+
+    function _getLiquidityRewards(
+        address /* user */
+    ) internal pure returns (uint256) {
+        return 150 ether;
+    }
+
+    function _getGovernanceRewards(
+        address /* user */
+    ) internal pure returns (uint256) {
+        return 50 ether;
+    }
+
+    function _getReferralRewards(
+        address /* user */
+    ) internal pure returns (uint256) {
+        return 25 ether;
+    }
+
+    function _getSecurityRewards(
+        address /* user */
+    ) internal pure returns (uint256) {
+        return 10 ether;
+    }
 }

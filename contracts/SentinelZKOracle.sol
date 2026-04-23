@@ -191,7 +191,7 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      */
     function _verifyZKProof(
         ZKProof memory proof,
-        bytes32 dataHash
+        bytes32 /* dataHash */
     ) internal pure returns (bool) {
         // In production, this would verify the actual ZK-SNARK proof
         // For demo, we do basic validation

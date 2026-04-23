@@ -44,6 +44,17 @@ async function deployContract(name, args) {
   return contract;
 }
 
+async function getTxOverrides(provider) {
+  const feeData = await provider.getFeeData();
+  if (feeData.maxFeePerGas != null) {
+    return {
+      maxFeePerGas: (feeData.maxFeePerGas * 3n) / 2n,
+      maxPriorityFeePerGas: (feeData.maxPriorityFeePerGas * 3n) / 2n,
+    };
+  }
+  return { gasPrice: (feeData.gasPrice * 3n) / 2n };
+}
+
 async function main() {
   const hardhatModule = await import('hardhat');
   hre = hardhatModule.default ?? hardhatModule;
@@ -236,17 +247,24 @@ async function main() {
 
   // Grant PROPOSER_ROLE and CANCELLER_ROLE on the timelock to the governance contract
   if (deployerIsOwner) {
+    const ov = await getTxOverrides(deployer.provider);
     const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
     const CANCELLER_ROLE = await timelock.CANCELLER_ROLE();
     const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
-    await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance);
-    await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance);
+    await (
+      await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)
+    ).wait();
+    await (
+      await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)
+    ).wait();
     console.log(
       '   Granted PROPOSER + CANCELLER roles to SentinelGovernance on timelock',
     );
     // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
-      await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress);
+      await (
+        await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)
+      ).wait();
       console.log(
         '   Renounced deployer TIMELOCK_ADMIN_ROLE (timelockAdmin is separate account)',
       );
@@ -262,45 +280,56 @@ async function main() {
   const reporterSet = new Set([...config.monitors, ...config.reporters]);
   if (deployerIsOwner) {
     console.log('\nConfiguring post-deploy authorization...');
+    const ov2 = await getTxOverrides(deployer.provider);
 
-    await monitor.authorizeContract(addresses.SentinelInterceptor);
-    await monitor.authorizeContract(addresses.AetheronBridge);
-    await monitor.authorizeContract(addresses.CircuitBreaker);
+    await (
+      await monitor.authorizeContract(addresses.SentinelInterceptor, ov2)
+    ).wait();
+    await (
+      await monitor.authorizeContract(addresses.AetheronBridge, ov2)
+    ).wait();
+    await (
+      await monitor.authorizeContract(addresses.CircuitBreaker, ov2)
+    ).wait();
 
     for (const chainId of config.trackedChains) {
-      await monitor.addTrackedChain(chainId);
+      await (await monitor.addTrackedChain(chainId, ov2)).wait();
     }
 
     for (const relayer of config.relayers) {
-      await bridge.setRelayer(relayer, true);
+      await (await bridge.setRelayer(relayer, true, ov2)).wait();
     }
 
     for (const caller of callerSet) {
-      await rateLimiter.setCaller(caller, true);
+      await (await rateLimiter.setCaller(caller, true, ov2)).wait();
     }
 
     const monitorRole = await interceptor.MONITOR_ROLE();
     for (const monitorAddress of config.monitors) {
-      await interceptor.grantRole(monitorRole, monitorAddress);
+      await (
+        await interceptor.grantRole(monitorRole, monitorAddress, ov2)
+      ).wait();
     }
 
     for (const reporter of reporterSet) {
-      await interceptor.addReporter(reporter);
+      await (await interceptor.addReporter(reporter, ov2)).wait();
     }
 
     for (const securityReporter of config.grantSecurityReporters) {
-      await sentinelToken.setSecurityReporter(securityReporter, true);
+      await (
+        await sentinelToken.setSecurityReporter(securityReporter, true, ov2)
+      ).wait();
     }
 
-    await yieldMaximizer.setYieldToken(yieldTokenAddress);
+    await (await yieldMaximizer.setYieldToken(yieldTokenAddress, ov2)).wait();
 
     for (const token of config.bridgeTokens) {
-      await bridge.setTokenSupport(token, true);
+      await (await bridge.setTokenSupport(token, true, ov2)).wait();
     }
 
     for (const { chainId, limit } of config.chainLimits) {
-      await bridge.setChainLimit(chainId, limit);
-      await rateLimiter.setChainLimit(chainId, limit);
+      await (await bridge.setChainLimit(chainId, limit, ov2)).wait();
+      await (await rateLimiter.setChainLimit(chainId, limit, ov2)).wait();
     }
   } else {
     pendingActions.push(
@@ -343,6 +372,119 @@ async function main() {
   const sentinelCore = await deployContract('SentinelCore', [owner]);
   addresses.SentinelCore = await sentinelCore.getAddress();
   console.log('   SentinelCore:', addresses.SentinelCore);
+
+  console.log('18. Deploying SentinelCoreLoop...');
+  const coreLoop = await deployContract('SentinelCoreLoop', [config.owner]);
+  addresses.SentinelCoreLoop = await coreLoop.getAddress();
+  console.log('   SentinelCoreLoop:', addresses.SentinelCoreLoop);
+
+  console.log('19. Deploying SentinelAMM...');
+  const amm = await deployContract('SentinelAMM', [config.owner]);
+  addresses.SentinelAMM = await amm.getAddress();
+  console.log('   SentinelAMM:', addresses.SentinelAMM);
+
+  console.log('20. Deploying SentinelPredictiveThreatModel...');
+  const predictiveThreat = await deployContract(
+    'SentinelPredictiveThreatModel',
+    [config.owner],
+  );
+  addresses.SentinelPredictiveThreatModel = await predictiveThreat.getAddress();
+  console.log(
+    '   SentinelPredictiveThreatModel:',
+    addresses.SentinelPredictiveThreatModel,
+  );
+
+  console.log('21. Deploying SentinelHomomorphicEncryption...');
+  const homomorphic = await deployContract('SentinelHomomorphicEncryption', [
+    config.owner,
+  ]);
+  addresses.SentinelHomomorphicEncryption = await homomorphic.getAddress();
+  console.log(
+    '   SentinelHomomorphicEncryption:',
+    addresses.SentinelHomomorphicEncryption,
+  );
+
+  console.log('22. Deploying SentinelQuantumKeyDistribution...');
+  const qkd = await deployContract('SentinelQuantumKeyDistribution', [
+    config.owner,
+  ]);
+  addresses.SentinelQuantumKeyDistribution = await qkd.getAddress();
+  console.log(
+    '   SentinelQuantumKeyDistribution:',
+    addresses.SentinelQuantumKeyDistribution,
+  );
+
+  console.log('23. Deploying SentinelQuantumNeural...');
+  const quantumNeural = await deployContract('SentinelQuantumNeural', [
+    config.owner,
+  ]);
+  addresses.SentinelQuantumNeural = await quantumNeural.getAddress();
+  console.log('   SentinelQuantumNeural:', addresses.SentinelQuantumNeural);
+
+  console.log('24. Deploying SentinelZKIdentity...');
+  const zkIdentity = await deployContract('SentinelZKIdentity', [config.owner]);
+  addresses.SentinelZKIdentity = await zkIdentity.getAddress();
+  console.log('   SentinelZKIdentity:', addresses.SentinelZKIdentity);
+
+  console.log('25. Deploying SentinelSocialRecovery...');
+  const socialRecovery = await deployContract('SentinelSocialRecovery', [
+    addresses.SentinelZKIdentity,
+    config.owner,
+  ]);
+  addresses.SentinelSocialRecovery = await socialRecovery.getAddress();
+  console.log('   SentinelSocialRecovery:', addresses.SentinelSocialRecovery);
+
+  console.log('26. Deploying SentinelZKOracle...');
+  const zkOracle = await deployContract('SentinelZKOracle', [config.owner]);
+  addresses.SentinelZKOracle = await zkOracle.getAddress();
+  console.log('   SentinelZKOracle:', addresses.SentinelZKOracle);
+
+  console.log('27. Deploying SentinelInsuranceProtocol...');
+  const insuranceProtocol = await deployContract('SentinelInsuranceProtocol', [
+    addresses.SentinelCore,
+    addresses.SentinelSecurityAuditor,
+    config.owner,
+  ]);
+  addresses.SentinelInsuranceProtocol = await insuranceProtocol.getAddress();
+  console.log(
+    '   SentinelInsuranceProtocol:',
+    addresses.SentinelInsuranceProtocol,
+  );
+
+  if (deployerIsOwner) {
+    console.log('\nConfiguring SentinelCoreLoop components...');
+    const ov3 = await getTxOverrides(deployer.provider);
+    const coreLoopComponents = [
+      ['sentinelInterceptor', addresses.SentinelInterceptor],
+      ['aetheronBridge', addresses.AetheronBridge],
+      ['rateLimiter', addresses.RateLimiter],
+      ['circuitBreaker', addresses.CircuitBreaker],
+      ['quantumGuard', addresses.SentinelQuantumGuard],
+      ['yieldMaximizer', addresses.SentinelYieldMaximizer],
+      ['oracleNetwork', addresses.SentinelOracleNetwork],
+    ].filter(([, address]) => address);
+
+    for (const [name, address] of coreLoopComponents) {
+      await (await coreLoop.setSystemComponent(name, address, ov3)).wait();
+    }
+  } else {
+    pendingActions.push(
+      ...[
+        ['sentinelInterceptor', addresses.SentinelInterceptor],
+        ['aetheronBridge', addresses.AetheronBridge],
+        ['rateLimiter', addresses.RateLimiter],
+        ['circuitBreaker', addresses.CircuitBreaker],
+        ['quantumGuard', addresses.SentinelQuantumGuard],
+        ['yieldMaximizer', addresses.SentinelYieldMaximizer],
+        ['oracleNetwork', addresses.SentinelOracleNetwork],
+      ]
+        .filter(([, address]) => address)
+        .map(
+          ([name, address]) =>
+            `SentinelCoreLoop.setSystemComponent(${name}, ${address})`,
+        ),
+    );
+  }
 
   console.log('\n✅ Deployment complete. Contract addresses:');
   console.log(JSON.stringify(addresses, null, 2));

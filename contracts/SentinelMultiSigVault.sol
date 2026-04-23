@@ -279,7 +279,7 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
             address to,
             uint256 value,
             bytes memory data,
-            uint256 confirmations,
+            uint256 confirmationCount,
             bool executed,
             SecurityLevel securityLevel
         )
