@@ -2,5 +2,6 @@
     "python.analysis.extraPaths": [
         "src"
     ],
-    "python.analysis.pythonPath": "src"
+    "python.analysis.pythonPath": "src",
+    "gitlens.views.showRelativeDateMarkers": true
 }

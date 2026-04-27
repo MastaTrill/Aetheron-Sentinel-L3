@@ -70,9 +70,15 @@ async function main() {
   const connection = await hre.network.getOrCreate();
   ethers = connection.ethers;
 
-  const [deployer] = await ethers.getSigners();
+  const privateKey = (process.env.PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
+    throw new Error('PRIVATE_KEY must be set in .env as a 0x-prefixed 32-byte hex key.');
+  }
+
+  const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
+  const provider = new ethers.JsonRpcProvider(rpcUrl, 1);
+  const deployer = new ethers.Wallet(privateKey, provider);
   const deployerAddress = await deployer.getAddress();
-  const provider = deployer.provider;
   const network = await provider.getNetwork();
   const chainId = Number(network.chainId);
 

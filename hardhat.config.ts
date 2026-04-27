@@ -4,7 +4,7 @@ import hardhatEthers from '@nomicfoundation/hardhat-ethers';
 import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 
-loadEnv({ override: true });
+loadEnv(); // do not override shell env vars with .env file placeholders
 
 function readEnvValue(name: string): string | undefined {
   const value = process.env[name]?.trim();
@@ -17,7 +17,8 @@ function readEnvValue(name: string): string | undefined {
 }
 
 function readPrivateKey(): string[] {
-  const privateKey = readEnvValue('PRIVATE_KEY');
+  const privateKey =
+    readEnvValue('PRIVATE_KEY') || readEnvValue('OWNER_PRIVATE_KEY');
 
   return privateKey ? [privateKey] : [];
 }

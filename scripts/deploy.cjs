@@ -75,7 +75,13 @@ async function main() {
   const connection = await hre.network.getOrCreate();
   ethers = connection.ethers;
 
-  const [deployer] = await ethers.getSigners();
+  const signers = await ethers.getSigners();
+  if (!signers.length) {
+    throw new Error(
+      'No deployer signer available. Set PRIVATE_KEY or OWNER_PRIVATE_KEY to a valid 0x-prefixed hex private key.',
+    );
+  }
+  const [deployer] = signers;
   const deployerAddress = await deployer.getAddress();
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
   const deployerIsOwner = deployerAddress.toLowerCase() === owner.toLowerCase();
