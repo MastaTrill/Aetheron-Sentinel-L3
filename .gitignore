@@ -56,3 +56,7 @@ __pycache__/
 .env.mainnet
 cast.exe
 transfer-treasury.js
+
+# Local skills workspace artifacts
+skills/
+skills-lock.json
