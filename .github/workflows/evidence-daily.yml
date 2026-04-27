@@ -1,0 +1,45 @@
+name: Sentinel L3 Daily Evidence
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # runs daily at 02:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: production
+      NETWORK: sepolia
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run daily evidence (automated checks only)
+        run: |
+          npm run evidence:daily || true
+
+      - name: Upload verification logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sepolia-evidence-${{ github.run_id }}
+          path: logs/verification/
+
+      - name: Commit daily notes (optional)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add logs/verification || true
+          git commit -m "chore: add automated evidence logs" || true
+          git push || true
