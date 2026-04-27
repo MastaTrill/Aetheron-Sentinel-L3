@@ -12,6 +12,15 @@ const vm = require('vm');
 
 const RPC = 'https://ethereum-sepolia-rpc.publicnode.com';
 
+function parseAddressList(value) {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .map((addr) => ethers.getAddress(addr).toLowerCase());
+}
+
 // Known expected principals
 const KNOWN = {
   '0xa1b9cf0f48f815ce80ed2ab203fa7c0c8299a0fb': 'ownerEOA',
@@ -26,6 +35,24 @@ function populateKnownContracts(c) {
   for (const [name, entry] of Object.entries(c)) {
     if (entry && entry.address) {
       KNOWN[entry.address.toLowerCase()] = name;
+    }
+  }
+}
+
+function populateKnownConfiguredPrincipals() {
+  const configuredLists = [
+    ['RELAYER_ADDRESSES', 'approvedRelayer'],
+    ['CALLER_ADDRESSES', 'approvedCaller'],
+    ['MONITOR_ADDRESSES', 'approvedMonitor'],
+    ['REPORTER_ADDRESSES', 'approvedReporter'],
+    ['SECURITY_REPORTER_ADDRESSES', 'approvedSecurityReporter'],
+  ];
+
+  for (const [envName, label] of configuredLists) {
+    for (const address of parseAddressList(process.env[envName] || '')) {
+      if (!KNOWN[address]) {
+        KNOWN[address] = label;
+      }
     }
   }
 }
@@ -89,6 +116,7 @@ function label(addr) {
   const c = ctx.window.SENTINEL_CONTRACTS;
 
   populateKnownContracts(c);
+  populateKnownConfiguredPrincipals();
 
   const TO_BLOCK = await provider.getBlockNumber();
   console.log(`Audit at block ${TO_BLOCK}\n`);

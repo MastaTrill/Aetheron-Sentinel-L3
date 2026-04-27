@@ -5,6 +5,15 @@ const vm = require('vm');
 const RPC = 'https://ethereum-sepolia-rpc.publicnode.com';
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
+const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';
+const TREASURY_ADDRESS_LC = TREASURY_ADDRESS.toLowerCase();
+
+// Contracts that route treasury payouts to a dedicated address (2026-04-27 treasury routing)
+const TREASURY_ROUTED = new Set([
+  'AetheronBridge',      // withdrawFees() pays to owner()
+  'SentinelOracleNetwork', // slashOracle() pays to owner()
+  'SentinelZKOracle',    // slashOracle() pays to owner()
+]);
 
 const OWNABLE_KEYS = [
   'AetheronBridge',
@@ -73,9 +82,16 @@ function short(addr) {
     }
     const contract = new ethers.Contract(addr, ifaceOwnable, provider);
     const owner = (await contract.owner()).toLowerCase();
-    const ok = owner === EXPECTED_OWNER_LC;
+    
+    // Treasury-routed contracts are owned by treasury address
+    const isTreasuryRouted = TREASURY_ROUTED.has(key);
+    const expectedOwner = isTreasuryRouted ? TREASURY_ADDRESS_LC : EXPECTED_OWNER_LC;
+    const ok = owner === expectedOwner;
+    
     if (!ok) allPass = false;
-    console.log(`  ${ok ? 'PASS' : 'FAIL'} ${key}: owner=${owner}`);
+    const status = ok ? 'PASS' : 'FAIL';
+    const label = isTreasuryRouted ? ' (treasury-routed)' : '';
+    console.log(`  ${status} ${key}: owner=${owner}${label}`);
   }
   console.log('');
 

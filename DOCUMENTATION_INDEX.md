@@ -103,7 +103,7 @@ Design & security documentation:
 | **Owner Address**             | 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB    |
 | **Multisig Address**          | 0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994    |
 | **Timelock Transactions**     | 4 (blocks 10714527-10714530)                  |
-| **Bridge Relayer Enabled**    | ✅ Yes (block 10715425)                       |
+| **Bridge Relayer Enabled**    | ✅ Yes (dedicated relayer only)               |
 | **CoreLoop Components Wired** | 3/5 (block 10715441)                          |
 | **Allowlist Audit Result**    | ✅ All members known, no suspicious addresses |
 | **Section 7 Verification**    | ✅ All checks pass                            |
@@ -112,16 +112,14 @@ Design & security documentation:
 
 ## Execution Timeline
 
-| Phase                         | Status      | Timeline                 | Evidence                                                                     |
-| ----------------------------- | ----------- | ------------------------ | ---------------------------------------------------------------------------- |
-| **Deployment**                | ✅ Complete | Block 10707539-10714526  | [site/contracts.js](./site/contracts.js)                                     |
-| **Authorization**             | ✅ Complete | Blocks 10707539-10714526 | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §6](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md)  |
-| **Ownership Verification**    | ✅ Complete | Block 10714526           | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §11](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
-| **Timelock Handoff**          | ✅ Complete | Blocks 10714527-10714530 | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §14](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
-| **Bridge Relayer Enablement** | ✅ Complete | Block 10715425           | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §16](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
-| **CoreLoop Wiring**           | ✅ Complete | Block 10715441           | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §17](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
-| **Final Verification**        | ✅ Complete | Block 10715441           | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §15](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
-| **Documentation**             | ✅ Complete | Block 10715441           | This index                                                                   |
+- **Deployment**: ✅ Complete. Timeline: block `10707539-10714526`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **Authorization**: ✅ Complete. Timeline: blocks `10707539-10714526`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **Ownership Verification**: ✅ Complete. Timeline: block `10714526`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **Timelock Handoff**: ✅ Complete. Timeline: blocks `10714527-10714530`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **Bridge Relayer Enablement**: ✅ Complete. Timeline: updated `2026-04-27`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **CoreLoop Wiring**: ✅ Complete. Timeline: block `10715441`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **Final Verification**: ✅ Complete. Timeline: block `10715441`. Evidence: [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
+- **Documentation**: ✅ Complete. Timeline: block `10715441`. Evidence: this index.
 
 ---
 
@@ -134,7 +132,7 @@ Design & security documentation:
 ```bash
 node scripts/section7-final-sweep.cjs
 node scripts/audit-allowlists.cjs
-RELAYER_ADDRESSES=0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB node scripts/verify-bridge-relayers.cjs
+RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify-bridge-relayers.cjs
 ```
 
 **Expected Result:** All pass. See [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §15](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).

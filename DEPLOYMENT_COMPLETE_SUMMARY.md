@@ -16,7 +16,7 @@ The complete Sentinel L3 system has been successfully deployed to Sepolia testne
 ✅ **27 smart contracts deployed** with verified addresses  
 ✅ **Ownership verified** - All Ownable contracts owned by correct EOA  
 ✅ **Governance handoff complete** - Timelock control transferred to multisig  
-✅ **Bridge relayer enabled** - Ready to process cross-chain transactions  
+✅ **Bridge relayer isolated** - Dedicated relayer active, owner EOA removed from relay path  
 ✅ **Optional components wired** - CoreLoop bootstrap complete (3/5 components)  
 ✅ **Role-based access locked down** - All allowlists verified  
 ✅ **The Graph subgraph configured** - Event indexing ready  
@@ -31,7 +31,7 @@ The complete Sentinel L3 system has been successfully deployed to Sepolia testne
 | Document                | Purpose                                                                      | Location                                                                     |
 | ----------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | **Release Notes**       | Complete deployment record with all transaction hashes and addresses         | [RELEASE_NOTES_SEPOLIA_2026-04-23.md](./RELEASE_NOTES_SEPOLIA_2026-04-23.md) |
-| **Ownership Checklist** | Detailed verification steps, evidence, and transaction records (18 sections) | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md)     |
+| **Ownership Checklist** | Detailed verification steps, evidence, and transaction records (19 sections) | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md)     |
 | **Mainnet Template**    | Step-by-step guide for repeating this workflow on mainnet                    | [MAINNET_PREPARATION_TEMPLATE.md](./MAINNET_PREPARATION_TEMPLATE.md)         |
 | **System Architecture** | Technical design and contract relationships                                  | [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md)                           |
 | **Security Audit**      | Security certification for Sepolia deployment                                | [SECURITY_AUDIT_CERTIFICATION.md](./SECURITY_AUDIT_CERTIFICATION.md)         |
@@ -97,13 +97,19 @@ See [site/contracts.js](./site/contracts.js) for all 27 contract addresses.
 
 **Result:** ✅ All mined, status=1. Multisig now has full admin/proposer/canceller control.
 
-### Bridge Relayer Enablement (1 transaction, block 10715425)
+### Bridge Relayer Rotation (3 transactions, blocks 10715425, 10745136, and 10745186)
 
 - **Function:** setRelayer(0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB, true)
 - **Tx Hash:** `0xe7e63716501898c9090064f33949fd56ddf18f0b6ea0d018473ca2af8dee2b21`
 - **Status:** ✅ Mined
+- **Function:** setRelayer(0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa, true)
+- **Tx Hash:** `0x96e2c4e31ce3f1f5aa707e5ee37ecfc7b4eb2cfc0d1646ec8f2c340c819cfece`
+- **Status:** ✅ Mined
+- **Function:** setRelayer(0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB, false)
+- **Tx Hash:** `0xa033a651f87ae6c8b601aa3ab60ef56a26336b42604c78e29f2079a7cb14607a`
+- **Status:** ✅ Mined
 
-**Result:** Owner EOA now has RELAYER_ROLE. Ready to sign cross-chain transfers.
+**Result:** Dedicated relayer `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` has RELAYER_ROLE. Owner EOA relayer access was removed.
 
 ### CoreLoop Component Wiring (3 transactions, block 10715441)
 
@@ -126,18 +132,16 @@ See [site/contracts.js](./site/contracts.js) for all 27 contract addresses.
 ✅ Timelock governance roles correctly assigned to multisig
 ✅ Allowlist audit: All role members are known principals (no suspicious addresses)
 ✅ Temporary deployer privileges revoked
-✅ Bridge relayer now has RELAYER_ROLE and can sign transfers
+✅ Dedicated bridge relayer now has RELAYER_ROLE and can sign transfers
 ```
 
 ### ✅ Role Allowlist Audit Results
 
-| Contract            | Role          | Members                                    | Status         |
-| ------------------- | ------------- | ------------------------------------------ | -------------- |
-| AetheronBridge      | RELAYER_ROLE  | 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB | ✅ Owner EOA   |
-| RateLimiter         | CALLER_ROLE   | 0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597 | ✅ Bridge only |
-| CircuitBreaker      | MONITOR_ROLE  | 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB | ✅ Owner EOA   |
-| SentinelInterceptor | OPERATOR_ROLE | 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB | ✅ Owner EOA   |
-| SentinelInterceptor | MONITOR_ROLE  | 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB | ✅ Owner EOA   |
+- **AetheronBridge / RELAYER_ROLE**: `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` — ✅ Dedicated relayer
+- **RateLimiter / CALLER_ROLE**: `0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597` — ✅ Bridge only
+- **CircuitBreaker / MONITOR_ROLE**: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` — ✅ Owner EOA
+- **SentinelInterceptor / OPERATOR_ROLE**: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` — ✅ Owner EOA
+- **SentinelInterceptor / MONITOR_ROLE**: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` — ✅ Owner EOA
 
 **Result:** ✅ All allowlists verified. No unexpected addresses detected.
 
@@ -168,7 +172,7 @@ This reconstructs role membership from on-chain events and confirms all members 
 ### 3. Verify Bridge Relayer
 
 ```bash
-RELAYER_ADDRESSES=0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB \
+RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa \
 node scripts/verify-bridge-relayers.cjs
 ```
 
@@ -191,18 +195,25 @@ The following decisions have been implemented and cannot be changed without gove
 1. **Governance Control:** Multisig (0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994) holds TIMELOCK_ADMIN_ROLE
    - Break-glass: Owner EOA retains PROPOSER_ROLE and CANCELLER_ROLE (can override if needed)
 
-2. **Bridge Relayer:** Single owner EOA wallet
-   - Limitation: Single-point-of-failure for relay operations
-   - Recommendation: Upgrade to dedicated relayer pool if production volume increases
+2. **Bridge Relayer:** Dedicated relayer wallet `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`
+   - Owner EOA is no longer an active relayer
+   - Next production step: expand to a relayer pool if throughput or redundancy requirements increase
 
-3. **Optional Components:** 3/5 wired (multiSigVault, securityAuditor, stakingSystem)
+3. **Treasury Address Routing:** Payout contracts now owned by dedicated treasury address `0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1`
+   - `AetheronBridge.withdrawFees()` → treasury address (block 10745251)
+   - `SentinelOracleNetwork.slashOracle()` → treasury address (block 10745264)
+   - `SentinelZKOracle.slashOracle()` → treasury address (block 10745271)
+   - Benefit: Segregation of duties; operator wallets no longer receive direct system payouts
+   - Treasury funds controlled via `SentinelMultiSigVault.executeTransaction(...)` with multisig approval
+
+4. **Optional Components:** 3/5 wired (multiSigVault, securityAuditor, stakingSystem)
    - Not deployed: liquidityMining, rewardAggregator
    - Status: Documented as intentional testnet-phase zeroes
 
-4. **Token Support:** Configured via governance (empty on go-live)
+5. **Token Support:** Configured via governance (empty on go-live)
    - Will be populated post-testnet-validation
 
-5. **Monitoring Roles:** Owner EOA assigned as MONITOR and OPERATOR
+6. **Monitoring Roles:** Owner EOA assigned as MONITOR and OPERATOR
    - Recommendation: Rotate to dedicated monitoring wallet before production
 
 ---
