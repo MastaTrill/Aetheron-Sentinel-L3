@@ -44,7 +44,27 @@ function requireAddressList(name, values, required = false) {
   for (const value of values) requireAddress(name, value);
 }
 
+function requireMainnetRpcUrl() {
+  const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
+  if (!rpcUrl) {
+    throw new Error('MAINNET_RPC_URL is missing. Set it in .env to a real Ethereum mainnet RPC endpoint.');
+  }
+  if (rpcUrl.includes('YOUR_') || rpcUrl.includes('YOUR_INFURA_KEY') || rpcUrl.endsWith('/v3/')) {
+    throw new Error('MAINNET_RPC_URL still contains a placeholder. Replace it with a real Infura, Alchemy, QuickNode, or other mainnet RPC URL.');
+  }
+  try {
+    const parsed = new URL(rpcUrl);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      throw new Error('MAINNET_RPC_URL must start with http:// or https://');
+    }
+  } catch (error) {
+    throw new Error(`MAINNET_RPC_URL is not a valid URL: ${error.message}`);
+  }
+}
+
 async function main() {
+  requireMainnetRpcUrl();
+
   const hardhatModule = await import('hardhat');
   hre = hardhatModule.default ?? hardhatModule;
   const connection = await hre.network.getOrCreate();
@@ -131,6 +151,6 @@ async function main() {
 
 main().catch((error) => {
   console.error('MAINNET PREFLIGHT: FAIL');
-  console.error(error);
+  console.error(error.message || error);
   process.exitCode = 1;
 });
