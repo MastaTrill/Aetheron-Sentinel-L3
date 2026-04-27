@@ -25,26 +25,39 @@
     "update:subgraph": "node scripts/update-subgraph.cjs",
     "export:site-config": "node scripts/export-site-config.cjs",
     "codegen": "npx -y @graphprotocol/graph-cli@0.98.1 codegen",
-    "build": "npx -y @graphprotocol/graph-cli@0.98.1 build",
+    "build": "vite build",
     "deploy:subgraph": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node https://api.studio.thegraph.com/deploy/ aetheron-sentinel-l3",
     "create-local": "npx -y @graphprotocol/graph-cli@0.98.1 create --node http://localhost:8020/ aetheron-sentinel-l3",
     "remove-local": "npx -y @graphprotocol/graph-cli@0.98.1 remove --node http://localhost:8020/ aetheron-sentinel-l3",
     "deploy-local": "npx -y @graphprotocol/graph-cli@0.98.1 deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aetheron-sentinel-l3",
     "dashboard:dev": "npm --prefix apps/remix-dashboard run dev",
     "dashboard:build": "npm --prefix apps/remix-dashboard run build",
-    "dashboard:lint": "npm --prefix apps/remix-dashboard run lint"
+    "dashboard:lint": "npm --prefix apps/remix-dashboard run lint",
+    "dev": "vite",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.6"
+    "@apollo/client": "^4.1.9",
+    "@openzeppelin/contracts": "^4.9.6",
+    "@tremor/react": "^3.18.7",
+    "clsx": "^2.1.1",
+    "graphql": "^16.13.2",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "rxjs": "^7.8.2",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@graphprotocol/graph-ts": "0.38.2",
     "@nomicfoundation/hardhat-ethers": "^4.0.9",
     "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.6",
     "@nomicfoundation/hardhat-mocha": "^3.0.17",
+    "@vitejs/plugin-react": "^6.0.1",
     "dotenv": "^17.4.2",
     "hardhat": "^3.4.1",
-    "matchstick-as": "0.6.0"
+    "matchstick-as": "0.6.0",
+    "vite": "^8.0.10"
   },
   "overrides": {
     "@graphprotocol/graph-cli": {
