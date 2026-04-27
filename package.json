@@ -11,6 +11,7 @@
     "deploy:testnet:full": "bash scripts/deploy-testnet.sh",
     "deploy:sepolia": "hardhat run scripts/deploy.cjs --network sepolia",
     "deploy:mainnet": "hardhat run scripts/deploy.cjs --network mainnet",
+    "deploy:mainnet:dry-run": "hardhat run scripts/mainnet-preflight.cjs --network mainnet",
     "redeploy:coreloop": "node scripts/redeploy-coreloop.cjs --network sepolia",
     "verify:testnet": "node scripts/verify.cjs --network sepolia",
     "setup:verify-tooling": "node scripts/setup-verify-tooling.cjs",
