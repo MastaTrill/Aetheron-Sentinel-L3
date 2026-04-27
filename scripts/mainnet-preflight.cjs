@@ -50,12 +50,16 @@ async function main() {
   const connection = await hre.network.getOrCreate();
   ethers = connection.ethers;
 
-  if (hre.network.name !== 'mainnet') {
-    throw new Error(`Refusing mainnet preflight on network ${hre.network.name}. Expected mainnet.`);
-  }
-
   const [deployer] = await ethers.getSigners();
   const deployerAddress = await deployer.getAddress();
+  const provider = deployer.provider;
+  const network = await provider.getNetwork();
+  const chainId = Number(network.chainId);
+
+  if (chainId !== 1) {
+    throw new Error(`Refusing mainnet preflight on chainId ${chainId}. Expected Ethereum mainnet chainId 1.`);
+  }
+
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
 
   const config = {
@@ -102,13 +106,12 @@ async function main() {
     throw new Error('ANOMALY_THRESHOLD must be a non-negative number');
   }
 
-  const provider = deployer.provider;
   const balance = await provider.getBalance(deployerAddress);
   const feeData = await provider.getFeeData();
   const blockNumber = await provider.getBlockNumber();
 
   console.log('MAINNET PREFLIGHT: PASS');
-  console.log('Network:', hre.network.name);
+  console.log('Network chainId:', chainId);
   console.log('Latest block:', blockNumber);
   console.log('Deployer:', deployerAddress);
   console.log('Owner:', config.owner);
