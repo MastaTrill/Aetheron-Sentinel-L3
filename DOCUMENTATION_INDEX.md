@@ -1,5 +1,6 @@
 # 📋 Deployment Documentation Index
 
+**Mainnet Deployment:** Block [TBD] | **Status:** ✅ DRY RUN COMPLETE
 **Sepolia Deployment:** Block 10715441 | **Status:** ✅ COMPLETE
 
 ---
@@ -8,45 +9,45 @@
 
 ### For Stakeholders & Decision-Makers
 
-Start here for executive overview:
+**Mainnet:**
 
-- **[DEPLOYMENT_COMPLETE_SUMMARY.md](./DEPLOYMENT_COMPLETE_SUMMARY.md)** ← **START HERE**
-  - Executive summary of all 27 contracts deployed
+- **[DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](./DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md)** ← **START HERE**
+  - Executive summary of all 27 contracts deployed (mainnet dry run)
   - Key transaction records and verification status
   - Production decisions locked in
-  - Next steps for testnet & mainnet
+  - Next steps for mainnet go-live
+
+**Testnet (Sepolia):**
+
+- **[DEPLOYMENT_COMPLETE_SUMMARY.md](./DEPLOYMENT_COMPLETE_SUMMARY.md)**
 
 ### For Deployment Verification
 
-Technical verification and auditing:
+**Mainnet:**
+
+- **[DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md)**
+  - Mainnet verification and transaction evidence
+  - Role-based access and allowlist audit
+
+**Testnet (Sepolia):**
 
 - **[DEPLOYMENT_OWNERSHIP_CHECKLIST.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md)**
-  - 18 comprehensive verification sections
-  - All transaction evidence with block numbers & hashes
-  - Role-based access verification
-  - Allowlist audit results
-  - **Sections of interest:**
-    - Section 11: Live status snapshot with current state
-    - Section 12: Exact timelock role calls (copy-paste ready)
-    - Section 14: Timelock handoff execution record
-    - Section 16: Bridge relayer go-live commands
-    - Section 17: CoreLoop component wiring record
-    - Section 18: Production lock-down decisions
 
 ### For Release & Compliance
 
-Official release documentation:
+**Mainnet:**
 
-- **[RELEASE_NOTES_SEPOLIA_2026-04-23.md](./RELEASE_NOTES_SEPOLIA_2026-04-23.md)**
+- **[RELEASE_NOTES_MAINNET_2026-04-27.md](./RELEASE_NOTES_MAINNET_2026-04-27.md)**
   - All 27 contract addresses with Etherscan links
   - All critical security handoffs documented
   - Transaction records with timestamps
   - Verification commands ready to run
-  - Mainnet preparation checklist
+
+**Testnet (Sepolia):**
+
+- **[RELEASE_NOTES_SEPOLIA_2026-04-23.md](./RELEASE_NOTES_SEPOLIA_2026-04-23.md)**
 
 ### For Mainnet Deployment
-
-Reusable workflow template:
 
 - **[MAINNET_PREPARATION_TEMPLATE.md](./MAINNET_PREPARATION_TEMPLATE.md)**
   - Step-by-step mainnet deployment guide

@@ -54,9 +54,11 @@
     "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.6",
     "@nomicfoundation/hardhat-mocha": "^3.0.17",
     "@vitejs/plugin-react": "^6.0.1",
+    "chai": "^6.2.2",
     "dotenv": "^17.4.2",
     "hardhat": "^3.4.1",
     "matchstick-as": "0.6.0",
+    "mocha": "^11.7.5",
     "vite": "^8.0.10"
   },
   "overrides": {

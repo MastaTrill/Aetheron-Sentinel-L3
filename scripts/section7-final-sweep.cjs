@@ -2,7 +2,11 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const vm = require('vm');
 
-const RPC = 'https://ethereum-sepolia-rpc.publicnode.com';
+// Use MAINNET_RPC_URL from .env.mainnet
+require('dotenv').config({ path: '.env.mainnet' });
+const RPC =
+  process.env.MAINNET_RPC_URL ||
+  'https://mainnet.infura.io/v3/216dd7b47d9847e5aa0f37e814402d27';
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';
@@ -10,9 +14,9 @@ const TREASURY_ADDRESS_LC = TREASURY_ADDRESS.toLowerCase();
 
 // Contracts that route treasury payouts to a dedicated address (2026-04-27 treasury routing)
 const TREASURY_ROUTED = new Set([
-  'AetheronBridge',      // withdrawFees() pays to owner()
+  'AetheronBridge', // withdrawFees() pays to owner()
   'SentinelOracleNetwork', // slashOracle() pays to owner()
-  'SentinelZKOracle',    // slashOracle() pays to owner()
+  'SentinelZKOracle', // slashOracle() pays to owner()
 ]);
 
 const OWNABLE_KEYS = [
@@ -80,18 +84,31 @@ function short(addr) {
       console.log(`  FAIL ${key}: missing address in contracts.js`);
       continue;
     }
-    const contract = new ethers.Contract(addr, ifaceOwnable, provider);
-    const owner = (await contract.owner()).toLowerCase();
-    
+    console.log(`  Checking ${key} at ${addr} ...`);
+    let owner = null;
+    let error = null;
+    try {
+      const contract = new ethers.Contract(addr, ifaceOwnable, provider);
+      owner = (await contract.owner()).toLowerCase();
+    } catch (e) {
+      error = e;
+    }
     // Treasury-routed contracts are owned by treasury address
     const isTreasuryRouted = TREASURY_ROUTED.has(key);
-    const expectedOwner = isTreasuryRouted ? TREASURY_ADDRESS_LC : EXPECTED_OWNER_LC;
-    const ok = owner === expectedOwner;
-    
+    const expectedOwner = isTreasuryRouted
+      ? TREASURY_ADDRESS_LC
+      : EXPECTED_OWNER_LC;
+    const ok = owner === expectedOwner && !error;
     if (!ok) allPass = false;
     const status = ok ? 'PASS' : 'FAIL';
     const label = isTreasuryRouted ? ' (treasury-routed)' : '';
-    console.log(`  ${status} ${key}: owner=${owner}${label}`);
+    if (error) {
+      console.log(
+        `  ${status} ${key}: ERROR: ${error.shortMessage || error.message}`,
+      );
+    } else {
+      console.log(`  ${status} ${key}: owner=${owner}${label}`);
+    }
   }
   console.log('');
 

@@ -20,12 +20,38 @@ This repository includes:
 - Python 3.11+
 - Git
 
-## Quick Start
+## Mainnet Deployment & Onboarding
+
+**Mainnet is now the current deployment target.**
+
+- See [DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md) for the mainnet deployment summary and addresses.
+- See [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) for mainnet verification and handoff steps.
+- See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the mainnet release record.
+- For mainnet deployment workflow, use [MAINNET_PREPARATION_TEMPLATE.md](MAINNET_PREPARATION_TEMPLATE.md).
+
+## Secret Management & Environment Variables
+
+**Never commit real secrets or private keys to the repository.**
+
+- All sensitive values (private keys, API tokens, credentials) must be provided via environment variables.
+- Use the provided `.env.example` as a template—copy it to `.env` or `.env.mainnet` and fill in your own values locally.
+- For deployment and ownership automation, set `OWNER_PRIVATE_KEY` and other secrets in your environment, not in code or scripts.
+- For mainnet, use `.env.mainnet` and review all values before deployment.
+- See [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) for secure deployment and handoff instructions.
+- For frontend/API keys, use `.env.local` or similar, never commit real keys.
+
+**Warning:** Commits containing secrets will be rejected by push protection and secret scanning.
+
+---
+
+## Quick Start (Mainnet)
 
 ```bash
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
 cd Aetheron-Sentinel-L3
 npm ci
+cp .env.example .env.mainnet
+# Edit .env.mainnet with your mainnet values
 ```
 
 Compile contracts:

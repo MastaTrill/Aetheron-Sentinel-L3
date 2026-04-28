@@ -36,43 +36,45 @@ export default defineConfig({
   },
   networks: {
     hardhat: {
-      type: 'edr-simulated',
-      chainType: 'l1',
       chainId: 31337,
+      type: 'edr-simulated',
+      forking: {
+        url:
+          readEnvValue('MAINNET_RPC_URL') ||
+          'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
+        // blockNumber: undefined, // Optionally set a recent block for deterministic results
+      },
     },
+    // 'mainnet-fork' network removed; use 'hardhat' with forking for dry runs
     sepolia: {
-      type: 'http',
-      chainType: 'l1',
       url:
         readEnvValue('SEPOLIA_RPC_URL') ||
         'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
       accounts: readPrivateKey(),
       chainId: 11155111,
+      type: 'http',
     },
     mainnet: {
-      type: 'http',
-      chainType: 'l1',
       url:
         readEnvValue('MAINNET_RPC_URL') ||
         'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
       accounts: readPrivateKey(),
       chainId: 1,
+      type: 'http',
     },
     hoodi: {
-      type: 'http',
-      chainType: 'l1',
       url:
         readEnvValue('HOODI_RPC_URL') ||
         'https://ethereum-hoodi-rpc.publicnode.com',
       accounts: readPrivateKey(),
       chainId: 560048,
+      type: 'http',
     },
     baseSepolia: {
-      type: 'http',
-      chainType: 'l1',
       url: readEnvValue('BASE_SEPOLIA_RPC_URL') || 'https://sepolia.base.org',
       accounts: readPrivateKey(),
       chainId: 84532,
+      type: 'http',
     },
   },
   paths: {

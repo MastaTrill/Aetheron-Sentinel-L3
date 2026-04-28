@@ -1,3 +1,4 @@
+console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
 require('dotenv').config();
@@ -75,6 +76,9 @@ async function main() {
   const connection = await hre.network.getOrCreate();
   ethers = connection.ethers;
 
+  // Debug: print network and deployer info
+  console.log('--- DEPLOY DEBUG INFO ---');
+  console.log('Hardhat network:', hre.network.name);
   const signers = await ethers.getSigners();
   if (!signers.length) {
     throw new Error(
@@ -83,6 +87,8 @@ async function main() {
   }
   const [deployer] = signers;
   const deployerAddress = await deployer.getAddress();
+  console.log('Deployer address:', deployerAddress);
+  console.log('-------------------------');
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
   const deployerIsOwner = deployerAddress.toLowerCase() === owner.toLowerCase();
 
@@ -125,7 +131,7 @@ async function main() {
     deployerIsOwner ? 'yes' : 'no',
   );
 
-  const balance = await deployer.provider.getBalance(deployerAddress);
+  const balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
 
   const addresses = {};
@@ -300,7 +306,7 @@ async function main() {
   const reporterSet = new Set([...config.monitors, ...config.reporters]);
   if (deployerIsOwner) {
     console.log('\nConfiguring post-deploy authorization...');
-    const ov2 = await getTxOverrides(deployer.provider);
+    const ov2 = await getTxOverrides(ethers.provider);
 
     await (
       await monitor.authorizeContract(addresses.SentinelInterceptor, ov2)
@@ -473,7 +479,7 @@ async function main() {
 
   if (deployerIsOwner) {
     console.log('\nConfiguring SentinelCoreLoop components...');
-    const ov3 = await getTxOverrides(deployer.provider);
+    const ov3 = await getTxOverrides(ethers.provider);
     const coreLoopComponents = [
       ['sentinelInterceptor', addresses.SentinelInterceptor],
       ['aetheronBridge', addresses.AetheronBridge],
@@ -537,6 +543,10 @@ async function main() {
       2,
     ),
   );
+
+  // Output the final block number for automation
+  const latestBlock = await ethers.provider.getBlockNumber();
+  console.log(`Final Block: ${latestBlock}`);
 }
 
 main().catch((error) => {
