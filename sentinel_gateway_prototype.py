@@ -23,6 +23,7 @@ import threading
 import requests
 
 
+class SentinelGateway:
     def __init__(self, logger=None, audit_log_path="audit_log.jsonl", config_path="sentinel_gateway_config.json", webhook_url=None):
         self.logger = logger or logging.getLogger("SentinelGateway")
         self.audit_log_path = audit_log_path
