@@ -284,7 +284,7 @@ shellingham==1.5.4
 six==1.17.0
 skops==0.14.0
 slack_sdk==3.41.0
-slither-analyzer==0.11.5
+slither-analyzer==0.10.4
 slowapi==0.1.9
 sly==0.5
 smmap==5.0.3
