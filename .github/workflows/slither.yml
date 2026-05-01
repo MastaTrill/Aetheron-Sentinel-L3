@@ -2,8 +2,6 @@ name: 'Solidity Static Analysis'
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 jobs:
   slither:
     runs-on: ubuntu-latest
