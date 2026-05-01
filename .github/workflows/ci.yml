@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -52,7 +52,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -81,20 +81,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Graph CLI
-        run: npm install -g @graphprotocol/graph-cli
-
       - name: Run codegen
-        run: npm run codegen
+        run: npx graph codegen
 
       - name: Build subgraph WASM
-        run: npm run build
+        run: npx graph build
 
   remix-import-build:
     name: Remix import build
@@ -112,7 +109,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: imports/remix_-aetheron-sentinel-l3/package-lock.json
 
