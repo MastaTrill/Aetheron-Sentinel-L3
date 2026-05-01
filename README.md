@@ -78,11 +78,11 @@ Python telemetry modules are located in `src/aetheron_sentinel_l3/`.
 
 > Note: a root `tests/` discovery target is not currently present in this repo; use contract tests under `test/` and add Python tests before enabling unittest discovery commands.
 
-Build the subgraph artifacts (isolated workspace):
+Build the subgraph artifacts:
 
 ```bash
-npm run subgraph:codegen
-npm run subgraph:build
+npm run codegen
+npm run build
 ```
 
 Build the dashboard workspace:
@@ -168,8 +168,8 @@ npm audit
 npm run export:abis
 npm run export:site-config
 npm run update:subgraph
-npm run subgraph:codegen
-npm run subgraph:build
+npm run codegen
+npm run build
 ```
 
 ### Dashboard Workspace

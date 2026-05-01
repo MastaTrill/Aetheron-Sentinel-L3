@@ -8,13 +8,17 @@
     "test": "hardhat test",
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js",
-    "subgraph:codegen": "npm --prefix subgraph run codegen",
-    "subgraph:build": "npm --prefix subgraph run build"
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "lint": "eslint . --ext .js,.ts,.tsx"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@apollo/client": "^4.1.9",
+    "graphql": "^16.13.2",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
@@ -34,6 +38,7 @@
     "hardhat": "^2.26.0",
     "ts-node": "^10.0.0",
     "typechain": "^8.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "@graphprotocol/graph-cli": "^0.73.0"
   }
 }
