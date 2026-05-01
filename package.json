@@ -39,6 +39,10 @@
     "ts-node": "^10.0.0",
     "typechain": "^8.3.0",
     "typescript": "^6.0.3",
-    "@graphprotocol/graph-cli": "^0.73.0"
+    "@graphprotocol/graph-cli": "^0.73.0",
+    "eslint": "^9.38.0",
+    "@eslint/js": "^9.38.0",
+    "typescript-eslint": "^8.46.1",
+    "eslint-plugin-react": "^7.37.5"
   }
 }
