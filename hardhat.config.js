@@ -1,6 +1,8 @@
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
-import "@nomicfoundation/hardhat-toolbox-mocha-ethers";
+import "@nomicfoundation/hardhat-network-helpers";
+import "@nomicfoundation/hardhat-verify";
+import "@typechain/hardhat";
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
