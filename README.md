@@ -74,24 +74,15 @@ Run the Solidity test suite:
 npm test
 ```
 
-PowerShell:
+Python telemetry modules are located in `src/aetheron_sentinel_l3/`.
 
-```powershell
-$env:PYTHONPATH="src"
-python -m unittest discover -s tests -p "test_*.py" -v
-```
+> Note: a root `tests/` discovery target is not currently present in this repo; use contract tests under `test/` and add Python tests before enabling unittest discovery commands.
 
-Bash:
+Build the subgraph artifacts (isolated workspace):
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
-```
-
-Build the subgraph artifacts:
-
-```bash
-npm run codegen
-npm run build
+npm run subgraph:codegen
+npm run subgraph:build
 ```
 
 Build the dashboard workspace:
@@ -122,6 +113,33 @@ echidna-test ./contracts --config echidna.yaml
 
 See `echidna.yaml` for configuration and contract selection. Write Solidity property-based tests using `assert` or `echidna_*` functions. See the Echidna documentation for advanced usage.
 
+
+## Dependency Install Troubleshooting (npm 403 / peer conflicts)
+
+If `npm install` or `npm ci` fails with `403 Forbidden` (for example on `graphql`), the problem is usually registry access/policy, not project code.
+
+1. Check the active npm registry and auth:
+   ```bash
+   npm config get registry
+   npm whoami
+   ```
+2. If you are behind an internal mirror, point npm to the approved mirror and re-authenticate:
+   ```bash
+   npm config set registry <your-approved-registry-url>
+   npm login
+   ```
+3. Clear stale cache and retry install:
+   ```bash
+   npm cache clean --force
+   npm install
+   ```
+4. If your org blocks specific packages, request an allowlist for:
+   - `graphql`
+   - `@nomicfoundation/*`
+   - `@graphprotocol/*`
+
+For peer conflicts between Apollo and Graph toolchains, this repo declares explicit `graphql` and `rxjs` dependencies in `package.json` to make resolution deterministic across npm versions.
+
 ## Common Commands
 
 ### Deploy and Verify
@@ -150,8 +168,8 @@ npm audit
 npm run export:abis
 npm run export:site-config
 npm run update:subgraph
-npm run codegen
-npm run build
+npm run subgraph:codegen
+npm run subgraph:build
 ```
 
 ### Dashboard Workspace
@@ -167,7 +185,7 @@ npm run dashboard:build
 The main CI workflow in `.github/workflows/ci.yml` runs:
 
 - Hardhat compile and test on Node 22
-- Python unit tests on Python 3.11
+- Python telemetry checks (add `tests/` suite before enabling unittest discovery)
 - Sepolia verification gate scripts
 - subgraph code generation and build
 - Remix import workspace lint and build
@@ -185,7 +203,6 @@ The nightly and manual verification workflow in `.github/workflows/post-deploy-n
 contracts/                            Solidity contracts
 scripts/                              Deploy, verify, export, and audit scripts
 src/aetheron_sentinel_l3/             Python telemetry package
-tests/                                Python unit tests
 test/                                 Hardhat test suite
 apps/remix-dashboard/                 Dashboard workspace
 imports/remix_-aetheron-sentinel-l3/  Remix import workspace
