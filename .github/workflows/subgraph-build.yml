@@ -1,24 +1,27 @@
-name: 'Lint'
+name: Subgraph build
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
-  lint:
+  subgraph-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22
       - name: PR mode note
         if: github.event_name == 'pull_request'
-        run: echo "Skipping heavy npm install in PR mode; lint runs on push."
+        run: echo "Skipping subgraph install/build in PR mode."
       - name: Install dependencies
         if: github.event_name == 'push'
         run: npm ci --legacy-peer-deps
-      - name: Run ESLint
+      - name: Build subgraph artifacts
         if: github.event_name == 'push'
-        run: npx eslint . --ext .js,.ts,.tsx
+        run: |
+          npm run codegen
+          npm run build
