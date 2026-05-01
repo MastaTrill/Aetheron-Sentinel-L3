@@ -23,7 +23,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: echo "Python tests are currently not configured in a root tests/ directory; PR check reports status only."
       - name: Run unit tests (push)
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'merge_group'
         run: |
           if [ -d tests ]; then
             PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v

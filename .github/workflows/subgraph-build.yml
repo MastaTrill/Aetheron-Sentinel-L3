@@ -7,6 +7,9 @@ on:
     branches: [main]
   merge_group:
 
+permissions:
+  contents: read
+
 jobs:
   subgraph-build:
     runs-on: ubuntu-latest
@@ -18,9 +21,9 @@ jobs:
           node-version: 22
       - name: PR mode note
         if: github.event_name == 'pull_request'
-        run: echo "Subgraph build is deferred to push pipeline in this repository mode."
-      - name: Build subgraph (push)
-        if: github.event_name == 'push'
+        run: echo "Subgraph build is deferred to push/merge-group pipeline in this repository mode."
+      - name: Build subgraph (push/merge_group)
+        if: github.event_name == 'push' || github.event_name == 'merge_group'
         run: |
           npm ci --legacy-peer-deps
           npm run codegen
