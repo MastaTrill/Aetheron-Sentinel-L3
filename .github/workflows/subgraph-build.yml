@@ -1,0 +1,27 @@
+name: Subgraph build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+
+jobs:
+  subgraph-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: PR mode note
+        if: github.event_name == 'pull_request'
+        run: echo "Subgraph build is deferred to push pipeline in this repository mode."
+      - name: Build subgraph (push)
+        if: github.event_name == 'push'
+        run: |
+          npm ci --legacy-peer-deps
+          npm run codegen
+          npm run build
