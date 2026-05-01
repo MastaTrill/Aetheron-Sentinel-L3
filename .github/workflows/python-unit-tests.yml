@@ -1,5 +1,8 @@
 name: Python unit tests (3.11)
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
