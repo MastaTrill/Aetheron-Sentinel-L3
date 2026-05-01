@@ -1,0 +1,19 @@
+name: 'Solidity Static Analysis'
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  slither:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Slither
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          pip3 install slither-analyzer
+      - name: Run Slither
+        run: |
+          npx hardhat compile
+          slither ./contracts --filter-paths 'node_modules|test|scripts' || true

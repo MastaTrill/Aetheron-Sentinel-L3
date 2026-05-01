@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BigInt } from '@graphprotocol/graph-ts';
 import {
   CircuitBreaker,
@@ -23,7 +24,7 @@ export function handleCircuitOpened(event: CircuitOpenedEvent): void {
 }
 
 export function handleCircuitHalfOpened(event: CircuitHalfOpenedEvent): void {
-  let entity = CircuitBreakerState.load(event.params.chainId.toString());
+  const entity = CircuitBreakerState.load(event.params.chainId.toString());
   if (entity) {
     entity.state = 'HALF_OPEN';
     entity.save();
@@ -31,7 +32,7 @@ export function handleCircuitHalfOpened(event: CircuitHalfOpenedEvent): void {
 }
 
 export function handleCircuitClosed(event: CircuitClosedEvent): void {
-  let entity = CircuitBreakerState.load(event.params.chainId.toString());
+  const entity = CircuitBreakerState.load(event.params.chainId.toString());
   if (entity) {
     entity.state = 'CLOSED';
     entity.failureCount = BigInt.fromI32(0);

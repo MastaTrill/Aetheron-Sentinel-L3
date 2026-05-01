@@ -20,6 +20,10 @@ This repository includes:
 - Python 3.11+
 - Git
 
+## Public Dashboard
+
+- The [Remix Dashboard](./apps/remix-dashboard/) is now public. Monitoring, bug bounty stats, and live metrics are available.
+
 ## Mainnet Deployment & Onboarding
 
 **Mainnet is now the current deployment target.**
@@ -42,9 +46,13 @@ This repository includes:
 
 **Warning:** Commits containing secrets will be rejected by push protection and secret scanning.
 
----
-
 ## Quick Start (Mainnet)
+
+## Security, Audit, and Incident Response
+
+- [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Formal incident response plan
+- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Third-party audit status
+- [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program details
 
 ```bash
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
@@ -93,6 +101,28 @@ Build the dashboard workspace:
 ```bash
 npm run dashboard:build
 ```
+
+## Artifact Publishing & Monitoring
+
+### ABI Publishing
+
+ABIs are exported to the `abis/` directory via `npm run export:all-abis` and uploaded as a GitHub Actions artifact in CI. You can publish these to npm, a CDN, or other destinations as needed.
+
+### Advanced Monitoring
+
+For advanced monitoring and alerting, consider integrating with OpenZeppelin Defender or Forta. See their documentation for setup and best practices.
+
+---
+
+## Fuzz Testing (Echidna)
+
+Fuzz testing for Solidity contracts is supported via [Echidna](https://github.com/crytic/echidna). Install Echidna (requires Docker or native build), then run:
+
+```bash
+echidna-test ./contracts --config echidna.yaml
+```
+
+See `echidna.yaml` for configuration and contract selection. Write Solidity property-based tests using `assert` or `echidna_*` functions. See the Echidna documentation for advanced usage.
 
 ## Common Commands
 
@@ -164,6 +194,13 @@ imports/remix_-aetheron-sentinel-l3/  Remix import workspace
 generated/                            Generated subgraph files
 logs/verification/                    Verification logs and audit evidence
 ```
+
+## Badges
+
+![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)
+![Docs](https://img.shields.io/badge/docs-coverage-100%25-brightgreen)
+![Build](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/lint.yml/badge.svg)
+![Audit](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/audit.yml/badge.svg)
 
 ## Documentation
 

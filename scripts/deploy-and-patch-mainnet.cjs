@@ -21,14 +21,17 @@ const ENV_FILE = path.join(__dirname, '../.env.mainnet');
 function runDeployScript() {
   console.log('Running deploy.cjs for mainnet using Hardhat CLI...');
   // Use Hardhat CLI to ensure correct network and env
-  const output = execSync(`npx hardhat run ${DEPLOY_SCRIPT} --network ${NETWORK}`, {
-    encoding: 'utf-8',
-    stdio: 'pipe',
-    env: {
-      ...process.env,
-      NODE_ENV: 'production',
+  const output = execSync(
+    `npx hardhat run ${DEPLOY_SCRIPT} --network ${NETWORK}`,
+    {
+      encoding: 'utf-8',
+      stdio: 'pipe',
+      env: {
+        ...process.env,
+        NODE_ENV: 'production',
+      },
     },
-  });
+  );
   return output;
 }
 
@@ -47,7 +50,7 @@ function extractJsonAddresses(output) {
         // Try to parse
         try {
           return JSON.parse(jsonStr);
-        } catch (e) {
+        } catch {
           // Not valid yet, keep going
         }
       }
@@ -65,7 +68,7 @@ function extractBlockNumber(output) {
 function patchFile(filePath, replacements) {
   let content = fs.readFileSync(filePath, 'utf-8');
   for (const [key, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`(${key}\s*[:=]\s*)(.*)`, 'i');
+    const regex = new RegExp(`(${key}[:=] *)(.*)`, 'i');
     content = content.replace(regex, `$1${value}`);
   }
   fs.writeFileSync(filePath, content, 'utf-8');

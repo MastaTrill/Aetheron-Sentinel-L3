@@ -140,10 +140,10 @@ async function main() {
   const relayers = parseAddressList(process.env.RELAYER_ADDRESSES);
   const yieldTokenAddress =
     process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
-  const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
-  const tvlThreshold = ethers.parseEther(
-    process.env.TVL_THRESHOLD_ETH || '1000',
-  );
+  // const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
+  // const tvlThreshold = ethers.parseEther(
+  //   process.env.TVL_THRESHOLD_ETH || '1000',
+  // );
 
   // ── 1. SentinelTimelock: grant roles to SentinelGovernance ─────────────────
   if (addresses.SentinelTimelock && addresses.SentinelGovernance) {

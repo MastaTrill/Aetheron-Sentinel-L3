@@ -6,7 +6,7 @@ URL = "https://ybstjqhcmhzcfompdncw.supabase.co/rest/v1/"
 # Read secret from environment instead of hardcoding credentials in source.
 SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
-
+def test():
     if not SECRET_KEY:
         raise RuntimeError("SUPABASE_SECRET_KEY is required")
 
@@ -28,4 +28,3 @@ SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
 if __name__ == "__main__":
     test()
-test()

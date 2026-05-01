@@ -1,0 +1,30 @@
+# Echidna configuration for Sentinel L3
+# See: https://github.com/crytic/echidna
+
+# Directory containing contracts
+src: ./contracts
+
+# Test contract(s) to fuzz
+# Replace with your actual test/fuzz contracts as needed
+contracts:
+  - SentinelAMM.sol
+  - SentinelCore.sol
+  - SentinelGovernance.sol
+
+# Test mode: use Solidity-style property functions
+testMode: 'assert'
+
+# Number of fuzzing iterations (adjust as needed)
+maxIterations: 100000
+
+# Output directory for results
+output: ./echidna-output
+
+# Additional options can be set here
+# e.g.,
+#
+#	corpusDir: ./echidna-corpus
+#	seed: 42
+#	shuffle: true
+#
+# See Echidna docs for more advanced configuration.

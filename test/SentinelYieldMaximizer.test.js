@@ -1,4 +1,6 @@
 // test/SentinelYieldMaximizer.test.js
+/* global describe, it, beforeEach */
+
 import { expect } from 'chai';
 import { network } from 'hardhat';
 

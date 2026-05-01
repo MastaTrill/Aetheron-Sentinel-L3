@@ -1,0 +1,7 @@
+# This file designates code owners for critical files and directories.
+# Require review from @MastaTrill for all smart contract and config changes.
+
+/contracts/* @MastaTrill
+/hardhat.config.ts @MastaTrill
+/scripts/* @MastaTrill
+SECURITY.md @MastaTrill

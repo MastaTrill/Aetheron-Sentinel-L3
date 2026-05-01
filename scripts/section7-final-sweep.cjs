@@ -47,7 +47,17 @@ function short(addr) {
 }
 
 (async () => {
-  const provider = new ethers.JsonRpcProvider(RPC);
+  // ethers v6+ compatibility: JsonRpcProvider is a default export, not a property of ethers
+  let provider;
+  if (ethers.JsonRpcProvider) {
+    provider = new ethers.JsonRpcProvider(RPC);
+  } else if (ethers.providers && ethers.providers.JsonRpcProvider) {
+    provider = new ethers.providers.JsonRpcProvider(RPC);
+  } else {
+    throw new Error(
+      'Cannot find JsonRpcProvider in ethers. Check ethers version.',
+    );
+  }
 
   const ctx = { window: {} };
   vm.runInNewContext(fs.readFileSync('site/contracts.js', 'utf8'), ctx);

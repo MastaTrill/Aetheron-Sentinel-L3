@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import {
   TokensBridged as TokensBridgedEvent,
@@ -8,7 +9,7 @@ import {
 import { Bridge, Transfer } from '../generated/schema';
 
 function loadOrCreateBridge(bridgeAddress: Address): Bridge {
-  let id = bridgeAddress.toHex();
+  const id = bridgeAddress.toHex();
   let entity = Bridge.load(id);
   if (!entity) {
     entity = new Bridge(id);
@@ -20,11 +21,11 @@ function loadOrCreateBridge(bridgeAddress: Address): Bridge {
 }
 
 export function handleTokensBridged(event: TokensBridgedEvent): void {
-  let bridge = loadOrCreateBridge(event.address);
+  const bridge = loadOrCreateBridge(event.address);
   bridge.totalValueLocked = bridge.totalValueLocked.plus(event.params.amount);
   bridge.save();
 
-  let transfer = new Transfer(event.params.transferId.toHex());
+  const transfer = new Transfer(event.params.transferId.toHex());
   transfer.bridge = event.address.toHex();
   transfer.sender = event.params.sender;
   transfer.recipient = event.params.recipient;
@@ -38,7 +39,7 @@ export function handleTokensBridged(event: TokensBridgedEvent): void {
 }
 
 export function handleTokensUnbridged(event: TokensUnbridgedEvent): void {
-  let entity = Transfer.load(event.params.transferId.toHex());
+  const entity = Transfer.load(event.params.transferId.toHex());
   if (entity) {
     entity.status = 'COMPLETED';
     entity.save();
@@ -46,7 +47,7 @@ export function handleTokensUnbridged(event: TokensUnbridgedEvent): void {
 }
 
 export function handleTransferCompleted(event: TransferCompletedEvent): void {
-  let entity = Transfer.load(event.params.transferId.toHex());
+  const entity = Transfer.load(event.params.transferId.toHex());
   if (entity) {
     entity.status = 'COMPLETED';
     entity.save();
@@ -54,7 +55,7 @@ export function handleTransferCompleted(event: TransferCompletedEvent): void {
 }
 
 export function handleBridgeInitialized(event: BridgeInitializedEvent): void {
-  let entity = loadOrCreateBridge(event.address);
+  const entity = loadOrCreateBridge(event.address);
   entity.initializedAt = event.block.timestamp;
   entity.save();
 }

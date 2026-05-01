@@ -1,8 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Card, Badge, Text, Metric, Flex } from '@tremor/react';
 
+// TypeScript fix: define the expected shape for the sentinels prop
+interface Sentinel {
+  id: string;
+  status: string;
+  // Add other properties as needed
+}
+
+interface SentinelStatusProps {
+  sentinels: Sentinel[];
+}
+
+// Define the expected shape of the GraphQL response
+interface GraphQLSentinel {
+  autonomousMode: boolean;
+  anomalyCount: number;
+  lastAnomalyBlock: number;
+}
+
+interface GraphQLData {
+  sentinels: GraphQLSentinel[];
+}
+
 export default function SentinelStatus() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<GraphQLData | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {

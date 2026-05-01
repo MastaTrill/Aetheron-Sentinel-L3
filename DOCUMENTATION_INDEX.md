@@ -56,6 +56,14 @@
   - Rollback strategies
   - Security sign-off checklist
 
+### Security, Audit, and Incident Response
+
+- [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Incident response plan
+- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Audit status
+- [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program
+
+- **README.md**: See 'Artifact Publishing & Monitoring' for ABI export, publishing, and monitoring integration notes
+
 ### For Architecture & Security
 
 Design & security documentation:

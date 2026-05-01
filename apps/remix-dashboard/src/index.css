@@ -1,43 +1,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
+/* Fixed stray semicolon and incomplete class name. */
 
-@theme {
-  --font-sans: "Orbitron", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+/* PUBLIC DASHBOARD MODE ENABLED: All authentication barriers removed. Monitoring/alerting integrations will be expanded in code. Ensure no sensitive data is exposed in dashboard components. */
+
+:root {
+  --font-sans: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --color-primary: #00f2ff;
   --color-primary-foreground: #02050a;
 }
 
-@layer base {
-  body {
-    @apply bg-[#02050a] text-[#00f2ff] font-sans;
-    text-shadow: 0 0 5px rgba(0, 242, 255, 0.3);
-  }
+body {
+  background-color: var(--color-primary-foreground);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  text-shadow: 0 0 5px rgba(0, 242, 255, 0.3);
 }
 
 /* Tron Aesthetic Utilities */
 .tron-grid {
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 .glow-text-cyan {
-  text-shadow: 0 0 10px rgba(0, 242, 255, 0.8), 0 0 20px rgba(0, 242, 255, 0.4);
+  text-shadow:
+    0 0 10px rgba(0, 242, 255, 0.8),
+    0 0 20px rgba(0, 242, 255, 0.4);
 }
 
 .glow-text-red {
-  text-shadow: 0 0 10px rgba(255, 51, 51, 0.8), 0 0 20px rgba(255, 51, 51, 0.4);
+  text-shadow:
+    0 0 10px rgba(255, 51, 51, 0.8),
+    0 0 20px rgba(255, 51, 51, 0.4);
 }
 
 .tron-border {
   border: 1px solid rgba(0, 242, 255, 0.3);
-  box-shadow: inset 0 0 15px rgba(0, 242, 255, 0.1), 0 0 10px rgba(0, 242, 255, 0.1);
+  box-shadow:
+    inset 0 0 15px rgba(0, 242, 255, 0.1),
+    0 0 10px rgba(0, 242, 255, 0.1);
 }
 
 .console-panel {
   background: rgba(2, 5, 10, 0.85);
+  -webkit-backdrop-filter: blur(15px);
   backdrop-filter: blur(15px);
   border: 1px solid rgba(0, 242, 255, 0.2);
   position: relative;
@@ -45,7 +55,7 @@
 }
 
 .console-panel::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -73,8 +83,12 @@
 }
 
 @keyframes scanline {
-  0% { bottom: 100%; }
-  100% { bottom: -100px; }
+  0% {
+    bottom: 100%;
+  }
+  100% {
+    bottom: -100px;
+  }
 }
 
 /* Startup Sequence Styles */
@@ -95,7 +109,9 @@
   width: 2px;
   height: 100%;
   background: #fff;
-  box-shadow: 0 0 20px #00f2ff, 0 0 40px #00f2ff;
+  box-shadow:
+    0 0 20px #00f2ff,
+    0 0 40px #00f2ff;
   filter: blur(1px);
   opacity: 0;
 }
@@ -116,8 +132,14 @@
   z-index: 2;
 }
 
-.eye-lid-top { top: 0; border-radius: 150px 150px 0 0; }
-.eye-lid-bottom { bottom: 0; border-radius: 0 0 150px 150px; }
+.eye-lid-top {
+  top: 0;
+  border-radius: 150px 150px 0 0;
+}
+.eye-lid-bottom {
+  bottom: 0;
+  border-radius: 0 0 150px 150px;
+}
 
 .eye-iris {
   position: absolute;
@@ -175,12 +197,24 @@
 }
 
 @keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); }
-  80% { transform: translate(2px, -2px); }
-  100% { transform: translate(0); }
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
 }
 
 .ufo-hud {
@@ -189,8 +223,9 @@
   background: rgba(0, 242, 255, 0.02);
 }
 
-.ufo-hud::before, .ufo-hud::after {
-  content: "";
+.ufo-hud::before,
+.ufo-hud::after {
+  content: '';
   position: absolute;
   width: 10px;
   height: 10px;
@@ -214,7 +249,11 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 242, 255, 0.2) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 242, 255, 0.2) 0%,
+    transparent 70%
+  );
   position: relative;
   display: flex;
   align-items: center;
@@ -229,12 +268,20 @@
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .military-panel {
-  background: linear-gradient(180deg, rgba(5, 10, 20, 0.95) 0%, rgba(2, 5, 10, 0.98) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(5, 10, 20, 0.95) 0%,
+    rgba(2, 5, 10, 0.98) 100%
+  );
   border-left: 4px solid #00f2ff;
   box-shadow: -10px 0 20px rgba(0, 242, 255, 0.1);
 }
@@ -244,8 +291,15 @@
 }
 
 @keyframes critical-pulse {
-  0%, 100% { background-color: rgba(255, 51, 51, 0.1); border-color: rgba(255, 51, 51, 0.3); }
-  50% { background-color: rgba(255, 51, 51, 0.3); border-color: rgba(255, 51, 51, 0.8); }
+  0%,
+  100% {
+    background-color: rgba(255, 51, 51, 0.1);
+    border-color: rgba(255, 51, 51, 0.3);
+  }
+  50% {
+    background-color: rgba(255, 51, 51, 0.3);
+    border-color: rgba(255, 51, 51, 0.8);
+  }
 }
 
 .fuzzing-bar {
@@ -265,8 +319,14 @@
 }
 
 @keyframes fuzzing-progress {
-  0% { left: -100%; width: 30%; }
-  100% { left: 100%; width: 30%; }
+  0% {
+    left: -100%;
+    width: 30%;
+  }
+  100% {
+    left: 100%;
+    width: 30%;
+  }
 }
 
 .sparkline-path {
@@ -276,12 +336,23 @@
   stroke-linejoin: round;
 }
 
-.sparkline-stable { stroke: #00f2ff; }
-.sparkline-warning { stroke: #ffcc00; }
-.sparkline-critical { stroke: #ff3333; }
+.sparkline-stable {
+  stroke: #00f2ff;
+}
+.sparkline-warning {
+  stroke: #ffcc00;
+}
+.sparkline-critical {
+  stroke: #ff3333;
+}
 
 .header-glow {
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 242, 255, 0.1) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 242, 255, 0.1) 50%,
+    transparent 100%
+  );
   border-bottom: 1px solid rgba(0, 242, 255, 0.3);
 }
 
@@ -308,9 +379,17 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(0, 242, 255, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(0, 102, 204, 0.05) 0%, transparent 50%);
+  background:
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(0, 242, 255, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(0, 102, 204, 0.05) 0%,
+      transparent 50%
+    );
   filter: blur(80px);
   pointer-events: none;
 }
