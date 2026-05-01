@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelPredictiveThreatModel', function () {
   let model;
@@ -58,9 +59,7 @@ describe('SentinelPredictiveThreatModel', function () {
   });
 
   it('only owner can update AI model', async function () {
-    await expect(model.connect(user).updateAIModel(250, 12, 300)).to.revert(
-      ethers,
-    );
+    await expect(model.connect(user).updateAIModel(250, 12, 300)).to.be.reverted;
 
     await model.updateAIModel(250, 12, 300);
     const [threshold, horizon] = await model.getAIModelMetrics();

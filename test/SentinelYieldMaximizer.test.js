@@ -2,9 +2,8 @@
 /* global describe, it, beforeEach */
 
 import { expect } from 'chai';
-import { network } from 'hardhat';
-
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelYieldMaximizer', function () {
   let yieldMaximizer, token;

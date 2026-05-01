@@ -1,8 +1,9 @@
 // test/SentinelRewardAggregator.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelRewardAggregator', function () {
   let aggregator;
@@ -140,9 +141,7 @@ describe('SentinelRewardAggregator', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(aggregator.connect(user).updateSystemAPY()).to.revert(
-        ethers,
-      );
+      await expect(aggregator.connect(user).updateSystemAPY()).to.be.reverted;
     });
   });
 
@@ -170,7 +169,7 @@ describe('SentinelRewardAggregator', function () {
     it('reverts for non-owner', async function () {
       await expect(
         aggregator.connect(user).updatePerformanceMultiplier(95),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
   });
 });

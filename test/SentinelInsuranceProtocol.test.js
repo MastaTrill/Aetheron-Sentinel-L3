@@ -1,8 +1,9 @@
 // test/SentinelInsuranceProtocol.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 // InsuranceType enum: HACK_COVERAGE=0, ORACLE_FAILURE=1, ... PROTOCOL_EXPLOIT=7
 const HACK_COVERAGE = 0;

@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelQuantumKeyDistribution', function () {
   let qkd;
@@ -28,7 +29,7 @@ describe('SentinelQuantumKeyDistribution', function () {
   it('only owner can generate keys', async function () {
     await expect(
       qkd.connect(user).generateQuantumKey(user.address, 256),
-    ).to.revert(ethers);
+    ).to.be.reverted;
   });
 
   it('generates and activates a key', async function () {

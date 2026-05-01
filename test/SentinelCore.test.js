@@ -1,8 +1,9 @@
 // test/SentinelCore.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelCore', function () {
   let core;
@@ -82,7 +83,7 @@ describe('SentinelCore', function () {
     });
 
     it('reverts if called by non-owner', async function () {
-      await expect(core.connect(other).releaseHeartbeat(500)).to.revert(ethers);
+      await expect(core.connect(other).releaseHeartbeat(500)).to.be.reverted;
     });
   });
 
@@ -126,7 +127,7 @@ describe('SentinelCore', function () {
 
     it('reverts if called by non-owner', async function () {
       await core.releaseHeartbeat(500);
-      await expect(core.connect(other).lockHeartbeat()).to.revert(ethers);
+      await expect(core.connect(other).lockHeartbeat()).to.be.reverted;
     });
   });
 });

@@ -1,8 +1,7 @@
 // test/AetheronBridge.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
-
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('AetheronBridge', function () {
   let bridge, token;
@@ -36,7 +35,7 @@ describe('AetheronBridge', function () {
       .approve(await bridge.getAddress(), ethers.parseEther('1000'));
   });
 
-  describe('Token support tracking', function () {
+describe('Token support tracking', function () {
     it('increments supportedTokenCount when adding a new token', async function () {
       expect(await bridge.supportedTokenCount()).to.equal(1);
     });

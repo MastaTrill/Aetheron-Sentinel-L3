@@ -1,8 +1,9 @@
 // test/SentinelReferralSystem.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelReferralSystem', function () {
   let referral;
@@ -95,7 +96,7 @@ describe('SentinelReferralSystem', function () {
       await referral.emergencyPause();
       await expect(
         referral.connect(user1).register(ethers.ZeroAddress),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
   });
 
@@ -160,7 +161,7 @@ describe('SentinelReferralSystem', function () {
     it('reverts for non-owner', async function () {
       await expect(
         referral.connect(user1).updateActiveReferrals(user1.address, 5),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
   });
 
@@ -174,7 +175,7 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('non-owner cannot pause', async function () {
-      await expect(referral.connect(user1).emergencyPause()).to.revert(ethers);
+      await expect(referral.connect(user1).emergencyPause()).to.be.reverted;
     });
   });
 });

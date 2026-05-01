@@ -1,8 +1,9 @@
 // test/SentinelOracleNetwork.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 const MIN_STAKE = ethers.parseEther('1000');
 
@@ -110,7 +111,7 @@ describe('SentinelOracleNetwork', function () {
     it('reverts for non-owner', async function () {
       await expect(
         oracle.connect(other).addSupportedAsset('ETH/USD', 8),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
   });
 
@@ -176,7 +177,7 @@ describe('SentinelOracleNetwork', function () {
     it('reverts for non-owner', async function () {
       await expect(
         oracle.connect(other).triggerEmergencyShutdown('attack'),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
 
     it('blocks price submissions after emergency shutdown', async function () {
@@ -217,7 +218,7 @@ describe('SentinelOracleNetwork', function () {
         .registerOracle(pubKey, { value: MIN_STAKE });
       await expect(
         oracle.connect(other).slashOracle(oracleSigner.address, 1000),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
 
     it('reverts with invalid penalty (> 10000)', async function () {

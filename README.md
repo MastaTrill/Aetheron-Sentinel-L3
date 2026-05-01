@@ -1,6 +1,6 @@
 # Aetheron Sentinel L3
 
-Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and a Python orchestration package for BMNR-driven pause and resume flows.
+Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and Python telemetry modules.
 
 ## Repository Scope
 
@@ -73,8 +73,6 @@ Run the Solidity test suite:
 ```bash
 npm test
 ```
-
-Run the Python orchestration tests.
 
 PowerShell:
 
@@ -186,7 +184,7 @@ The nightly and manual verification workflow in `.github/workflows/post-deploy-n
 ```text
 contracts/                            Solidity contracts
 scripts/                              Deploy, verify, export, and audit scripts
-src/aetheron_sentinel_l3/             Python orchestration package
+src/aetheron_sentinel_l3/             Python telemetry package
 tests/                                Python unit tests
 test/                                 Hardhat test suite
 apps/remix-dashboard/                 Dashboard workspace
@@ -212,7 +210,6 @@ These top-level documents are present in the repository and are the best startin
 - `TEST_COVERAGE_SUMMARY.md`
 - `DEPLOYMENT_OWNERSHIP_CHECKLIST.md`
 - `HARDENING_CERTIFICATION.md`
-- `BMNR_INTEGRATION_READINESS.md`
 - `RELEASE_SUMMARY_2026-04-23.md`
 
 ## Security

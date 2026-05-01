@@ -1,8 +1,9 @@
 // test/SentinelMultiSigVault.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 // SecurityLevel enum: LOW=0, MEDIUM=1, HIGH=2, CRITICAL=3
 // SecurityClearance enum: BASIC=0, ADVANCED=1, EXPERT=2, MASTER=3
@@ -90,7 +91,7 @@ describe('SentinelMultiSigVault', function () {
     it('reverts when called by non-owner', async function () {
       await expect(
         vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC),
-      ).to.revert(ethers);
+      ).to.be.reverted;
     });
   });
 

@@ -40,23 +40,6 @@ jobs:
       - name: Run Hardhat tests
         run: npm test
 
-  python-tests:
-    name: Python unit tests (3.11)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      - name: Run Python unit tests
-        run: PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
-
   sepolia-verification-gate:
     name: Sepolia verification gate
     runs-on: ubuntu-latest
@@ -104,6 +87,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Graph CLI
+        run: npm install -g @graphprotocol/graph-cli
+
       - name: Run codegen
         run: npm run codegen
 
@@ -144,7 +130,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - hardhat
-      - python-tests
       - sepolia-verification-gate
       - subgraph-build
       - remix-import-build

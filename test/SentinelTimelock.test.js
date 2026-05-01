@@ -1,8 +1,9 @@
 // test/SentinelTimelock.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelTimelock', function () {
   let timelock;

@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe('SentinelQuantumGuard', function () {
   let guard;
@@ -38,7 +39,7 @@ describe('SentinelQuantumGuard', function () {
     const pubKey = ethers.keccak256(ethers.toUtf8Bytes('oracle1'));
     await expect(
       guard.connect(other).registerSecurityOracle(oracleSigner.address, pubKey),
-    ).to.revert(ethers);
+    ).to.be.reverted;
   });
 
   it('submits quantum proofs and validates a transaction', async function () {

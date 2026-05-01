@@ -7,7 +7,9 @@
   "scripts": {
     "test": "hardhat test",
     "compile": "hardhat compile",
-    "deploy": "hardhat run scripts/deploy.js"
+    "deploy": "hardhat run scripts/deploy.js",
+    "codegen": "graph codegen",
+    "build": "graph build"
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",

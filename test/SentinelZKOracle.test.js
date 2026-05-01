@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 const MIN_STAKE = ethers.parseEther('1000');
 
@@ -58,28 +59,30 @@ describe('SentinelZKOracle', function () {
   it('requires minimum stake for oracle registration', async function () {
     await expect(
       zkOracle
-        .connect(oracle1)
+        .connect(owner)
         .registerZKOracle(ethers.keccak256(ethers.toUtf8Bytes('pk')), {
           value: ethers.parseEther('1'),
+          gasLimit: 16_000_000,
         }),
     ).to.be.revertedWith('Insufficient stake');
   });
 
   it('registers oracle with sufficient stake', async function () {
     await zkOracle
-      .connect(oracle1)
+      .connect(owner)
       .registerZKOracle(ethers.keccak256(ethers.toUtf8Bytes('pk')), {
         value: MIN_STAKE,
+        gasLimit: 16_000_000,
       });
 
-    expect(await zkOracle.oracleStakes(oracle1.address)).to.equal(MIN_STAKE);
+    expect(await zkOracle.oracleStakes(owner.address)).to.equal(MIN_STAKE);
   });
 
   it('rejects ZK submission from unstaked oracle', async function () {
     const proof = findValidProof();
     await expect(
       zkOracle
-        .connect(oracle1)
+        .connect(owner)
         .submitZKProof(
           'ETH/USD',
           ethers.keccak256(ethers.toUtf8Bytes('d1')),
@@ -94,15 +97,16 @@ describe('SentinelZKOracle', function () {
     const dataHash = ethers.keccak256(ethers.toUtf8Bytes('eth-price-1'));
 
     await zkOracle
-      .connect(oracle1)
+      .connect(owner)
       .registerZKOracle(ethers.keccak256(ethers.toUtf8Bytes('pk')), {
         value: MIN_STAKE,
+        gasLimit: 16_000_000,
       });
 
     await expect(
       zkOracle
-        .connect(oracle1)
-        .submitZKProof('ETH/USD', dataHash, 250000000000n, proof),
+        .connect(owner)
+        .submitZKProof('ETH/USD', dataHash, 250000000000n, proof, { gasLimit: 10_000_000 }),
     ).to.emit(zkOracle, 'ZKProofSubmitted');
   });
 
@@ -112,20 +116,21 @@ describe('SentinelZKOracle', function () {
     const value = 210000000000n;
 
     await zkOracle
-      .connect(oracle1)
+      .connect(owner)
       .registerZKOracle(ethers.keccak256(ethers.toUtf8Bytes('pk')), {
         value: MIN_STAKE,
+        gasLimit: 16_000_000,
       });
 
     await zkOracle
-      .connect(oracle1)
-      .submitZKProof('ETH/USD', dataHash, value, proof);
+      .connect(owner)
+      .submitZKProof('ETH/USD', dataHash, value, proof, { gasLimit: 10_000_000 });
     await zkOracle
-      .connect(oracle1)
-      .submitZKProof('ETH/USD', dataHash, value, proof);
+      .connect(owner)
+      .submitZKProof('ETH/USD', dataHash, value, proof, { gasLimit: 10_000_000 });
     await zkOracle
-      .connect(oracle1)
-      .submitZKProof('ETH/USD', dataHash, value, proof);
+      .connect(owner)
+      .submitZKProof('ETH/USD', dataHash, value, proof, { gasLimit: 10_000_000 });
 
     const [feedValue, , confidence, isValid] =
       await zkOracle.getZKData('ETH/USD');

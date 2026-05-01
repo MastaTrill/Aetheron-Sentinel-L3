@@ -1,1 +1,1 @@
-"""Aetheron Sentinel L3 — BMNR orchestration, on-chain execution, and audit telemetry."""
+"""Aetheron Sentinel L3 — On-chain execution and audit telemetry."""

@@ -1,7 +1,9 @@
-require("@nomicfoundation/hardhat-ethers");
+import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-chai-matchers";
+import "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 
 /** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+const config = {
   solidity: {
     version: "0.8.24",
     settings: {
@@ -19,3 +21,5 @@ module.exports = {
     },
   },
 };
+
+export default config;
