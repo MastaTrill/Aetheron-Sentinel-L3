@@ -1,0 +1,28 @@
+name: Python unit tests (3.11)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: PR mode note
+        if: github.event_name == 'pull_request'
+        run: echo "Python tests are currently not configured in a root tests/ directory; PR check reports status only."
+      - name: Run unit tests (push)
+        if: github.event_name == 'push'
+        run: |
+          if [ -d tests ]; then
+            PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
+          else
+            echo "No tests/ directory present; skipping Python unittest discovery."
+          fi

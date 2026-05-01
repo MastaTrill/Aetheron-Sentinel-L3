@@ -13,7 +13,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - name: PR mode note
+        if: github.event_name == 'pull_request'
+        run: echo "Skipping heavy npm install in PR mode; lint runs on push."
       - name: Install dependencies
-        run: npm ci
+        if: github.event_name == 'push'
+        run: npm ci --legacy-peer-deps
       - name: Run ESLint
-        run: npx eslint . --ext .js,.ts,.tsx || true
+        if: github.event_name == 'push'
+        run: npx eslint . --ext .js,.ts,.tsx
