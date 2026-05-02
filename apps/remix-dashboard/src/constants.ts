@@ -39,8 +39,7 @@ export const SECURITY_MODULES: SecurityModule[] = [
     status: 'active',
     type: 'vault',
     lastCheck: new Date().toISOString(),
-    description:
-      'Quantum-entangled execution environment with zero-latency state sync.',
+    description: 'Quantum-entangled execution environment with zero-latency state sync.',
     quantumLoad: 0.15,
   },
   {
@@ -50,8 +49,7 @@ export const SECURITY_MODULES: SecurityModule[] = [
     status: 'active',
     type: 'oracle',
     lastCheck: new Date().toISOString(),
-    description:
-      'Multi-dimensional biometric validation using quantum state superposition.',
+    description: 'Multi-dimensional biometric validation using quantum state superposition.',
     quantumLoad: 0.68,
   },
   {
@@ -61,8 +59,7 @@ export const SECURITY_MODULES: SecurityModule[] = [
     status: 'active',
     type: 'limiter',
     lastCheck: new Date().toISOString(),
-    description:
-      'Enforces post-quantum cryptographic invariants on all cross-chain flows.',
+    description: 'Enforces post-quantum cryptographic invariants on all cross-chain flows.',
     quantumLoad: 0.22,
   },
 ];
@@ -79,8 +76,7 @@ export const MOCK_INVARIANTS: Invariant[] = [
   {
     id: 'inv-2',
     name: 'Unauthorized Withdrawal Guard',
-    description:
-      'No withdrawal exceeding 500 ETH without multi-sig validation.',
+    description: 'No withdrawal exceeding 500 ETH without multi-sig validation.',
     status: 'monitoring',
     lastVerified: new Date().toISOString(),
     category: 'access',
@@ -510,8 +506,7 @@ export const MOCK_ZK_PROOFS: ZKProof[] = [
   {
     id: 'zk-1',
     timestamp: new Date(Date.now() - 1000 * 12).toISOString(),
-    proofHash:
-      '0xZK_A8F2E4D1C3B5A790B1C2D3E4F5A6B7C8D9E0F1A2B3C4D5E6F7A8B9C0D1E2F3A4',
+    proofHash: '0xZK_A8F2E4D1C3B5A790B1C2D3E4F5A6B7C8D9E0F1A2B3C4D5E6F7A8B9C0D1E2F3A4',
     circuit: 'AuthCircuit_v4',
     status: 'valid',
     latency: 78,
@@ -519,8 +514,7 @@ export const MOCK_ZK_PROOFS: ZKProof[] = [
   {
     id: 'zk-2',
     timestamp: new Date(Date.now() - 1000 * 20).toISOString(),
-    proofHash:
-      '0xZK_F1E2D3C4B5A69780C9D8B7A6F5E4D3C2B1A0F9E8D7C6B5A493827160A5B4C3D2',
+    proofHash: '0xZK_F1E2D3C4B5A69780C9D8B7A6F5E4D3C2B1A0F9E8D7C6B5A493827160A5B4C3D2',
     circuit: 'LiquidityGuard_v2',
     status: 'valid',
     latency: 74,
@@ -528,8 +522,7 @@ export const MOCK_ZK_PROOFS: ZKProof[] = [
   {
     id: 'zk-3',
     timestamp: new Date(Date.now() - 1000 * 28).toISOString(),
-    proofHash:
-      '0xZK_B7C1A2F3D4E5A690C8D7B6A5F4E3D2C1B0A9E8D7C6B5A493827160A5B4C3D2E1',
+    proofHash: '0xZK_B7C1A2F3D4E5A690C8D7B6A5F4E3D2C1B0A9E8D7C6B5A493827160A5B4C3D2E1',
     circuit: 'LiquidityGuard_v2',
     status: 'valid',
     latency: 54,
@@ -537,8 +530,7 @@ export const MOCK_ZK_PROOFS: ZKProof[] = [
   {
     id: 'zk-4',
     timestamp: new Date(Date.now() - 1000 * 36).toISOString(),
-    proofHash:
-      '0xZK_E1D2C3B4A5F69780D9C8B7A6F5E4D3C2B1A0F9E8D7C6B5A493827160A5B4C3D2',
+    proofHash: '0xZK_E1D2C3B4A5F69780D9C8B7A6F5E4D3C2B1A0F9E8D7C6B5A493827160A5B4C3D2',
     circuit: 'AuthCircuit_v4',
     status: 'valid',
     latency: 79,

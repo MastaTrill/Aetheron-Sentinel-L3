@@ -1,8 +1,7 @@
 // test/SentinelGovernance.test.js
 import { expect } from 'chai';
 
-
-import hardhat from "hardhat";
+import hardhat from 'hardhat';
 const { ethers } = hardhat;
 
 describe('SentinelGovernance', function () {
@@ -12,13 +11,12 @@ describe('SentinelGovernance', function () {
 
   // Deploy helpers
   async function deployTimelockController(admin) {
-    const SentinelTimelock =
-      await ethers.getContractFactory('SentinelTimelock');
+    const SentinelTimelock = await ethers.getContractFactory('SentinelTimelock');
     const timelock = await SentinelTimelock.deploy(
       1, // minDelay: 1 second
       [admin.address], // proposers
       [admin.address], // executors
-      admin.address, // admin
+      admin.address // admin
     );
     await timelock.waitForDeployment();
     return timelock;
@@ -30,7 +28,7 @@ describe('SentinelGovernance', function () {
       'GovToken',
       'GOV',
       admin.address,
-      ethers.parseEther('1000000'),
+      ethers.parseEther('1000000')
     );
     await token.waitForDeployment();
     return token;
@@ -43,13 +41,12 @@ describe('SentinelGovernance', function () {
 
   describe('constants', function () {
     it('MIN_VOTING_DELAY is 1 day', async function () {
-      const SentinelGovernance =
-        await ethers.getContractFactory('SentinelGovernance');
+      const SentinelGovernance = await ethers.getContractFactory('SentinelGovernance');
       // We need valid IVotes + TimelockController to deploy.
       const timelock = await deployTimelockController(owner);
       governance = await SentinelGovernance.deploy(
         await votesToken.getAddress(),
-        await timelock.getAddress(),
+        await timelock.getAddress()
       );
       await governance.waitForDeployment();
 
@@ -58,12 +55,11 @@ describe('SentinelGovernance', function () {
     });
 
     it('MIN_VOTING_PERIOD is 3 days', async function () {
-      const SentinelGovernance =
-        await ethers.getContractFactory('SentinelGovernance');
+      const SentinelGovernance = await ethers.getContractFactory('SentinelGovernance');
       const timelock = await deployTimelockController(owner);
       governance = await SentinelGovernance.deploy(
         await votesToken.getAddress(),
-        await timelock.getAddress(),
+        await timelock.getAddress()
       );
       await governance.waitForDeployment();
 
@@ -72,12 +68,11 @@ describe('SentinelGovernance', function () {
     });
 
     it('EMERGENCY_VOTING_PERIOD is 6 hours', async function () {
-      const SentinelGovernance =
-        await ethers.getContractFactory('SentinelGovernance');
+      const SentinelGovernance = await ethers.getContractFactory('SentinelGovernance');
       const timelock = await deployTimelockController(owner);
       governance = await SentinelGovernance.deploy(
         await votesToken.getAddress(),
-        await timelock.getAddress(),
+        await timelock.getAddress()
       );
       await governance.waitForDeployment();
 
@@ -86,12 +81,11 @@ describe('SentinelGovernance', function () {
     });
 
     it('CRITICAL_VOTING_PERIOD is 1 hour', async function () {
-      const SentinelGovernance =
-        await ethers.getContractFactory('SentinelGovernance');
+      const SentinelGovernance = await ethers.getContractFactory('SentinelGovernance');
       const timelock = await deployTimelockController(owner);
       governance = await SentinelGovernance.deploy(
         await votesToken.getAddress(),
-        await timelock.getAddress(),
+        await timelock.getAddress()
       );
       await governance.waitForDeployment();
 
@@ -102,12 +96,11 @@ describe('SentinelGovernance', function () {
 
   describe('Deployment', function () {
     beforeEach(async function () {
-      const SentinelGovernance =
-        await ethers.getContractFactory('SentinelGovernance');
+      const SentinelGovernance = await ethers.getContractFactory('SentinelGovernance');
       const timelock = await deployTimelockController(owner);
       governance = await SentinelGovernance.deploy(
         await votesToken.getAddress(),
-        await timelock.getAddress(),
+        await timelock.getAddress()
       );
       await governance.waitForDeployment();
     });
@@ -148,24 +141,18 @@ describe('SentinelGovernance', function () {
 
   describe('proposeEmergency', function () {
     it('reverts when caller has insufficient governance reputation (< 100)', async function () {
-      const SentinelGovernance =
-        await ethers.getContractFactory('SentinelGovernance');
+      const SentinelGovernance = await ethers.getContractFactory('SentinelGovernance');
       const timelock = await deployTimelockController(owner);
       governance = await SentinelGovernance.deploy(
         await votesToken.getAddress(),
-        await timelock.getAddress(),
+        await timelock.getAddress()
       );
       await governance.waitForDeployment();
 
       await expect(
         governance
           .connect(voter)
-          .proposeEmergency(
-            [owner.address],
-            [0],
-            ['0x'],
-            'Emergency: critical exploit detected',
-          ),
+          .proposeEmergency([owner.address], [0], ['0x'], 'Emergency: critical exploit detected')
       ).to.be.revertedWith('Insufficient reputation for emergency proposal');
     });
   });

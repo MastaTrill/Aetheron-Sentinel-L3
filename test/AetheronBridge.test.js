@@ -12,12 +12,7 @@ describe('AetheronBridge', function () {
 
     // Deploy a minimal ERC-20 mock for bridging
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    token = await ERC20Mock.deploy(
-      'MockToken',
-      'MTK',
-      owner.address,
-      ethers.parseEther('1000000'),
-    );
+    token = await ERC20Mock.deploy('MockToken', 'MTK', owner.address, ethers.parseEther('1000000'));
     await token.waitForDeployment();
 
     const AetheronBridge = await ethers.getContractFactory('AetheronBridge');
@@ -30,12 +25,10 @@ describe('AetheronBridge', function () {
 
     // Fund user
     await token.transfer(user.address, ethers.parseEther('1000'));
-    await token
-      .connect(user)
-      .approve(await bridge.getAddress(), ethers.parseEther('1000'));
+    await token.connect(user).approve(await bridge.getAddress(), ethers.parseEther('1000'));
   });
 
-describe('Token support tracking', function () {
+  describe('Token support tracking', function () {
     it('increments supportedTokenCount when adding a new token', async function () {
       expect(await bridge.supportedTokenCount()).to.equal(1);
     });
@@ -56,13 +49,10 @@ describe('Token support tracking', function () {
         'Token2',
         'TK2',
         owner.address,
-        ethers.parseEther('1000'),
+        ethers.parseEther('1000')
       );
       await token2.waitForDeployment();
-      await bridge.initializeBridge(
-        await token2.getAddress(),
-        ethers.parseEther('100'),
-      );
+      await bridge.initializeBridge(await token2.getAddress(), ethers.parseEther('100'));
       expect(await bridge.supportedTokenCount()).to.equal(2);
     });
   });
@@ -94,7 +84,7 @@ describe('Token support tracking', function () {
           await token.getAddress(),
           {
             value: ethers.parseEther('0.001'), // bridge fee
-          },
+          }
         );
 
       expect(await bridge.totalTransferCount()).to.equal(1);

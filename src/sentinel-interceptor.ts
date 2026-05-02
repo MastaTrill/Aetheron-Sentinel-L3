@@ -29,9 +29,7 @@ export function handleAnomalyDetected(event: AnomalyDetectedEvent): void {
   entity.save();
 }
 
-export function handleAutonomousPauseTriggered(
-  event: AutonomousPauseTriggeredEvent,
-): void {
+export function handleAutonomousPauseTriggered(event: AutonomousPauseTriggeredEvent): void {
   const entity = loadOrCreateSentinel();
   entity.autonomousMode = false;
   entity.save();
@@ -41,18 +39,14 @@ export function handleTVLUpdated(event: TVLUpdatedEvent): void {
   const sentinel = loadOrCreateSentinel();
   sentinel.save();
 
-  const update = new TVLUpdate(
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
-  );
+  const update = new TVLUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   update.sentinel = SENTINEL_ID;
   update.tvl = event.params.newTVL;
   update.timestamp = event.block.timestamp;
   update.save();
 }
 
-export function handleAutonomousModeToggled(
-  event: AutonomousModeToggledEvent,
-): void {
+export function handleAutonomousModeToggled(event: AutonomousModeToggledEvent): void {
   const entity = loadOrCreateSentinel();
   entity.autonomousMode = event.params.enabled;
   entity.save();
@@ -62,9 +56,7 @@ export function handleThresholdUpdated(event: ThresholdUpdatedEvent): void {
   const sentinel = loadOrCreateSentinel();
   sentinel.save();
 
-  const threshold = new Threshold(
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
-  );
+  const threshold = new Threshold(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   threshold.sentinel = SENTINEL_ID;
   threshold.thresholdType = event.params.thresholdType;
   threshold.value = event.params.newValue;

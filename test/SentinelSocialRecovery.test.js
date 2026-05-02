@@ -27,12 +27,10 @@ describe('SentinelSocialRecovery', function () {
 
     // SentinelSocialRecovery requires a zkIdentityContract address (any non-zero is fine
     // because _isValidZKIdentity only checks account != address(0))
-    const SentinelSocialRecovery = await ethers.getContractFactory(
-      'SentinelSocialRecovery',
-    );
+    const SentinelSocialRecovery = await ethers.getContractFactory('SentinelSocialRecovery');
     recovery = await SentinelSocialRecovery.deploy(
       owner.address, // zkIdentityContract (placeholder)
-      owner.address,
+      owner.address
     );
     await recovery.waitForDeployment();
   });
@@ -47,11 +45,9 @@ describe('SentinelSocialRecovery', function () {
     });
 
     it('rejects zero owner', async function () {
-      const SentinelSocialRecovery = await ethers.getContractFactory(
-        'SentinelSocialRecovery',
-      );
+      const SentinelSocialRecovery = await ethers.getContractFactory('SentinelSocialRecovery');
       await expect(
-        SentinelSocialRecovery.deploy(owner.address, ethers.ZeroAddress),
+        SentinelSocialRecovery.deploy(owner.address, ethers.ZeroAddress)
       ).to.be.revertedWith('SR: zero owner');
     });
   });
@@ -76,14 +72,11 @@ describe('SentinelSocialRecovery', function () {
     it('configures recovery successfully with valid guardians', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      const [guardianCount, threshold, recoveryDelay, isActive] =
-        await recovery.getRecoveryConfig(account.address);
+      const [guardianCount, threshold, recoveryDelay, isActive] = await recovery.getRecoveryConfig(
+        account.address
+      );
       expect(guardianCount).to.equal(3n);
       expect(threshold).to.equal(2n);
       expect(recoveryDelay).to.equal(BigInt(delay));
@@ -94,11 +87,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(account)
-          .configureRecovery(
-            [guardian1.address, guardian2.address, guardian3.address],
-            2,
-            delay,
-          ),
+          .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay)
       )
         .to.emit(recovery, 'RecoveryConfigured')
         .withArgs(account.address, 3n, 2n);
@@ -108,7 +97,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(account)
-          .configureRecovery([guardian1.address, guardian2.address], 1, delay),
+          .configureRecovery([guardian1.address, guardian2.address], 1, delay)
       ).to.be.revertedWith('Invalid guardian count');
     });
 
@@ -116,11 +105,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(account)
-          .configureRecovery(
-            [guardian1.address, guardian2.address, guardian3.address],
-            0,
-            delay,
-          ),
+          .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 0, delay)
       ).to.be.revertedWith('Invalid threshold');
     });
 
@@ -128,11 +113,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(account)
-          .configureRecovery(
-            [guardian1.address, guardian2.address, guardian3.address],
-            4,
-            delay,
-          ),
+          .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 4, delay)
       ).to.be.revertedWith('Invalid threshold');
     });
 
@@ -141,44 +122,28 @@ describe('SentinelSocialRecovery', function () {
         recovery.connect(account).configureRecovery(
           [guardian1.address, guardian2.address, guardian3.address],
           2,
-          3600, // 1 hour
-        ),
+          3600 // 1 hour
+        )
       ).to.not.be.reverted;
     });
 
     it('reverts if already configured', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
       await expect(
         recovery
           .connect(account)
-          .configureRecovery(
-            [guardian1.address, guardian2.address, guardian3.address],
-            2,
-            delay,
-          ),
+          .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay)
       ).to.be.revertedWith('Recovery already configured');
     });
 
     it('confirms configured guardians via isGuardian', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
-      expect(
-        await recovery.isGuardian(account.address, guardian1.address),
-      ).to.equal(true);
-      expect(
-        await recovery.isGuardian(account.address, stranger.address),
-      ).to.equal(false);
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
+      expect(await recovery.isGuardian(account.address, guardian1.address)).to.equal(true);
+      expect(await recovery.isGuardian(account.address, stranger.address)).to.equal(false);
     });
   });
 
@@ -188,45 +153,38 @@ describe('SentinelSocialRecovery', function () {
     beforeEach(async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
     });
 
     it('creates a recovery request and returns a requestId', async function () {
-      const tx = await recovery
-        .connect(account)
-        .requestRecovery(newOwner.address, '0x1234');
+      const tx = await recovery.connect(account).requestRecovery(newOwner.address, '0x1234');
       const receipt = await tx.wait();
-      const event = receipt.logs.find(
-        (l) => l.fragment && l.fragment.name === 'RecoveryRequested',
-      );
+      const event = receipt.logs.find(l => l.fragment && l.fragment.name === 'RecoveryRequested');
       expect(event).to.not.be.undefined;
     });
 
     it('emits RecoveryRequested event', async function () {
-      await expect(
-        recovery.connect(account).requestRecovery(newOwner.address, '0x1234'),
-      ).to.emit(recovery, 'RecoveryRequested');
+      await expect(recovery.connect(account).requestRecovery(newOwner.address, '0x1234')).to.emit(
+        recovery,
+        'RecoveryRequested'
+      );
     });
 
     it('reverts if recovery not configured', async function () {
       await expect(
-        recovery.connect(stranger).requestRecovery(newOwner.address, '0x1234'),
+        recovery.connect(stranger).requestRecovery(newOwner.address, '0x1234')
       ).to.be.revertedWith('Recovery not configured');
     });
 
     it('reverts if newOwner is the zero address', async function () {
       await expect(
-        recovery.connect(account).requestRecovery(ethers.ZeroAddress, '0x1234'),
+        recovery.connect(account).requestRecovery(ethers.ZeroAddress, '0x1234')
       ).to.be.revertedWith('Invalid new owner');
     });
 
     it('reverts if newOwner is same as caller', async function () {
       await expect(
-        recovery.connect(account).requestRecovery(account.address, '0x1234'),
+        recovery.connect(account).requestRecovery(account.address, '0x1234')
       ).to.be.revertedWith('Invalid new owner');
     });
   });
@@ -237,48 +195,30 @@ describe('SentinelSocialRecovery', function () {
     it('account owner can cancel a pending request', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      const tx = await recovery
-        .connect(account)
-        .requestRecovery(newOwner.address, '0x1234');
+      const tx = await recovery.connect(account).requestRecovery(newOwner.address, '0x1234');
       const receipt = await tx.wait();
-      const event = receipt.logs.find(
-        (l) => l.fragment && l.fragment.name === 'RecoveryRequested',
-      );
+      const event = receipt.logs.find(l => l.fragment && l.fragment.name === 'RecoveryRequested');
       const requestId = event.args[0];
 
       // Cancel should not revert
-      await expect(
-        recovery.connect(account).cancelRecovery(requestId),
-      ).to.not.be.reverted;
+      await expect(recovery.connect(account).cancelRecovery(requestId)).to.not.be.reverted;
     });
 
     it('reverts if caller is not the request owner', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      const tx = await recovery
-        .connect(account)
-        .requestRecovery(newOwner.address, '0x1234');
+      const tx = await recovery.connect(account).requestRecovery(newOwner.address, '0x1234');
       const receipt = await tx.wait();
-      const event = receipt.logs.find(
-        (l) => l.fragment && l.fragment.name === 'RecoveryRequested',
-      );
+      const event = receipt.logs.find(l => l.fragment && l.fragment.name === 'RecoveryRequested');
       const requestId = event.args[0];
 
-      await expect(
-        recovery.connect(stranger).cancelRecovery(requestId),
-      ).to.be.revertedWith('Not request owner');
+      await expect(recovery.connect(stranger).cancelRecovery(requestId)).to.be.revertedWith(
+        'Not request owner'
+      );
     });
   });
 
@@ -290,19 +230,11 @@ describe('SentinelSocialRecovery', function () {
     beforeEach(async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      const tx = await recovery
-        .connect(account)
-        .requestRecovery(newOwner.address, '0x1234');
+      const tx = await recovery.connect(account).requestRecovery(newOwner.address, '0x1234');
       const receipt = await tx.wait();
-      const event = receipt.logs.find(
-        (l) => l.fragment && l.fragment.name === 'RecoveryRequested',
-      );
+      const event = receipt.logs.find(l => l.fragment && l.fragment.name === 'RecoveryRequested');
       requestId = event.args[0];
 
       // Find a valid proof for guardian1
@@ -313,7 +245,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(guardian1)
-          .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 }),
+          .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 })
       ).to.not.be.reverted;
     });
 
@@ -321,7 +253,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(guardian1)
-          .approveRecovery(account.address, requestId, '0x1234', { gasLimit: 1_000_000 }),
+          .approveRecovery(account.address, requestId, '0x1234', { gasLimit: 1_000_000 })
       ).to.not.be.reverted;
     });
 
@@ -332,7 +264,7 @@ describe('SentinelSocialRecovery', function () {
       await expect(
         recovery
           .connect(guardian1)
-          .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 }),
+          .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 })
       ).to.be.revertedWith('Already approved');
     });
 
@@ -350,9 +282,10 @@ describe('SentinelSocialRecovery', function () {
         .approveRecovery(account.address, requestId, proof2, { gasLimit: 1_000_000 });
 
       // Now execute the recovery
-      await expect(
-        recovery.connect(account).executeRecovery(account.address, requestId),
-      ).to.emit(recovery, 'RecoveryExecuted');
+      await expect(recovery.connect(account).executeRecovery(account.address, requestId)).to.emit(
+        recovery,
+        'RecoveryExecuted'
+      );
     });
   });
 
@@ -360,36 +293,26 @@ describe('SentinelSocialRecovery', function () {
     const delay = 2 * 24 * 60 * 60;
 
     it('reverts if not configured', async function () {
-      await expect(
-        recovery.connect(account).addGuardian(stranger.address),
-      ).to.be.revertedWith('Recovery not configured');
+      await expect(recovery.connect(account).addGuardian(stranger.address)).to.be.revertedWith(
+        'Recovery not configured'
+      );
     });
 
     it('reverts when removing would go below MIN_GUARDIANS', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
-      await expect(
-        recovery.connect(account).removeGuardian(guardian1.address),
-      ).to.be.revertedWith('Minimum guardians required');
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
+      await expect(recovery.connect(account).removeGuardian(guardian1.address)).to.be.revertedWith(
+        'Minimum guardians required'
+      );
     });
 
     it('allows adding guardian when below MAX_GUARDIANS', async function () {
       await recovery
         .connect(account)
-        .configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          delay,
-        );
+        .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      await expect(
-        recovery.connect(account).addGuardian(stranger.address),
-      ).to.not.be.reverted;
+      await expect(recovery.connect(account).addGuardian(stranger.address)).to.not.be.reverted;
     });
   });
 });

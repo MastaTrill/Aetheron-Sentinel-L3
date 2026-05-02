@@ -8,12 +8,8 @@ import {
 } from '../generated/RateLimiter/RateLimiter';
 import { RateLimitStats, Withdrawal } from '../generated/schema';
 
-export function handleWithdrawalProcessed(
-  event: WithdrawalProcessedEvent,
-): void {
-  const entity = new Withdrawal(
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
-  );
+export function handleWithdrawalProcessed(event: WithdrawalProcessedEvent): void {
+  const entity = new Withdrawal(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.rateLimit = event.params.chainId.toString();
   entity.user = event.params.user;
   entity.amount = event.params.amount;

@@ -120,7 +120,7 @@ const Sparkline = ({ data, status }: { data: number[]; status: string }) => {
     y: height - ((d - min) / range) * height,
   }));
 
-  const pathData = `M ${points.map((p) => `${p.x},${p.y}`).join(' L ')}`;
+  const pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
 
   return (
     <svg width={width} height={height} className="overflow-visible">
@@ -202,7 +202,7 @@ const GlobalThreatMap = ({ threats }: { threats: ThreatLocation[] }) => {
       </div>
 
       {/* Threat Blips */}
-      {threats.map((threat) => (
+      {threats.map(threat => (
         <motion.div
           key={threat.id}
           className="absolute w-2 h-2 rounded-full bg-red-500"
@@ -256,7 +256,7 @@ const StateMachineHUD = ({
     if (!selectedNodeId) return false;
     if (selectedNodeId !== fromId) return false;
 
-    const targetNode = nodes.find((n) => n.id === toId);
+    const targetNode = nodes.find(n => n.id === toId);
     return targetNode?.status === 'active';
   };
 
@@ -271,13 +271,7 @@ const StateMachineHUD = ({
               <stop offset="50%" stopColor="currentColor" stopOpacity="0.3" />
               <stop offset="100%" stopColor="currentColor" stopOpacity="0.1" />
             </linearGradient>
-            <linearGradient
-              id="line-grad-highlight"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
+            <linearGradient id="line-grad-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#00f2ff" stopOpacity="0.4" />
               <stop offset="50%" stopColor="#00f2ff" stopOpacity="1" />
               <stop offset="100%" stopColor="#00f2ff" stopOpacity="0.4" />
@@ -300,9 +294,7 @@ const StateMachineHUD = ({
                 ? 'text-primary shadow-[0_0_10px_#00f2ff]'
                 : 'text-primary'
             }
-            strokeDasharray={
-              isPathHighlighted('node-1', 'node-2') ? 'none' : '4 2'
-            }
+            strokeDasharray={isPathHighlighted('node-1', 'node-2') ? 'none' : '4 2'}
             animate={
               isPathHighlighted('node-1', 'node-2')
                 ? { strokeDashoffset: [0, -24], opacity: [0.6, 1, 0.6] }
@@ -331,9 +323,7 @@ const StateMachineHUD = ({
                 ? 'text-primary shadow-[0_0_10px_#00f2ff]'
                 : 'text-primary'
             }
-            strokeDasharray={
-              isPathHighlighted('node-2', 'node-3') ? 'none' : '4 2'
-            }
+            strokeDasharray={isPathHighlighted('node-2', 'node-3') ? 'none' : '4 2'}
             animate={
               isPathHighlighted('node-2', 'node-3')
                 ? { strokeDashoffset: [0, -24], opacity: [0.6, 1, 0.6] }
@@ -360,9 +350,7 @@ const StateMachineHUD = ({
                 ? 'text-primary shadow-[0_0_10px_#00f2ff]'
                 : 'text-primary'
             }
-            strokeDasharray={
-              isPathHighlighted('node-2', 'node-4') ? 'none' : '4 2'
-            }
+            strokeDasharray={isPathHighlighted('node-2', 'node-4') ? 'none' : '4 2'}
             animate={
               isPathHighlighted('node-2', 'node-4')
                 ? { strokeDashoffset: [0, -24], opacity: [0.6, 1, 0.6] }
@@ -391,9 +379,7 @@ const StateMachineHUD = ({
                 ? 'text-primary shadow-[0_0_10px_#00f2ff]'
                 : 'text-primary'
             }
-            strokeDasharray={
-              isPathHighlighted('node-3', 'node-5') ? 'none' : '4 2'
-            }
+            strokeDasharray={isPathHighlighted('node-3', 'node-5') ? 'none' : '4 2'}
             animate={
               isPathHighlighted('node-3', 'node-5')
                 ? { strokeDashoffset: [0, -24], opacity: [0.6, 1, 0.6] }
@@ -409,7 +395,7 @@ const StateMachineHUD = ({
       </div>
 
       <div className="grid grid-cols-5 gap-2 relative z-10">
-        {nodes.map((node) => (
+        {nodes.map(node => (
           <div key={node.id} className="flex flex-col items-center gap-2">
             <motion.div
               onClick={() => onNodeClick(node.id)}
@@ -486,20 +472,14 @@ const StateMachineHUD = ({
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                {nodes.find((n) => n.id === selectedNodeId)?.label} NODE
+                {nodes.find(n => n.id === selectedNodeId)?.label} NODE
               </span>
-              <Badge
-                variant="outline"
-                className="text-[7px] border-primary/30 text-primary/60"
-              >
-                STATUS:{' '}
-                {nodes
-                  .find((n) => n.id === selectedNodeId)
-                  ?.status.toUpperCase()}
+              <Badge variant="outline" className="text-[7px] border-primary/30 text-primary/60">
+                STATUS: {nodes.find(n => n.id === selectedNodeId)?.status.toUpperCase()}
               </Badge>
             </div>
             <p className="text-[9px] text-primary/80 font-mono leading-relaxed">
-              {nodes.find((n) => n.id === selectedNodeId)?.description}
+              {nodes.find(n => n.id === selectedNodeId)?.description}
             </p>
           </motion.div>
         )}
@@ -513,11 +493,8 @@ const StateMachineHUD = ({
           </span>
         </div>
         <div className="space-y-2">
-          {transitions.map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center justify-between text-[8px] font-mono"
-            >
+          {transitions.map(t => (
+            <div key={t.id} className="flex items-center justify-between text-[8px] font-mono">
               <div className="flex items-center gap-2">
                 <span className="text-primary/40">
                   [{format(new Date(t.timestamp), 'HH:mm:ss')}]
@@ -553,14 +530,11 @@ export default function App() {
   const [verdicts] = useState<Verdict[]>(VERDICTS);
   const [stats, setStats] = useState<OrderbookStats>(ORDERBOOK_STATS);
   const [exploits, setExploits] = useState<Exploit[]>([]);
-  const [fuzzingTargets, setFuzzingTargets] =
-    useState<FuzzingTarget[]>(FUZZING_TARGETS);
-  const [bountyStats, setBountyStats] =
-    useState<BugBountyStats>(BUG_BOUNTY_STATS);
+  const [fuzzingTargets, setFuzzingTargets] = useState<FuzzingTarget[]>(FUZZING_TARGETS);
+  const [bountyStats, setBountyStats] = useState<BugBountyStats>(BUG_BOUNTY_STATS);
   const [yieldStats, setYieldStats] = useState<YieldAggregator>(YIELD_STATS);
   const [rewardPools, setRewardPools] = useState<RewardPool[]>(REWARD_POOLS);
-  const [securityModules, setSecurityModules] =
-    useState<SecurityModule[]>(SECURITY_MODULES);
+  const [securityModules, setSecurityModules] = useState<SecurityModule[]>(SECURITY_MODULES);
   const [networkStats, setNetworkStats] = useState<NetworkStats>({
     tps: 1420,
     gasPrice: '12 Gwei',
@@ -570,32 +544,24 @@ export default function App() {
   });
   const [anomalies, setAnomalies] = useState<AnomalyLog[]>(MOCK_ANOMALIES);
   const [stateNodes] = useState<StateMachineNode[]>(STATE_MACHINE_NODES);
-  const [stateTransitions, setStateTransitions] =
-    useState<StateTransition[]>(STATE_TRANSITIONS);
+  const [stateTransitions, setStateTransitions] = useState<StateTransition[]>(STATE_TRANSITIONS);
   const [threats] = useState<ThreatLocation[]>(THREAT_LOCATIONS);
   const [vaults] = useState<QuantumVault[]>(QUANTUM_VAULTS);
   const [leaks, setLeaks] = useState<DarknetLeak[]>(MOCK_LEAKS);
   const [zkProofs, setZkProofs] = useState<ZKProof[]>(MOCK_ZK_PROOFS);
-  const [auditLogs, setAuditLogs] = useState<OperatorActivity[]>(
-    MOCK_OPERATOR_ACTIVITY,
-  );
+  const [auditLogs, setAuditLogs] = useState<OperatorActivity[]>(MOCK_OPERATOR_ACTIVITY);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [anomalySeverityFilter, setAnomalySeverityFilter] =
-    useState<string>('all');
+  const [anomalySeverityFilter, setAnomalySeverityFilter] = useState<string>('all');
   const [anomalySourceFilter, setAnomalySourceFilter] = useState<string>('all');
   const [zkStatusFilter, setZkStatusFilter] = useState<string>('all');
   const [expandedZkProofIds, setExpandedZkProofIds] = useState<string[]>([]);
-  const [auditFilter, setAuditFilter] = useState<'all' | 'flagged-blocked'>(
-    'all',
+  const [auditFilter, setAuditFilter] = useState<'all' | 'flagged-blocked'>('all');
+  const [auditVerifiedFilter, setAuditVerifiedFilter] = useState<'all' | 'verified' | 'unverified'>(
+    'all'
   );
-  const [auditVerifiedFilter, setAuditVerifiedFilter] = useState<
-    'all' | 'verified' | 'unverified'
-  >('all');
   const [expandedExploitIds, setExpandedExploitIds] = useState<string[]>([]);
-  const [remediatedExploitIds, setRemediatedExploitIds] = useState<string[]>(
-    [],
-  );
+  const [remediatedExploitIds, setRemediatedExploitIds] = useState<string[]>([]);
   const [remediatingIds, setRemediatingIds] = useState<string[]>([]);
   const [auditDateStart, setAuditDateStart] = useState<string>('');
   const [auditDateEnd, setAuditDateEnd] = useState<string>('');
@@ -603,9 +569,7 @@ export default function App() {
   // New States for requested features
   const [adaptiveResponseEnabled, setAdaptiveResponseEnabled] = useState(true);
   const [auditActionFilter, setAuditActionFilter] = useState<string>('all');
-  const [auditTimeFilter, setAuditTimeFilter] = useState<'all' | '1h' | '24h'>(
-    'all',
-  );
+  const [auditTimeFilter, setAuditTimeFilter] = useState<'all' | '1h' | '24h'>('all');
   const [encryptionActive, setEncryptionActive] = useState(true);
   const [encryptionKeyRotation, setEncryptionKeyRotation] = useState(0);
 
@@ -614,7 +578,7 @@ export default function App() {
     Array.from({ length: 10 }, (_, i) => ({
       year: 2026 + i,
       yield: 3.15 + i * 2.2 + Math.random() * 2,
-    })),
+    }))
   );
 
   // Real-time simulation loop
@@ -623,12 +587,7 @@ export default function App() {
       // Simulate new state transition
       const fromNodes = ['INGRESS', 'VERIFICATION', 'EXECUTION'];
       const toNodes = ['VERIFICATION', 'EXECUTION', 'SETTLEMENT'];
-      const triggers = [
-        'Packet Validated',
-        'State Sync',
-        'Finality Reached',
-        'Auth Success',
-      ];
+      const triggers = ['Packet Validated', 'State Sync', 'Finality Reached', 'Auth Success'];
 
       const newTransition: StateTransition = {
         id: `st-${Date.now()}`,
@@ -639,7 +598,7 @@ export default function App() {
         severity: Math.random() > 0.8 ? 'medium' : 'low',
       };
 
-      setStateTransitions((prev) => [newTransition, ...prev.slice(0, 4)]);
+      setStateTransitions(prev => [newTransition, ...prev.slice(0, 4)]);
 
       // Simulate new ZK Proof
       if (Math.random() > 0.7) {
@@ -647,15 +606,13 @@ export default function App() {
           id: `zk-${Date.now()}`,
           timestamp: new Date().toISOString(),
           proofHash: `0xZK${Math.random().toString(16).slice(2).toUpperCase()}${Math.random().toString(16).slice(2).toUpperCase()}`,
-          circuit: [
-            'AuthCircuit_v4',
-            'StateTransition_v1',
-            'LiquidityGuard_v2',
-          ][Math.floor(Math.random() * 3)],
+          circuit: ['AuthCircuit_v4', 'StateTransition_v1', 'LiquidityGuard_v2'][
+            Math.floor(Math.random() * 3)
+          ],
           status: Math.random() > 0.9 ? 'verifying' : 'valid',
           latency: Math.floor(Math.random() * 150) + 30,
         };
-        setZkProofs((prev) => [newProof, ...prev.slice(0, 3)]);
+        setZkProofs(prev => [newProof, ...prev.slice(0, 3)]);
       }
 
       // Simulate new Darknet Leak
@@ -663,26 +620,17 @@ export default function App() {
         const newLeak: DarknetLeak = {
           id: `l-${Date.now()}`,
           timestamp: new Date().toISOString(),
-          source: ['OnionScan', 'LeakBot', 'ShadowNet'][
-            Math.floor(Math.random() * 3)
-          ],
-          leakType: ['credentials', 'exploit', 'intel'][
-            Math.floor(Math.random() * 3)
-          ] as any,
+          source: ['OnionScan', 'LeakBot', 'ShadowNet'][Math.floor(Math.random() * 3)],
+          leakType: ['credentials', 'exploit', 'intel'][Math.floor(Math.random() * 3)] as any,
           content: 'New threat vector identified in encrypted channel',
           riskScore: Math.random() * 0.5 + 0.5,
         };
-        setLeaks((prev) => [newLeak, ...prev.slice(0, 2)]);
+        setLeaks(prev => [newLeak, ...prev.slice(0, 2)]);
       }
 
       // Simulate new Anomaly
       if (Math.random() > 0.8) {
-        const sources = [
-          'L3 Core',
-          'Vault-Alpha',
-          'Oracle-Node',
-          'Sentinel-Gate',
-        ];
+        const sources = ['L3 Core', 'Vault-Alpha', 'Oracle-Node', 'Sentinel-Gate'];
         const messages = [
           'Unauthorized state access attempt',
           'Quantum decoherence spike detected',
@@ -702,16 +650,13 @@ export default function App() {
           timestamp: new Date().toISOString(),
           source: sources[Math.floor(Math.random() * sources.length)],
           message: messages[Math.floor(Math.random() * messages.length)],
-          severity:
-            severities[
-              Math.floor(Math.random() * (Math.random() > 0.9 ? 4 : 3))
-            ],
+          severity: severities[Math.floor(Math.random() * (Math.random() > 0.9 ? 4 : 3))],
           txHash:
             Math.random() > 0.5
               ? `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`
               : undefined,
         };
-        setAnomalies((prev) => [newAnomaly, ...prev.slice(0, 10)]);
+        setAnomalies(prev => [newAnomaly, ...prev.slice(0, 10)]);
       }
 
       // Simulate new Audit Log
@@ -724,12 +669,7 @@ export default function App() {
           'Vault Access Requested',
           'Invariant Check Triggered',
         ];
-        const operators = [
-          'Operator_0x44',
-          'Operator_0x99',
-          'Operator_0x21',
-          'System_Admin',
-        ];
+        const operators = ['Operator_0x44', 'Operator_0x99', 'Operator_0x21', 'System_Admin'];
         const statuses: ('authorized' | 'flagged' | 'blocked')[] = [
           'authorized',
           'authorized',
@@ -746,7 +686,7 @@ export default function App() {
           identityVerified: Math.random() > 0.1,
           status: statuses[Math.floor(Math.random() * statuses.length)],
         };
-        setAuditLogs((prev) => [newLog, ...prev.slice(0, 8)]);
+        setAuditLogs(prev => [newLog, ...prev.slice(0, 8)]);
       }
     }, 4000);
 
@@ -758,13 +698,10 @@ export default function App() {
     if (!adaptiveResponseEnabled || anomalies.length === 0) return;
 
     const latestAnomaly = anomalies[0];
-    if (
-      latestAnomaly.severity === 'critical' ||
-      latestAnomaly.severity === 'high'
-    ) {
+    if (latestAnomaly.severity === 'critical' || latestAnomaly.severity === 'high') {
       // Auto-harden modules related to the anomaly source
-      setSecurityModules((prev) =>
-        prev.map((m) => {
+      setSecurityModules(prev =>
+        prev.map(m => {
           const isMatch = latestAnomaly.source
             .toLowerCase()
             .includes(m.name.toLowerCase().split(' ')[0].toLowerCase());
@@ -777,7 +714,7 @@ export default function App() {
             };
           }
           return m;
-        }),
+        })
       );
     }
   }, [anomalies, adaptiveResponseEnabled]);
@@ -786,7 +723,7 @@ export default function App() {
   useEffect(() => {
     if (!encryptionActive) return;
     const interval = setInterval(() => {
-      setEncryptionKeyRotation((prev) => (prev + 1) % 100);
+      setEncryptionKeyRotation(prev => (prev + 1) % 100);
     }, 3000);
     return () => clearInterval(interval);
   }, [encryptionActive]);
@@ -798,17 +735,17 @@ export default function App() {
   // Startup sequence logic
   useEffect(() => {
     const sequence = async () => {
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 1000));
       setStartupStep(1); // Lightning
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 1000));
       setStartupStep(2); // Symbol
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 1500));
       setStartupStep(3); // Eye opens
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 1000));
       setStartupStep(4); // Lasers
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 1500));
       setStartupStep(5); // City background + Logo
-      await new Promise((r) => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 2000));
       setShowDashboard(true);
     };
     sequence();
@@ -820,30 +757,27 @@ export default function App() {
 
     const interval = setInterval(() => {
       // Update Watchpoints
-      setWatchpoints((prev) =>
-        prev.map((wp) => ({
+      setWatchpoints(prev =>
+        prev.map(wp => ({
           ...wp,
-          trend: [
-            ...wp.trend.slice(1),
-            wp.trend[wp.trend.length - 1] + (Math.random() - 0.5) * 5,
-          ],
-        })),
+          trend: [...wp.trend.slice(1), wp.trend[wp.trend.length - 1] + (Math.random() - 0.5) * 5],
+        }))
       );
 
       // Update Ledger
-      setLedgerItems((prev) =>
-        prev.map((item) => ({
+      setLedgerItems(prev =>
+        prev.map(item => ({
           ...item,
           trend: [
             ...item.trend.slice(1),
             item.trend[item.trend.length - 1] + (Math.random() - 0.5) * 2,
           ],
-        })),
+        }))
       );
 
       // Update Fuzzing
-      setFuzzingTargets((prev) =>
-        prev.map((target) => ({
+      setFuzzingTargets(prev =>
+        prev.map(target => ({
           ...target,
           coverage:
             target.status === 'fuzzing'
@@ -853,11 +787,11 @@ export default function App() {
             target.status === 'fuzzing' && Math.random() > 0.99
               ? target.crashes + 1
               : target.crashes,
-        })),
+        }))
       );
 
       setCurrentTime(new Date());
-      setNetworkStats((prev) => ({
+      setNetworkStats(prev => ({
         ...prev,
         tps: Math.floor(1400 + Math.random() * 100),
         totalIntercepted: prev.totalIntercepted + (Math.random() > 0.8 ? 1 : 0),
@@ -875,7 +809,7 @@ export default function App() {
     setExploits([]);
 
     const interval = setInterval(() => {
-      setScanProgress((prev) => {
+      setScanProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsScanning(false);
@@ -896,7 +830,7 @@ export default function App() {
 
     let currentStep = 0;
     const interval = setInterval(() => {
-      setYieldStats((prev) => ({
+      setYieldStats(prev => ({
         ...prev,
         currentYield: Math.min(target, prev.currentYield + increment),
         bmnrPower: prev.bmnrPower + 0.8, // Increased power gain
@@ -911,9 +845,7 @@ export default function App() {
   if (!showDashboard) {
     return (
       <div className="startup-container">
-        <div
-          className={`city-bg ${startupStep >= 5 ? 'opacity-50' : 'opacity-0'}`}
-        />
+        <div className={`city-bg ${startupStep >= 5 ? 'opacity-50' : 'opacity-0'}`} />
         <div className="city-overlay" />
 
         <AnimatePresence>
@@ -1056,8 +988,8 @@ export default function App() {
                 placeholder="ENTER REPOSITORY URL FOR EXPLOIT SCAN..."
                 className="bg-transparent border-none focus-visible:ring-0 text-[10px] font-mono uppercase tracking-widest h-8 placeholder:text-primary/30"
                 value={repoUrl}
-                onChange={(e) => setRepoUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleRepoScan()}
+                onChange={e => setRepoUrl(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleRepoScan()}
               />
               <Button
                 variant="ghost"
@@ -1098,9 +1030,7 @@ export default function App() {
                   <p className="text-[8px] font-bold text-primary/40 uppercase tracking-widest">
                     Global Rank
                   </p>
-                  <p className="text-lg font-mono font-bold text-primary">
-                    #{bountyStats.rank}
-                  </p>
+                  <p className="text-lg font-mono font-bold text-primary">#{bountyStats.rank}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[8px] font-bold text-primary/40 uppercase tracking-widest">
@@ -1161,9 +1091,7 @@ export default function App() {
                     <p className="text-[8px] font-bold text-primary/40 uppercase tracking-widest mb-1">
                       10Y Peak Target
                     </p>
-                    <p className="text-sm font-mono font-bold text-primary/60">
-                      25.00%
-                    </p>
+                    <p className="text-sm font-mono font-bold text-primary/60">25.00%</p>
                   </div>
                 </div>
 
@@ -1185,8 +1113,8 @@ export default function App() {
                     title="Adjust current APY"
                     aria-label="Adjust current APY"
                     value={yieldStats.currentYield}
-                    onChange={(e) =>
-                      setYieldStats((prev) => ({
+                    onChange={e =>
+                      setYieldStats(prev => ({
                         ...prev,
                         currentYield: parseFloat(e.target.value),
                       }))
@@ -1200,23 +1128,9 @@ export default function App() {
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={projectionData}>
                       <defs>
-                        <linearGradient
-                          id="yieldGradient"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="5%"
-                            stopColor="#00f2ff"
-                            stopOpacity={0.3}
-                          />
-                          <stop
-                            offset="95%"
-                            stopColor="#00f2ff"
-                            stopOpacity={0}
-                          />
+                        <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#00f2ff" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#00f2ff" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <Area
@@ -1279,15 +1193,13 @@ export default function App() {
                 </h2>
               </div>
               <div className="space-y-3">
-                {rewardPools.map((pool) => (
+                {rewardPools.map(pool => (
                   <div
                     key={pool.id}
                     className="p-2 rounded border border-primary/10 bg-black/20 flex items-center justify-between"
                   >
                     <div>
-                      <p className="text-[9px] font-bold text-primary/80 uppercase">
-                        {pool.name}
-                      </p>
+                      <p className="text-[9px] font-bold text-primary/80 uppercase">{pool.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[8px] font-mono text-primary/40">
                           {pool.multiplier}
@@ -1300,12 +1212,8 @@ export default function App() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-mono font-bold text-primary">
-                        {pool.apr}%
-                      </p>
-                      <p className="text-[7px] text-primary/40 uppercase">
-                        APR
-                      </p>
+                      <p className="text-xs font-mono font-bold text-primary">{pool.apr}%</p>
+                      <p className="text-[7px] text-primary/40 uppercase">APR</p>
                     </div>
                   </div>
                 ))}
@@ -1321,7 +1229,7 @@ export default function App() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-4 overflow-y-auto custom-scrollbar min-h-125">
-                {fuzzingTargets.map((target) => (
+                {fuzzingTargets.map(target => (
                   <div
                     key={target.id}
                     className="space-y-2 p-3 rounded bg-primary/5 border border-primary/10 hover:border-primary/30 transition-all tron-border"
@@ -1338,20 +1246,12 @@ export default function App() {
                       </Badge>
                     </div>
                     <div className="fuzzing-bar">
-                      {target.status === 'fuzzing' && (
-                        <div className="fuzzing-bar-inner" />
-                      )}
+                      {target.status === 'fuzzing' && <div className="fuzzing-bar-inner" />}
                     </div>
                     <div className="flex items-center justify-between text-[8px] font-mono text-primary/40">
                       <span>
                         Crashes:{' '}
-                        <span
-                          className={
-                            target.crashes > 0
-                              ? 'text-red-500 glow-text-red'
-                              : ''
-                          }
-                        >
+                        <span className={target.crashes > 0 ? 'text-red-500 glow-text-red' : ''}>
                           {target.crashes}
                         </span>
                       </span>
@@ -1432,9 +1332,7 @@ export default function App() {
                       {stat.label}
                     </span>
                   </div>
-                  <div className="text-sm font-mono font-bold text-primary">
-                    {stat.value}
-                  </div>
+                  <div className="text-sm font-mono font-bold text-primary">{stat.value}</div>
                 </Card>
               ))}
             </div>
@@ -1477,9 +1375,7 @@ export default function App() {
               <StateMachineHUD
                 nodes={stateNodes}
                 transitions={stateTransitions}
-                onNodeClick={(id) =>
-                  setSelectedNodeId(id === selectedNodeId ? null : id)
-                }
+                onNodeClick={id => setSelectedNodeId(id === selectedNodeId ? null : id)}
                 selectedNodeId={selectedNodeId}
               />
             </Card>
@@ -1576,7 +1472,7 @@ export default function App() {
               <CardContent className="flex-1 p-6 overflow-y-auto custom-scrollbar">
                 {exploits.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {exploits.map((exploit) => (
+                    {exploits.map(exploit => (
                       <div
                         key={exploit.id}
                         className={`p-4 rounded border bg-primary/5 transition-all hover:scale-[1.02] tron-border ${
@@ -1604,9 +1500,7 @@ export default function App() {
                                   className={`text-[7px] font-bold uppercase tracking-widest ${
                                     remediatingIds.includes(exploit.id)
                                       ? 'text-yellow-500 animate-pulse'
-                                      : remediatedExploitIds.includes(
-                                            exploit.id,
-                                          )
+                                      : remediatedExploitIds.includes(exploit.id)
                                         ? 'text-green-500'
                                         : 'text-primary/60'
                                   }`}
@@ -1656,10 +1550,10 @@ export default function App() {
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              setExpandedExploitIds((prev) =>
+                              setExpandedExploitIds(prev =>
                                 prev.includes(exploit.id)
-                                  ? prev.filter((id) => id !== exploit.id)
-                                  : [...prev, exploit.id],
+                                  ? prev.filter(id => id !== exploit.id)
+                                  : [...prev, exploit.id]
                               )
                             }
                             className="flex-1 h-8 text-[9px] font-bold uppercase tracking-widest border-primary/20 hover:bg-primary/20 text-primary"
@@ -1675,18 +1569,10 @@ export default function App() {
                             }
                             onClick={() => {
                               if (exploit.remediationScript) {
-                                setRemediatingIds((prev) => [
-                                  ...prev,
-                                  exploit.id,
-                                ]);
+                                setRemediatingIds(prev => [...prev, exploit.id]);
                                 setTimeout(() => {
-                                  setRemediatingIds((prev) =>
-                                    prev.filter((id) => id !== exploit.id),
-                                  );
-                                  setRemediatedExploitIds((prev) => [
-                                    ...prev,
-                                    exploit.id,
-                                  ]);
+                                  setRemediatingIds(prev => prev.filter(id => id !== exploit.id));
+                                  setRemediatedExploitIds(prev => [...prev, exploit.id]);
                                 }, 2000);
                               }
                             }}
@@ -1737,9 +1623,7 @@ export default function App() {
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
                     <Eye className="w-16 h-16 text-primary/20" />
                     <div className="space-y-1">
-                      <p className="text-xs font-bold uppercase tracking-[0.2em]">
-                        No Active Scan
-                      </p>
+                      <p className="text-xs font-bold uppercase tracking-[0.2em]">No Active Scan</p>
                       <p className="text-[10px] font-mono uppercase tracking-widest">
                         Enter a repository URL to begin exploit discovery
                       </p>
@@ -1765,9 +1649,7 @@ export default function App() {
                   <button
                     title="Toggle adaptive response"
                     aria-label="Toggle adaptive response"
-                    onClick={() =>
-                      setAdaptiveResponseEnabled(!adaptiveResponseEnabled)
-                    }
+                    onClick={() => setAdaptiveResponseEnabled(!adaptiveResponseEnabled)}
                     className={`h-4 w-8 rounded-full relative transition-colors ${adaptiveResponseEnabled ? 'bg-primary' : 'bg-primary/20'}`}
                   >
                     <motion.div
@@ -1778,7 +1660,7 @@ export default function App() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                {securityModules.map((module) => (
+                {securityModules.map(module => (
                   <motion.div
                     key={module.id}
                     layout
@@ -1854,18 +1736,15 @@ export default function App() {
                         size="sm"
                         className={`h-6 px-2 text-[7px] font-bold uppercase tracking-widest border border-primary/10 hover:bg-primary/20 ${module.status === 'active' ? 'text-primary' : 'text-yellow-500'}`}
                         onClick={() => {
-                          setSecurityModules((prev) =>
-                            prev.map((m) =>
+                          setSecurityModules(prev =>
+                            prev.map(m =>
                               m.id === module.id
                                 ? {
                                     ...m,
-                                    status:
-                                      m.status === 'active'
-                                        ? 'paused'
-                                        : 'active',
+                                    status: m.status === 'active' ? 'paused' : 'active',
                                   }
-                                : m,
-                            ),
+                                : m
+                            )
                           );
                         }}
                       >
@@ -1919,21 +1798,19 @@ export default function App() {
                           Severity
                         </span>
                         <div className="flex gap-1">
-                          {['all', 'critical', 'high', 'medium', 'low'].map(
-                            (s) => (
-                              <button
-                                key={s}
-                                onClick={() => setAnomalySeverityFilter(s)}
-                                className={`px-1.5 py-0.5 rounded text-[6px] font-bold uppercase tracking-widest border transition-all ${
-                                  anomalySeverityFilter === s
-                                    ? 'bg-red-500/20 border-red-500 text-red-500'
-                                    : 'border-primary/10 text-primary/40 hover:border-primary/30'
-                                }`}
-                              >
-                                {s}
-                              </button>
-                            ),
-                          )}
+                          {['all', 'critical', 'high', 'medium', 'low'].map(s => (
+                            <button
+                              key={s}
+                              onClick={() => setAnomalySeverityFilter(s)}
+                              className={`px-1.5 py-0.5 rounded text-[6px] font-bold uppercase tracking-widest border transition-all ${
+                                anomalySeverityFilter === s
+                                  ? 'bg-red-500/20 border-red-500 text-red-500'
+                                  : 'border-primary/10 text-primary/40 hover:border-primary/30'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -1943,16 +1820,14 @@ export default function App() {
                       <div className="space-y-3">
                         {anomalies
                           .filter(
-                            (a) =>
+                            a =>
                               anomalySeverityFilter === 'all' ||
-                              a.severity === anomalySeverityFilter,
+                              a.severity === anomalySeverityFilter
                           )
                           .filter(
-                            (a) =>
-                              anomalySourceFilter === 'all' ||
-                              a.source === anomalySourceFilter,
+                            a => anomalySourceFilter === 'all' || a.source === anomalySourceFilter
                           )
-                          .map((anomaly) => (
+                          .map(anomaly => (
                             <div
                               key={anomaly.id}
                               className={`p-2 rounded border bg-red-500/5 transition-all ${
@@ -1968,10 +1843,7 @@ export default function App() {
                                   {anomaly.source}
                                 </span>
                                 <span className="text-[7px] font-mono text-red-500/60">
-                                  {format(
-                                    new Date(anomaly.timestamp),
-                                    'HH:mm:ss',
-                                  )}
+                                  {format(new Date(anomaly.timestamp), 'HH:mm:ss')}
                                 </span>
                               </div>
                               <p className="text-[9px] font-bold text-red-500/80 uppercase tracking-tight leading-tight mb-1">
@@ -2024,9 +1896,7 @@ export default function App() {
                             title="Filter audit by action"
                             aria-label="Filter audit by action"
                             value={auditActionFilter}
-                            onChange={(e) =>
-                              setAuditActionFilter(e.target.value)
-                            }
+                            onChange={e => setAuditActionFilter(e.target.value)}
                             className="bg-black/40 border border-primary/10 rounded text-[6px] font-bold text-primary uppercase p-0.5 outline-none focus:border-primary"
                           >
                             <option value="all">ANY ACTION</option>
@@ -2039,9 +1909,7 @@ export default function App() {
                             title="Filter audit by time range"
                             aria-label="Filter audit by time range"
                             value={auditTimeFilter}
-                            onChange={(e) =>
-                              setAuditTimeFilter(e.target.value as any)
-                            }
+                            onChange={e => setAuditTimeFilter(e.target.value as any)}
                             className="bg-black/40 border border-primary/10 rounded text-[6px] font-bold text-primary uppercase p-0.5 outline-none focus:border-primary"
                           >
                             <option value="all">ALL TIME</option>
@@ -2054,20 +1922,16 @@ export default function App() {
                               title="Audit start date"
                               aria-label="Audit start date"
                               value={auditDateStart}
-                              onChange={(e) =>
-                                setAuditDateStart(e.target.value)
-                              }
+                              onChange={e => setAuditDateStart(e.target.value)}
                               className="bg-transparent text-[6px] font-bold text-primary uppercase outline-none w-16"
                             />
-                            <span className="text-[6px] text-primary/40">
-                              -
-                            </span>
+                            <span className="text-[6px] text-primary/40">-</span>
                             <input
                               type="date"
                               title="Audit end date"
                               aria-label="Audit end date"
                               value={auditDateEnd}
-                              onChange={(e) => setAuditDateEnd(e.target.value)}
+                              onChange={e => setAuditDateEnd(e.target.value)}
                               className="bg-transparent text-[6px] font-bold text-primary uppercase outline-none w-16"
                             />
                           </div>
@@ -2075,10 +1939,8 @@ export default function App() {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() =>
-                              setAuditFilter((prev) =>
-                                prev === 'flagged-blocked'
-                                  ? 'all'
-                                  : 'flagged-blocked',
+                              setAuditFilter(prev =>
+                                prev === 'flagged-blocked' ? 'all' : 'flagged-blocked'
                               )
                             }
                             className={`px-1.5 py-0.5 rounded text-[6px] font-bold uppercase tracking-widest border transition-all ${
@@ -2091,8 +1953,8 @@ export default function App() {
                           </button>
                           <button
                             onClick={() =>
-                              setAuditVerifiedFilter((prev) =>
-                                prev === 'verified' ? 'all' : 'verified',
+                              setAuditVerifiedFilter(prev =>
+                                prev === 'verified' ? 'all' : 'verified'
                               )
                             }
                             className={`px-1.5 py-0.5 rounded text-[6px] font-bold uppercase tracking-widest border transition-all ${
@@ -2112,35 +1974,28 @@ export default function App() {
                       <div className="space-y-3">
                         {auditLogs
                           .filter(
-                            (log) =>
+                            log =>
                               auditFilter === 'all' ||
                               log.status === 'flagged' ||
-                              log.status === 'blocked',
+                              log.status === 'blocked'
                           )
-                          .filter((log) => {
+                          .filter(log => {
                             if (auditVerifiedFilter === 'all') return true;
-                            if (auditVerifiedFilter === 'verified')
-                              return log.identityVerified;
+                            if (auditVerifiedFilter === 'verified') return log.identityVerified;
                             return !log.identityVerified;
                           })
-                          .filter((log) => {
+                          .filter(log => {
                             if (auditActionFilter === 'all') return true;
-                            return log.action
-                              .toLowerCase()
-                              .includes(auditActionFilter);
+                            return log.action.toLowerCase().includes(auditActionFilter);
                           })
-                          .filter((log) => {
+                          .filter(log => {
                             const logDate = new Date(log.timestamp);
                             const now = new Date();
                             const diff = now.getTime() - logDate.getTime();
 
                             // Date Range Logic
-                            const start = auditDateStart
-                              ? new Date(auditDateStart)
-                              : null;
-                            const end = auditDateEnd
-                              ? new Date(auditDateEnd)
-                              : null;
+                            const start = auditDateStart ? new Date(auditDateStart) : null;
+                            const end = auditDateEnd ? new Date(auditDateEnd) : null;
                             if (start && logDate < start) return false;
                             if (end) {
                               const endDay = new Date(end);
@@ -2149,13 +2004,11 @@ export default function App() {
                             }
 
                             if (auditTimeFilter === 'all') return true;
-                            if (auditTimeFilter === '1h')
-                              return diff < 1000 * 60 * 60;
-                            if (auditTimeFilter === '24h')
-                              return diff < 1000 * 60 * 60 * 24;
+                            if (auditTimeFilter === '1h') return diff < 1000 * 60 * 60;
+                            if (auditTimeFilter === '24h') return diff < 1000 * 60 * 60 * 24;
                             return true;
                           })
-                          .map((log) => (
+                          .map(log => (
                             <div
                               key={log.id}
                               className={`p-2 rounded border transition-all ${
@@ -2191,9 +2044,7 @@ export default function App() {
                               </div>
                               <p
                                 className={`text-[9px] font-mono mb-1 ${
-                                  log.status === 'authorized'
-                                    ? 'text-primary/80'
-                                    : 'text-white'
+                                  log.status === 'authorized' ? 'text-primary/80' : 'text-white'
                                 }`}
                               >
                                 {log.action}
@@ -2301,9 +2152,7 @@ export default function App() {
                   </div>
                   <div className="mt-4 flex items-center justify-between text-[8px] font-mono text-primary/40 uppercase tracking-widest">
                     <span>Total Nodes: 32</span>
-                    <span className="text-red-500 glow-text-red">
-                      Exposed: 4
-                    </span>
+                    <span className="text-red-500 glow-text-red">Exposed: 4</span>
                   </div>
                 </Card>
               </div>
@@ -2328,9 +2177,7 @@ export default function App() {
                       Counter-Patch Engine
                     </span>
                   </div>
-                  <Badge className="bg-primary text-black text-[7px]">
-                    READY
-                  </Badge>
+                  <Badge className="bg-primary text-black text-[7px]">READY</Badge>
                 </div>
                 <div className="p-2 rounded bg-red-500/10 border border-red-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -2390,7 +2237,7 @@ export default function App() {
                     </div>
                   </div>
                 )}
-                {vaults.map((vault) => (
+                {vaults.map(vault => (
                   <div
                     key={vault.id}
                     className="space-y-3 p-3 rounded border border-primary/10 bg-black/20"
@@ -2464,9 +2311,7 @@ export default function App() {
                           </p>
                           <p className="text-[9px] font-mono text-primary">
                             {vault.decoherenceRate.toFixed(4)}{' '}
-                            <span className="text-[7px] text-primary/40">
-                              ms⁻¹
-                            </span>
+                            <span className="text-[7px] text-primary/40">ms⁻¹</span>
                           </p>
                         </div>
                       </div>
@@ -2499,7 +2344,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-1">
                   <ListFilter className="w-3 h-3 text-primary/40 mr-1" />
-                  {['all', 'valid', 'verifying', 'invalid'].map((s) => (
+                  {['all', 'valid', 'verifying', 'invalid'].map(s => (
                     <button
                       key={s}
                       onClick={() => setZkStatusFilter(s)}
@@ -2516,11 +2361,8 @@ export default function App() {
               </div>
               <div className="space-y-2">
                 {zkProofs
-                  .filter(
-                    (p) =>
-                      zkStatusFilter === 'all' || p.status === zkStatusFilter,
-                  )
-                  .map((proof) => (
+                  .filter(p => zkStatusFilter === 'all' || p.status === zkStatusFilter)
+                  .map(proof => (
                     <div
                       key={proof.id}
                       className="flex flex-col gap-2 p-2 rounded bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10"
@@ -2556,10 +2398,10 @@ export default function App() {
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              setExpandedZkProofIds((prev) =>
+                              setExpandedZkProofIds(prev =>
                                 prev.includes(proof.id)
-                                  ? prev.filter((id) => id !== proof.id)
-                                  : [...prev, proof.id],
+                                  ? prev.filter(id => id !== proof.id)
+                                  : [...prev, proof.id]
                               )
                             }
                             className="h-7 px-2 text-[7px] font-bold uppercase tracking-widest border-primary/20 hover:bg-primary/20 text-primary"
@@ -2601,10 +2443,8 @@ export default function App() {
                       </AnimatePresence>
                     </div>
                   ))}
-                {zkProofs.filter(
-                  (p) =>
-                    zkStatusFilter === 'all' || p.status === zkStatusFilter,
-                ).length === 0 && (
+                {zkProofs.filter(p => zkStatusFilter === 'all' || p.status === zkStatusFilter)
+                  .length === 0 && (
                   <div className="text-center py-4 opacity-40">
                     <p className="text-[8px] font-mono uppercase tracking-widest">
                       No proofs found for status: {zkStatusFilter}
@@ -2623,11 +2463,8 @@ export default function App() {
                 </h2>
               </div>
               <div className="space-y-3">
-                {leaks.map((leak) => (
-                  <div
-                    key={leak.id}
-                    className="p-2 rounded border border-primary/10 bg-primary/5"
-                  >
+                {leaks.map(leak => (
+                  <div key={leak.id} className="p-2 rounded border border-primary/10 bg-primary/5">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className="text-[8px] font-bold text-primary/60 uppercase">
@@ -2644,9 +2481,7 @@ export default function App() {
                         {format(new Date(leak.timestamp), 'HH:mm:ss')}
                       </span>
                     </div>
-                    <p className="text-[9px] text-primary leading-tight mb-2">
-                      {leak.content}
-                    </p>
+                    <p className="text-[9px] text-primary leading-tight mb-2">{leak.content}</p>
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
                         <span className="text-[7px] font-bold text-red-500 uppercase tracking-widest">
@@ -2680,7 +2515,7 @@ export default function App() {
               </CardHeader>
               <CardContent className="p-4 overflow-y-auto custom-scrollbar h-[calc(100vh-600px)]">
                 <div className="space-y-3">
-                  {watchpoints.map((wp) => (
+                  {watchpoints.map(wp => (
                     <div
                       key={wp.id}
                       className="flex items-center justify-between p-2 rounded bg-primary/5 border border-primary/10 hover:border-primary/30 transition-all"
@@ -2717,7 +2552,7 @@ export default function App() {
               <CardContent className="p-4">
                 <ScrollArea className="h-50">
                   <div className="space-y-4">
-                    {verdicts.map((v) => (
+                    {verdicts.map(v => (
                       <div key={v.id} className="flex items-start gap-3">
                         <div className="mt-1">
                           {v.status === 'verified' ? (
@@ -2729,9 +2564,7 @@ export default function App() {
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest leading-tight text-primary/80 font-mono">
                             {v.message}{' '}
-                            <span className="text-primary/40 ml-1">
-                              [BLOCK {v.block}]
-                            </span>
+                            <span className="text-primary/40 ml-1">[BLOCK {v.block}]</span>
                           </p>
                         </div>
                       </div>

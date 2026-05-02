@@ -18,7 +18,7 @@ async function analyzeGasUsage() {
     'AetheronBridge',
     'RateLimiter',
     'CircuitBreaker',
-    'SentinelInterceptor'
+    'SentinelInterceptor',
   ];
 
   for (const contractName of contracts) {
@@ -34,7 +34,9 @@ async function analyzeGasUsage() {
         console.log(`${contractName}:`);
         console.log(`  Estimated deployment gas: ${estimatedGas.toString()}`);
         console.log(`  Estimated cost (ETH): ${ethers.formatEther(estimatedCost)}`);
-        console.log(`  Estimated cost (USD): $${(parseFloat(ethers.formatEther(estimatedCost)) * 3000).toFixed(2)} @ $3000/ETH\n`);
+        console.log(
+          `  Estimated cost (USD): $${(parseFloat(ethers.formatEther(estimatedCost)) * 3000).toFixed(2)} @ $3000/ETH\n`
+        );
       }
     } catch (error) {
       console.log(`${contractName}: Error estimating gas - ${error.message}\n`);
@@ -42,14 +44,16 @@ async function analyzeGasUsage() {
   }
 
   console.log('📊 Gas Analysis Complete');
-  console.log('Note: Actual gas costs may vary based on network conditions and constructor parameters');
+  console.log(
+    'Note: Actual gas costs may vary based on network conditions and constructor parameters'
+  );
 }
 
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   analyzeGasUsage()
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error(error);
       process.exit(1);
     });

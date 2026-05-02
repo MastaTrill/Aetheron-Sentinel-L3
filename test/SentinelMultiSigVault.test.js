@@ -1,8 +1,7 @@
 // test/SentinelMultiSigVault.test.js
 import { expect } from 'chai';
 
-
-import hardhat from "hardhat";
+import hardhat from 'hardhat';
 const { ethers } = hardhat;
 
 // SecurityLevel enum: LOW=0, MEDIUM=1, HIGH=2, CRITICAL=3
@@ -20,11 +19,8 @@ describe('SentinelMultiSigVault', function () {
   const pubKey3 = ethers.keccak256(ethers.toUtf8Bytes('guardian3'));
 
   beforeEach(async function () {
-    [owner, guardian1, guardian2, guardian3, stranger] =
-      await ethers.getSigners();
-    const SentinelMultiSigVault = await ethers.getContractFactory(
-      'SentinelMultiSigVault',
-    );
+    [owner, guardian1, guardian2, guardian3, stranger] = await ethers.getSigners();
+    const SentinelMultiSigVault = await ethers.getContractFactory('SentinelMultiSigVault');
     vault = await SentinelMultiSigVault.deploy(owner.address);
     await vault.waitForDeployment();
   });
@@ -47,12 +43,10 @@ describe('SentinelMultiSigVault', function () {
     });
 
     it('rejects zero address owner', async function () {
-      const SentinelMultiSigVault = await ethers.getContractFactory(
-        'SentinelMultiSigVault',
+      const SentinelMultiSigVault = await ethers.getContractFactory('SentinelMultiSigVault');
+      await expect(SentinelMultiSigVault.deploy(ethers.ZeroAddress)).to.be.revertedWith(
+        'Invalid owner'
       );
-      await expect(
-        SentinelMultiSigVault.deploy(ethers.ZeroAddress),
-      ).to.be.revertedWith('Invalid owner');
     });
   });
 
@@ -70,28 +64,27 @@ describe('SentinelMultiSigVault', function () {
     });
 
     it('rejects zero guardian address', async function () {
-      await expect(
-        vault.addGuardian(ethers.ZeroAddress, pubKey1, BASIC),
-      ).to.be.revertedWith('Invalid guardian address');
+      await expect(vault.addGuardian(ethers.ZeroAddress, pubKey1, BASIC)).to.be.revertedWith(
+        'Invalid guardian address'
+      );
     });
 
     it('rejects zero public key', async function () {
-      await expect(
-        vault.addGuardian(guardian1.address, ethers.ZeroHash, BASIC),
-      ).to.be.revertedWith('Invalid public key');
+      await expect(vault.addGuardian(guardian1.address, ethers.ZeroHash, BASIC)).to.be.revertedWith(
+        'Invalid public key'
+      );
     });
 
     it('rejects duplicate guardian', async function () {
       await vault.addGuardian(guardian1.address, pubKey1, BASIC);
-      await expect(
-        vault.addGuardian(guardian1.address, pubKey1, BASIC),
-      ).to.be.revertedWith('Already a guardian');
+      await expect(vault.addGuardian(guardian1.address, pubKey1, BASIC)).to.be.revertedWith(
+        'Already a guardian'
+      );
     });
 
     it('reverts when called by non-owner', async function () {
-      await expect(
-        vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC),
-      ).to.be.reverted;
+      await expect(vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC)).to.be
+        .reverted;
     });
   });
 
@@ -102,11 +95,7 @@ describe('SentinelMultiSigVault', function () {
       await vault.addGuardian(guardian1.address, pubKey1, BASIC);
       await vault.addGuardian(guardian2.address, pubKey2, BASIC);
       await vault.addGuardian(guardian3.address, pubKey3, BASIC);
-      await vault.addGuardian(
-        g4.address,
-        ethers.keccak256(ethers.toUtf8Bytes('g4')),
-        BASIC,
-      );
+      await vault.addGuardian(g4.address, ethers.keccak256(ethers.toUtf8Bytes('g4')), BASIC);
 
       await vault.removeGuardian(guardian1.address);
       expect(await vault.activeGuardians()).to.equal(3n);
@@ -118,11 +107,7 @@ describe('SentinelMultiSigVault', function () {
       await vault.addGuardian(guardian1.address, pubKey1, BASIC);
       await vault.addGuardian(guardian2.address, pubKey2, BASIC);
       await vault.addGuardian(guardian3.address, pubKey3, BASIC);
-      await vault.addGuardian(
-        g4.address,
-        ethers.keccak256(ethers.toUtf8Bytes('g4')),
-        BASIC,
-      );
+      await vault.addGuardian(g4.address, ethers.keccak256(ethers.toUtf8Bytes('g4')), BASIC);
 
       await expect(vault.removeGuardian(guardian1.address))
         .to.emit(vault, 'GuardianRemoved')
@@ -134,7 +119,7 @@ describe('SentinelMultiSigVault', function () {
       await vault.addGuardian(guardian2.address, pubKey2, BASIC);
       await vault.addGuardian(guardian3.address, pubKey3, BASIC);
       await expect(vault.removeGuardian(guardian1.address)).to.be.revertedWith(
-        'Minimum guardians required',
+        'Minimum guardians required'
       );
     });
   });
@@ -146,24 +131,19 @@ describe('SentinelMultiSigVault', function () {
 
     it('reverts for non-guardian caller', async function () {
       await expect(
-        vault.connect(stranger).submitTransaction(owner.address, 0, '0x', LOW),
+        vault.connect(stranger).submitTransaction(owner.address, 0, '0x', LOW)
       ).to.be.revertedWith('Not a guardian');
     });
 
     it('reverts for zero target address', async function () {
       await expect(
-        vault
-          .connect(guardian1)
-          .submitTransaction(ethers.ZeroAddress, 0, '0x', LOW),
+        vault.connect(guardian1).submitTransaction(ethers.ZeroAddress, 0, '0x', LOW)
       ).to.be.revertedWith('Invalid target address');
     });
 
     it('submits a transaction and auto-confirms for submitter', async function () {
-      await vault
-        .connect(guardian1)
-        .submitTransaction(owner.address, 0, '0x', LOW);
-      const [to, value, , confirmations, executed, level] =
-        await vault.getTransaction(0);
+      await vault.connect(guardian1).submitTransaction(owner.address, 0, '0x', LOW);
+      const [to, value, , confirmations, executed, level] = await vault.getTransaction(0);
       expect(to).to.equal(owner.address);
       expect(value).to.equal(0n);
       expect(confirmations).to.equal(1n);
@@ -172,24 +152,18 @@ describe('SentinelMultiSigVault', function () {
     });
 
     it('emits TransactionSubmitted and TransactionConfirmed events', async function () {
-      await expect(
-        vault.connect(guardian1).submitTransaction(owner.address, 0, '0x', LOW),
-      )
+      await expect(vault.connect(guardian1).submitTransaction(owner.address, 0, '0x', LOW))
         .to.emit(vault, 'TransactionSubmitted')
         .and.to.emit(vault, 'TransactionConfirmed');
     });
 
     it('getConfirmation returns true for submitter', async function () {
-      await vault
-        .connect(guardian1)
-        .submitTransaction(owner.address, 0, '0x', LOW);
+      await vault.connect(guardian1).submitTransaction(owner.address, 0, '0x', LOW);
       expect(await vault.getConfirmation(0, guardian1.address)).to.equal(true);
     });
 
     it('getConfirmation returns false for non-confirmer', async function () {
-      await vault
-        .connect(guardian1)
-        .submitTransaction(owner.address, 0, '0x', LOW);
+      await vault.connect(guardian1).submitTransaction(owner.address, 0, '0x', LOW);
       expect(await vault.getConfirmation(0, guardian2.address)).to.equal(false);
     });
   });
@@ -200,9 +174,7 @@ describe('SentinelMultiSigVault', function () {
       await vault.addGuardian(guardian2.address, pubKey2, BASIC);
 
       // guardian1 submits (auto-confirm = 1)
-      await vault
-        .connect(guardian1)
-        .submitTransaction(owner.address, 0, '0x', LOW);
+      await vault.connect(guardian1).submitTransaction(owner.address, 0, '0x', LOW);
 
       // Compute tx hash for guardian2 to sign
       const txRecord = await vault.transactions(0n);
@@ -210,24 +182,14 @@ describe('SentinelMultiSigVault', function () {
 
       const hash = ethers.solidityPackedKeccak256(
         ['uint256', 'address', 'uint256', 'bytes', 'uint256', 'address'],
-        [
-          0n,
-          txRecord.to,
-          txRecord.value,
-          txRecord.data,
-          txRecord.timestamp,
-          vaultAddr,
-        ],
+        [0n, txRecord.to, txRecord.value, txRecord.data, txRecord.timestamp, vaultAddr]
       );
 
       const sig = await guardian2.signMessage(ethers.getBytes(hash));
       await vault.connect(guardian2).confirmTransaction(0, sig);
 
       // Now 2 confirmations — execute
-      await expect(vault.executeTransaction(0)).to.emit(
-        vault,
-        'TransactionExecuted',
-      );
+      await expect(vault.executeTransaction(0)).to.emit(vault, 'TransactionExecuted');
 
       const [, , , , executed] = await vault.getTransaction(0);
       expect(executed).to.equal(true);
@@ -246,22 +208,22 @@ describe('SentinelMultiSigVault', function () {
       await vault.addGuardian(guardian1.address, pubKey1, BASIC);
       await expect(vault.connect(guardian1).activateEmergencyMode()).to.emit(
         vault,
-        'EmergencyModeActivated',
+        'EmergencyModeActivated'
       );
     });
 
     it('reverts if called by a non-guardian', async function () {
-      await expect(
-        vault.connect(stranger).activateEmergencyMode(),
-      ).to.be.revertedWith('Not a guardian');
+      await expect(vault.connect(stranger).activateEmergencyMode()).to.be.revertedWith(
+        'Not a guardian'
+      );
     });
 
     it('reverts if already in emergency mode', async function () {
       await vault.addGuardian(guardian1.address, pubKey1, BASIC);
       await vault.connect(guardian1).activateEmergencyMode();
-      await expect(
-        vault.connect(guardian1).activateEmergencyMode(),
-      ).to.be.revertedWith('Already in emergency mode');
+      await expect(vault.connect(guardian1).activateEmergencyMode()).to.be.revertedWith(
+        'Already in emergency mode'
+      );
     });
 
     it('prevents double-voting by the same guardian', async function () {
@@ -273,9 +235,9 @@ describe('SentinelMultiSigVault', function () {
       await vault.connect(guardian1).activateEmergencyMode();
       expect(await vault.emergencyMode()).to.equal(false);
       // guardian1 cannot vote again
-      await expect(
-        vault.connect(guardian1).activateEmergencyMode(),
-      ).to.be.revertedWith('Already voted');
+      await expect(vault.connect(guardian1).activateEmergencyMode()).to.be.revertedWith(
+        'Already voted'
+      );
     });
   });
 });

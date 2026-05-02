@@ -1,8 +1,7 @@
 // test/SentinelLiquidityMining.test.js
 import { expect } from 'chai';
 
-
-import hardhat from "hardhat";
+import hardhat from 'hardhat';
 const { ethers } = hardhat;
 
 describe('SentinelLiquidityMining', function () {
@@ -16,30 +15,18 @@ describe('SentinelLiquidityMining', function () {
     [owner, user, other] = await ethers.getSigners();
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    lpToken = await ERC20Mock.deploy(
-      'LP Token',
-      'LP',
-      owner.address,
-      INITIAL_SUPPLY,
-    );
+    lpToken = await ERC20Mock.deploy('LP Token', 'LP', owner.address, INITIAL_SUPPLY);
     await lpToken.waitForDeployment();
 
-    rewardToken = await ERC20Mock.deploy(
-      'Reward Token',
-      'RWD',
-      owner.address,
-      INITIAL_SUPPLY,
-    );
+    rewardToken = await ERC20Mock.deploy('Reward Token', 'RWD', owner.address, INITIAL_SUPPLY);
     await rewardToken.waitForDeployment();
 
-    const SentinelLiquidityMining = await ethers.getContractFactory(
-      'SentinelLiquidityMining',
-    );
+    const SentinelLiquidityMining = await ethers.getContractFactory('SentinelLiquidityMining');
     mining = await SentinelLiquidityMining.deploy(
       await lpToken.getAddress(),
       await rewardToken.getAddress(),
       REWARD_PER_SECOND,
-      owner.address,
+      owner.address
     );
     await mining.waitForDeployment();
 
@@ -48,17 +35,13 @@ describe('SentinelLiquidityMining', function () {
 
     // Fund user with LP tokens
     await lpToken.transfer(user.address, ethers.parseEther('10000'));
-    await lpToken
-      .connect(user)
-      .approve(await mining.getAddress(), ethers.parseEther('10000'));
+    await lpToken.connect(user).approve(await mining.getAddress(), ethers.parseEther('10000'));
   });
 
   describe('Deployment', function () {
     it('stores lpToken and rewardToken', async function () {
       expect(await mining.lpToken()).to.equal(await lpToken.getAddress());
-      expect(await mining.rewardToken()).to.equal(
-        await rewardToken.getAddress(),
-      );
+      expect(await mining.rewardToken()).to.equal(await rewardToken.getAddress());
     });
 
     it('creates 4 pools in the constructor', async function () {
@@ -75,30 +58,26 @@ describe('SentinelLiquidityMining', function () {
     });
 
     it('reverts with invalid LP token address', async function () {
-      const SentinelLiquidityMining = await ethers.getContractFactory(
-        'SentinelLiquidityMining',
-      );
+      const SentinelLiquidityMining = await ethers.getContractFactory('SentinelLiquidityMining');
       await expect(
         SentinelLiquidityMining.deploy(
           ethers.ZeroAddress,
           await rewardToken.getAddress(),
           REWARD_PER_SECOND,
-          owner.address,
-        ),
+          owner.address
+        )
       ).to.be.revertedWith('Invalid LP token');
     });
 
     it('reverts with invalid reward token address', async function () {
-      const SentinelLiquidityMining = await ethers.getContractFactory(
-        'SentinelLiquidityMining',
-      );
+      const SentinelLiquidityMining = await ethers.getContractFactory('SentinelLiquidityMining');
       await expect(
         SentinelLiquidityMining.deploy(
           await lpToken.getAddress(),
           ethers.ZeroAddress,
           REWARD_PER_SECOND,
-          owner.address,
-        ),
+          owner.address
+        )
       ).to.be.revertedWith('Invalid reward token');
     });
   });
@@ -137,15 +116,13 @@ describe('SentinelLiquidityMining', function () {
     });
 
     it('reverts on zero amount', async function () {
-      await expect(mining.connect(user).deposit(0, 0)).to.be.revertedWith(
-        'Cannot deposit 0',
-      );
+      await expect(mining.connect(user).deposit(0, 0)).to.be.revertedWith('Cannot deposit 0');
     });
 
     it('reverts on invalid pool id', async function () {
-      await expect(
-        mining.connect(user).deposit(99, ethers.parseEther('1')),
-      ).to.be.revertedWith('Invalid pool');
+      await expect(mining.connect(user).deposit(99, ethers.parseEther('1'))).to.be.revertedWith(
+        'Invalid pool'
+      );
     });
 
     it('applies BRONZE multiplier for deposits >= 1000 LP tokens', async function () {
@@ -192,18 +169,18 @@ describe('SentinelLiquidityMining', function () {
     });
 
     it('reverts when withdrawing more than deposited', async function () {
-      await expect(
-        mining.connect(user).withdraw(0, depositAmount + 1n),
-      ).to.be.revertedWith('Insufficient balance');
+      await expect(mining.connect(user).withdraw(0, depositAmount + 1n)).to.be.revertedWith(
+        'Insufficient balance'
+      );
     });
   });
 
   describe('emergencyWithdraw', function () {
     it('reverts when emergency withdraw is not enabled', async function () {
       await mining.connect(user).deposit(0, ethers.parseEther('100'));
-      await expect(
-        mining.connect(user).emergencyWithdraw(0),
-      ).to.be.revertedWith('Emergency withdraw not enabled');
+      await expect(mining.connect(user).emergencyWithdraw(0)).to.be.revertedWith(
+        'Emergency withdraw not enabled'
+      );
     });
   });
 

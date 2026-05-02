@@ -1,8 +1,7 @@
 // test/SentinelReferralSystem.test.js
 import { expect } from 'chai';
 
-
-import hardhat from "hardhat";
+import hardhat from 'hardhat';
 const { ethers } = hardhat;
 
 describe('SentinelReferralSystem', function () {
@@ -11,12 +10,10 @@ describe('SentinelReferralSystem', function () {
 
   beforeEach(async function () {
     [owner, user1, user2, user3] = await ethers.getSigners();
-    const SentinelReferralSystem = await ethers.getContractFactory(
-      'SentinelReferralSystem',
-    );
+    const SentinelReferralSystem = await ethers.getContractFactory('SentinelReferralSystem');
     referral = await SentinelReferralSystem.deploy(
       ethers.ZeroAddress, // reward token (simulated, no real transfer)
-      owner.address,
+      owner.address
     );
     await referral.waitForDeployment();
   });
@@ -40,9 +37,7 @@ describe('SentinelReferralSystem', function () {
 
   describe('constants', function () {
     it('BASE_REFERRAL_REWARD is 50 ether', async function () {
-      expect(await referral.BASE_REFERRAL_REWARD()).to.equal(
-        ethers.parseEther('50'),
-      );
+      expect(await referral.BASE_REFERRAL_REWARD()).to.equal(ethers.parseEther('50'));
     });
 
     it('MAX_REFERRAL_APY is 200', async function () {
@@ -57,16 +52,17 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('emits UserRegistered event', async function () {
-      await expect(
-        referral.connect(user1).register(ethers.ZeroAddress),
-      ).to.emit(referral, 'UserRegistered');
+      await expect(referral.connect(user1).register(ethers.ZeroAddress)).to.emit(
+        referral,
+        'UserRegistered'
+      );
     });
 
     it('prevents duplicate registration', async function () {
       await referral.connect(user1).register(ethers.ZeroAddress);
-      await expect(
-        referral.connect(user1).register(ethers.ZeroAddress),
-      ).to.be.revertedWith('Already registered');
+      await expect(referral.connect(user1).register(ethers.ZeroAddress)).to.be.revertedWith(
+        'Already registered'
+      );
     });
 
     it('records the referral relationship when referrer is valid', async function () {
@@ -94,9 +90,7 @@ describe('SentinelReferralSystem', function () {
 
     it('reverts when paused', async function () {
       await referral.emergencyPause();
-      await expect(
-        referral.connect(user1).register(ethers.ZeroAddress),
-      ).to.be.reverted;
+      await expect(referral.connect(user1).register(ethers.ZeroAddress)).to.be.reverted;
     });
   });
 
@@ -129,9 +123,9 @@ describe('SentinelReferralSystem', function () {
 
   describe('recordActivity', function () {
     it('reverts if user not registered', async function () {
-      await expect(
-        referral.connect(user1).recordActivity('stake'),
-      ).to.be.revertedWith('Not registered');
+      await expect(referral.connect(user1).recordActivity('stake')).to.be.revertedWith(
+        'Not registered'
+      );
     });
 
     it('records activity and emits ActivityBonus for known activity types', async function () {
@@ -144,9 +138,10 @@ describe('SentinelReferralSystem', function () {
     it('records activity without bonus for unknown type', async function () {
       await referral.connect(user1).register(ethers.ZeroAddress);
       // unknown type → bonus = 0, no ActivityBonus event
-      await expect(
-        referral.connect(user1).recordActivity('unknown'),
-      ).to.not.emit(referral, 'ActivityBonus');
+      await expect(referral.connect(user1).recordActivity('unknown')).to.not.emit(
+        referral,
+        'ActivityBonus'
+      );
     });
   });
 
@@ -159,9 +154,7 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(
-        referral.connect(user1).updateActiveReferrals(user1.address, 5),
-      ).to.be.reverted;
+      await expect(referral.connect(user1).updateActiveReferrals(user1.address, 5)).to.be.reverted;
     });
   });
 

@@ -21,7 +21,7 @@ async function verifyDeployment() {
     'AetheronBridge',
     'RateLimiter',
     'CircuitBreaker',
-    'SentinelInterceptor'
+    'SentinelInterceptor',
   ];
 
   let deployedCount = 0;
@@ -44,7 +44,7 @@ async function verifyDeployment() {
 
   console.log(`\n📊 Deployment Summary:`);
   console.log(`   Deployed: ${deployedCount}/${totalCount} contracts`);
-  console.log(`   Success Rate: ${((deployedCount/totalCount) * 100).toFixed(1)}%`);
+  console.log(`   Success Rate: ${((deployedCount / totalCount) * 100).toFixed(1)}%`);
 
   if (deployedCount === totalCount) {
     console.log('🎉 All contracts deployed successfully!');
@@ -57,7 +57,7 @@ async function verifyDeployment() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   verifyDeployment()
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error('Deployment verification failed:', error);
       process.exit(1);
     });
