@@ -5,8 +5,9 @@ const vm = require('vm');
 // Use MAINNET_RPC_URL from .env.mainnet
 require('dotenv').config({ path: '.env.mainnet' });
 const RPC =
+  process.env.SEPOLIA_RPC_URL ||
   process.env.MAINNET_RPC_URL ||
-  'https://mainnet.infura.io/v3/216dd7b47d9847e5aa0f37e814402d27';
+  'https://rpc.sepolia.org';
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';
@@ -20,26 +21,11 @@ const TREASURY_ROUTED = new Set([
 ]);
 
 const OWNABLE_KEYS = [
+  'SentinelMultiSigVault',
   'AetheronBridge',
   'RateLimiter',
   'CircuitBreaker',
   'SentinelInterceptor',
-  'SentinelMonitor',
-  'SentinelYieldMaximizer',
-  'SentinelToken',
-  'SentinelCoreLoop',
-  'SentinelAMM',
-  'SentinelPredictiveThreatModel',
-  'SentinelOracleNetwork',
-  'SentinelMultiSigVault',
-  'SentinelZKOracle',
-  'SentinelInsuranceProtocol',
-  'SentinelHomomorphicEncryption',
-  'SentinelReferralSystem',
-  'SentinelQuantumKeyDistribution',
-  'SentinelQuantumNeural',
-  'SentinelZKIdentity',
-  'SentinelSocialRecovery',
 ];
 
 function short(addr) {

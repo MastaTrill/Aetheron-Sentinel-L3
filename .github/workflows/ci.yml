@@ -59,14 +59,19 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Run Section 7 ownership sweep
+        env:
+          SEPOLIA_RPC_URL: 'https://rpc.sepolia.org'
         run: node scripts/section7-final-sweep.cjs
 
       - name: Run allowlist audit
+        env:
+          SEPOLIA_RPC_URL: 'https://rpc.sepolia.org'
         run: node scripts/audit-allowlists.cjs
 
       - name: Run bridge relayer verification
         env:
-          RELAYER_ADDRESSES: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
+          SEPOLIA_RPC_URL: 'https://rpc.sepolia.org'
+          RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
         run: node scripts/verify-bridge-relayers.cjs
 
   remix-import-build:

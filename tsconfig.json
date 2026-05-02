@@ -19,6 +19,7 @@
     ],
     "exclude": [
         "generated",
-        "generated/**"
+        "generated/**",
+        "node_modules"
     ]
 }
