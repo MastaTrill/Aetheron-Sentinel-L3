@@ -567,6 +567,19 @@
   },
   {
     "inputs": [],
+    "name": "coreComponentsBootstrapped",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "coreMetrics",
     "outputs": [
       {
@@ -812,6 +825,49 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sentinelInterceptorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "aetheronBridgeAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "quantumGuardAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "rateLimiterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "circuitBreakerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "yieldMaximizerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "oracleNetworkAddress",
+        "type": "address"
+      }
+    ],
+    "name": "initializeCoreComponents",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
