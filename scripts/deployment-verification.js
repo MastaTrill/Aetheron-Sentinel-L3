@@ -1,4 +1,5 @@
-const { ethers } = require('hardhat');
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 async function verifyDeployment() {
   console.log('🔍 Deployment Verification for Aetheron Sentinel L3');
@@ -52,7 +53,8 @@ async function verifyDeployment() {
   }
 }
 
-if (require.main === module) {
+// Run if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   verifyDeployment()
     .then(() => process.exit(0))
     .catch((error) => {
@@ -61,4 +63,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { verifyDeployment };
+export { verifyDeployment };

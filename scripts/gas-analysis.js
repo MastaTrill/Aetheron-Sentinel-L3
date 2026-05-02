@@ -1,4 +1,5 @@
-const { ethers } = require('hardhat');
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 async function analyzeGasUsage() {
   console.log('⛽ Gas Usage Analysis for Aetheron Sentinel L3');
@@ -44,7 +45,8 @@ async function analyzeGasUsage() {
   console.log('Note: Actual gas costs may vary based on network conditions and constructor parameters');
 }
 
-if (require.main === module) {
+// Run if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   analyzeGasUsage()
     .then(() => process.exit(0))
     .catch((error) => {
@@ -53,4 +55,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { analyzeGasUsage };
+export { analyzeGasUsage };
