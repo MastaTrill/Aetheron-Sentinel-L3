@@ -62,17 +62,17 @@ jobs:
 
       - name: Run Section 7 ownership sweep
         env:
-          SEPOLIA_RPC_URL: 'https://rpc.sepolia.org'
+          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         run: node scripts/section7-final-sweep.cjs
 
       - name: Run allowlist audit
         env:
-          SEPOLIA_RPC_URL: 'https://rpc.sepolia.org'
+          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         run: node scripts/audit-allowlists.cjs
 
       - name: Run bridge relayer verification
         env:
-          SEPOLIA_RPC_URL: 'https://rpc.sepolia.org'
+          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
           RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
         run: node scripts/verify-bridge-relayers.cjs
 
