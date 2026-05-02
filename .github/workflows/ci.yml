@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  merge_group:
 
 permissions:
   contents: read
@@ -20,23 +21,16 @@ jobs:
     name: Hardhat (Node 22)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
+        run: npm install --legacy-peer-deps --no-audit --no-fund
       - name: Compile contracts
         run: npm run compile
-
       - name: Run Hardhat tests
         run: npm test
 
@@ -44,26 +38,18 @@ jobs:
     name: Sepolia verification gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
+        run: npm install --legacy-peer-deps --no-audit --no-fund
       - name: Run Section 7 ownership sweep
         run: node scripts/section7-final-sweep.cjs
-
       - name: Run allowlist audit
         run: node scripts/audit-allowlists.cjs
-
       - name: Run bridge relayer verification
         env:
           RELAYER_ADDRESSES: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
@@ -73,28 +59,20 @@ jobs:
     name: Remix import build
     runs-on: ubuntu-latest
     timeout-minutes: 12
-
     defaults:
       run:
         working-directory: imports/remix_-aetheron-sentinel-l3
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: imports/remix_-aetheron-sentinel-l3/package-lock.json
-
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
+        run: npm install --legacy-peer-deps --no-audit --no-fund
       - name: Type check
         run: npm run lint
-
       - name: Build Remix import app
         run: npm run build
 
@@ -105,7 +83,6 @@ jobs:
       - hardhat
       - sepolia-verification-gate
       - remix-import-build
-
     steps:
       - name: Promotion gate summary
-        run: echo "All CI and Sepolia verification checks passed. Safe to promote/deploy."
+        run: echo "All CI checks passed."

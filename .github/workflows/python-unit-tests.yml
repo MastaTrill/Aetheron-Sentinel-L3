@@ -1,0 +1,27 @@
+name: Python unit tests (3.11)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run unit tests
+        run: |
+          if [ -d tests ]; then
+            PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
+          else
+            echo "No tests/ directory present; skipping Python unittest discovery."
+          fi

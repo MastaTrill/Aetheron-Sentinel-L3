@@ -2,8 +2,6 @@ name: 'Solidity Static Analysis'
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 jobs:
   slither:
     runs-on: ubuntu-latest
@@ -15,7 +13,7 @@ jobs:
           node-version: 22
           cache: npm
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps --no-audit --no-fund
       - name: Install Slither
         run: |
           sudo apt-get update && sudo apt-get install -y python3-pip

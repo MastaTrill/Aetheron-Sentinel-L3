@@ -58,3 +58,11 @@ By contributing, you agree that your contributions may be incorporated under the
 ---
 
 _Thank you for helping build the infrastructure of unity!_
+
+
+## CI and PR reporting hygiene
+
+- Do not mark checks as passed in PR text unless you have run them in the current branch context and can provide logs.
+- If a check is blocked by environment or registry policy, record it explicitly as blocked rather than passed.
+- Keep lint/test workflows blocking by default; avoid `|| true` in CI unless there is a documented temporary exception.
+

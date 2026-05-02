@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-network-helpers";
@@ -17,9 +18,10 @@ const config = {
   },
   networks: {
     direct_l3: {
-      url: "http://127.0.0.1:8545",
-      // Using the ACTUAL Ganache Private Key (0) that has 1000 ETH
-      accounts: ["0x916d2b372ba2f58298a30798ef027c25b0c1c388f04dfbf68769e232236fd4ae"],
+      url: process.env.DIRECT_L3_RPC_URL || "http://127.0.0.1:8545",
+      ...(process.env.DIRECT_L3_PRIVATE_KEY
+        ? { accounts: [process.env.DIRECT_L3_PRIVATE_KEY] }
+        : {}),
     },
   },
 };
