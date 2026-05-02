@@ -176,12 +176,9 @@ jobs:
 
       - name: Dependency vulnerability check
         run: |
-          if npm audit --audit-level=high; then
-            echo "✅ No high-severity vulnerabilities found"
-          else
-            echo "⚠️ High-severity vulnerabilities found - review dependencies"
-            npm audit --audit-level=high || true
-          fi
+          echo "🔍 Checking for vulnerabilities..."
+          npm audit --audit-level=high || echo "⚠️ High-severity vulnerabilities found - review recommended"
+          echo "✅ Vulnerability check completed (non-blocking)"
 
   gas-analysis:
     name: Gas Usage Analysis
@@ -219,6 +216,7 @@ jobs:
         with:
           name: gas-usage-report
           path: gas-report.txt
+        if-no-files-found: warn
 
   code-quality:
     name: Code Quality & Linting
@@ -293,6 +291,7 @@ jobs:
         with:
           name: contract-size-report
           path: contract-sizes.txt
+        if-no-files-found: warn
 
   performance-benchmark:
     name: Performance Benchmark
@@ -339,6 +338,7 @@ jobs:
         with:
           name: performance-benchmark
           path: benchmark.txt
+        if-no-files-found: warn
 
   coverage-report:
     name: Test Coverage
@@ -458,3 +458,4 @@ jobs:
         with:
           name: deployment-preview
           path: deploy-preview.txt
+        if-no-files-found: warn
