@@ -16,6 +16,7 @@
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
     "security:audit": "npm audit --audit-level=moderate",
+    "export:all-abis": "node scripts/export-abis.js",
     "codegen": "graph codegen",
     "build": "graph build"
   },
