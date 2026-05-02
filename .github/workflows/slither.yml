@@ -1,9 +1,6 @@
-name: 'Solidity Static Analysis'
+name: 'Solidity Static Analysis (Disabled - handled by main CI)'
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch: # Manual trigger only
 jobs:
   slither:
     runs-on: ubuntu-latest
