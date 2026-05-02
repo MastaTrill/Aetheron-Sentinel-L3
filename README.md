@@ -200,6 +200,115 @@ logs/verification/                    Verification logs and audit evidence
 ![Build](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/lint.yml/badge.svg)
 ![Audit](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/audit.yml/badge.svg)
 
+## CI/CD Pipeline
+
+This repository features a comprehensive CI/CD pipeline with automated quality gates, security scanning, and deployment verification.
+
+### Pipeline Stages
+
+#### 🔧 **Core Testing** (All PRs & Pushes)
+- **Hardhat Compilation**: Solidity contract compilation
+- **Unit Tests**: 343+ test cases across all contracts
+- **Remix Import Build**: Frontend build verification
+
+#### 🔒 **Security Analysis** (Push to main only)
+- **Slither Static Analysis**: Automated vulnerability detection
+- **SARIF Security Reports**: GitHub Security tab integration
+- **Dependency Audit**: npm audit for vulnerability scanning
+- **Contract Size Monitoring**: Ethereum deployment limits checking
+
+#### 📊 **Quality Assurance**
+- **ESLint**: Code quality and security linting
+- **Prettier**: Code formatting consistency
+- **TypeScript Strict Mode**: Type safety verification
+- **Gas Usage Analysis**: Deployment cost estimation
+
+#### 🚀 **Deployment Preview** (PRs only)
+- **Contract Size Analysis**: Deployment feasibility check
+- **Gas Cost Estimation**: Economic deployment analysis
+- **Risk Assessment**: Automated deployment risk evaluation
+- **PR Comments**: Deployment preview posted to pull requests
+
+#### 📈 **Performance Monitoring**
+- **Test Execution Benchmarks**: Performance regression detection
+- **Gas Usage Reports**: Contract efficiency tracking
+- **Coverage Reports**: Test coverage analysis (when enabled)
+
+### Available Commands
+
+```bash
+# Development
+npm run compile          # Compile contracts
+npm run test            # Run all tests
+npm test -- --grep "Sentinel"  # Run specific contract tests
+
+# Code Quality
+npm run lint            # Run ESLint
+npm run lint:fix        # Auto-fix ESLint issues
+npm run format          # Format code with Prettier
+npm run format:check    # Check code formatting
+
+# Security & Analysis
+npm run test:gas        # Gas usage analysis
+npm run test:coverage   # Test coverage report
+npm run security:audit  # Dependency vulnerability check
+
+# Deployment
+npm run deploy:verify   # Deployment verification
+```
+
+### CI/CD Features
+
+#### Security Scanning
+- **Slither Integration**: Automated static analysis for Solidity vulnerabilities
+- **SARIF Uploads**: Security findings uploaded to GitHub Security tab
+- **Dependency Scanning**: Automated npm audit with configurable severity levels
+
+#### Gas Optimization
+- **Deployment Cost Estimation**: Calculate gas costs for all contracts
+- **Contract Size Monitoring**: Alert when contracts approach Ethereum's 24KB limit
+- **Gas Usage Reports**: Track gas consumption across test scenarios
+
+#### Code Quality Gates
+- **ESLint Configuration**: TypeScript and security-focused linting rules
+- **Prettier Integration**: Consistent code formatting across the project
+- **TypeScript Strict Mode**: Enhanced type safety checks
+
+#### Performance Benchmarking
+- **Test Execution Timing**: Monitor test suite performance
+- **Slow Test Detection**: Identify performance bottlenecks
+- **Historical Tracking**: Compare performance across commits
+
+#### Deployment Automation
+- **Multi-Network Support**: Configure deployments for testnet/mainnet
+- **Contract Verification**: Automated block explorer verification
+- **Ownership Verification**: Post-deployment security checks
+
+### Workflow Triggers
+
+- **Push to main**: Full pipeline including security scans and deployment verification
+- **Pull Requests**: Core testing, quality checks, and deployment preview
+- **Manual Dispatch**: Custom environment deployments and testing
+- **Scheduled**: Nightly security and performance monitoring
+
+### Artifact Generation
+
+The CI/CD pipeline generates several artifacts for each run:
+- **Gas Usage Reports**: Deployment cost analysis
+- **Contract Size Reports**: Deployment feasibility data
+- **Performance Benchmarks**: Test execution metrics
+- **Coverage Reports**: Test coverage data (when enabled)
+- **Security SARIF Files**: Vulnerability findings for GitHub Security tab
+
+### Configuration Files
+
+- `.github/workflows/ci.yml`: Main CI/CD pipeline definition
+- `.eslintrc.json`: ESLint configuration for code quality
+- `.prettierrc`: Code formatting rules
+- `.slither.json`: Security scanning configuration
+- `scripts/gas-analysis.js`: Gas usage analysis utilities
+- `scripts/deployment-verification.js`: Deployment verification tools
+
 ## Documentation
 
 These top-level documents are present in the repository and are the best starting points for deeper context:
