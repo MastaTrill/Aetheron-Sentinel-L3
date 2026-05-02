@@ -44,6 +44,8 @@ jobs:
     name: Sepolia verification gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    if: github.event_name == 'push'
+    needs: hardhat
 
     steps:
       - name: Checkout repository
@@ -78,6 +80,7 @@ jobs:
     name: Remix import build
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    needs: hardhat
 
     defaults:
       run:
@@ -110,6 +113,7 @@ jobs:
       - hardhat
       - sepolia-verification-gate
       - remix-import-build
+    if: github.event_name == 'push'
 
     steps:
       - name: Promotion gate summary
