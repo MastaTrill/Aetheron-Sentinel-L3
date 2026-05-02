@@ -15,7 +15,7 @@ This repository includes:
 
 ## Requirements
 
-- Node.js 22+
+- Node.js 20+
 - npm 10+
 - Python 3.11+
 - Git
