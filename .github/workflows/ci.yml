@@ -239,52 +239,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Install ESLint
-        run: npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-security
-
-      - name: Create ESLint config
-        run: |
-          cat > .eslintrc.json << 'EOF'
-          {
-            "env": {
-              "browser": true,
-              "es2021": true,
-              "node": true
-            },
-            "extends": [
-              "eslint:recommended",
-              "@typescript-eslint/recommended",
-              "plugin:security/recommended"
-            ],
-            "parser": "@typescript-eslint/parser",
-            "parserOptions": {
-              "ecmaVersion": "latest",
-              "sourceType": "module"
-            },
-            "plugins": [
-              "@typescript-eslint",
-              "security"
-            ],
-            "rules": {
-              "security/detect-non-literal-regexp": "off",
-              "security/detect-unsafe-regex": "off",
-              "@typescript-eslint/no-unused-vars": "warn",
-              "@typescript-eslint/no-explicit-any": "warn"
-            },
-            "ignorePatterns": [
-              "generated/**",
-              "node_modules/**",
-              "artifacts/**",
-              "cache/**"
-            ]
-          }
-          EOF
-
       - name: Run ESLint
-        run: npx eslint . --ext .js,.ts,.tsx --max-warnings 50 || true
+        run: npm run lint -- --max-warnings 50 || echo "ESLint found issues"
 
       - name: Run Prettier check
-        run: npx prettier --check "**/*.{js,ts,tsx,json,md}" || echo "Prettier not installed - consider adding it for code formatting"
+        run: npm run format:check || echo "Prettier formatting issues found"
 
       - name: TypeScript strict check
         run: npx tsc --noEmit --strict --project tsconfig.json || echo "TypeScript strict mode check completed"

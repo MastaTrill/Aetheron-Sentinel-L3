@@ -42,7 +42,7 @@ function extractBlockNumber(output) {
 function patchFile(filePath, replacements) {
   let content = fs.readFileSync(filePath, 'utf-8');
   for (const [key, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`(${key}\s*[:=]\s*)(.*)`, 'i');
+    const regex = new RegExp(`(${key}\\s*[:=]\\s*)(.*)`, 'i');
     content = content.replace(regex, `$1${value}`);
   }
   fs.writeFileSync(filePath, content, 'utf-8');
