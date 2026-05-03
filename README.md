@@ -23,6 +23,7 @@ This repository includes:
 ## Public Dashboard
 
 - **Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/) - Real-time monitoring, security metrics, and system status.
+- **Token Utility:** Hold 1000+ $AETH for premium dashboard access and enhanced staking APY (up to 5.0% with governance/security bonuses).
 - The [Remix Dashboard](./apps/remix-dashboard/) is also available for development. Monitoring, bug bounty stats, and live metrics are available.
 
 ## Mainnet Deployment & Onboarding
