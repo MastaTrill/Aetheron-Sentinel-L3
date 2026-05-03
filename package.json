@@ -34,7 +34,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.73.0",
+    "@graphprotocol/graph-cli": "^0.98.1",
     "@graphprotocol/graph-ts": "^0.26.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
     "@nomicfoundation/hardhat-ethers": "^3.1.3",
