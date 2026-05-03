@@ -11,9 +11,9 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
  */
 contract SentinelAxieMonitor is Ownable {
     // Axie contract addresses (mainnet)
-    address public constant AXIE_CONTRACT = 0x32950db2a7164ae833121501c797d79e7b79d74c;
-    address public constant MARKETPLACE_CONTRACT = 0x213073989821f458169832d24d8c97c0af3c9a0b;
-    address public constant BREEDING_CONTRACT = 0x2b6bd31f3d3c9e8d1d2b0e7f5e6a8b9c0d1e2f3;
+    address public constant AXIE_CONTRACT = 0x32950db2a7164aE833121501C797D79E7B79d74C;
+    address public constant MARKETPLACE_CONTRACT = 0x213073989821F458169832D24d8c97c0Af3C9A0b;
+    string public constant BREEDING_CONTRACT = "";
 
     // Security thresholds
     uint256 public constant HIGH_VALUE_THRESHOLD = 100 ether; // 100 AXS

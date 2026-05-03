@@ -9,9 +9,6 @@ import "@layerzerolabs/solidity-examples/contracts/lzApp/LzApp.sol";
  * Enables Sentinel L3 to communicate security events across chains
  */
 contract SentinelLayerZeroBridge is LzApp {
-    // LayerZero endpoint
-    ILayerZeroEndpoint public immutable lzEndpoint;
-
     // Chain ID mappings for LayerZero
     mapping(uint16 => bytes) public chainIdToAddress;
 
@@ -32,7 +29,7 @@ contract SentinelLayerZeroBridge is LzApp {
     event SecurityEventSent(uint256 eventId, uint16 dstChainId, address dstAddress);
 
     constructor(address _lzEndpoint) LzApp(_lzEndpoint) {
-        lzEndpoint = ILayerZeroEndpoint(_lzEndpoint);
+        // lzEndpoint is already set by LzApp constructor
     }
 
     /**
@@ -76,7 +73,7 @@ contract SentinelLayerZeroBridge is LzApp {
     /**
      * @notice Receive security event from another chain
      */
-    function _nonblockingLzReceive(
+    function _blockingLzReceive(
         uint16 _srcChainId,
         bytes memory _srcAddress,
         uint64 _nonce,
@@ -124,7 +121,7 @@ contract SentinelLayerZeroBridge is LzApp {
         uint16 _dstChainId,
         bytes calldata _payload,
         bytes calldata _adapterParams
-    ) external view returns (uint256) {
+    ) external view returns (uint256, uint256) {
         return lzEndpoint.estimateFees(_dstChainId, address(this), _payload, false, _adapterParams);
     }
 }
