@@ -90,4 +90,30 @@ describe('AetheronBridge', function () {
       expect(await bridge.totalTransferCount()).to.equal(1);
     });
   });
+
+  describe('setChainLimit guardrails', function () {
+    it('reverts when chainId is zero', async function () {
+      await expect(bridge.setChainLimit(0, ethers.parseEther('1'))).to.be.revertedWith(
+        'Invalid chain ID'
+      );
+    });
+
+    it('reverts when setting limit for the current chain', async function () {
+      const { chainId } = await ethers.provider.getNetwork();
+      await expect(bridge.setChainLimit(chainId, ethers.parseEther('1'))).to.be.revertedWith(
+        'Cannot set local chain limit'
+      );
+    });
+
+    it('reverts when limit is zero', async function () {
+      await expect(bridge.setChainLimit(137, 0)).to.be.revertedWith('Limit must be positive');
+    });
+
+    it('sets limit for a valid non-local chain ID', async function () {
+      const validChainId = 137;
+      const limit = ethers.parseEther('5000');
+      await bridge.setChainLimit(validChainId, limit);
+      expect(await bridge.chainLimits(validChainId)).to.equal(limit);
+    });
+  });
 });
