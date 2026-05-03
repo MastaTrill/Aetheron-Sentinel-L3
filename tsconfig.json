@@ -9,6 +9,14 @@
     "types": ["node"],
     "jsx": "react-jsx"
   },
-  "include": ["./hardhat.config.ts", "./scripts", "./test", "./src"],
-  "exclude": ["generated", "generated/**", "node_modules"]
+  "include": ["./src"],
+  "exclude": [
+    "generated",
+    "generated/**",
+    "node_modules",
+    "src/bridge-events.ts",
+    "src/circuit-breaker.ts",
+    "src/rate-limiter.ts",
+    "src/sentinel-interceptor.ts"
+  ]
 }

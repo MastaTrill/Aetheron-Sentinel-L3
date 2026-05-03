@@ -39,7 +39,6 @@
     "**/*.generated.*",
     "**/imports/**",
     "**/site/**",
-    "**/src/**",
-    "**/hardhat.config.*"
+    "**/src/**"
   ]
 }
