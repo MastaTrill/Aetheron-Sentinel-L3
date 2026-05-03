@@ -1,9 +1,9 @@
-# Aetheron Sentinel L3 - Mainnet Deployment Complete
+# Aetheron Sentinel L3 - Mainnet Deployment Summary (Pending Evidence)
 
 **Deployment Date:** April 27, 2026  
 **Network:** Ethereum Mainnet (chainId 1)  
-**Final Block:26
-**Status:✅ MAINNET DRY RUN COMPLETE
+**Final Block:** [TBD]  
+**Status:** ⏳ Pending dry run evidence publication
 
 ---
 
@@ -50,7 +50,7 @@ The Sentinel L3 system is prepared for mainnet deployment, following a successfu
 | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
 | [site/contracts.js](./site/contracts.js)                                                                     | All 27 contract addresses and Etherscan URLs |
 | [subgraph.yaml](./subgraph.yaml)                                                                             | The Graph indexing config with startBlocks   |
-| [scripts/timelock-role-realignment.mainnet.safe.json](./scripts/timelock-role-realignment.mainnet.safe.json) | Executed timelock handoff (4 txs)            |
+| [scripts/timelock-role-realignment.phase-b-multisig.safe.json](./scripts/timelock-role-realignment.phase-b-multisig.safe.json) | Timelock handoff payload template (update with executed mainnet txs) |
 
 ### Verification Scripts
 

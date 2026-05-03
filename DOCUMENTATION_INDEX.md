@@ -1,6 +1,6 @@
 # 📋 Deployment Documentation Index
 
-**Mainnet Deployment:** Block [TBD] | **Status:** ✅ DRY RUN COMPLETE
+**Mainnet Deployment:** Block [TBD] | **Status:** ⏳ PENDING EVIDENCE PUBLICATION
 **Sepolia Deployment:** Block 10715441 | **Status:** ✅ COMPLETE
 
 ---
@@ -47,6 +47,20 @@
 
 - **[RELEASE_NOTES_SEPOLIA_2026-04-23.md](./RELEASE_NOTES_SEPOLIA_2026-04-23.md)**
 
+### CI Evidence & PR Governance
+
+- **[docs/CI_EXECUTION_EVIDENCE.md](./docs/CI_EXECUTION_EVIDENCE.md)**
+  - Required workflow evidence for PRs
+  - Required status checks to enable in branch protection
+  - Artifact and log links that must be captured in PRs
+
+### Mainnet Objective Evidence
+
+- **[docs/MAINNET_EVIDENCE_CHECKLIST.md](./docs/MAINNET_EVIDENCE_CHECKLIST.md)**
+  - Required tx hashes, blocks, and explorer links
+  - Ownership/timelock/relayer evidence template
+  - External validation publication checklist
+
 ### For Mainnet Deployment
 
 - **[MAINNET_PREPARATION_TEMPLATE.md](./MAINNET_PREPARATION_TEMPLATE.md)**
@@ -83,7 +97,7 @@ Design & security documentation:
 ### Configuration Files
 
 - **[subgraph.yaml](./subgraph.yaml)** - The Graph indexing config (with exact startBlocks set)
-- **[hardhat.config.ts](./hardhat.config.ts)** - Hardhat configuration
+- **[hardhat.config.js](./hardhat.config.js)** - Hardhat configuration
 - **[pyrightconfig.json](./pyrightconfig.json)** - TypeScript config
 
 ### Verification Scripts

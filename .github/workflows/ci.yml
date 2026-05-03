@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   hardhat:
-    name: Hardhat (Node 22)
+    name: Hardhat (Node 20)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -43,8 +43,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
+
+      - name: Restore Hardhat compiler cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+          key: hardhat-compiler-${{ runner.os }}-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
+          restore-keys: |
+            hardhat-compiler-${{ runner.os }}-
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -54,6 +63,24 @@ jobs:
 
       - name: Run Hardhat tests
         run: npm test
+
+      - name: Run targeted AetheronBridge guardrail tests
+        run: npx hardhat test test/AetheronBridge.test.js --grep "setChainLimit guardrails" | tee aetheronbridge-guardrails.log
+
+      - name: Upload AetheronBridge guardrail logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: aetheronbridge-guardrail-test-log
+          path: aetheronbridge-guardrails.log
+        if-no-files-found: error
+
+      - name: Save Hardhat compiler cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+          key: hardhat-compiler-${{ runner.os }}-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
 
   sepolia-verification-gate:
     name: Sepolia verification gate
@@ -69,7 +96,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -108,7 +135,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
           cache-dependency-path: imports/remix_-aetheron-sentinel-l3/package-lock.json
 
@@ -121,6 +148,23 @@ jobs:
       - name: Build Remix import app
         run: npm run build
 
+  docs-link-check:
+    name: Docs Link Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Verify markdown links in deployment docs
+        run: node scripts/check-markdown-links.cjs
+
   promote-gate:
     name: Promote gate
     runs-on: ubuntu-latest
@@ -128,6 +172,7 @@ jobs:
       - hardhat
       - sepolia-verification-gate
       - remix-import-build
+      - docs-link-check
       - security-scan
       - gas-analysis
       - code-quality
@@ -150,7 +195,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -193,7 +238,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -231,7 +276,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -259,7 +304,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -306,7 +351,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -353,14 +398,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
       - name: Install coverage tools
-        run: npm install --save-dev solidity-coverage @types/chai @types/mocha
+        run: npm install --no-save --legacy-peer-deps solidity-coverage @types/chai @types/mocha
 
       - name: Run coverage analysis
         run: |
@@ -406,7 +451,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
