@@ -11,6 +11,7 @@
     "compile": "node scripts/compile-contracts.cjs",
     "deploy": "hardhat run scripts/deploy.cjs",
     "deploy:mainnet": "hardhat run scripts/deploy.cjs --network mainnet",
+    "deploy:polygon": "hardhat run scripts/deploy.cjs --network polygon",
     "setup:ownership": "hardhat run scripts/setup-ownership.cjs",
     "deploy:verify": "npm run compile && node scripts/deployment-verification.js",
     "lint": "eslint hardhat.config.js scripts/ test/ --config .eslintrc.json --max-warnings 20",

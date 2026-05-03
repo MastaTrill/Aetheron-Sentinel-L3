@@ -29,6 +29,11 @@ const config = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 20000000000, // 20 gwei
     },
+    polygon: {
+      url: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 40000000000, // 40 gwei
+    },
   },
 };
 
