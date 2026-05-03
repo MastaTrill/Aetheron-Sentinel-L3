@@ -34,6 +34,11 @@ const config = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 40000000000, // 40 gwei
     },
+    base: {
+      url: process.env.BASE_RPC_URL || 'https://mainnet.base.org',
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 1000000000, // 1 gwei (Base has very low fees)
+    },
   },
 };
 
