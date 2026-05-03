@@ -22,7 +22,8 @@ This repository includes:
 
 ## Public Dashboard
 
-- The [Remix Dashboard](./apps/remix-dashboard/) is now public. Monitoring, bug bounty stats, and live metrics are available.
+- **Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/) - Real-time monitoring, security metrics, and system status.
+- The [Remix Dashboard](./apps/remix-dashboard/) is also available for development. Monitoring, bug bounty stats, and live metrics are available.
 
 ## Mainnet Deployment & Onboarding
 
