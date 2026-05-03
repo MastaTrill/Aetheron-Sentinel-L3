@@ -72,7 +72,7 @@ jobs:
         with:
           name: aetheronbridge-guardrail-test-log
           path: aetheronbridge-guardrails.log
-        if-no-files-found: error
+          if-no-files-found: error
 
       - name: Save Hardhat compiler cache
         if: always()
@@ -176,6 +176,9 @@ jobs:
       - security-scan
       - gas-analysis
       - code-quality
+      - contract-size-check
+      - performance-benchmark
+      - coverage-report
     if: github.event_name == 'push'
 
     steps:
@@ -261,7 +264,7 @@ jobs:
         with:
           name: gas-usage-report
           path: gas-report.txt
-        if-no-files-found: warn
+          retention-days: 5
 
   code-quality:
     name: Code Quality & Linting
@@ -336,7 +339,7 @@ jobs:
         with:
           name: contract-size-report
           path: contract-sizes.txt
-        if-no-files-found: warn
+          if-no-files-found: warn
 
   performance-benchmark:
     name: Performance Benchmark
@@ -441,7 +444,7 @@ jobs:
     name: Deployment Preview
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [hardhat, sepolia-verification-gate]
+    needs: hardhat
     if: github.event_name == 'pull_request'
 
     steps:
