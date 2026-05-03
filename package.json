@@ -17,6 +17,7 @@
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
     "security:audit": "npm audit --audit-level=moderate",
     "export:all-abis": "node scripts/export-abis.js",
+    "add-liquidity": "hardhat run scripts/add-liquidity.js",
     "codegen": "graph codegen",
     "build": "graph build"
   },
