@@ -148,6 +148,23 @@ jobs:
       - name: Build Remix import app
         run: npm run build
 
+  docs-link-check:
+    name: Docs Link Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Verify markdown links in deployment docs
+        run: node scripts/check-markdown-links.cjs
+
   promote-gate:
     name: Promote gate
     runs-on: ubuntu-latest
@@ -155,6 +172,7 @@ jobs:
       - hardhat
       - sepolia-verification-gate
       - remix-import-build
+      - docs-link-check
       - security-scan
       - gas-analysis
       - code-quality

@@ -97,7 +97,7 @@ Design & security documentation:
 ### Configuration Files
 
 - **[subgraph.yaml](./subgraph.yaml)** - The Graph indexing config (with exact startBlocks set)
-- **[hardhat.config.ts](./hardhat.config.ts)** - Hardhat configuration
+- **[hardhat.config.js](./hardhat.config.js)** - Hardhat configuration
 - **[pyrightconfig.json](./pyrightconfig.json)** - TypeScript config
 
 ### Verification Scripts
