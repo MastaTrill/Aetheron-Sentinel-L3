@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   hardhat:
-    name: Hardhat (Node 22)
+    name: Hardhat (Node 20)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -46,6 +46,15 @@ jobs:
            node-version: 20
           cache: npm
 
+      - name: Restore Hardhat compiler cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+          key: hardhat-compiler-${{ runner.os }}-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
+          restore-keys: |
+            hardhat-compiler-${{ runner.os }}-
+
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
@@ -54,6 +63,24 @@ jobs:
 
       - name: Run Hardhat tests
         run: npm test
+
+      - name: Run targeted AetheronBridge guardrail tests
+        run: npx hardhat test test/AetheronBridge.test.js --grep "setChainLimit guardrails" | tee aetheronbridge-guardrails.log
+
+      - name: Upload AetheronBridge guardrail logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: aetheronbridge-guardrail-test-log
+          path: aetheronbridge-guardrails.log
+        if-no-files-found: error
+
+      - name: Save Hardhat compiler cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+          key: hardhat-compiler-${{ runner.os }}-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
 
   sepolia-verification-gate:
     name: Sepolia verification gate

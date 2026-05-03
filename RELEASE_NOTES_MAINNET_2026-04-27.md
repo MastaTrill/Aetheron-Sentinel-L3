@@ -4,6 +4,8 @@
 **Network:** Ethereum Mainnet (chainId 1)  
 **Status:** ⏳ Pending mainnet dry run
 
+> Evidence gate: do not mark this release complete until every item in [docs/MAINNET_EVIDENCE_CHECKLIST.md](./docs/MAINNET_EVIDENCE_CHECKLIST.md) is filled with concrete tx hashes, block numbers, and explorer URLs.
+
 ---
 
 ## Executive Summary
@@ -28,7 +30,8 @@ Aetheron Sentinel L3 is ready for mainnet deployment. All security, governance, 
 
 ## Deployment Addresses (Mainnet)
 
-See [site/contracts.js](./site/contracts.js) for the full list of 27 mainnet contract addresses and Etherscan links.
+Mainnet addresses and Etherscan links must be attached here after deployment.  
+Current `site/contracts.js` is Sepolia-scoped (`window.SENTINEL_NETWORK = 'sepolia'`) and is **not** a mainnet evidence source.
 
 ---
 

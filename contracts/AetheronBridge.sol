@@ -279,6 +279,9 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
         uint256 chainId,
         uint256 limit
     ) external onlyRole(OPERATOR_ROLE) {
+        require(chainId != 0, "Invalid chain ID");
+        require(chainId != block.chainid, "Cannot set local chain limit");
+        require(limit > 0, "Limit must be positive");
         chainLimits[chainId] = limit;
     }
 
