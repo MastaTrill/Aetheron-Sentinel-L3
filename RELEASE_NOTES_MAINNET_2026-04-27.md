@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Aetheron Sentinel L3 is ready for mainnet deployment. All security, governance, and operational controls have been validated on Sepolia and rehearsed for mainnet. This document will be updated with final contract addresses, block numbers, and transaction hashes after the dry run and actual deployment.
+Aetheron Sentinel L3 is prepared for mainnet deployment pending final evidence publication. Security, governance, and operational controls have been validated on Sepolia and rehearsed for mainnet. This document must be updated with final contract addresses, block numbers, transaction hashes, and explorer links after the dry run and actual deployment.
 
 **Key achievement:** 100% of privileged paths will terminate at the owner EOA, multisig, or explicitly approved service accounts. No temporary deployer roles will remain after deployment.
 

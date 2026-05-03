@@ -1,6 +1,6 @@
 # 📋 Deployment Documentation Index
 
-**Mainnet Deployment:** Block [TBD] | **Status:** ✅ DRY RUN COMPLETE
+**Mainnet Deployment:** Block [TBD] | **Status:** ⏳ PENDING EVIDENCE PUBLICATION
 **Sepolia Deployment:** Block 10715441 | **Status:** ✅ COMPLETE
 
 ---
