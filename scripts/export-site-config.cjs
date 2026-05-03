@@ -19,10 +19,8 @@ const OUTPUT_PATH = path.join(__dirname, '..', 'site', 'contracts.js');
 function main() {
   const rawAddresses = process.env.DEPLOYED_ADDRESSES || '{}';
   const addresses = JSON.parse(rawAddresses);
-  const explorerBase =
-    process.env.EXPLORER_BASE_URL || 'https://sepolia.etherscan.io/address';
-  const network =
-    process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia';
+  const explorerBase = process.env.EXPLORER_BASE_URL || 'https://sepolia.etherscan.io/address';
+  const network = process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia';
 
   const contracts = {};
   for (const [name, address] of Object.entries(addresses)) {
@@ -40,11 +38,7 @@ window.SENTINEL_NETWORK = ${JSON.stringify(network)};
 
   fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
   fs.writeFileSync(OUTPUT_PATH, output, 'utf8');
-  console.log(
-    `Written site/contracts.js with ${
-      Object.keys(contracts).length
-    } contracts.`,
-  );
+  console.log(`Written site/contracts.js with ${Object.keys(contracts).length} contracts.`);
 }
 
 main();

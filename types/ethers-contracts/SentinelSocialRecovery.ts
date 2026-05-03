@@ -391,9 +391,7 @@ export interface SentinelSocialRecovery extends BaseContract {
   getFunction(
     nameOrSignature: 'executeRecovery'
   ): TypedContractMethod<[account: AddressLike, requestId: BytesLike], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'getRecoveryConfig'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getRecoveryConfig'): TypedContractMethod<
     [account: AddressLike],
     [
       [bigint, bigint, bigint, boolean] & {
@@ -405,9 +403,7 @@ export interface SentinelSocialRecovery extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getRecoveryRequest'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getRecoveryRequest'): TypedContractMethod<
     [account: AddressLike, requestId: BytesLike],
     [
       [string, bigint, bigint, bigint, bigint] & {
@@ -424,9 +420,7 @@ export interface SentinelSocialRecovery extends BaseContract {
     nameOrSignature: 'isGuardian'
   ): TypedContractMethod<[account: AddressLike, guardian: AddressLike], [boolean], 'view'>;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'recoveryConfigs'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'recoveryConfigs'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, bigint, bigint, bigint, boolean] & {

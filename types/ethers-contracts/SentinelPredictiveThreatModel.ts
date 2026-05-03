@@ -393,9 +393,7 @@ export interface SentinelPredictiveThreatModel extends BaseContract {
     'nonpayable'
   >;
   getFunction(nameOrSignature: 'anomalyThreshold'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'behavioralProfiles'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'behavioralProfiles'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -411,9 +409,7 @@ export interface SentinelPredictiveThreatModel extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getAIModelMetrics'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getAIModelMetrics'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -426,9 +422,7 @@ export interface SentinelPredictiveThreatModel extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getBehavioralProfile'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getBehavioralProfile'): TypedContractMethod<
     [entity: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -441,9 +435,7 @@ export interface SentinelPredictiveThreatModel extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getThreatPattern'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getThreatPattern'): TypedContractMethod<
     [patternId: BytesLike],
     [
       [string, bigint, bigint, bigint, bigint] & {
@@ -489,9 +481,7 @@ export interface SentinelPredictiveThreatModel extends BaseContract {
   getFunction(
     nameOrSignature: 'threatMetrics'
   ): TypedContractMethod<[arg0: string], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'threatPatterns'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'threatPatterns'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, string, bigint, bigint, bigint, bigint, boolean, bigint] & {

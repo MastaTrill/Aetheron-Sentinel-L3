@@ -476,9 +476,7 @@ export interface CircuitBreaker extends BaseContract {
   getFunction(
     nameOrSignature: 'failureHistory'
   ): TypedContractMethod<[arg0: BigNumberish, arg1: BigNumberish], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'getCircuitStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getCircuitStats'): TypedContractMethod<
     [chainId: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, boolean] & {

@@ -3,13 +3,7 @@ const { config: loadEnv } = require('dotenv');
 const { defineConfig } = require('hardhat/config');
 
 const verifyPluginModule = require(
-  path.join(
-    process.cwd(),
-    '.verify-tools',
-    'node_modules',
-    '@nomicfoundation',
-    'hardhat-verify',
-  ),
+  path.join(process.cwd(), '.verify-tools', 'node_modules', '@nomicfoundation', 'hardhat-verify')
 );
 const hardhatVerify = verifyPluginModule.default || verifyPluginModule;
 
@@ -40,27 +34,21 @@ module.exports = defineConfig({
     sepolia: {
       type: 'http',
       chainType: 'l1',
-      url:
-        process.env.SEPOLIA_RPC_URL ||
-        'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
+      url: process.env.SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 11155111,
     },
     mainnet: {
       type: 'http',
       chainType: 'l1',
-      url:
-        process.env.MAINNET_RPC_URL ||
-        'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
+      url: process.env.MAINNET_RPC_URL || 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 1,
     },
     hoodi: {
       type: 'http',
       chainType: 'l1',
-      url:
-        process.env.HOODI_RPC_URL ||
-        'https://ethereum-hoodi-rpc.publicnode.com',
+      url: process.env.HOODI_RPC_URL || 'https://ethereum-hoodi-rpc.publicnode.com',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 560048,
     },

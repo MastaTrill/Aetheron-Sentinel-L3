@@ -477,9 +477,7 @@ export interface SentinelLiquidityMining extends BaseContract {
   getFunction(
     nameOrSignature: 'pendingRewards'
   ): TypedContractMethod<[poolId: BigNumberish, user: AddressLike], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'pools'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'pools'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, bigint, boolean] & {
@@ -493,9 +491,7 @@ export interface SentinelLiquidityMining extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'positions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'positions'): TypedContractMethod<
     [arg0: BigNumberish, arg1: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint] & {

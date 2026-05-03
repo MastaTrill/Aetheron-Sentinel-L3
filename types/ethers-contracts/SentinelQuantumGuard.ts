@@ -346,9 +346,7 @@ export interface SentinelQuantumGuard extends BaseContract {
     nameOrSignature: 'escalateSecurityLevel'
   ): TypedContractMethod<[newLevel: BigNumberish, reason: string], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'falsePositiveRate'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'getSecurityStatus'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getSecurityStatus'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint] & {
@@ -362,9 +360,7 @@ export interface SentinelQuantumGuard extends BaseContract {
   >;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
   getFunction(nameOrSignature: 'paused'): TypedContractMethod<[], [boolean], 'view'>;
-  getFunction(
-    nameOrSignature: 'quantumProofs'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quantumProofs'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, string, bigint, string, boolean] & {
@@ -381,9 +377,7 @@ export interface SentinelQuantumGuard extends BaseContract {
     nameOrSignature: 'registerSecurityOracle'
   ): TypedContractMethod<[oracleAddress: AddressLike, publicKey: BytesLike], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'securityOracles'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'securityOracles'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, string, bigint, boolean, bigint] & {

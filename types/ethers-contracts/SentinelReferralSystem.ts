@@ -371,9 +371,7 @@ export interface SentinelReferralSystem extends BaseContract {
   getFunction(
     nameOrSignature: 'getReferralAPY'
   ): TypedContractMethod<[user: AddressLike], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'getReferralStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getReferralStats'): TypedContractMethod<
     [user: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, bigint] & {
@@ -404,9 +402,7 @@ export interface SentinelReferralSystem extends BaseContract {
   getFunction(
     nameOrSignature: 'recordActivity'
   ): TypedContractMethod<[activityType: string], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'referrals'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'referrals'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, bigint] & {
@@ -428,9 +424,7 @@ export interface SentinelReferralSystem extends BaseContract {
   ): TypedContractMethod<[referrerAddress: AddressLike], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'rewardToken'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'tiers'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'tiers'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, string] & {

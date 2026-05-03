@@ -460,9 +460,7 @@ export interface SentinelInsuranceProtocol extends BaseContract {
   >;
   getFunction(nameOrSignature: 'claimCount'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(nameOrSignature: 'claimHistoryWeight'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'claims'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'claims'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, string, bigint, bigint, string, bigint, bigint, string] & {
@@ -479,9 +477,7 @@ export interface SentinelInsuranceProtocol extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getPolicyInfo'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getPolicyInfo'): TypedContractMethod<
     [policyId: BigNumberish],
     [
       [string, bigint, bigint, bigint, bigint, bigint] & {
@@ -495,9 +491,7 @@ export interface SentinelInsuranceProtocol extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getPoolStatistics'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getPoolStatistics'): TypedContractMethod<
     [poolType: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -510,9 +504,7 @@ export interface SentinelInsuranceProtocol extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'insurancePools'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'insurancePools'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint, boolean] & {
@@ -528,9 +520,7 @@ export interface SentinelInsuranceProtocol extends BaseContract {
     'view'
   >;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'policies'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'policies'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [

@@ -53,21 +53,9 @@ body {
   height: 100%;
   z-index: -1;
   background:
-    radial-gradient(
-      circle at 20% 50%,
-      rgba(0, 255, 255, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 20%,
-      rgba(255, 0, 255, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 40% 80%,
-      rgba(0, 255, 136, 0.1) 0%,
-      transparent 50%
-    );
+    radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
   animation: quantumShift 20s ease-in-out infinite;
 }
 
@@ -169,11 +157,7 @@ body {
 /* Buttons */
 .btn-primary,
 .btn-primary-large {
-  background: linear-gradient(
-    135deg,
-    var(--quantum-cyan),
-    var(--quantum-purple)
-  );
+  background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-purple));
   color: white;
   border: none;
   padding: 12px 24px;
@@ -310,11 +294,7 @@ body {
 /* Telemetry */
 .telemetry {
   padding: 100px 0;
-  background: linear-gradient(
-    180deg,
-    rgba(10, 10, 10, 0.9),
-    rgba(16, 16, 26, 0.9)
-  );
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.9), rgba(16, 16, 26, 0.9));
 }
 
 .telemetry-grid {
@@ -548,11 +528,7 @@ body {
 }
 
 .lore-chapter {
-  background: linear-gradient(
-    135deg,
-    var(--quantum-pink),
-    var(--quantum-orange)
-  );
+  background: linear-gradient(135deg, var(--quantum-pink), var(--quantum-orange));
   color: white;
   padding: 4px 12px;
   border-radius: 20px;

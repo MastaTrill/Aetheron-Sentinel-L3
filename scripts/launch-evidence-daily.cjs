@@ -79,14 +79,19 @@ async function fetchSubgraphSnapshot() {
   const url = process.env.SUBGRAPH_QUERY_URL || process.env.SUBGRAPH_URL;
   if (!url || dryRun) return null;
 
-  const query = process.env.SUBGRAPH_HEALTH_QUERY || `
+  const query =
+    process.env.SUBGRAPH_HEALTH_QUERY ||
+    `
     query SentinelEvidenceSnapshot {
       _meta { block { number hash timestamp } deployment }
     }
   `;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Number(process.env.SUBGRAPH_TIMEOUT_MS || 15000));
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number(process.env.SUBGRAPH_TIMEOUT_MS || 15000)
+  );
 
   try {
     const response = await fetch(url, {
@@ -122,13 +127,13 @@ function statusFromExit(code) {
 
 function markdownTableRows(rows, emptyRow) {
   if (rows.length === 0) return emptyRow;
-  return rows.map((row) => row.join(' | ')).join('\n');
+  return rows.map(row => row.join(' | ')).join('\n');
 }
 
 function formatTxRows(transactions) {
   const rows = Array.isArray(transactions) ? transactions : [];
   return markdownTableRows(
-    rows.map((tx) => [
+    rows.map(tx => [
       tx.utc_time || '',
       tx.action || '',
       tx.tx_hash || tx.hash || '',
@@ -138,14 +143,14 @@ function formatTxRows(transactions) {
       tx.confirmations || '',
       tx.notes || '',
     ]),
-    ' |  |  |  |  |  |  |  |',
+    ' |  |  |  |  |  |  |  |'
   );
 }
 
 function formatFailureRows(failures) {
   const rows = Array.isArray(failures) ? failures : [];
   return markdownTableRows(
-    rows.map((failure) => [
+    rows.map(failure => [
       failure.utc_time || '',
       failure.component || '',
       failure.severity || '',
@@ -155,14 +160,14 @@ function formatFailureRows(failures) {
       failure.remediation || '',
       failure.status || '',
     ]),
-    ' |  |  |  |  |  |  |  |',
+    ' |  |  |  |  |  |  |  |'
   );
 }
 
 function formatIndexingRows(indexing) {
   const rows = Array.isArray(indexing) ? indexing : [];
   return markdownTableRows(
-    rows.map((entry) => [
+    rows.map(entry => [
       entry.tx_hash || entry.event || '',
       entry.block || '',
       entry.event_emitted_at || '',
@@ -172,7 +177,7 @@ function formatIndexingRows(indexing) {
       entry.ui_latency || '',
       entry.notes || '',
     ]),
-    ' |  |  |  |  |  |  |  |',
+    ' |  |  |  |  |  |  |  |'
   );
 }
 
@@ -180,7 +185,7 @@ function formatRelayerRows(relayerBehavior) {
   const rows = Array.isArray(relayerBehavior) ? relayerBehavior : [];
   if (rows.length > 0) {
     return markdownTableRows(
-      rows.map((entry) => [
+      rows.map(entry => [
         entry.relayer_address || entry.address || '',
         entry.expected_role || '',
         entry.observed_action || '',
@@ -189,16 +194,21 @@ function formatRelayerRows(relayerBehavior) {
         entry.failure_count || '',
         entry.notes || '',
       ]),
-      '',
+      ''
     );
   }
 
-  return relayers
-    .split(',')
-    .map((address) => address.trim())
-    .filter(Boolean)
-    .map((address) => `${address} | Approved Sepolia relayer | See verify-bridge-relayers.log |  |  |  | Auto-filled from RELAYER_ADDRESSES`)
-    .join('\n') || ' |  |  |  |  |  |';
+  return (
+    relayers
+      .split(',')
+      .map(address => address.trim())
+      .filter(Boolean)
+      .map(
+        address =>
+          `${address} | Approved Sepolia relayer | See verify-bridge-relayers.log |  |  |  | Auto-filled from RELAYER_ADDRESSES`
+      )
+      .join('\n') || ' |  |  |  |  |  |'
+  );
 }
 
 (async function main() {
@@ -221,16 +231,24 @@ function formatRelayerRows(relayerBehavior) {
   if (fullRun && !skipNpmCi) manifest.steps.push(runStep('npm-ci', 'npm ci'));
   if (fullRun) manifest.steps.push(runStep('compile', 'npm run compile'));
   if (fullRun) manifest.steps.push(runStep('hardhat-test', 'npm test'));
-  if (fullRun) manifest.steps.push(runStep('python-unittest', 'PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v'));
+  if (fullRun)
+    manifest.steps.push(
+      runStep(
+        'python-unittest',
+        'PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v'
+      )
+    );
   if (fullRun) manifest.steps.push(runStep('graph-codegen', 'npm run codegen'));
   if (fullRun) manifest.steps.push(runStep('graph-build', 'npm run build'));
   if (fullRun) manifest.steps.push(runStep('dashboard-build', 'npm run dashboard:build'));
 
   manifest.steps.push(runStep('section7-final-sweep', 'node scripts/section7-final-sweep.cjs'));
   manifest.steps.push(runStep('audit-allowlists', 'node scripts/audit-allowlists.cjs'));
-  manifest.steps.push(runStep('verify-bridge-relayers', 'node scripts/verify-bridge-relayers.cjs', {
-    env: { RELAYER_ADDRESSES: relayers },
-  }));
+  manifest.steps.push(
+    runStep('verify-bridge-relayers', 'node scripts/verify-bridge-relayers.cjs', {
+      env: { RELAYER_ADDRESSES: relayers },
+    })
+  );
 
   const subgraphSnapshot = await fetchSubgraphSnapshot();
   if (subgraphSnapshot) writeJson('subgraph-snapshot.json', subgraphSnapshot);
@@ -242,7 +260,7 @@ function formatRelayerRows(relayerBehavior) {
     relayerBehavior: tryReadJsonEnv('EVIDENCE_RELAYER_BEHAVIOR_JSON', []),
   };
 
-  const failedSteps = manifest.steps.filter((step) => step.exitCode !== 0);
+  const failedSteps = manifest.steps.filter(step => step.exitCode !== 0);
   const overall = failedSteps.length === 0 ? 'PASS' : 'FAIL';
 
   const notes = `# Sentinel L3 Sepolia Daily Notes — ${runDay}
@@ -257,7 +275,7 @@ function formatRelayerRows(relayerBehavior) {
 ## Automated checks
 | Check | Result | Log |
 | --- | --- | --- |
-${manifest.steps.map((step) => `| ${step.name} | ${statusFromExit(step.exitCode)} | \`${path.basename(step.logPath)}\` |`).join('\n')}
+${manifest.steps.map(step => `| ${step.name} | ${statusFromExit(step.exitCode)} | \`${path.basename(step.logPath)}\` |`).join('\n')}
 
 ## Transactions
 | UTC time | Action | Tx hash | Contract | Result | Gas used | Confirmations | Notes |
@@ -282,9 +300,9 @@ ${formatRelayerRows(manualEvidence.relayerBehavior)}
 ## Stability data
 | Metric | Value | Evidence link |
 | --- | ---: | --- |
-| Section 7 sweep pass/fail | ${statusFromExit(manifest.steps.find((s) => s.name === 'section7-final-sweep')?.exitCode)} | \`section7-final-sweep.log\` |
-| Allowlist audit pass/fail | ${statusFromExit(manifest.steps.find((s) => s.name === 'audit-allowlists')?.exitCode)} | \`audit-allowlists.log\` |
-| Relayer verification pass/fail | ${statusFromExit(manifest.steps.find((s) => s.name === 'verify-bridge-relayers')?.exitCode)} | \`verify-bridge-relayers.log\` |
+| Section 7 sweep pass/fail | ${statusFromExit(manifest.steps.find(s => s.name === 'section7-final-sweep')?.exitCode)} | \`section7-final-sweep.log\` |
+| Allowlist audit pass/fail | ${statusFromExit(manifest.steps.find(s => s.name === 'audit-allowlists')?.exitCode)} | \`audit-allowlists.log\` |
+| Relayer verification pass/fail | ${statusFromExit(manifest.steps.find(s => s.name === 'verify-bridge-relayers')?.exitCode)} | \`verify-bridge-relayers.log\` |
 | Subgraph latest indexed block | ${subgraphSnapshot?.response?.data?._meta?.block?.number || ''} | \`subgraph-snapshot.json\` |
 | Dashboard data freshness | ${process.env.DASHBOARD_VISIBLE_AT || ''} | ${process.env.DASHBOARD_URL || ''} |
 
@@ -300,13 +318,13 @@ ${formatRelayerRows(manualEvidence.relayerBehavior)}
 
   manifest.finishedAt = nowIso();
   manifest.overall = overall;
-  manifest.failedSteps = failedSteps.map((step) => step.name);
+  manifest.failedSteps = failedSteps.map(step => step.name);
   writeJson('run-manifest.json', manifest);
 
   console.log(`Wrote ${path.join(logDir, 'DAILY_NOTES.md')}`);
   console.log(`Wrote ${path.join(logDir, 'run-manifest.json')}`);
   process.exit(failedSteps.length === 0 ? 0 : 1);
-})().catch((error) => {
+})().catch(error => {
   console.error(error);
   process.exit(1);
 });

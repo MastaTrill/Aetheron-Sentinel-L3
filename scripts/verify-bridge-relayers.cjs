@@ -26,17 +26,15 @@ function parseAddressList(value) {
   if (!value) return [];
   return value
     .split(',')
-    .map((x) => x.trim())
+    .map(x => x.trim())
     .filter(Boolean)
-    .map((addr) => ethers.getAddress(addr));
+    .map(addr => ethers.getAddress(addr));
 }
 
 (async function main() {
   const relayers = parseAddressList(process.env.RELAYER_ADDRESSES || '');
   if (relayers.length === 0) {
-    console.error(
-      'No relayers provided. Set RELAYER_ADDRESSES as comma-separated addresses.',
-    );
+    console.error('No relayers provided. Set RELAYER_ADDRESSES as comma-separated addresses.');
     process.exit(1);
   }
 
@@ -57,7 +55,7 @@ function parseAddressList(value) {
       'function RELAYER_ROLE() view returns (bytes32)',
       'function hasRole(bytes32 role, address account) view returns (bool)',
     ],
-    provider,
+    provider
   );
 
   const role = await bridge.RELAYER_ROLE();

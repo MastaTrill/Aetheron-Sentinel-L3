@@ -394,9 +394,7 @@ export interface SentinelZKIdentity extends BaseContract {
   getFunction(
     nameOrSignature: 'credentialToOwner'
   ): TypedContractMethod<[arg0: BytesLike], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'getZKCredential'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getZKCredential'): TypedContractMethod<
     [credentialId: BytesLike],
     [
       [string, string, bigint, bigint, boolean, boolean] & {
@@ -410,9 +408,7 @@ export interface SentinelZKIdentity extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getZKIdentity'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getZKIdentity'): TypedContractMethod<
     [user: AddressLike],
     [
       [string, bigint, bigint, boolean, bigint] & {
@@ -425,9 +421,7 @@ export interface SentinelZKIdentity extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'identities'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'identities'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, string, bigint, bigint, bigint, boolean, boolean] & {
@@ -458,9 +452,7 @@ export interface SentinelZKIdentity extends BaseContract {
     'nonpayable'
   >;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'proofs'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'proofs'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, boolean, bigint] & {

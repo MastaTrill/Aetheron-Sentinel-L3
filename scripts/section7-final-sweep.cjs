@@ -40,9 +40,7 @@ function short(addr) {
   } else if (ethers.providers && ethers.providers.JsonRpcProvider) {
     provider = new ethers.providers.JsonRpcProvider(RPC);
   } else {
-    throw new Error(
-      'Cannot find JsonRpcProvider in ethers. Check ethers version.',
-    );
+    throw new Error('Cannot find JsonRpcProvider in ethers. Check ethers version.');
   }
 
   const ctx = { window: {} };
@@ -91,17 +89,13 @@ function short(addr) {
     }
     // Treasury-routed contracts are owned by treasury address
     const isTreasuryRouted = TREASURY_ROUTED.has(key);
-    const expectedOwner = isTreasuryRouted
-      ? TREASURY_ADDRESS_LC
-      : EXPECTED_OWNER_LC;
+    const expectedOwner = isTreasuryRouted ? TREASURY_ADDRESS_LC : EXPECTED_OWNER_LC;
     const ok = owner === expectedOwner && !error;
     if (!ok) allPass = false;
     const status = ok ? 'PASS' : 'FAIL';
     const label = isTreasuryRouted ? ' (treasury-routed)' : '';
     if (error) {
-      console.log(
-        `  ${status} ${key}: ERROR: ${error.shortMessage || error.message}`,
-      );
+      console.log(`  ${status} ${key}: ERROR: ${error.shortMessage || error.message}`);
     } else {
       console.log(`  ${status} ${key}: owner=${owner}${label}`);
     }
@@ -110,11 +104,7 @@ function short(addr) {
 
   // 2) Timelock roles for multisig vs owner
   console.log('2) Timelock governance role state');
-  const timelock = new ethers.Contract(
-    c.SentinelTimelock.address,
-    tlIface,
-    provider,
-  );
+  const timelock = new ethers.Contract(c.SentinelTimelock.address, tlIface, provider);
   const proposer = await timelock.PROPOSER_ROLE();
   const admin = await timelock.TIMELOCK_ADMIN_ROLE();
   const multisig = c.SentinelMultiSigVault.address;
@@ -128,7 +118,7 @@ function short(addr) {
   if (!timelockPass) allPass = false;
 
   console.log(
-    `  ${timelockPass ? 'PASS' : 'FAIL'} multisig proposer=${multiProp}, multisig admin=${multiAdmin}, owner admin=${ownerAdmin}, owner proposer=${ownerProp}`,
+    `  ${timelockPass ? 'PASS' : 'FAIL'} multisig proposer=${multiProp}, multisig admin=${multiAdmin}, owner admin=${ownerAdmin}, owner proposer=${ownerProp}`
   );
   console.log('');
 
@@ -136,14 +126,10 @@ function short(addr) {
   console.log('3) SentinelLiquidityMining privileged roles');
   if (!c.SentinelLiquidityMining || !c.SentinelLiquidityMining.address) {
     console.log(
-      '  N/A SentinelLiquidityMining not present in current deployment map (site/contracts.js)',
+      '  N/A SentinelLiquidityMining not present in current deployment map (site/contracts.js)'
     );
   } else {
-    const lm = new ethers.Contract(
-      c.SentinelLiquidityMining.address,
-      lmIface,
-      provider,
-    );
+    const lm = new ethers.Contract(c.SentinelLiquidityMining.address, lmIface, provider);
     const lmAdminRole = await lm.DEFAULT_ADMIN_ROLE();
     const lmDistRole = await lm.REWARD_DISTRIBUTOR_ROLE();
 
@@ -156,34 +142,28 @@ function short(addr) {
     if (!lmPass) allPass = false;
 
     console.log(
-      `  ${lmPass ? 'PASS' : 'FAIL'} owner admin=${ownerLmAdmin}, owner distributor=${ownerLmDist}, multisig admin=${multiLmAdmin}, multisig distributor=${multiLmDist}`,
+      `  ${lmPass ? 'PASS' : 'FAIL'} owner admin=${ownerLmAdmin}, owner distributor=${ownerLmDist}, multisig admin=${multiLmAdmin}, multisig distributor=${multiLmDist}`
     );
   }
   console.log('');
 
   // 4) Allowlist summary (from prior audited state)
   console.log('4) Allowlists summary (live state)');
-  const bridge = new ethers.Contract(
-    c.AetheronBridge.address,
-    bridgeIface,
-    provider,
-  );
+  const bridge = new ethers.Contract(c.AetheronBridge.address, bridgeIface, provider);
   const relayerRole = await bridge.RELAYER_ROLE();
   const ownerIsRelayer = await bridge.hasRole(relayerRole, EXPECTED_OWNER);
   console.log(
-    `  INFO AetheronBridge RELAYER_ROLE members: ${ownerIsRelayer ? `${short(EXPECTED_OWNER)} (ownerEOA)` : 'none'}`,
+    `  INFO AetheronBridge RELAYER_ROLE members: ${ownerIsRelayer ? `${short(EXPECTED_OWNER)} (ownerEOA)` : 'none'}`
   );
   console.log(
-    `  INFO RateLimiter CALLER_ROLE members: ${short(c.AetheronBridge.address)} (AetheronBridge)`,
+    `  INFO RateLimiter CALLER_ROLE members: ${short(c.AetheronBridge.address)} (AetheronBridge)`
+  );
+  console.log(`  INFO CircuitBreaker MONITOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`);
+  console.log(
+    `  INFO SentinelInterceptor OPERATOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`
   );
   console.log(
-    `  INFO CircuitBreaker MONITOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`,
-  );
-  console.log(
-    `  INFO SentinelInterceptor OPERATOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`,
-  );
-  console.log(
-    `  INFO SentinelInterceptor MONITOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`,
+    `  INFO SentinelInterceptor MONITOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`
   );
   console.log('');
 
@@ -198,9 +178,7 @@ function short(addr) {
 
   console.log('');
   if (allPass) {
-    console.log(
-      `RESULT: PASS (operational note: ownerEOA relayer enabled=${ownerIsRelayer}).`,
-    );
+    console.log(`RESULT: PASS (operational note: ownerEOA relayer enabled=${ownerIsRelayer}).`);
   } else {
     console.log('RESULT: FAIL - one or more Section 7 controls not satisfied.');
     process.exit(1);

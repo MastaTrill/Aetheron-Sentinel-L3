@@ -85,9 +85,7 @@ export interface ICircuitBreaker extends BaseContract {
 
   getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-  getFunction(
-    nameOrSignature: 'getCircuitStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getCircuitStats'): TypedContractMethod<
     [chainId: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, boolean] & {

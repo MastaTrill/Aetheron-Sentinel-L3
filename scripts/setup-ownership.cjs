@@ -45,17 +45,17 @@ function getRpcUrl(network) {
 function parseAddressList(value) {
   return (value || '')
     .split(',')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .filter(Boolean);
 }
 
 function parseChainLimits(value) {
   return (value || '')
     .split(',')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .filter(Boolean)
-    .map((entry) => {
-      const [chainId, limit] = entry.split(':').map((p) => p.trim());
+    .map(entry => {
+      const [chainId, limit] = entry.split(':').map(p => p.trim());
       return { chainId: BigInt(chainId), limit: ethers.parseEther(limit) };
     });
 }
@@ -64,7 +64,7 @@ function loadAbi(contractName) {
   const abiPath = path.join(process.cwd(), 'abis', `${contractName}.json`);
   if (!fs.existsSync(abiPath)) {
     throw new Error(
-      `ABI not found for ${contractName} at ${abiPath}. Run npm run export:abis first.`,
+      `ABI not found for ${contractName} at ${abiPath}. Run npm run export:abis first.`
     );
   }
   return JSON.parse(fs.readFileSync(abiPath, 'utf8'));
@@ -96,8 +96,7 @@ async function main() {
   const rawAddresses = process.env.DEPLOYED_ADDRESSES;
   if (!rawAddresses) {
     throw new Error(
-      'DEPLOYED_ADDRESSES env var is required.\n' +
-        'Set it to the JSON output from deploy.cjs.',
+      'DEPLOYED_ADDRESSES env var is required.\n' + 'Set it to the JSON output from deploy.cjs.'
     );
   }
   const addresses = JSON.parse(rawAddresses);
@@ -106,7 +105,7 @@ async function main() {
   if (!ownerKey) {
     throw new Error(
       'OWNER_PRIVATE_KEY env var is required.\n' +
-        'This must be the private key of the SENTINEL_OWNER wallet.',
+        'This must be the private key of the SENTINEL_OWNER wallet.'
     );
   }
 
@@ -121,25 +120,18 @@ async function main() {
   console.log(`Balance: ${ethers.formatEther(balance)} ETH\n`);
 
   if (balance === 0n) {
-    throw new Error(
-      'Owner wallet has no ETH for gas. Fund it before running setup.',
-    );
+    throw new Error('Owner wallet has no ETH for gas. Fund it before running setup.');
   }
 
   // Config from env
   const monitors = parseAddressList(process.env.MONITOR_ADDRESSES);
   const reporters = parseAddressList(process.env.REPORTER_ADDRESSES);
-  const securityReporters = parseAddressList(
-    process.env.SECURITY_REPORTER_ADDRESSES,
-  );
-  const trackedChains = parseAddressList(process.env.TRACKED_CHAIN_IDS).map(
-    BigInt,
-  );
+  const securityReporters = parseAddressList(process.env.SECURITY_REPORTER_ADDRESSES);
+  const trackedChains = parseAddressList(process.env.TRACKED_CHAIN_IDS).map(BigInt);
   const chainLimits = parseChainLimits(process.env.CHAIN_LIMITS);
   const bridgeTokens = parseAddressList(process.env.BRIDGE_TOKEN_ADDRESSES);
   const relayers = parseAddressList(process.env.RELAYER_ADDRESSES);
-  const yieldTokenAddress =
-    process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
+  const yieldTokenAddress = process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
   // const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
   // const tvlThreshold = ethers.parseEther(
   //   process.env.TVL_THRESHOLD_ETH || '1000',
@@ -148,18 +140,14 @@ async function main() {
   // ── 1. SentinelTimelock: grant roles to SentinelGovernance ─────────────────
   if (addresses.SentinelTimelock && addresses.SentinelGovernance) {
     console.log('1. SentinelTimelock role grants →');
-    const timelock = contract(
-      'SentinelTimelock',
-      addresses.SentinelTimelock,
-      owner,
-    );
+    const timelock = contract('SentinelTimelock', addresses.SentinelTimelock, owner);
     const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
     const CANCELLER_ROLE = await timelock.CANCELLER_ROLE();
     await call(`grantRole(PROPOSER_ROLE, SentinelGovernance)`, () =>
-      timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance),
+      timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance)
     );
     await call(`grantRole(CANCELLER_ROLE, SentinelGovernance)`, () =>
-      timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance),
+      timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance)
     );
   } else {
     console.log('1. SentinelTimelock/Governance: skipped (no address)');
@@ -168,25 +156,17 @@ async function main() {
   // ── 2. SentinelMonitor: authorize contracts + tracked chains ───────────────
   if (addresses.SentinelMonitor) {
     console.log('\n2. SentinelMonitor authorization →');
-    const monitor = contract(
-      'SentinelMonitor',
-      addresses.SentinelMonitor,
-      owner,
-    );
+    const monitor = contract('SentinelMonitor', addresses.SentinelMonitor, owner);
     const toAuthorize = [
       addresses.SentinelInterceptor,
       addresses.AetheronBridge,
       addresses.CircuitBreaker,
     ].filter(Boolean);
     for (const addr of toAuthorize) {
-      await call(`authorizeContract(${addr})`, () =>
-        monitor.authorizeContract(addr),
-      );
+      await call(`authorizeContract(${addr})`, () => monitor.authorizeContract(addr));
     }
     for (const chainId of trackedChains) {
-      await call(`addTrackedChain(${chainId})`, () =>
-        monitor.addTrackedChain(chainId),
-      );
+      await call(`addTrackedChain(${chainId})`, () => monitor.addTrackedChain(chainId));
     }
   } else {
     console.log('\n2. SentinelMonitor: skipped (no address)');
@@ -196,18 +176,12 @@ async function main() {
   if (addresses.RateLimiter) {
     console.log('\n3. RateLimiter configuration →');
     const rateLimiter = contract('RateLimiter', addresses.RateLimiter, owner);
-    const callers = new Set(
-      [addresses.AetheronBridge, ...relayers].filter(Boolean),
-    );
+    const callers = new Set([addresses.AetheronBridge, ...relayers].filter(Boolean));
     for (const caller of callers) {
-      await call(`setCaller(${caller}, true)`, () =>
-        rateLimiter.setCaller(caller, true),
-      );
+      await call(`setCaller(${caller}, true)`, () => rateLimiter.setCaller(caller, true));
     }
     for (const { chainId, limit } of chainLimits) {
-      await call(`setChainLimit(${chainId}, ...)`, () =>
-        rateLimiter.setChainLimit(chainId, limit),
-      );
+      await call(`setChainLimit(${chainId}, ...)`, () => rateLimiter.setChainLimit(chainId, limit));
     }
   } else {
     console.log('\n3. RateLimiter: skipped (no address)');
@@ -216,16 +190,10 @@ async function main() {
   // ── 4. SentinelInterceptor: MONITOR_ROLE + addReporter ────────────────────
   if (addresses.SentinelInterceptor) {
     console.log('\n4. SentinelInterceptor role grants →');
-    const interceptor = contract(
-      'SentinelInterceptor',
-      addresses.SentinelInterceptor,
-      owner,
-    );
+    const interceptor = contract('SentinelInterceptor', addresses.SentinelInterceptor, owner);
     const MONITOR_ROLE = await interceptor.MONITOR_ROLE();
     for (const mon of monitors) {
-      await call(`grantRole(MONITOR_ROLE, ${mon})`, () =>
-        interceptor.grantRole(MONITOR_ROLE, mon),
-      );
+      await call(`grantRole(MONITOR_ROLE, ${mon})`, () => interceptor.grantRole(MONITOR_ROLE, mon));
     }
     const reporterSet = new Set([...monitors, ...reporters]);
     for (const rep of reporterSet) {
@@ -240,9 +208,7 @@ async function main() {
     console.log('\n5. SentinelToken security reporters →');
     const token = contract('SentinelToken', addresses.SentinelToken, owner);
     for (const rep of securityReporters) {
-      await call(`setSecurityReporter(${rep}, true)`, () =>
-        token.setSecurityReporter(rep, true),
-      );
+      await call(`setSecurityReporter(${rep}, true)`, () => token.setSecurityReporter(rep, true));
     }
   } else {
     console.log('\n5. SentinelToken: skipped (no reporters configured)');
@@ -251,13 +217,9 @@ async function main() {
   // ── 6. SentinelYieldMaximizer: setYieldToken ──────────────────────────────
   if (addresses.SentinelYieldMaximizer && yieldTokenAddress) {
     console.log('\n6. SentinelYieldMaximizer setup →');
-    const yieldMax = contract(
-      'SentinelYieldMaximizer',
-      addresses.SentinelYieldMaximizer,
-      owner,
-    );
+    const yieldMax = contract('SentinelYieldMaximizer', addresses.SentinelYieldMaximizer, owner);
     await call(`setYieldToken(${yieldTokenAddress})`, () =>
-      yieldMax.setYieldToken(yieldTokenAddress),
+      yieldMax.setYieldToken(yieldTokenAddress)
     );
   } else {
     console.log('\n6. SentinelYieldMaximizer: skipped (no yield token)');
@@ -268,19 +230,13 @@ async function main() {
     console.log('\n7. AetheronBridge configuration →');
     const bridge = contract('AetheronBridge', addresses.AetheronBridge, owner);
     for (const relayer of relayers) {
-      await call(`setRelayer(${relayer}, true)`, () =>
-        bridge.setRelayer(relayer, true),
-      );
+      await call(`setRelayer(${relayer}, true)`, () => bridge.setRelayer(relayer, true));
     }
     for (const token of bridgeTokens) {
-      await call(`setTokenSupport(${token}, true)`, () =>
-        bridge.setTokenSupport(token, true),
-      );
+      await call(`setTokenSupport(${token}, true)`, () => bridge.setTokenSupport(token, true));
     }
     for (const { chainId, limit } of chainLimits) {
-      await call(`setChainLimit(${chainId}, ...)`, () =>
-        bridge.setChainLimit(chainId, limit),
-      );
+      await call(`setChainLimit(${chainId}, ...)`, () => bridge.setChainLimit(chainId, limit));
     }
   } else {
     console.log('\n7. AetheronBridge: skipped (no address)');
@@ -289,11 +245,7 @@ async function main() {
   // ── 8. SentinelCoreLoop: set system components ────────────────────────────
   if (addresses.SentinelCoreLoop) {
     console.log('\n8. SentinelCoreLoop system components →');
-    const coreLoop = contract(
-      'SentinelCoreLoop',
-      addresses.SentinelCoreLoop,
-      owner,
-    );
+    const coreLoop = contract('SentinelCoreLoop', addresses.SentinelCoreLoop, owner);
 
     if (typeof coreLoop.initializeCoreComponents === 'function') {
       await call('initializeCoreComponents(...)', () =>
@@ -304,8 +256,8 @@ async function main() {
           addresses.RateLimiter || ethers.ZeroAddress,
           addresses.CircuitBreaker || ethers.ZeroAddress,
           addresses.SentinelYieldMaximizer || ethers.ZeroAddress,
-          addresses.SentinelOracleNetwork || ethers.ZeroAddress,
-        ),
+          addresses.SentinelOracleNetwork || ethers.ZeroAddress
+        )
       );
     }
 
@@ -320,7 +272,7 @@ async function main() {
     ].filter(([, addr]) => addr);
     for (const [name, addr] of components) {
       await call(`setSystemComponent(${name}, ${addr})`, () =>
-        coreLoop.setSystemComponent(name, addr),
+        coreLoop.setSystemComponent(name, addr)
       );
     }
   } else {
@@ -330,7 +282,7 @@ async function main() {
   console.log('\n✅ Ownership setup complete.\n');
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exitCode = 1;
 });

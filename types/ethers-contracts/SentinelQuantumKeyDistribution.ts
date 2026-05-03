@@ -412,9 +412,7 @@ export interface SentinelQuantumKeyDistribution extends BaseContract {
   getFunction(
     nameOrSignature: 'generateQuantumKey'
   ): TypedContractMethod<[keyHolder: AddressLike, keyLength: BigNumberish], [string], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'getKeySession'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getKeySession'): TypedContractMethod<
     [sessionId: BytesLike],
     [
       [string, string, bigint, bigint] & {
@@ -426,9 +424,7 @@ export interface SentinelQuantumKeyDistribution extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getQuantumKey'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getQuantumKey'): TypedContractMethod<
     [keyId: BytesLike],
     [
       [string, bigint, bigint, bigint, boolean, bigint] & {
@@ -442,9 +438,7 @@ export interface SentinelQuantumKeyDistribution extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getQuantumNetworkStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getQuantumNetworkStats'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -467,9 +461,7 @@ export interface SentinelQuantumKeyDistribution extends BaseContract {
   getFunction(
     nameOrSignature: 'keyDistributionSuccessRate'
   ): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'keySessions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'keySessions'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, string, string, string, bigint, bigint, bigint, string] & {
@@ -487,9 +479,7 @@ export interface SentinelQuantumKeyDistribution extends BaseContract {
   >;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
   getFunction(nameOrSignature: 'quantumBitErrorRate'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'quantumKeys'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quantumKeys'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, string, string, bigint, bigint, bigint, boolean, string, bigint] & {

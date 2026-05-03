@@ -426,9 +426,7 @@ export interface SentinelMultiSigVault extends BaseContract {
   getFunction(
     nameOrSignature: 'getConfirmation'
   ): TypedContractMethod<[txId: BigNumberish, guardian: AddressLike], [boolean], 'view'>;
-  getFunction(
-    nameOrSignature: 'getTransaction'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getTransaction'): TypedContractMethod<
     [txId: BigNumberish],
     [
       [string, bigint, string, bigint, boolean, bigint] & {
@@ -445,9 +443,7 @@ export interface SentinelMultiSigVault extends BaseContract {
   getFunction(
     nameOrSignature: 'guardianList'
   ): TypedContractMethod<[arg0: BigNumberish], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'guardians'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'guardians'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, string, bigint, boolean, bigint, bigint] & {
@@ -481,9 +477,7 @@ export interface SentinelMultiSigVault extends BaseContract {
     'nonpayable'
   >;
   getFunction(nameOrSignature: 'transactionCount'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'transactions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'transactions'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, string, bigint, string, bigint, boolean, bigint, bigint, bigint] & {

@@ -338,9 +338,7 @@ export interface SentinelHomomorphicEncryption extends BaseContract {
   getFunction(
     nameOrSignature: 'activeCiphertexts'
   ): TypedContractMethod<[arg0: BigNumberish], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'ciphertexts'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'ciphertexts'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, string, bigint, string, string, bigint] & {
@@ -371,9 +369,7 @@ export interface SentinelHomomorphicEncryption extends BaseContract {
     nameOrSignature: 'encryptValue'
   ): TypedContractMethod<[value: BigNumberish, randomness: BigNumberish], [string], 'nonpayable'>;
   getFunction(nameOrSignature: 'evaluationKey'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'getCiphertext'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getCiphertext'): TypedContractMethod<
     [ciphertextId: BytesLike],
     [
       [string, string, string, bigint, boolean] & {
@@ -386,9 +382,7 @@ export interface SentinelHomomorphicEncryption extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getHomomorphicResult'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getHomomorphicResult'): TypedContractMethod<
     [resultId: BytesLike],
     [
       [string, bigint, string[], bigint, boolean] & {
@@ -401,9 +395,7 @@ export interface SentinelHomomorphicEncryption extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getHomomorphicStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getHomomorphicStats'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint] & {
@@ -436,9 +428,7 @@ export interface SentinelHomomorphicEncryption extends BaseContract {
     [string],
     'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: 'homomorphicResults'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'homomorphicResults'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, bigint, bigint, boolean] & {

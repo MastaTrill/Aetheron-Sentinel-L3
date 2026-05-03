@@ -46,10 +46,10 @@ The Sentinel L3 system is prepared for mainnet deployment, following a successfu
 
 ### Deployment Configuration
 
-| File                                                                                                         | Purpose                                      |
-| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
-| [site/contracts.js](./site/contracts.js)                                                                     | All 27 contract addresses and Etherscan URLs |
-| [subgraph.yaml](./subgraph.yaml)                                                                             | The Graph indexing config with startBlocks   |
+| File                                                                                                                           | Purpose                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| [site/contracts.js](./site/contracts.js)                                                                                       | All 27 contract addresses and Etherscan URLs                         |
+| [subgraph.yaml](./subgraph.yaml)                                                                                               | The Graph indexing config with startBlocks                           |
 | [scripts/timelock-role-realignment.phase-b-multisig.safe.json](./scripts/timelock-role-realignment.phase-b-multisig.safe.json) | Timelock handoff payload template (update with executed mainnet txs) |
 
 ### Verification Scripts

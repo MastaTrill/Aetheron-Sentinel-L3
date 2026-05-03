@@ -21,7 +21,12 @@ for (const relFile of targets) {
 
   for (const match of content.matchAll(linkRegex)) {
     const raw = match[1].trim();
-    if (!raw || raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('mailto:')) {
+    if (
+      !raw ||
+      raw.startsWith('http://') ||
+      raw.startsWith('https://') ||
+      raw.startsWith('mailto:')
+    ) {
       continue;
     }
     const linkPath = raw.split('#')[0];

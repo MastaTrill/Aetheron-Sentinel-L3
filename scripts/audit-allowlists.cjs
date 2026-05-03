@@ -16,9 +16,9 @@ function parseAddressList(value) {
   if (!value) return [];
   return value
     .split(',')
-    .map((x) => x.trim())
+    .map(x => x.trim())
     .filter(Boolean)
-    .map((addr) => ethers.getAddress(addr).toLowerCase());
+    .map(addr => ethers.getAddress(addr).toLowerCase());
 }
 
 // Known expected principals
@@ -69,13 +69,7 @@ const ROLES = {
 const ROLE_GRANTED = ethers.id('RoleGranted(bytes32,address,address)');
 const ROLE_REVOKED = ethers.id('RoleRevoked(bytes32,address,address)');
 
-async function getRoleMembers(
-  provider,
-  contractAddress,
-  roleHash,
-  fromBlock,
-  toBlock,
-) {
+async function getRoleMembers(provider, contractAddress, roleHash, fromBlock, toBlock) {
   const MAX_BLOCK_RANGE = 50000; // RPC providers typically limit to 50000 blocks
   const members = new Set();
 
@@ -171,9 +165,9 @@ function label(addr) {
         target.address,
         role.hash,
         target.fromBlock,
-        TO_BLOCK,
+        TO_BLOCK
       );
-      const unknowns = members.filter((m) => !KNOWN[m.toLowerCase()]);
+      const unknowns = members.filter(m => !KNOWN[m.toLowerCase()]);
       if (unknowns.length) allClear = false;
 
       console.log(`  ${role.name}:`);
@@ -190,13 +184,9 @@ function label(addr) {
   }
 
   if (allClear) {
-    console.log(
-      'RESULT: All role members are known principals. No unexpected addresses found.',
-    );
+    console.log('RESULT: All role members are known principals. No unexpected addresses found.');
   } else {
-    console.log(
-      'RESULT: *** UNKNOWN addresses found in allowlists — review required. ***',
-    );
+    console.log('RESULT: *** UNKNOWN addresses found in allowlists — review required. ***');
     process.exit(1);
   }
 })();

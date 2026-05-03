@@ -23,21 +23,13 @@ async function main() {
   };
 
   await fs.mkdir(verifyDir, { recursive: true });
-  await fs.writeFile(
-    packageJsonPath,
-    `${JSON.stringify(packageJson, null, 2)}\n`,
-    'utf8',
-  );
+  await fs.writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
 
   if (process.platform === 'win32') {
-    await execFileAsync(
-      'cmd.exe',
-      ['/d', '/s', '/c', 'npm', 'install', '--prefix', verifyDir],
-      {
-        cwd: root,
-        env: process.env,
-      },
-    );
+    await execFileAsync('cmd.exe', ['/d', '/s', '/c', 'npm', 'install', '--prefix', verifyDir], {
+      cwd: root,
+      env: process.env,
+    });
   } else {
     await execFileAsync('npm', ['install', '--prefix', verifyDir], {
       cwd: root,
@@ -48,7 +40,7 @@ async function main() {
   console.log('Verify tooling is ready at .verify-tools/');
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

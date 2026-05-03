@@ -347,9 +347,7 @@ export interface SentinelQuantumNeural extends BaseContract {
   >;
   getFunction(nameOrSignature: 'coherenceFactor'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(nameOrSignature: 'entanglementStrength'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'getNeuralArchitecture'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getNeuralArchitecture'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint] & {
@@ -361,9 +359,7 @@ export interface SentinelQuantumNeural extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getPrediction'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getPrediction'): TypedContractMethod<
     [inputHash: BytesLike],
     [
       [bigint, bigint, string, bigint] & {
@@ -375,9 +371,7 @@ export interface SentinelQuantumNeural extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'neuralLayers'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'neuralLayers'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, string, bigint] & {
@@ -391,9 +385,7 @@ export interface SentinelQuantumNeural extends BaseContract {
   >;
   getFunction(nameOrSignature: 'neuralStability'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'predictions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'predictions'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [bigint, bigint, string, bigint, string] & {
@@ -415,9 +407,7 @@ export interface SentinelQuantumNeural extends BaseContract {
   >;
   getFunction(nameOrSignature: 'quantumNoiseLevel'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'threatSignatures'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'threatSignatures'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, bigint, bigint, bigint, boolean, string] & {

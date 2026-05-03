@@ -8,30 +8,21 @@ const path = require('path');
 // --- CONFIG ---
 const DEPLOY_SCRIPT = path.join(__dirname, 'deploy.cjs');
 const NETWORK = 'mainnet';
-const SUMMARY_MD = path.join(
-  __dirname,
-  '../DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md',
-);
-const OWNERSHIP_MD = path.join(
-  __dirname,
-  '../DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md',
-);
+const SUMMARY_MD = path.join(__dirname, '../DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md');
+const OWNERSHIP_MD = path.join(__dirname, '../DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md');
 const ENV_FILE = path.join(__dirname, '../.env.mainnet');
 
 function runDeployScript() {
   console.log('Running deploy.cjs for mainnet using Hardhat CLI...');
   // Use Hardhat CLI to ensure correct network and env
-  const output = execSync(
-    `npx hardhat run ${DEPLOY_SCRIPT} --network ${NETWORK}`,
-    {
-      encoding: 'utf-8',
-      stdio: 'pipe',
-      env: {
-        ...process.env,
-        NODE_ENV: 'production',
-      },
+  const output = execSync(`npx hardhat run ${DEPLOY_SCRIPT} --network ${NETWORK}`, {
+    encoding: 'utf-8',
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
     },
-  );
+  });
   return output;
 }
 

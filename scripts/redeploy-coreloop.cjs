@@ -27,12 +27,10 @@ function loadArtifact() {
     'artifacts',
     'contracts',
     'SentinelCoreLoop.sol',
-    'SentinelCoreLoop.json',
+    'SentinelCoreLoop.json'
   );
   if (!fs.existsSync(artifactPath)) {
-    throw new Error(
-      `Artifact not found at ${artifactPath}. Run npm run compile first.`,
-    );
+    throw new Error(`Artifact not found at ${artifactPath}. Run npm run compile first.`);
   }
   return JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
 }
@@ -51,17 +49,13 @@ async function main() {
   const rawAddresses = process.env.DEPLOYED_ADDRESSES;
   if (!rawAddresses) {
     throw new Error(
-      'DEPLOYED_ADDRESSES env var is required and must contain JSON contract addresses.',
+      'DEPLOYED_ADDRESSES env var is required and must contain JSON contract addresses.'
     );
   }
   const addresses = JSON.parse(rawAddresses);
 
   const artifact = loadArtifact();
-  const factory = new ethers.ContractFactory(
-    artifact.abi,
-    artifact.bytecode,
-    deployer,
-  );
+  const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
 
   console.log(`Redeploying SentinelCoreLoop on ${network}`);
   console.log(`Deployer: ${deployer.address}`);
@@ -80,9 +74,7 @@ async function main() {
   }
 
   if (typeof coreLoop.initializeCoreComponents === 'function') {
-    console.log(
-      'Bootstrapping CoreLoop components via initializeCoreComponents...',
-    );
+    console.log('Bootstrapping CoreLoop components via initializeCoreComponents...');
     const tx = await coreLoop.initializeCoreComponents(
       addresses.SentinelInterceptor || ethers.ZeroAddress,
       addresses.AetheronBridge || ethers.ZeroAddress,
@@ -90,7 +82,7 @@ async function main() {
       addresses.RateLimiter || ethers.ZeroAddress,
       addresses.CircuitBreaker || ethers.ZeroAddress,
       addresses.SentinelYieldMaximizer || ethers.ZeroAddress,
-      addresses.SentinelOracleNetwork || ethers.ZeroAddress,
+      addresses.SentinelOracleNetwork || ethers.ZeroAddress
     );
     await tx.wait();
     console.log('CoreLoop bootstrap complete.');
@@ -111,15 +103,11 @@ async function main() {
     "3) Run: DEPLOYED_ADDRESSES='" +
       JSON.stringify(merged) +
       "' npm run verify:" +
-      (network === 'mainnet'
-        ? 'mainnet'
-        : network === 'sepolia'
-          ? 'testnet'
-          : network),
+      (network === 'mainnet' ? 'mainnet' : network === 'sepolia' ? 'testnet' : network)
   );
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exitCode = 1;
 });

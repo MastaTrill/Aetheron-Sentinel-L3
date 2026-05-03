@@ -21,7 +21,7 @@ const CONFIG = {
   contracts: {
     vault: process.env.VAULT_ADDRESS || '',
     sentinel: process.env.SENTINEL_ADDRESS || '',
-    core: process.env.CORE_CONTRACT_ADDRESS || ''
+    core: process.env.CORE_CONTRACT_ADDRESS || '',
   },
 
   relayers: (process.env.RELAYER_ADDRESSES || '')
@@ -32,7 +32,7 @@ const CONFIG = {
   newRelayerSet: (process.env.NEW_RELAYER_ADDRESSES || '')
     .split(',')
     .map(x => x.trim())
-    .filter(Boolean)
+    .filter(Boolean),
 };
 
 function step(id, title, description, actions) {
@@ -50,56 +50,41 @@ const plan = {
   multisig: CONFIG.multisig,
 
   steps: [
-    step(
-      'G1',
-      'Transfer ownership to multisig',
-      'All contracts must be owned by multisig',
-      [
-        action(CONFIG.contracts.vault, 'transferOwnership', [CONFIG.multisig], 'Vault ownership → multisig'),
-        action(CONFIG.contracts.sentinel, 'transferSteward', [CONFIG.multisig], 'Sentinel steward → multisig'),
-      ]
-    ),
+    step('G1', 'Transfer ownership to multisig', 'All contracts must be owned by multisig', [
+      action(
+        CONFIG.contracts.vault,
+        'transferOwnership',
+        [CONFIG.multisig],
+        'Vault ownership → multisig'
+      ),
+      action(
+        CONFIG.contracts.sentinel,
+        'transferSteward',
+        [CONFIG.multisig],
+        'Sentinel steward → multisig'
+      ),
+    ]),
 
-    step(
-      'G2',
-      'Remove owner EOA privileges',
-      'Owner EOA must not retain any privileged role',
-      [
-        action(CONFIG.contracts.core, 'revokeRole', [CONFIG.ownerEOA], 'Revoke admin roles'),
-      ]
-    ),
+    step('G2', 'Remove owner EOA privileges', 'Owner EOA must not retain any privileged role', [
+      action(CONFIG.contracts.core, 'revokeRole', [CONFIG.ownerEOA], 'Revoke admin roles'),
+    ]),
 
-    step(
-      'G3',
-      'Set relayer set explicitly',
-      'Only approved relayers should be active',
-      [
-        action(CONFIG.contracts.core, 'setRelayers', [CONFIG.newRelayerSet], 'Replace relayer set'),
-      ]
-    ),
+    step('G3', 'Set relayer set explicitly', 'Only approved relayers should be active', [
+      action(CONFIG.contracts.core, 'setRelayers', [CONFIG.newRelayerSet], 'Replace relayer set'),
+    ]),
 
-    step(
-      'G4',
-      'Disable break-glass paths',
-      'Emergency owner powers must be removed or gated',
-      [
-        action(CONFIG.contracts.core, 'disableEmergencyAdmin', [], 'Disable break-glass'),
-      ]
-    ),
+    step('G4', 'Disable break-glass paths', 'Emergency owner powers must be removed or gated', [
+      action(CONFIG.contracts.core, 'disableEmergencyAdmin', [], 'Disable break-glass'),
+    ]),
 
-    step(
-      'G5',
-      'Final audit check',
-      'Verify ownership + roles are correct post-change',
-      [
-        action('READ', 'owner()', [], 'Should equal multisig'),
-        action('READ', 'getRelayers()', [], 'Should equal approved set'),
-      ]
-    )
-  ]
+    step('G5', 'Final audit check', 'Verify ownership + roles are correct post-change', [
+      action('READ', 'owner()', [], 'Should equal multisig'),
+      action('READ', 'getRelayers()', [], 'Should equal approved set'),
+    ]),
+  ],
 };
 
-const outPath = path.join('docs', `governance-lockdown-plan-${NOW.slice(0,10)}.json`);
+const outPath = path.join('docs', `governance-lockdown-plan-${NOW.slice(0, 10)}.json`);
 fs.mkdirSync('docs', { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(plan, null, 2));
 

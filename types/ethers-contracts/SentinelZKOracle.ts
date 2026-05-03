@@ -299,9 +299,7 @@ export interface SentinelZKOracle extends BaseContract {
   getFunction(
     nameOrSignature: 'createDataFeed'
   ): TypedContractMethod<[feedName: string], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'dataFeeds'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'dataFeeds'): TypedContractMethod<
     [arg0: string],
     [
       [string, string, bigint, bigint, bigint, boolean] & {
@@ -315,9 +313,7 @@ export interface SentinelZKOracle extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getZKData'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getZKData'): TypedContractMethod<
     [feedName: string],
     [
       [bigint, bigint, bigint, boolean] & {

@@ -1,12 +1,12 @@
 name: Aetheron Sentinel L3 Deployment
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # Fixes Bootstrap Deadlock
+    timeout-minutes: 20 # Fixes Bootstrap Deadlock
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js 20

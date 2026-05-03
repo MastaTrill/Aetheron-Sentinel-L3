@@ -38,18 +38,19 @@ if (!testingSection) {
 
 const testingText = testingSection[1];
 const hasInlineCommand = /`[^`\n]+`/.test(testingText);
-const hasCodeBlockCommand = /```[\s\S]*?(npm|npx|node|python|pytest|yarn|pnpm|cargo|go test|make)\b[\s\S]*?```/i.test(
-  testingText
-);
-const hasBulletedCommand = /^\s*[-*]\s+(npm|npx|node|python|pytest|yarn|pnpm|cargo|go test|make)\b/im.test(
-  testingText
-);
-const hasCommandEvidence =
-  hasInlineCommand || hasCodeBlockCommand || hasBulletedCommand;
+const hasCodeBlockCommand =
+  /```[\s\S]*?(npm|npx|node|python|pytest|yarn|pnpm|cargo|go test|make)\b[\s\S]*?```/i.test(
+    testingText
+  );
+const hasBulletedCommand =
+  /^\s*[-*]\s+(npm|npx|node|python|pytest|yarn|pnpm|cargo|go test|make)\b/im.test(testingText);
+const hasCommandEvidence = hasInlineCommand || hasCodeBlockCommand || hasBulletedCommand;
 const hasNotRunLocally = /not run locally/i.test(testingText);
 
 if (!hasCommandEvidence && !hasNotRunLocally) {
-  console.error('Testing section must include command evidence or explicit "not run locally" statements.');
+  console.error(
+    'Testing section must include command evidence or explicit "not run locally" statements.'
+  );
   process.exit(1);
 }
 
