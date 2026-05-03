@@ -38,6 +38,11 @@ This repository includes:
 - See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the mainnet release record.
 - For mainnet deployment workflow, use [MAINNET_PREPARATION_TEMPLATE.md](MAINNET_PREPARATION_TEMPLATE.md).
 
+## Announcements & Audits
+
+- See [ANNOUNCEMENT_BITMINE_INTEGRATION.md](ANNOUNCEMENT_BITMINE_INTEGRATION.md) for the BitMine MAVAN-4 integration announcement (when complete).
+- See [AUDIT_REQUEST.md](AUDIT_REQUEST.md) for third-party security audit request template.
+
 ## Secret Management & Environment Variables
 
 **Never commit real secrets or private keys to the repository.**
