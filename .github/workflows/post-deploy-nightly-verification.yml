@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify deployment doc links
+        run: node scripts/check-markdown-links.cjs
+
       - name: Run Section 7 ownership sweep
         run: |
           mkdir -p logs/verification/ci
@@ -76,6 +79,9 @@ jobs:
 
       - name: Create audit directory
         run: mkdir -p logs/verification/ci/audit
+
+      - name: Verify deployment doc links
+        run: node scripts/check-markdown-links.cjs
 
       - name: Audit root workspace
         run: |
