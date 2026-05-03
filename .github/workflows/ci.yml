@@ -264,6 +264,7 @@ jobs:
         with:
           name: gas-usage-report
           path: gas-report.txt
+        if-no-files-found: warn
           retention-days: 5
 
   code-quality:
@@ -386,7 +387,6 @@ jobs:
         with:
           name: performance-benchmark
           path: benchmark.txt
-        if-no-files-found: warn
 
   coverage-report:
     name: Test Coverage
