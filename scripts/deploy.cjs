@@ -42,7 +42,7 @@ async function deployContract(name, args) {
   const sandboxContracts = new Set(['Base', 'Lottery', 'Staking', 'Vault']);
   if (sandboxContracts.has(name)) {
     throw new Error(
-      `Refusing to deploy sandbox contract \"${name}\" from imported Remix sandbox`,
+      `Refusing to deploy sandbox contract "${name}" from imported Remix sandbox`,
     );
   }
   const Factory = await ethers.getContractFactory(name);
@@ -73,8 +73,7 @@ async function getTxOverrides(provider) {
 async function main() {
   const hardhatModule = await import('hardhat');
   hre = hardhatModule.default ?? hardhatModule;
-  const connection = await hre.network.getOrCreate();
-  ethers = connection.ethers;
+  ethers = hre.ethers;
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');

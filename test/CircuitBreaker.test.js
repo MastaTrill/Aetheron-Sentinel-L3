@@ -1,8 +1,7 @@
 // test/CircuitBreaker.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
-
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('CircuitBreaker', function () {
   let circuitBreaker;
@@ -43,23 +42,21 @@ describe('CircuitBreaker', function () {
     });
 
     it('rejects invalid chain ID', async function () {
-      await expect(
-        circuitBreaker.connect(monitor).recordFailure(0, 3),
-      ).to.be.revertedWith('Invalid chain ID');
+      await expect(circuitBreaker.connect(monitor).recordFailure(0, 3)).to.be.revertedWith(
+        'Invalid chain ID'
+      );
     });
 
     it('rejects invalid severity', async function () {
-      await expect(
-        circuitBreaker.connect(monitor).recordFailure(CHAIN_ID, 11),
-      ).to.be.revertedWith('Invalid severity');
+      await expect(circuitBreaker.connect(monitor).recordFailure(CHAIN_ID, 11)).to.be.revertedWith(
+        'Invalid severity'
+      );
     });
 
     it('rejects non-monitor callers', async function () {
       const monitorRole = await circuitBreaker.MONITOR_ROLE();
-      await expect(
-        circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3),
-      ).to.be.revertedWith(
-        `AccessControl: account ${attacker.address.toLowerCase()} is missing role ${monitorRole}`,
+      await expect(circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)).to.be.revertedWith(
+        `AccessControl: account ${attacker.address.toLowerCase()} is missing role ${monitorRole}`
       );
     });
   });

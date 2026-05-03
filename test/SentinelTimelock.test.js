@@ -1,8 +1,8 @@
 // test/SentinelTimelock.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelTimelock', function () {
   let timelock;
@@ -12,13 +12,12 @@ describe('SentinelTimelock', function () {
   beforeEach(async function () {
     [owner, proposer, executor, stranger] = await ethers.getSigners();
 
-    const SentinelTimelock =
-      await ethers.getContractFactory('SentinelTimelock');
+    const SentinelTimelock = await ethers.getContractFactory('SentinelTimelock');
     timelock = await SentinelTimelock.deploy(
       MIN_DELAY,
       [proposer.address],
       [executor.address],
-      owner.address,
+      owner.address
     );
     await timelock.waitForDeployment();
   });
@@ -30,14 +29,12 @@ describe('SentinelTimelock', function () {
 
     it('grants PROPOSER_ROLE to the proposer', async function () {
       const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
-      expect(await timelock.hasRole(PROPOSER_ROLE, proposer.address)).to.be
-        .true;
+      expect(await timelock.hasRole(PROPOSER_ROLE, proposer.address)).to.be.true;
     });
 
     it('grants EXECUTOR_ROLE to the executor', async function () {
       const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
-      expect(await timelock.hasRole(EXECUTOR_ROLE, executor.address)).to.be
-        .true;
+      expect(await timelock.hasRole(EXECUTOR_ROLE, executor.address)).to.be.true;
     });
 
     it('grants TIMELOCK_ADMIN_ROLE to the admin', async function () {
@@ -47,8 +44,7 @@ describe('SentinelTimelock', function () {
 
     it('does not grant PROPOSER_ROLE to a stranger', async function () {
       const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
-      expect(await timelock.hasRole(PROPOSER_ROLE, stranger.address)).to.be
-        .false;
+      expect(await timelock.hasRole(PROPOSER_ROLE, stranger.address)).to.be.false;
     });
   });
 
@@ -68,8 +64,8 @@ describe('SentinelTimelock', function () {
             data,
             predecessor,
             ethers.id('salt-1'),
-            MIN_DELAY,
-          ),
+            MIN_DELAY
+          )
       ).to.be.revertedWith(/AccessControl/);
     });
 
@@ -83,8 +79,8 @@ describe('SentinelTimelock', function () {
             data,
             predecessor,
             ethers.id('salt-2'),
-            MIN_DELAY - 1,
-          ),
+            MIN_DELAY - 1
+          )
       ).to.be.revertedWith('Delay too short');
     });
 
@@ -92,22 +88,9 @@ describe('SentinelTimelock', function () {
       const salt = ethers.id('salt-3');
       await timelock
         .connect(proposer)
-        .scheduleCriticalOperation(
-          target,
-          value,
-          data,
-          predecessor,
-          salt,
-          MIN_DELAY,
-        );
+        .scheduleCriticalOperation(target, value, data, predecessor, salt, MIN_DELAY);
 
-      const opId = await timelock.hashOperation(
-        target,
-        value,
-        data,
-        predecessor,
-        salt,
-      );
+      const opId = await timelock.hashOperation(target, value, data, predecessor, salt);
       expect(await timelock.isOperation(opId)).to.be.true;
     });
 
@@ -115,22 +98,9 @@ describe('SentinelTimelock', function () {
       const salt = ethers.id('salt-4');
       await timelock
         .connect(proposer)
-        .scheduleCriticalOperation(
-          target,
-          value,
-          data,
-          predecessor,
-          salt,
-          MIN_DELAY,
-        );
+        .scheduleCriticalOperation(target, value, data, predecessor, salt, MIN_DELAY);
 
-      const opId = await timelock.hashOperation(
-        target,
-        value,
-        data,
-        predecessor,
-        salt,
-      );
+      const opId = await timelock.hashOperation(target, value, data, predecessor, salt);
       expect(await timelock.isOperationReady(opId)).to.be.false;
     });
 
@@ -138,25 +108,12 @@ describe('SentinelTimelock', function () {
       const salt = ethers.id('salt-5');
       await timelock
         .connect(proposer)
-        .scheduleCriticalOperation(
-          target,
-          value,
-          data,
-          predecessor,
-          salt,
-          MIN_DELAY,
-        );
+        .scheduleCriticalOperation(target, value, data, predecessor, salt, MIN_DELAY);
 
       await ethers.provider.send('evm_increaseTime', [MIN_DELAY + 1]);
       await ethers.provider.send('evm_mine', []);
 
-      const opId = await timelock.hashOperation(
-        target,
-        value,
-        data,
-        predecessor,
-        salt,
-      );
+      const opId = await timelock.hashOperation(target, value, data, predecessor, salt);
       expect(await timelock.isOperationReady(opId)).to.be.true;
     });
   });

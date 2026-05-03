@@ -1,8 +1,8 @@
 // test/SentinelOracleNetwork.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 const MIN_STAKE = ethers.parseEther('1000');
 
@@ -14,9 +14,7 @@ describe('SentinelOracleNetwork', function () {
 
   beforeEach(async function () {
     [owner, oracleSigner, other] = await ethers.getSigners();
-    const SentinelOracleNetwork = await ethers.getContractFactory(
-      'SentinelOracleNetwork',
-    );
+    const SentinelOracleNetwork = await ethers.getContractFactory('SentinelOracleNetwork');
     oracle = await SentinelOracleNetwork.deploy(owner.address);
     await oracle.waitForDeployment();
   });
@@ -52,13 +50,9 @@ describe('SentinelOracleNetwork', function () {
 
   describe('registerOracle', function () {
     it('registers an oracle with sufficient stake', async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
 
-      const [active, reputation, stake] = await oracle.getOracleInfo(
-        oracleSigner.address,
-      );
+      const [active, reputation, stake] = await oracle.getOracleInfo(oracleSigner.address);
       expect(active).to.equal(true);
       expect(reputation).to.equal(500n);
       expect(stake).to.equal(MIN_STAKE);
@@ -66,28 +60,20 @@ describe('SentinelOracleNetwork', function () {
 
     it('reverts with insufficient stake', async function () {
       await expect(
-        oracle
-          .connect(oracleSigner)
-          .registerOracle(pubKey, { value: ethers.parseEther('1') }),
+        oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1') })
       ).to.be.revertedWith('Insufficient stake');
     });
 
     it('reverts with zero public key', async function () {
       await expect(
-        oracle
-          .connect(oracleSigner)
-          .registerOracle(ethers.ZeroHash, { value: MIN_STAKE }),
+        oracle.connect(oracleSigner).registerOracle(ethers.ZeroHash, { value: MIN_STAKE })
       ).to.be.revertedWith('Invalid public key');
     });
 
     it('reverts if already registered', async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
       await expect(
-        oracle
-          .connect(oracleSigner)
-          .registerOracle(pubKey, { value: MIN_STAKE }),
+        oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE })
       ).to.be.revertedWith('Already registered');
     });
   });
@@ -103,14 +89,12 @@ describe('SentinelOracleNetwork', function () {
     it('reverts for duplicate asset', async function () {
       await oracle.addSupportedAsset('ETH/USD', 8);
       await expect(oracle.addSupportedAsset('ETH/USD', 8)).to.be.revertedWith(
-        'Asset already supported',
+        'Asset already supported'
       );
     });
 
     it('reverts for non-owner', async function () {
-      await expect(
-        oracle.connect(other).addSupportedAsset('ETH/USD', 8),
-      ).to.revert(ethers);
+      await expect(oracle.connect(other).addSupportedAsset('ETH/USD', 8)).to.be.reverted;
     });
   });
 
@@ -125,9 +109,7 @@ describe('SentinelOracleNetwork', function () {
 
   describe('submitPriceFeed', function () {
     beforeEach(async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
       await oracle.addSupportedAsset('ETH/USD', 8);
     });
 
@@ -142,21 +124,19 @@ describe('SentinelOracleNetwork', function () {
 
       const messageHash = ethers.solidityPackedKeccak256(
         ['string', 'uint256', 'uint256', 'uint256'],
-        ['ETH/USD', price, confidence, nextTimestamp],
+        ['ETH/USD', price, confidence, nextTimestamp]
       );
       const sig = await oracleSigner.signMessage(ethers.getBytes(messageHash));
 
       await expect(
-        oracle
-          .connect(oracleSigner)
-          .submitPriceFeed('ETH/USD', price, confidence, sig),
+        oracle.connect(oracleSigner).submitPriceFeed('ETH/USD', price, confidence, sig)
       ).to.emit(oracle, 'PriceSubmitted');
     });
 
     it('reverts for non-oracle caller', async function () {
       const sig = ethers.hexlify(ethers.randomBytes(65));
       await expect(
-        oracle.connect(other).submitPriceFeed('ETH/USD', 1000n, 9000n, sig),
+        oracle.connect(other).submitPriceFeed('ETH/USD', 1000n, 9000n, sig)
       ).to.be.revertedWith('Not an active oracle');
     });
   });
@@ -174,35 +154,25 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(
-        oracle.connect(other).triggerEmergencyShutdown('attack'),
-      ).to.revert(ethers);
+      await expect(oracle.connect(other).triggerEmergencyShutdown('attack')).to.be.reverted;
     });
 
     it('blocks price submissions after emergency shutdown', async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
       await oracle.addSupportedAsset('ETH/USD', 8);
       await oracle.triggerEmergencyShutdown('test');
 
       await expect(
-        oracle
-          .connect(oracleSigner)
-          .submitPriceFeed('ETH/USD', 1000n, 9000n, '0x'),
+        oracle.connect(oracleSigner).submitPriceFeed('ETH/USD', 1000n, 9000n, '0x')
       ).to.be.revertedWith('Network shutdown');
     });
   });
 
   describe('slashOracle', function () {
     it('owner can slash an oracle stake', async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
 
-      const [, , stakeBefore] = await oracle.getOracleInfo(
-        oracleSigner.address,
-      );
+      const [, , stakeBefore] = await oracle.getOracleInfo(oracleSigner.address);
 
       // Slash 10% (1000 basis points)
       await oracle.slashOracle(oracleSigner.address, 1000);
@@ -212,21 +182,15 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
-      await expect(
-        oracle.connect(other).slashOracle(oracleSigner.address, 1000),
-      ).to.revert(ethers);
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await expect(oracle.connect(other).slashOracle(oracleSigner.address, 1000)).to.be.reverted;
     });
 
     it('reverts with invalid penalty (> 10000)', async function () {
-      await oracle
-        .connect(oracleSigner)
-        .registerOracle(pubKey, { value: MIN_STAKE });
-      await expect(
-        oracle.slashOracle(oracleSigner.address, 10001),
-      ).to.be.revertedWith('Invalid penalty');
+      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await expect(oracle.slashOracle(oracleSigner.address, 10001)).to.be.revertedWith(
+        'Invalid penalty'
+      );
     });
   });
 });

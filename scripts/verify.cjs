@@ -164,8 +164,8 @@ async function main() {
     process.env.STAKING_TOKEN_ADDRESS || addresses.SentinelToken || '';
   const rewardTokenAddress =
     process.env.REWARD_TOKEN_ADDRESS || addresses.SentinelToken || '';
-  const yieldTokenAddress =
-    process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
+  // const yieldTokenAddress =
+  //   process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
   const lpTokenAddress = process.env.LP_TOKEN_ADDRESS || '';
   const rewardPerSecond = BigInt(process.env.REWARD_PER_SECOND || '0');
 

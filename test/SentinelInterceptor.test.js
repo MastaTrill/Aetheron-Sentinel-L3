@@ -1,8 +1,8 @@
 // test/SentinelInterceptor.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelInterceptor', function () {
   let interceptor;
@@ -11,14 +11,12 @@ describe('SentinelInterceptor', function () {
   beforeEach(async function () {
     [owner, monitorUser] = await ethers.getSigners();
 
-    const SentinelInterceptor = await ethers.getContractFactory(
-      'SentinelInterceptor',
-    );
+    const SentinelInterceptor = await ethers.getContractFactory('SentinelInterceptor');
     interceptor = await SentinelInterceptor.deploy(
       10,
       ethers.parseEther('1000'),
       true,
-      owner.address,
+      owner.address
     );
     await interceptor.waitForDeployment();
 
@@ -31,8 +29,7 @@ describe('SentinelInterceptor', function () {
 
   describe('getAnomalyStats', function () {
     it('returns zeroed stats initially', async function () {
-      const [total, lastBlock, consecutive, freq] =
-        await interceptor.getAnomalyStats();
+      const [total, lastBlock, consecutive, freq] = await interceptor.getAnomalyStats();
       expect(total).to.equal(0);
       expect(consecutive).to.equal(0);
     });
@@ -49,18 +46,18 @@ describe('SentinelInterceptor', function () {
     });
 
     it('rejects invalid anomaly type', async function () {
-      await expect(
-        interceptor.connect(monitorUser).detectAnomaly(0, 30),
-      ).to.be.revertedWith('Invalid anomaly type');
-      await expect(
-        interceptor.connect(monitorUser).detectAnomaly(11, 30),
-      ).to.be.revertedWith('Invalid anomaly type');
+      await expect(interceptor.connect(monitorUser).detectAnomaly(0, 30)).to.be.revertedWith(
+        'Invalid anomaly type'
+      );
+      await expect(interceptor.connect(monitorUser).detectAnomaly(11, 30)).to.be.revertedWith(
+        'Invalid anomaly type'
+      );
     });
 
     it('rejects severity above 100', async function () {
-      await expect(
-        interceptor.connect(monitorUser).detectAnomaly(1, 101),
-      ).to.be.revertedWith('Invalid severity');
+      await expect(interceptor.connect(monitorUser).detectAnomaly(1, 101)).to.be.revertedWith(
+        'Invalid severity'
+      );
     });
   });
 });

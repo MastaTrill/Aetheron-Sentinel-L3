@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelCoreLoop', function () {
   let coreLoop;
@@ -10,8 +10,7 @@ describe('SentinelCoreLoop', function () {
 
   beforeEach(async function () {
     [owner, other] = await ethers.getSigners();
-    const SentinelCoreLoop =
-      await ethers.getContractFactory('SentinelCoreLoop');
+    const SentinelCoreLoop = await ethers.getContractFactory('SentinelCoreLoop');
     coreLoop = await SentinelCoreLoop.deploy(owner.address);
     await coreLoop.waitForDeployment();
   });
@@ -29,18 +28,14 @@ describe('SentinelCoreLoop', function () {
   });
 
   it('activates autonomous behaviors by default', async function () {
-    expect(await coreLoop.autonomousBehaviors('threat_interception')).to.equal(
-      true,
-    );
-    expect(await coreLoop.autonomousBehaviors('yield_optimization')).to.equal(
-      true,
-    );
+    expect(await coreLoop.autonomousBehaviors('threat_interception')).to.equal(true);
+    expect(await coreLoop.autonomousBehaviors('yield_optimization')).to.equal(true);
   });
 
   it('rejects emergency shutdown for unauthorized account', async function () {
-    await expect(
-      coreLoop.connect(other).emergencyShutdown(),
-    ).to.be.revertedWith('Unauthorized emergency shutdown');
+    await expect(coreLoop.connect(other).emergencyShutdown()).to.be.revertedWith(
+      'Unauthorized emergency shutdown'
+    );
   });
 
   it('owner can trigger emergency shutdown', async function () {
@@ -58,8 +53,8 @@ describe('SentinelCoreLoop', function () {
   });
 
   it('emergencySystemReset requires governor role', async function () {
-    await expect(
-      coreLoop.connect(other).emergencySystemReset(),
-    ).to.be.revertedWith('Requires governor role');
+    await expect(coreLoop.connect(other).emergencySystemReset()).to.be.revertedWith(
+      'Requires governor role'
+    );
   });
 });

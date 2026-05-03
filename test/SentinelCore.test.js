@@ -1,8 +1,8 @@
 // test/SentinelCore.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelCore', function () {
   let core;
@@ -25,9 +25,7 @@ describe('SentinelCore', function () {
     });
 
     it('initialises targetYieldBps to BASELINE_YIELD_BPS', async function () {
-      expect(await core.targetYieldBps()).to.equal(
-        await core.BASELINE_YIELD_BPS(),
-      );
+      expect(await core.targetYieldBps()).to.equal(await core.BASELINE_YIELD_BPS());
     });
 
     it('stores a non-zero lastSyncTimestamp', async function () {
@@ -37,7 +35,7 @@ describe('SentinelCore', function () {
     it('rejects zero address owner', async function () {
       const SentinelCore = await ethers.getContractFactory('SentinelCore');
       await expect(SentinelCore.deploy(ethers.ZeroAddress)).to.be.revertedWith(
-        'SentinelCore: invalid owner',
+        'SentinelCore: invalid owner'
       );
     });
   });
@@ -56,40 +54,36 @@ describe('SentinelCore', function () {
     });
 
     it('emits RebalanceHookFired via internal _fireDeFAIHooks', async function () {
-      await expect(core.releaseHeartbeat(500)).to.emit(
-        core,
-        'RebalanceHookFired',
-      );
+      await expect(core.releaseHeartbeat(500)).to.emit(core, 'RebalanceHookFired');
     });
 
     it('reverts if heartbeat is already active', async function () {
       await core.releaseHeartbeat(500);
       await expect(core.releaseHeartbeat(600)).to.be.revertedWith(
-        'SentinelCore: Heartbeat is already active',
+        'SentinelCore: Heartbeat is already active'
       );
     });
 
     it('reverts if target does not exceed baseline (equal)', async function () {
       await expect(core.releaseHeartbeat(289)).to.be.revertedWith(
-        'SentinelCore: Target must exceed baseline',
+        'SentinelCore: Target must exceed baseline'
       );
     });
 
     it('reverts if target is below baseline', async function () {
       await expect(core.releaseHeartbeat(100)).to.be.revertedWith(
-        'SentinelCore: Target must exceed baseline',
+        'SentinelCore: Target must exceed baseline'
       );
     });
 
     it('reverts if called by non-owner', async function () {
-      await expect(core.connect(other).releaseHeartbeat(500)).to.revert(ethers);
+      await expect(core.connect(other).releaseHeartbeat(500)).to.be.reverted;
     });
   });
 
   describe('getHeartbeatState', function () {
     it('returns correct initial state', async function () {
-      const [isActive, currentTarget, syncedAt] =
-        await core.getHeartbeatState();
+      const [isActive, currentTarget, syncedAt] = await core.getHeartbeatState();
       expect(isActive).to.equal(false);
       expect(currentTarget).to.equal(289n);
       expect(syncedAt).to.be.gt(0n);
@@ -126,7 +120,7 @@ describe('SentinelCore', function () {
 
     it('reverts if called by non-owner', async function () {
       await core.releaseHeartbeat(500);
-      await expect(core.connect(other).lockHeartbeat()).to.revert(ethers);
+      await expect(core.connect(other).lockHeartbeat()).to.be.reverted;
     });
   });
 });

@@ -1,0 +1,39 @@
+name: Verify and Report
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      - name: Verify deployment doc links
+        run: node scripts/check-markdown-links.cjs
+      - name: Compile contracts
+        run: npm run compile
+      - name: Run contract sizer
+        run: npx hardhat compile
+      - name: Run gas reporter
+        run: GAS_REPORT=true npx hardhat test
+      - name: Verify contracts (example)
+        run: |
+          # Set ETHERSCAN_API_KEY in repo secrets for this to work
+          # npx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
+          echo "Add contract address and args for verification."
+      - name: Export ABIs
+        run: npm run export:all-abis
+      - name: Upload ABIs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: abis
+          path: abis/

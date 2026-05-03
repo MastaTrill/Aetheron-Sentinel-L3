@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelSecurityAuditor', function () {
   let auditor;
@@ -10,9 +10,7 @@ describe('SentinelSecurityAuditor', function () {
 
   beforeEach(async function () {
     [owner, user] = await ethers.getSigners();
-    const SentinelSecurityAuditor = await ethers.getContractFactory(
-      'SentinelSecurityAuditor',
-    );
+    const SentinelSecurityAuditor = await ethers.getContractFactory('SentinelSecurityAuditor');
     auditor = await SentinelSecurityAuditor.deploy(owner.address);
     await auditor.waitForDeployment();
   });
@@ -26,12 +24,7 @@ describe('SentinelSecurityAuditor', function () {
   });
 
   it('creates audit log and increments count', async function () {
-    await auditor.createAuditLog(
-      'transfer',
-      user.address,
-      5,
-      'normal transfer',
-    );
+    await auditor.createAuditLog('transfer', user.address, 5, 'normal transfer');
     expect(await auditor.logCount()).to.equal(1n);
 
     const [, , , , totalLogs] = await auditor.getSecurityDashboard();
@@ -39,9 +32,9 @@ describe('SentinelSecurityAuditor', function () {
   });
 
   it('rejects invalid log severity', async function () {
-    await expect(
-      auditor.createAuditLog('x', user.address, 0, 'bad'),
-    ).to.be.revertedWith('Invalid severity');
+    await expect(auditor.createAuditLog('x', user.address, 0, 'bad')).to.be.revertedWith(
+      'Invalid severity'
+    );
   });
 
   it('reports incidents and lowers security score', async function () {
@@ -52,7 +45,7 @@ describe('SentinelSecurityAuditor', function () {
         'oracle_attack',
         8,
         'price feed manipulation',
-        ethers.toUtf8Bytes('evidence'),
+        ethers.toUtf8Bytes('evidence')
       );
     const after = await auditor.securityScore();
 
@@ -63,16 +56,9 @@ describe('SentinelSecurityAuditor', function () {
   it('incident lifecycle: confirm then resolve', async function () {
     await auditor
       .connect(user)
-      .reportSecurityIncident(
-        'dos',
-        7,
-        'api saturation',
-        ethers.toUtf8Bytes('evidence'),
-      );
+      .reportSecurityIncident('dos', 7, 'api saturation', ethers.toUtf8Bytes('evidence'));
 
-    await expect(auditor.resolveIncident(0)).to.be.revertedWith(
-      'Not confirmed',
-    );
+    await expect(auditor.resolveIncident(0)).to.be.revertedWith('Not confirmed');
 
     await auditor.confirmIncident(0);
     await auditor.resolveIncident(0);

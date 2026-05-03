@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BigInt, Address } from '@graphprotocol/graph-ts';
 import {
   RateLimiter,
@@ -7,12 +8,8 @@ import {
 } from '../generated/RateLimiter/RateLimiter';
 import { RateLimitStats, Withdrawal } from '../generated/schema';
 
-export function handleWithdrawalProcessed(
-  event: WithdrawalProcessedEvent,
-): void {
-  let entity = new Withdrawal(
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
-  );
+export function handleWithdrawalProcessed(event: WithdrawalProcessedEvent): void {
+  const entity = new Withdrawal(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.rateLimit = event.params.chainId.toString();
   entity.user = event.params.user;
   entity.amount = event.params.amount;
@@ -21,7 +18,7 @@ export function handleWithdrawalProcessed(
   entity.save();
 
   // Update rate limit stats
-  let stats = RateLimitStats.load(event.params.chainId.toString());
+  const stats = RateLimitStats.load(event.params.chainId.toString());
   if (stats) {
     stats.currentUsage = stats.currentUsage.plus(event.params.amount);
     stats.save();

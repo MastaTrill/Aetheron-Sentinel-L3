@@ -1,8 +1,9 @@
 // test/SentinelYieldMaximizer.test.js
-import { expect } from 'chai';
-import { network } from 'hardhat';
+/* global describe, it, beforeEach */
 
-const { ethers } = await network.create();
+import { expect } from 'chai';
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelYieldMaximizer', function () {
   let yieldMaximizer, token;
@@ -16,37 +17,31 @@ describe('SentinelYieldMaximizer', function () {
       'YieldToken',
       'YLD',
       owner.address,
-      ethers.parseEther('1000000'),
+      ethers.parseEther('1000000')
     );
     await token.waitForDeployment();
 
-    const SentinelYieldMaximizer = await ethers.getContractFactory(
-      'SentinelYieldMaximizer',
-    );
+    const SentinelYieldMaximizer = await ethers.getContractFactory('SentinelYieldMaximizer');
     yieldMaximizer = await SentinelYieldMaximizer.deploy(owner.address);
     await yieldMaximizer.waitForDeployment();
 
     // Fund user and approve
     await token.transfer(user.address, ethers.parseEther('1000'));
-    await token
-      .connect(user)
-      .approve(await yieldMaximizer.getAddress(), ethers.parseEther('1000'));
+    await token.connect(user).approve(await yieldMaximizer.getAddress(), ethers.parseEther('1000'));
   });
 
   describe('setYieldToken', function () {
     it('sets the yield token and rejects zero address', async function () {
-      await expect(
-        yieldMaximizer.setYieldToken(ethers.ZeroAddress),
-      ).to.be.revertedWith('Invalid token address');
-      await yieldMaximizer.setYieldToken(await token.getAddress());
-      expect(await yieldMaximizer.yieldToken()).to.equal(
-        await token.getAddress(),
+      await expect(yieldMaximizer.setYieldToken(ethers.ZeroAddress)).to.be.revertedWith(
+        'Invalid token address'
       );
+      await yieldMaximizer.setYieldToken(await token.getAddress());
+      expect(await yieldMaximizer.yieldToken()).to.equal(await token.getAddress());
     });
 
     it('is only callable by owner', async function () {
       await expect(
-        yieldMaximizer.connect(user).setYieldToken(await token.getAddress()),
+        yieldMaximizer.connect(user).setYieldToken(await token.getAddress())
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
@@ -54,29 +49,23 @@ describe('SentinelYieldMaximizer', function () {
   describe('deposit', function () {
     it('reverts if yield token not configured', async function () {
       await expect(
-        yieldMaximizer.connect(user).deposit(ethers.parseEther('100')),
+        yieldMaximizer.connect(user).deposit(ethers.parseEther('100'))
       ).to.be.revertedWith('Yield token not configured');
     });
 
     it('reverts on zero amount', async function () {
       await yieldMaximizer.setYieldToken(await token.getAddress());
-      await expect(yieldMaximizer.connect(user).deposit(0)).to.be.revertedWith(
-        'Cannot deposit 0',
-      );
+      await expect(yieldMaximizer.connect(user).deposit(0)).to.be.revertedWith('Cannot deposit 0');
     });
 
     it('transfers tokens from user to contract on deposit', async function () {
       await yieldMaximizer.setYieldToken(await token.getAddress());
       const amount = ethers.parseEther('100');
-      const contractBefore = await token.balanceOf(
-        await yieldMaximizer.getAddress(),
-      );
+      const contractBefore = await token.balanceOf(await yieldMaximizer.getAddress());
 
       await yieldMaximizer.connect(user).deposit(amount);
 
-      const contractAfter = await token.balanceOf(
-        await yieldMaximizer.getAddress(),
-      );
+      const contractAfter = await token.balanceOf(await yieldMaximizer.getAddress());
       expect(contractAfter - contractBefore).to.equal(amount);
     });
 
@@ -92,12 +81,8 @@ describe('SentinelYieldMaximizer', function () {
       await yieldMaximizer.connect(user).deposit(ethers.parseEther('50'));
 
       // Second deposit should not double-push to user list (no revert = success)
-      await token
-        .connect(user)
-        .approve(await yieldMaximizer.getAddress(), ethers.parseEther('50'));
-      const tx = await yieldMaximizer
-        .connect(user)
-        .deposit(ethers.parseEther('50'));
+      await token.connect(user).approve(await yieldMaximizer.getAddress(), ethers.parseEther('50'));
+      const tx = await yieldMaximizer.connect(user).deposit(ethers.parseEther('50'));
       await tx.wait();
     });
   });
@@ -110,7 +95,7 @@ describe('SentinelYieldMaximizer', function () {
 
     it('reverts when withdrawing more than deposited', async function () {
       await expect(
-        yieldMaximizer.connect(user).withdraw(ethers.parseEther('200')),
+        yieldMaximizer.connect(user).withdraw(ethers.parseEther('200'))
       ).to.be.revertedWith('Insufficient balance');
     });
 
@@ -123,9 +108,7 @@ describe('SentinelYieldMaximizer', function () {
 
     it('decrements TVL on withdraw', async function () {
       await yieldMaximizer.connect(user).withdraw(ethers.parseEther('50'));
-      expect(await yieldMaximizer.totalValueLocked()).to.equal(
-        ethers.parseEther('50'),
-      );
+      expect(await yieldMaximizer.totalValueLocked()).to.equal(ethers.parseEther('50'));
     });
   });
 

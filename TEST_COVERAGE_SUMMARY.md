@@ -43,12 +43,6 @@
 | `SentinelZKOracle.test.js`               |       7 | `SentinelZKOracle.sol`               |
 | **Total**                                | **343** |                                      |
 
-## Python Unit Tests
-
-| Module                                                     | Tests |
-| ---------------------------------------------------------- | ----: |
-| `tests/test_orchestration.py` — pause/resume orchestration |     5 |
-
 ## Coverage Notes
 
 - Line coverage tooling (`solidity-coverage`) is not yet compatible with Hardhat 3.x — it imports `hardhat/internal/constants` which is not exported in the Hardhat 3 package. Coverage will be enabled once an official Hardhat 3 coverage plugin is released.

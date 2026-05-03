@@ -1,8 +1,8 @@
 // test/SentinelZKIdentity.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelZKIdentity', function () {
   let identity;
@@ -10,8 +10,7 @@ describe('SentinelZKIdentity', function () {
 
   beforeEach(async function () {
     [owner, user, user2] = await ethers.getSigners();
-    const SentinelZKIdentity =
-      await ethers.getContractFactory('SentinelZKIdentity');
+    const SentinelZKIdentity = await ethers.getContractFactory('SentinelZKIdentity');
     identity = await SentinelZKIdentity.deploy(owner.address);
     await identity.waitForDeployment();
   });
@@ -21,8 +20,9 @@ describe('SentinelZKIdentity', function () {
       const publicKey = ethers.keccak256(ethers.toUtf8Bytes('user_public_key'));
       await identity.connect(user).createZKIdentity(publicKey);
 
-      const [identityHash, reputation, trustScore, isVerified] =
-        await identity.getZKIdentity(user.address);
+      const [identityHash, reputation, trustScore, isVerified] = await identity.getZKIdentity(
+        user.address
+      );
 
       expect(identityHash).to.not.equal(ethers.ZeroHash);
       expect(reputation).to.equal(500);
@@ -30,17 +30,15 @@ describe('SentinelZKIdentity', function () {
       expect(isVerified).to.equal(false);
 
       // Reverse mapping should point back to user
-      expect(await identity.identityHashToOwner(identityHash)).to.equal(
-        user.address,
-      );
+      expect(await identity.identityHashToOwner(identityHash)).to.equal(user.address);
     });
 
     it('prevents duplicate identity creation', async function () {
       const publicKey = ethers.keccak256(ethers.toUtf8Bytes('key'));
       await identity.connect(user).createZKIdentity(publicKey);
-      await expect(
-        identity.connect(user).createZKIdentity(publicKey),
-      ).to.be.revertedWith('Identity already exists');
+      await expect(identity.connect(user).createZKIdentity(publicKey)).to.be.revertedWith(
+        'Identity already exists'
+      );
     });
   });
 
@@ -53,7 +51,7 @@ describe('SentinelZKIdentity', function () {
       const receipt = await tx.wait();
       // Extract identityHash from event
       const event = receipt.logs.find(
-        (l) => identity.interface.parseLog(l)?.name === 'IdentityCreated',
+        l => identity.interface.parseLog(l)?.name === 'IdentityCreated'
       );
       identityHash = identity.interface.parseLog(event).args.identityHash;
     });
@@ -66,14 +64,12 @@ describe('SentinelZKIdentity', function () {
       const receipt = await tx.wait();
 
       const event = receipt.logs.find(
-        (l) => identity.interface.parseLog(l)?.name === 'CredentialIssued',
+        l => identity.interface.parseLog(l)?.name === 'CredentialIssued'
       );
       const credentialId = identity.interface.parseLog(event).args.credentialId;
 
       // Reverse mapping should resolve to the identity owner
-      expect(await identity.credentialToOwner(credentialId)).to.equal(
-        user.address,
-      );
+      expect(await identity.credentialToOwner(credentialId)).to.equal(user.address);
     });
 
     it('retrieves credential info correctly', async function () {
@@ -83,12 +79,11 @@ describe('SentinelZKIdentity', function () {
         .issueZKCredential(identityHash, 'AML', [attrHash], 60 * 24 * 3600);
       const receipt = await tx.wait();
       const event = receipt.logs.find(
-        (l) => identity.interface.parseLog(l)?.name === 'CredentialIssued',
+        l => identity.interface.parseLog(l)?.name === 'CredentialIssued'
       );
       const credentialId = identity.interface.parseLog(event).args.credentialId;
 
-      const [credType, , , , isValid, isRevoked] =
-        await identity.getZKCredential(credentialId);
+      const [credType, , , , isValid, isRevoked] = await identity.getZKCredential(credentialId);
       expect(credType).to.equal('AML');
       expect(isValid).to.equal(true);
       expect(isRevoked).to.equal(false);
@@ -101,14 +96,13 @@ describe('SentinelZKIdentity', function () {
         .issueZKCredential(identityHash, 'KYC', [attrHash], 30 * 24 * 3600);
       const receipt = await tx.wait();
       const event = receipt.logs.find(
-        (l) => identity.interface.parseLog(l)?.name === 'CredentialIssued',
+        l => identity.interface.parseLog(l)?.name === 'CredentialIssued'
       );
       const credentialId = identity.interface.parseLog(event).args.credentialId;
 
       await identity.connect(owner).revokeZKCredential(credentialId);
 
-      const [, , , , , isRevoked] =
-        await identity.getZKCredential(credentialId);
+      const [, , , , , isRevoked] = await identity.getZKCredential(credentialId);
       expect(isRevoked).to.equal(true);
     });
   });

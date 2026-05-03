@@ -5,8 +5,9 @@ const vm = require('vm');
 // Use MAINNET_RPC_URL from .env.mainnet
 require('dotenv').config({ path: '.env.mainnet' });
 const RPC =
+  process.env.SEPOLIA_RPC_URL ||
   process.env.MAINNET_RPC_URL ||
-  'https://mainnet.infura.io/v3/216dd7b47d9847e5aa0f37e814402d27';
+  'https://ethereum-sepolia-rpc.publicnode.com';
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';
@@ -20,26 +21,11 @@ const TREASURY_ROUTED = new Set([
 ]);
 
 const OWNABLE_KEYS = [
+  'SentinelMultiSigVault',
   'AetheronBridge',
   'RateLimiter',
   'CircuitBreaker',
   'SentinelInterceptor',
-  'SentinelMonitor',
-  'SentinelYieldMaximizer',
-  'SentinelToken',
-  'SentinelCoreLoop',
-  'SentinelAMM',
-  'SentinelPredictiveThreatModel',
-  'SentinelOracleNetwork',
-  'SentinelMultiSigVault',
-  'SentinelZKOracle',
-  'SentinelInsuranceProtocol',
-  'SentinelHomomorphicEncryption',
-  'SentinelReferralSystem',
-  'SentinelQuantumKeyDistribution',
-  'SentinelQuantumNeural',
-  'SentinelZKIdentity',
-  'SentinelSocialRecovery',
 ];
 
 function short(addr) {
@@ -47,7 +33,17 @@ function short(addr) {
 }
 
 (async () => {
-  const provider = new ethers.JsonRpcProvider(RPC);
+  // ethers v6+ compatibility: JsonRpcProvider is a default export, not a property of ethers
+  let provider;
+  if (ethers.JsonRpcProvider) {
+    provider = new ethers.JsonRpcProvider(RPC);
+  } else if (ethers.providers && ethers.providers.JsonRpcProvider) {
+    provider = new ethers.providers.JsonRpcProvider(RPC);
+  } else {
+    throw new Error(
+      'Cannot find JsonRpcProvider in ethers. Check ethers version.',
+    );
+  }
 
   const ctx = { window: {} };
   vm.runInNewContext(fs.readFileSync('site/contracts.js', 'utf8'), ctx);

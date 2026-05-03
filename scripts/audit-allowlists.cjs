@@ -76,29 +76,39 @@ async function getRoleMembers(
   fromBlock,
   toBlock,
 ) {
-  const granted = await provider.getLogs({
-    address: contractAddress,
-    topics: [ROLE_GRANTED, roleHash],
-    fromBlock,
-    toBlock,
-  });
-  const revoked = await provider.getLogs({
-    address: contractAddress,
-    topics: [ROLE_REVOKED, roleHash],
-    fromBlock,
-    toBlock,
-  });
-
+  const MAX_BLOCK_RANGE = 50000; // RPC providers typically limit to 50000 blocks
   const members = new Set();
-  for (const log of granted) {
-    // account is topics[2] (address padded to 32 bytes)
-    const account = ethers.getAddress('0x' + log.topics[2].slice(26));
-    members.add(account.toLowerCase());
+
+  // Process logs in chunks to avoid exceeding block range limits
+  for (let startBlock = fromBlock; startBlock <= toBlock; startBlock += MAX_BLOCK_RANGE) {
+    const endBlock = Math.min(startBlock + MAX_BLOCK_RANGE - 1, toBlock);
+
+    const granted = await provider.getLogs({
+      address: contractAddress,
+      topics: [ROLE_GRANTED, roleHash],
+      fromBlock: startBlock,
+      toBlock: endBlock,
+    });
+
+    const revoked = await provider.getLogs({
+      address: contractAddress,
+      topics: [ROLE_REVOKED, roleHash],
+      fromBlock: startBlock,
+      toBlock: endBlock,
+    });
+
+    for (const log of granted) {
+      // account is topics[2] (address padded to 32 bytes)
+      const account = ethers.getAddress('0x' + log.topics[2].slice(26));
+      members.add(account.toLowerCase());
+    }
+
+    for (const log of revoked) {
+      const account = ethers.getAddress('0x' + log.topics[2].slice(26));
+      members.delete(account.toLowerCase());
+    }
   }
-  for (const log of revoked) {
-    const account = ethers.getAddress('0x' + log.topics[2].slice(26));
-    members.delete(account.toLowerCase());
-  }
+
   return [...members];
 }
 

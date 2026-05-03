@@ -1,8 +1,8 @@
 // test/SentinelMonitor.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelMonitor', function () {
   let monitor;
@@ -12,8 +12,7 @@ describe('SentinelMonitor', function () {
   let stubSentinel, stubBridge, stubCircuit;
 
   beforeEach(async function () {
-    [owner, other, stubSentinel, stubBridge, stubCircuit] =
-      await ethers.getSigners();
+    [owner, other, stubSentinel, stubBridge, stubCircuit] = await ethers.getSigners();
 
     const SentinelMonitor = await ethers.getContractFactory('SentinelMonitor');
     monitor = await SentinelMonitor.deploy(owner.address);
@@ -23,24 +22,18 @@ describe('SentinelMonitor', function () {
   describe('Contract authorization', function () {
     it('authorizes a contract address', async function () {
       await monitor.authorizeContract(stubSentinel.address);
-      expect(await monitor.authorizedContracts(stubSentinel.address)).to.equal(
-        true,
-      );
+      expect(await monitor.authorizedContracts(stubSentinel.address)).to.equal(true);
     });
 
     it('rejects zero address authorization', async function () {
-      await expect(
-        monitor.authorizeContract(ethers.ZeroAddress),
-      ).to.be.revertedWith('Invalid contract address');
+      await expect(monitor.authorizeContract(ethers.ZeroAddress)).to.be.revertedWith(
+        'Invalid contract address'
+      );
     });
 
     it('reverts updateHealth when contracts not authorized', async function () {
       await expect(
-        monitor.updateHealth(
-          stubSentinel.address,
-          stubBridge.address,
-          stubCircuit.address,
-        ),
+        monitor.updateHealth(stubSentinel.address, stubBridge.address, stubCircuit.address)
       ).to.be.revertedWith('Sentinel not authorized');
     });
   });
@@ -54,12 +47,7 @@ describe('SentinelMonitor', function () {
     });
 
     it('allows owner to update alert conditions', async function () {
-      await monitor.setAlertCondition(
-        'high_anomalies',
-        20,
-        9,
-        'Updated threshold',
-      );
+      await monitor.setAlertCondition('high_anomalies', 20, 9, 'Updated threshold');
       const condition = await monitor.alertConditions('high_anomalies');
       expect(condition.threshold).to.equal(20);
       expect(condition.severity).to.equal(9);
@@ -75,9 +63,7 @@ describe('SentinelMonitor', function () {
     });
 
     it('rejects chain ID of zero', async function () {
-      await expect(monitor.addTrackedChain(0)).to.be.revertedWith(
-        'Invalid chain ID',
-      );
+      await expect(monitor.addTrackedChain(0)).to.be.revertedWith('Invalid chain ID');
     });
   });
 
@@ -93,18 +79,14 @@ describe('SentinelMonitor', function () {
       await expect(
         monitor
           .connect(other)
-          .updateHealth(
-            stubSentinel.address,
-            stubBridge.address,
-            stubCircuit.address,
-          ),
+          .updateHealth(stubSentinel.address, stubBridge.address, stubCircuit.address)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
 
     it('reverts addTrackedChain when called by non-owner', async function () {
-      await expect(
-        monitor.connect(other).addTrackedChain(1),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      await expect(monitor.connect(other).addTrackedChain(1)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      );
     });
   });
 });

@@ -9,9 +9,34 @@ Thank you for your interest in contributing! Sentinel L3 is a high-security, ins
 - **Pull Requests:**
   - Fork the repo and create a feature branch
   - Write clear, well-documented code
-  - Add or update tests as appropriate
+  - **Run all tests and linters before submitting a PR**
+    - Solidity: `npm test` (Hardhat/Mocha)
+    - Python: `PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v`
+    - Lint: `npm run lint` (no errors or warnings permitted)
+  - Add or update tests for any new features or bug fixes
+  - Update documentation (`README.md`, etc.) as needed
   - Ensure no sensitive or proprietary information is exposed
-  - Submit a PR with a detailed description
+  - Submit a PR with a detailed description and reference related issues
+  - In the PR `## Testing` section, list exact commands you personally ran
+  - If anything was not executed in your environment, write `not run locally`
+  - Do not claim "tests passed" without command-level evidence
+
+## Linting & Code Style
+
+- Use the provided ESLint config (`eslint.config.js`)
+- For scripts in `scripts/`, Node.js globals and `require` are allowed
+- No lint errors or warnings are permitted in CI
+
+## Security
+
+- **Never commit secrets or private keys**
+- Review `SECURITY.md` for security best practices and reporting guidance
+
+## Documentation
+
+- Update `README.md` and other docs for any user-facing changes
+
+---
 
 ## Code of Conduct
 
@@ -21,7 +46,7 @@ Thank you for your interest in contributing! Sentinel L3 is a high-security, ins
 
 ## Security Policy
 
-If you discover a security vulnerability, **do not open a public issue**. Please email the core team at security@aetheron.com (or use the private reporting channel).
+If you discover a security vulnerability, **do not open a public issue**. Please email the core team at [aetheron.solana@gmail.com](mailto:aetheron.solana@gmail.com) (or use the private reporting channel).
 
 ## Style Guide
 

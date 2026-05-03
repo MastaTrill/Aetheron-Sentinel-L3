@@ -1,8 +1,8 @@
 // test/SentinelInsuranceProtocol.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 // InsuranceType enum: HACK_COVERAGE=0, ORACLE_FAILURE=1, ... PROTOCOL_EXPLOIT=7
 const HACK_COVERAGE = 0;
@@ -20,13 +20,11 @@ describe('SentinelInsuranceProtocol', function () {
 
   beforeEach(async function () {
     [owner, policyHolder, other] = await ethers.getSigners();
-    const SentinelInsuranceProtocol = await ethers.getContractFactory(
-      'SentinelInsuranceProtocol',
-    );
+    const SentinelInsuranceProtocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
     insurance = await SentinelInsuranceProtocol.deploy(
       ethers.ZeroAddress, // sentinelCore (not called in basic flows)
       ethers.ZeroAddress, // sentinelAuditor (not called in basic flows)
-      owner.address,
+      owner.address
     );
     await insurance.waitForDeployment();
   });
@@ -50,14 +48,10 @@ describe('SentinelInsuranceProtocol', function () {
 
     it('rejects zero address owner', async function () {
       const SentinelInsuranceProtocol = await ethers.getContractFactory(
-        'SentinelInsuranceProtocol',
+        'SentinelInsuranceProtocol'
       );
       await expect(
-        SentinelInsuranceProtocol.deploy(
-          ethers.ZeroAddress,
-          ethers.ZeroAddress,
-          ethers.ZeroAddress,
-        ),
+        SentinelInsuranceProtocol.deploy(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress)
       ).to.be.revertedWith('Invalid owner');
     });
   });
@@ -68,15 +62,11 @@ describe('SentinelInsuranceProtocol', function () {
     });
 
     it('MAX_COVERAGE is 10000 ether', async function () {
-      expect(await insurance.MAX_COVERAGE()).to.equal(
-        ethers.parseEther('10000'),
-      );
+      expect(await insurance.MAX_COVERAGE()).to.equal(ethers.parseEther('10000'));
     });
 
     it('CLAIM_PROCESSING_TIME is 7 days', async function () {
-      expect(await insurance.CLAIM_PROCESSING_TIME()).to.equal(
-        7n * 24n * 60n * 60n,
-      );
+      expect(await insurance.CLAIM_PROCESSING_TIME()).to.equal(7n * 24n * 60n * 60n);
     });
   });
 
@@ -93,7 +83,7 @@ describe('SentinelInsuranceProtocol', function () {
         coverage,
         HACK_COVERAGE,
         period,
-        { value: premium },
+        { value: premium }
       );
       await tx.wait();
 
@@ -111,15 +101,9 @@ describe('SentinelInsuranceProtocol', function () {
       await expect(
         insurance
           .connect(policyHolder)
-          .purchaseInsurance(
-            other.address,
-            coverage,
-            HACK_COVERAGE,
-            COVERAGE_PERIOD_MIN,
-            {
-              value: premium,
-            },
-          ),
+          .purchaseInsurance(other.address, coverage, HACK_COVERAGE, COVERAGE_PERIOD_MIN, {
+            value: premium,
+          })
       ).to.emit(insurance, 'PolicyCreated');
     });
 
@@ -132,8 +116,8 @@ describe('SentinelInsuranceProtocol', function () {
             ethers.parseEther('0.5'),
             HACK_COVERAGE,
             COVERAGE_PERIOD_MIN,
-            { value: ethers.parseEther('1') },
-          ),
+            { value: ethers.parseEther('1') }
+          )
       ).to.be.revertedWith('Invalid coverage amount');
     });
 
@@ -142,13 +126,9 @@ describe('SentinelInsuranceProtocol', function () {
       await expect(
         insurance
           .connect(policyHolder)
-          .purchaseInsurance(
-            other.address,
-            tooLarge,
-            HACK_COVERAGE,
-            COVERAGE_PERIOD_MIN,
-            { value: ethers.parseEther('1000') },
-          ),
+          .purchaseInsurance(other.address, tooLarge, HACK_COVERAGE, COVERAGE_PERIOD_MIN, {
+            value: ethers.parseEther('1000'),
+          })
       ).to.be.revertedWith('Invalid coverage amount');
     });
 
@@ -159,8 +139,8 @@ describe('SentinelInsuranceProtocol', function () {
           MIN_COVERAGE,
           HACK_COVERAGE,
           3600, // 1 hour — below 30 day minimum
-          { value: ethers.parseEther('1') },
-        ),
+          { value: ethers.parseEther('1') }
+        )
       ).to.be.revertedWith('Invalid coverage period');
     });
 
@@ -170,15 +150,9 @@ describe('SentinelInsuranceProtocol', function () {
 
       await insurance
         .connect(policyHolder)
-        .purchaseInsurance(
-          other.address,
-          coverage,
-          HACK_COVERAGE,
-          COVERAGE_PERIOD_MIN,
-          {
-            value: premium,
-          },
-        );
+        .purchaseInsurance(other.address, coverage, HACK_COVERAGE, COVERAGE_PERIOD_MIN, {
+          value: premium,
+        });
 
       expect(await insurance.totalCoverageProvided()).to.equal(coverage);
     });
@@ -189,15 +163,9 @@ describe('SentinelInsuranceProtocol', function () {
 
       await insurance
         .connect(policyHolder)
-        .purchaseInsurance(
-          other.address,
-          coverage,
-          HACK_COVERAGE,
-          COVERAGE_PERIOD_MIN,
-          {
-            value: premium,
-          },
-        );
+        .purchaseInsurance(other.address, coverage, HACK_COVERAGE, COVERAGE_PERIOD_MIN, {
+          value: premium,
+        });
 
       expect(await insurance.totalPremiumsCollected()).to.be.gt(0n);
     });
@@ -209,13 +177,9 @@ describe('SentinelInsuranceProtocol', function () {
       const balBefore = await ethers.provider.getBalance(policyHolder.address);
       const tx = await insurance
         .connect(policyHolder)
-        .purchaseInsurance(
-          other.address,
-          coverage,
-          HACK_COVERAGE,
-          COVERAGE_PERIOD_MIN,
-          { value: hugePremium },
-        );
+        .purchaseInsurance(other.address, coverage, HACK_COVERAGE, COVERAGE_PERIOD_MIN, {
+          value: hugePremium,
+        });
       const receipt = await tx.wait();
       const gasUsed = receipt.gasUsed * receipt.gasPrice;
       const balAfter = await ethers.provider.getBalance(policyHolder.address);
@@ -236,21 +200,15 @@ describe('SentinelInsuranceProtocol', function () {
 
       await insurance
         .connect(policyHolder)
-        .purchaseInsurance(
-          other.address,
-          coverage,
-          HACK_COVERAGE,
-          COVERAGE_PERIOD_MIN,
-          {
-            value: premium,
-          },
-        );
+        .purchaseInsurance(other.address, coverage, HACK_COVERAGE, COVERAGE_PERIOD_MIN, {
+          value: premium,
+        });
       policyId = 0;
     });
 
     it('reverts if caller is not the policy holder', async function () {
       await expect(
-        insurance.connect(other).submitClaim(policyId, ethers.ZeroHash, '0x'),
+        insurance.connect(other).submitClaim(policyId, ethers.ZeroHash, '0x')
       ).to.be.revertedWith('Not policy holder');
     });
   });

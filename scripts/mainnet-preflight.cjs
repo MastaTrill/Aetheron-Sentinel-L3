@@ -26,14 +26,17 @@ function parseChainLimits(value) {
     .filter(Boolean)
     .map((entry) => {
       const [chainId, limit] = entry.split(':').map((part) => part.trim());
-      if (!chainId || !limit) throw new Error(`Invalid CHAIN_LIMITS entry: ${entry}`);
+      if (!chainId || !limit)
+        throw new Error(`Invalid CHAIN_LIMITS entry: ${entry}`);
       return { chainId: BigInt(chainId), limit: ethers.parseEther(limit) };
     });
 }
 
 function requireAddress(name, value) {
   if (!value || !ethers.isAddress(value)) {
-    throw new Error(`${name} must be a valid address. Received: ${value || '<empty>'}`);
+    throw new Error(
+      `${name} must be a valid address. Received: ${value || '<empty>'}`,
+    );
   }
 }
 
@@ -47,10 +50,18 @@ function requireAddressList(name, values, required = false) {
 function requireMainnetRpcUrl() {
   const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
   if (!rpcUrl) {
-    throw new Error('MAINNET_RPC_URL is missing. Set it in .env to a real Ethereum mainnet RPC endpoint.');
+    throw new Error(
+      'MAINNET_RPC_URL is missing. Set it in .env to a real Ethereum mainnet RPC endpoint.',
+    );
   }
-  if (rpcUrl.includes('YOUR_') || rpcUrl.includes('YOUR_INFURA_KEY') || rpcUrl.endsWith('/v3/')) {
-    throw new Error('MAINNET_RPC_URL still contains a placeholder. Replace it with a real Infura, Alchemy, QuickNode, or other mainnet RPC URL.');
+  if (
+    rpcUrl.includes('YOUR_') ||
+    rpcUrl.includes('YOUR_INFURA_KEY') ||
+    rpcUrl.endsWith('/v3/')
+  ) {
+    throw new Error(
+      'MAINNET_RPC_URL still contains a placeholder. Replace it with a real Infura, Alchemy, QuickNode, or other mainnet RPC URL.',
+    );
   }
   try {
     const parsed = new URL(rpcUrl);
@@ -58,7 +69,9 @@ function requireMainnetRpcUrl() {
       throw new Error('MAINNET_RPC_URL must start with http:// or https://');
     }
   } catch (error) {
-    throw new Error(`MAINNET_RPC_URL is not a valid URL: ${error.message}`);
+    throw new Error(`MAINNET_RPC_URL is not a valid URL: ${error.message}`, {
+      cause: error,
+    });
   }
 }
 
@@ -72,7 +85,9 @@ async function main() {
 
   const privateKey = (process.env.PRIVATE_KEY || '').trim();
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
-    throw new Error('PRIVATE_KEY must be set in .env as a 0x-prefixed 32-byte hex key.');
+    throw new Error(
+      'PRIVATE_KEY must be set in .env as a 0x-prefixed 32-byte hex key.',
+    );
   }
 
   const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
@@ -83,7 +98,9 @@ async function main() {
   const chainId = Number(network.chainId);
 
   if (chainId !== 1) {
-    throw new Error(`Refusing mainnet preflight on chainId ${chainId}. Expected Ethereum mainnet chainId 1.`);
+    throw new Error(
+      `Refusing mainnet preflight on chainId ${chainId}. Expected Ethereum mainnet chainId 1.`,
+    );
   }
 
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
@@ -98,14 +115,18 @@ async function main() {
     callers: parseAddressList(process.env.CALLER_ADDRESSES),
     monitors: parseAddressList(process.env.MONITOR_ADDRESSES),
     reporters: parseAddressList(process.env.REPORTER_ADDRESSES),
-    trackedChains: parseAddressList(process.env.TRACKED_CHAIN_IDS).map((id) => BigInt(id)),
+    trackedChains: parseAddressList(process.env.TRACKED_CHAIN_IDS).map((id) =>
+      BigInt(id),
+    ),
     bridgeTokens: parseAddressList(process.env.BRIDGE_TOKEN_ADDRESSES),
     chainLimits: parseChainLimits(process.env.CHAIN_LIMITS),
     lpToken: process.env.LP_TOKEN_ADDRESS || '',
     stakingToken: process.env.STAKING_TOKEN_ADDRESS || '',
     rewardToken: process.env.REWARD_TOKEN_ADDRESS || '',
     yieldToken: process.env.YIELD_TOKEN_ADDRESS || '',
-    grantSecurityReporters: parseAddressList(process.env.SECURITY_REPORTER_ADDRESSES),
+    grantSecurityReporters: parseAddressList(
+      process.env.SECURITY_REPORTER_ADDRESSES,
+    ),
     timelockMinDelay: parseUint(process.env.TIMELOCK_MIN_DELAY, 172800n),
     timelockProposers: parseAddressList(process.env.TIMELOCK_PROPOSERS),
     timelockExecutors: parseAddressList(process.env.TIMELOCK_EXECUTORS),
@@ -119,16 +140,30 @@ async function main() {
   requireAddressList('MONITOR_ADDRESSES', config.monitors);
   requireAddressList('REPORTER_ADDRESSES', config.reporters);
   requireAddressList('BRIDGE_TOKEN_ADDRESSES', config.bridgeTokens);
-  requireAddressList('SECURITY_REPORTER_ADDRESSES', config.grantSecurityReporters);
+  requireAddressList(
+    'SECURITY_REPORTER_ADDRESSES',
+    config.grantSecurityReporters,
+  );
   requireAddressList('TIMELOCK_PROPOSERS', config.timelockProposers);
-  requireAddressList('TIMELOCK_EXECUTORS', config.timelockExecutors.filter((addr) => addr !== ethers.ZeroAddress));
+  requireAddressList(
+    'TIMELOCK_EXECUTORS',
+    config.timelockExecutors.filter((addr) => addr !== ethers.ZeroAddress),
+  );
 
-  for (const maybeAddress of ['lpToken', 'stakingToken', 'rewardToken', 'yieldToken']) {
+  for (const maybeAddress of [
+    'lpToken',
+    'stakingToken',
+    'rewardToken',
+    'yieldToken',
+  ]) {
     const value = config[maybeAddress];
     if (value) requireAddress(maybeAddress.toUpperCase(), value);
   }
 
-  if (!Number.isFinite(config.anomalyThreshold) || config.anomalyThreshold < 0) {
+  if (
+    !Number.isFinite(config.anomalyThreshold) ||
+    config.anomalyThreshold < 0
+  ) {
     throw new Error('ANOMALY_THRESHOLD must be a non-negative number');
   }
 
@@ -143,16 +178,37 @@ async function main() {
   console.log('Owner:', config.owner);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH');
   console.log('Relayers:', config.relayers.join(', '));
-  console.log('Tracked chains:', config.trackedChains.map(String).join(', ') || '<none>');
+  console.log(
+    'Tracked chains:',
+    config.trackedChains.map(String).join(', ') || '<none>',
+  );
   console.log('Bridge tokens:', config.bridgeTokens.join(', ') || '<none>');
-  console.log('Chain limits:', config.chainLimits.map((item) => `${item.chainId}:${item.limit}`).join(', ') || '<none>');
+  console.log(
+    'Chain limits:',
+    config.chainLimits
+      .map((item) => `${item.chainId}:${item.limit}`)
+      .join(', ') || '<none>',
+  );
   console.log('Timelock min delay:', config.timelockMinDelay.toString());
-  console.log('Gas data:', JSON.stringify({
-    gasPrice: feeData.gasPrice ? feeData.gasPrice.toString() : null,
-    maxFeePerGas: feeData.maxFeePerGas ? feeData.maxFeePerGas.toString() : null,
-    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ? feeData.maxPriorityFeePerGas.toString() : null,
-  }, null, 2));
-  console.log('\nNo transactions were sent. This command only validates mainnet config, signer, RPC, balance, and address formats.');
+  console.log(
+    'Gas data:',
+    JSON.stringify(
+      {
+        gasPrice: feeData.gasPrice ? feeData.gasPrice.toString() : null,
+        maxFeePerGas: feeData.maxFeePerGas
+          ? feeData.maxFeePerGas.toString()
+          : null,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas
+          ? feeData.maxPriorityFeePerGas.toString()
+          : null,
+      },
+      null,
+      2,
+    ),
+  );
+  console.log(
+    '\nNo transactions were sent. This command only validates mainnet config, signer, RPC, balance, and address formats.',
+  );
 }
 
 main().catch((error) => {

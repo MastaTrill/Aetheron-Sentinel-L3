@@ -1,8 +1,8 @@
 // test/SentinelRewardAggregator.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelRewardAggregator', function () {
   let aggregator;
@@ -14,15 +14,8 @@ describe('SentinelRewardAggregator', function () {
 
   beforeEach(async function () {
     [owner, user, other] = await ethers.getSigners();
-    const SentinelRewardAggregator = await ethers.getContractFactory(
-      'SentinelRewardAggregator',
-    );
-    aggregator = await SentinelRewardAggregator.deploy(
-      STAKING,
-      LIQUIDITY,
-      GOV,
-      REFERRAL,
-    );
+    const SentinelRewardAggregator = await ethers.getContractFactory('SentinelRewardAggregator');
+    aggregator = await SentinelRewardAggregator.deploy(STAKING, LIQUIDITY, GOV, REFERRAL);
     await aggregator.waitForDeployment();
   });
 
@@ -79,7 +72,7 @@ describe('SentinelRewardAggregator', function () {
     it('emits RewardsUpdated event', async function () {
       await expect(aggregator.updateUserRewards(user.address)).to.emit(
         aggregator,
-        'RewardsUpdated',
+        'RewardsUpdated'
       );
     });
   });
@@ -125,24 +118,19 @@ describe('SentinelRewardAggregator', function () {
     });
 
     it('reverts when called by an unauthorised third party', async function () {
-      await expect(
-        aggregator.connect(other).claimAllRewards(user.address),
-      ).to.be.revertedWith('Unauthorized');
+      await expect(aggregator.connect(other).claimAllRewards(user.address)).to.be.revertedWith(
+        'Unauthorized'
+      );
     });
   });
 
   describe('updateSystemAPY', function () {
     it('is callable by owner and emits SystemAPYUpdated', async function () {
-      await expect(aggregator.updateSystemAPY()).to.emit(
-        aggregator,
-        'SystemAPYUpdated',
-      );
+      await expect(aggregator.updateSystemAPY()).to.emit(aggregator, 'SystemAPYUpdated');
     });
 
     it('reverts for non-owner', async function () {
-      await expect(aggregator.connect(user).updateSystemAPY()).to.revert(
-        ethers,
-      );
+      await expect(aggregator.connect(user).updateSystemAPY()).to.be.reverted;
     });
   });
 
@@ -168,9 +156,7 @@ describe('SentinelRewardAggregator', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(
-        aggregator.connect(user).updatePerformanceMultiplier(95),
-      ).to.revert(ethers);
+      await expect(aggregator.connect(user).updatePerformanceMultiplier(95)).to.be.reverted;
     });
   });
 });

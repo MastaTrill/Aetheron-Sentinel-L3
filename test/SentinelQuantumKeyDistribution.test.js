@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelQuantumKeyDistribution', function () {
   let qkd;
@@ -12,7 +12,7 @@ describe('SentinelQuantumKeyDistribution', function () {
   beforeEach(async function () {
     [owner, user, responder] = await ethers.getSigners();
     const SentinelQuantumKeyDistribution = await ethers.getContractFactory(
-      'SentinelQuantumKeyDistribution',
+      'SentinelQuantumKeyDistribution'
     );
     qkd = await SentinelQuantumKeyDistribution.deploy(owner.address);
     await qkd.waitForDeployment();
@@ -26,9 +26,7 @@ describe('SentinelQuantumKeyDistribution', function () {
   });
 
   it('only owner can generate keys', async function () {
-    await expect(
-      qkd.connect(user).generateQuantumKey(user.address, 256),
-    ).to.revert(ethers);
+    await expect(qkd.connect(user).generateQuantumKey(user.address, 256)).to.be.reverted;
   });
 
   it('generates and activates a key', async function () {
@@ -40,9 +38,7 @@ describe('SentinelQuantumKeyDistribution', function () {
     expect(active).to.equal(true);
     expect(state).to.equal(1n); // DISTRIBUTED
 
-    await qkd
-      .connect(user)
-      .activateQuantumKey(keyId, ethers.toUtf8Bytes('proof'));
+    await qkd.connect(user).activateQuantumKey(keyId, ethers.toUtf8Bytes('proof'));
     [, , , , , state] = await qkd.getQuantumKey(keyId);
     expect(state).to.equal(2n); // ACTIVE
   });
@@ -50,13 +46,9 @@ describe('SentinelQuantumKeyDistribution', function () {
   it('creates and completes a key exchange session', async function () {
     await qkd.generateQuantumKey(user.address, 256);
     const keyId = await qkd.userKeys(user.address, 0);
-    await qkd
-      .connect(user)
-      .activateQuantumKey(keyId, ethers.toUtf8Bytes('proof'));
+    await qkd.connect(user).activateQuantumKey(keyId, ethers.toUtf8Bytes('proof'));
 
-    const tx = await qkd
-      .connect(user)
-      .initiateKeyExchange(responder.address, keyId);
+    const tx = await qkd.connect(user).initiateKeyExchange(responder.address, keyId);
     const receipt = await tx.wait();
     let sessionId;
     for (const log of receipt.logs) {
@@ -75,11 +67,10 @@ describe('SentinelQuantumKeyDistribution', function () {
       .completeKeyExchange(
         sessionId,
         ethers.keccak256(ethers.toUtf8Bytes('shared')),
-        ethers.keccak256(ethers.toUtf8Bytes('session-key')),
+        ethers.keccak256(ethers.toUtf8Bytes('session-key'))
       );
 
-    const [, , sessionState, establishedTime] =
-      await qkd.getKeySession(sessionId);
+    const [, , sessionState, establishedTime] = await qkd.getKeySession(sessionId);
     expect(sessionState).to.equal(2n); // ACTIVE
     expect(establishedTime).to.be.gt(0n);
   });
@@ -91,9 +82,6 @@ describe('SentinelQuantumKeyDistribution', function () {
     await ethers.provider.send('evm_increaseTime', [8 * 24 * 60 * 60]);
     await ethers.provider.send('evm_mine', []);
 
-    await expect(qkd.connect(user).rotateQuantumKey(keyId)).to.emit(
-      qkd,
-      'QuantumKeyRotated',
-    );
+    await expect(qkd.connect(user).rotateQuantumKey(keyId)).to.emit(qkd, 'QuantumKeyRotated');
   });
 });

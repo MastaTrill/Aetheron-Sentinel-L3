@@ -1,8 +1,8 @@
 // test/SentinelAMM.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelAMM', function () {
   let amm;
@@ -69,8 +69,8 @@ describe('SentinelAMM', function () {
           ethers.parseEther('100'),
           1n,
           2n,
-          false,
-        ),
+          false
+        )
       ).to.be.revertedWith('Invalid pool');
     });
 
@@ -83,8 +83,8 @@ describe('SentinelAMM', function () {
           ethers.parseEther('100'),
           2n,
           1n,
-          false,
-        ),
+          false
+        )
       ).to.be.revertedWith('Invalid price bounds');
     });
 
@@ -96,8 +96,8 @@ describe('SentinelAMM', function () {
           ethers.parseEther('100'),
           5n,
           5n,
-          false,
-        ),
+          false
+        )
       ).to.be.revertedWith('Invalid price bounds');
     });
   });
@@ -105,21 +105,11 @@ describe('SentinelAMM', function () {
   describe('executeQuantumSwap', function () {
     it('reverts for an invalid pool id', async function () {
       const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-      const token = await ERC20Mock.deploy(
-        'Token',
-        'TK',
-        owner.address,
-        ethers.parseEther('1000'),
-      );
+      const token = await ERC20Mock.deploy('Token', 'TK', owner.address, ethers.parseEther('1000'));
       await token.waitForDeployment();
 
       await expect(
-        amm.executeQuantumSwap(
-          99,
-          await token.getAddress(),
-          ethers.parseEther('1'),
-          0n,
-        ),
+        amm.executeQuantumSwap(99, await token.getAddress(), ethers.parseEther('1'), 0n)
       ).to.be.revertedWith('Invalid pool');
     });
   });
@@ -127,9 +117,9 @@ describe('SentinelAMM', function () {
   describe('claimImpermanentLossProtection', function () {
     it('reverts for an out-of-range position index', async function () {
       // user has no positions at index 0
-      await expect(
-        amm.claimImpermanentLossProtection(user.address, 0),
-      ).to.be.revertedWith('Invalid position');
+      await expect(amm.claimImpermanentLossProtection(user.address, 0)).to.be.revertedWith(
+        'Invalid position'
+      );
     });
   });
 });

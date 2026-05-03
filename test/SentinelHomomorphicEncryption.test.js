@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelHomomorphicEncryption', function () {
   let he;
@@ -12,7 +12,7 @@ describe('SentinelHomomorphicEncryption', function () {
   beforeEach(async function () {
     [owner, user, other] = await ethers.getSigners();
     const SentinelHomomorphicEncryption = await ethers.getContractFactory(
-      'SentinelHomomorphicEncryption',
+      'SentinelHomomorphicEncryption'
     );
     he = await SentinelHomomorphicEncryption.deploy(owner.address);
     await he.waitForDeployment();
@@ -29,17 +29,14 @@ describe('SentinelHomomorphicEncryption', function () {
     await he.connect(user).encryptValue(42, randomness);
     const ciphertextId = await he.activeCiphertexts(0);
 
-    const [, , encryptor, timestamp, isExpired] =
-      await he.getCiphertext(ciphertextId);
+    const [, , encryptor, timestamp, isExpired] = await he.getCiphertext(ciphertextId);
     expect(encryptor).to.equal(user.address);
     expect(timestamp).to.be.gt(0n);
     expect(isExpired).to.equal(false);
   });
 
   it('reverts encrypt when randomness is zero', async function () {
-    await expect(he.encryptValue(42, 0)).to.be.revertedWith(
-      'Randomness cannot be zero',
-    );
+    await expect(he.encryptValue(42, 0)).to.be.revertedWith('Randomness cannot be zero');
   });
 
   it('performs homomorphic add and verifies result', async function () {
@@ -59,16 +56,13 @@ describe('SentinelHomomorphicEncryption', function () {
     const ciphertextId = await he.activeCiphertexts(0);
 
     const key = ethers.keccak256(
-      ethers.solidityPacked(
-        ['uint256', 'string'],
-        [randomness, 'decryption_key'],
-      ),
+      ethers.solidityPacked(['uint256', 'string'], [randomness, 'decryption_key'])
     );
 
     await he.connect(user).decryptCiphertext(ciphertextId, key);
 
-    await expect(
-      he.connect(other).decryptCiphertext(ciphertextId, key),
-    ).to.be.revertedWith('Unauthorized decryption');
+    await expect(he.connect(other).decryptCiphertext(ciphertextId, key)).to.be.revertedWith(
+      'Unauthorized decryption'
+    );
   });
 });

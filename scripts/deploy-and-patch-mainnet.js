@@ -8,14 +8,8 @@ const path = require('path');
 // --- CONFIG ---
 const DEPLOY_SCRIPT = path.join(__dirname, 'deploy.cjs');
 const NETWORK = 'mainnet';
-const SUMMARY_MD = path.join(
-  __dirname,
-  '../DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md',
-);
-const OWNERSHIP_MD = path.join(
-  __dirname,
-  '../DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md',
-);
+const SUMMARY_MD = path.join(__dirname, '../DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md');
+const OWNERSHIP_MD = path.join(__dirname, '../DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md');
 const ENV_FILE = path.join(__dirname, '../.env.mainnet');
 
 function runDeployScript() {
@@ -42,7 +36,7 @@ function extractBlockNumber(output) {
 function patchFile(filePath, replacements) {
   let content = fs.readFileSync(filePath, 'utf-8');
   for (const [key, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`(${key}\s*[:=]\s*)(.*)`, 'i');
+    const regex = new RegExp(`(${key}\\s*[:=]\\s*)(.*)`, 'i');
     content = content.replace(regex, `$1${value}`);
   }
   fs.writeFileSync(filePath, content, 'utf-8');

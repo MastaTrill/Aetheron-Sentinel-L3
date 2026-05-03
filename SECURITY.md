@@ -48,6 +48,21 @@
 - ✅ **Real-time Analysis**: Continuous system state evaluation
 - ✅ **Event-Driven Alerts**: Automated notification system
 
+## 🔒 Audit & Bug Bounty
+
+- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Third-party audit status and summary
+- [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program details
+
+## 🚨 Incident Response
+
+- [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Formal incident response plan
+
+- For advanced, real-time monitoring and automated response, consider integrating with:
+  - **OpenZeppelin Defender**: Automated monitoring, admin actions, and notifications
+  - **Forta**: Decentralized threat detection and alerting
+
+See the respective documentation for setup and best practices.
+
 ## 🛡️ Additional Security Measures
 
 ### **Economic Security**
@@ -98,3 +113,34 @@
 - **Rate Limiting**: Applied to all user-facing functions
 
 The system now implements defense-in-depth security with multiple overlapping protection mechanisms.
+
+## ⚠️ Known Risks & Mitigations
+
+### Dependency Supply Chain
+
+- **Risk:** Vulnerabilities in third-party npm packages or transitive dependencies.
+- **Mitigation:** Regularly audit dependencies, remove unused packages, pin versions, and monitor advisories. Use npm audit in CI/CD.
+
+### Protocol-Level Risks
+
+- **Risk:** Undiscovered logic bugs, economic exploits, or edge-case failures in smart contracts.
+- **Mitigation:** Comprehensive test suite, formal audits, bug bounty program, and real-time monitoring.
+
+### Operational Risks
+
+- **Risk:** Misconfiguration of environment variables, private key exposure, or improper deployment procedures.
+- **Mitigation:** Enforce env var checks, document secure deployment steps, and use multi-sig for critical actions.
+
+### Monitoring Gaps
+
+- **Risk:** Failure to detect or respond to new attack vectors or system anomalies.
+- **Mitigation:** Continuous improvement of monitoring, alerting, and incident response plans.
+
+### External Integrations
+
+- **Risk:** Reliance on external oracles, bridges, or APIs introduces upstream risk.
+- **Mitigation:** Use whitelists, fallback mechanisms, and monitor upstream changes.
+
+---
+
+**Note:** This list is not exhaustive. Ongoing review and adaptation are required as the threat landscape evolves.

@@ -1,8 +1,8 @@
 // test/SentinelToken.test.js
 import { expect } from 'chai';
-import { network } from 'hardhat';
 
-const { ethers } = await network.create();
+import hardhat from 'hardhat';
+const { ethers } = hardhat;
 
 describe('SentinelToken', function () {
   let token;
@@ -59,7 +59,7 @@ describe('SentinelToken', function () {
         user.address,
         ethers.parseEther('500'),
         30 * 86400,
-        10 * 86400,
+        10 * 86400
       );
       const { totalAmount } = await token.getVestingSchedule(user.address);
       expect(totalAmount).to.equal(ethers.parseEther('500'));
@@ -67,14 +67,7 @@ describe('SentinelToken', function () {
 
     it('non-owner cannot create a vesting schedule', async function () {
       await expect(
-        token
-          .connect(user)
-          .createVestingSchedule(
-            user2.address,
-            ethers.parseEther('100'),
-            86400,
-            0,
-          ),
+        token.connect(user).createVestingSchedule(user2.address, ethers.parseEther('100'), 86400, 0)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
 
@@ -83,7 +76,7 @@ describe('SentinelToken', function () {
         user.address,
         ethers.parseEther('100'),
         30 * 86400,
-        10 * 86400,
+        10 * 86400
       );
       const { releasable } = await token.getVestingSchedule(user.address);
       expect(releasable).to.equal(0n);
@@ -94,10 +87,10 @@ describe('SentinelToken', function () {
         user.address,
         ethers.parseEther('100'),
         30 * 86400,
-        10 * 86400,
+        10 * 86400
       );
       await expect(token.releaseVestedTokens(user.address)).to.be.revertedWith(
-        'No tokens to release',
+        'No tokens to release'
       );
     });
 
@@ -109,7 +102,7 @@ describe('SentinelToken', function () {
 
     it('reverts when there is no vesting schedule', async function () {
       await expect(token.releaseVestedTokens(user2.address)).to.be.revertedWith(
-        'No vesting schedule',
+        'No vesting schedule'
       );
     });
   });
@@ -120,16 +113,14 @@ describe('SentinelToken', function () {
     });
 
     it('reverts when staking 0', async function () {
-      await expect(token.connect(user).stake(0)).to.be.revertedWith(
-        'Cannot stake 0',
-      );
+      await expect(token.connect(user).stake(0)).to.be.revertedWith('Cannot stake 0');
     });
 
     it('reverts with insufficient balance', async function () {
       // user2 has no tokens
-      await expect(
-        token.connect(user2).stake(ethers.parseEther('1')),
-      ).to.be.revertedWith('Insufficient balance');
+      await expect(token.connect(user2).stake(ethers.parseEther('1'))).to.be.revertedWith(
+        'Insufficient balance'
+      );
     });
 
     it('stakes tokens and tracks balance', async function () {
@@ -157,9 +148,9 @@ describe('SentinelToken', function () {
 
     it('reverts when unstaking more than staked', async function () {
       await token.connect(user).stake(ethers.parseEther('100'));
-      await expect(
-        token.connect(user).unstake(ethers.parseEther('200')),
-      ).to.be.revertedWith('Insufficient staked balance');
+      await expect(token.connect(user).unstake(ethers.parseEther('200'))).to.be.revertedWith(
+        'Insufficient staked balance'
+      );
     });
   });
 
@@ -172,15 +163,15 @@ describe('SentinelToken', function () {
     });
 
     it('non-owner cannot set security reporter', async function () {
-      await expect(
-        token.connect(user).setSecurityReporter(user2.address, true),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      await expect(token.connect(user).setSecurityReporter(user2.address, true)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      );
     });
 
     it('reverts on zero address', async function () {
-      await expect(
-        token.setSecurityReporter(ethers.ZeroAddress, true),
-      ).to.be.revertedWith('Invalid address');
+      await expect(token.setSecurityReporter(ethers.ZeroAddress, true)).to.be.revertedWith(
+        'Invalid address'
+      );
     });
   });
 
