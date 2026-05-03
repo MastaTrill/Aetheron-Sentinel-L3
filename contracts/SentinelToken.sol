@@ -402,4 +402,39 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         rewardPoolRemaining -= amount;
         _transfer(address(this), recipient, amount);
     }
+
+    /**
+     * @notice Check if address has premium dashboard access
+     * @param user Address to check
+     * @return True if user has premium access (holds minimum tokens)
+     */
+    function hasPremiumAccess(address user) external view returns (bool) {
+        return balanceOf(user) >= 1000 ether; // Require 1000 AETH for premium access
+    }
+
+    /**
+     * @notice Get user's staking APY including bonuses
+     * @param user Address to check
+     * @return APY in basis points (e.g., 300 = 3.00%)
+     */
+    function getUserStakingAPY(address user) external view returns (uint256) {
+        uint256 baseAPY = BASE_STAKING_APY;
+
+        // Governance bonus
+        if (governanceParticipation[user] > 0) {
+            baseAPY += GOVERNANCE_APY_BONUS;
+        }
+
+        // Security bonus (simplified)
+        if (securityContributions[user] > 0) {
+            baseAPY += SECURITY_APY_BONUS;
+        }
+
+        // Cap at max
+        if (baseAPY > MAX_ENHANCED_APY) {
+            baseAPY = MAX_ENHANCED_APY;
+        }
+
+        return baseAPY;
+    }
 }
