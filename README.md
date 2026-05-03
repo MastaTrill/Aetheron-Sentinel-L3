@@ -27,6 +27,11 @@ This repository includes:
 - **Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/) - Real-time monitoring, security metrics, and system status.
 - **Token Utility:** Hold 1000+ $AETH for premium dashboard access and enhanced staking APY (up to 5.0% with governance/security bonuses).
 - **Liquidity:** Run `npm run add-liquidity` to create Uniswap V3 pool and add initial liquidity for $AETH/ETH trading.
+- **Multi-Chain Deployments:** Available on Ethereum, Polygon, Base, and Arbitrum networks
+- **Advanced Integrations:** Compound/Aave lending security, Hivemind AI training, Chainalysis AML/KYC, Helium IoT monitoring, Axie Infinity gaming security
+- **Cross-Chain Security:** LayerZero, Hyperlane, and ENS name resolution
+- **Decentralized Storage:** IPFS/Filecoin for security logs and AI models
+- **Governance Tools:** Snapshot DAO proposals and Uniswap V4 automated liquidity
 - The [Remix Dashboard](./apps/remix-dashboard/) is also available for development. Monitoring, bug bounty stats, and live metrics are available.
 
 ## Mainnet Deployment & Onboarding
