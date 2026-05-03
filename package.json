@@ -10,6 +10,7 @@
     "test:coverage": "hardhat coverage",
     "compile": "node scripts/compile-contracts.cjs",
     "deploy": "hardhat run scripts/deploy.js",
+    "deploy:mainnet": "hardhat run scripts/deploy.cjs --network mainnet",
     "deploy:verify": "npm run compile && node scripts/deployment-verification.js",
     "lint": "eslint hardhat.config.js scripts/ test/ --config .eslintrc.json --max-warnings 20",
     "lint:fix": "eslint hardhat.config.js scripts/ test/ --config .eslintrc.json --fix",
