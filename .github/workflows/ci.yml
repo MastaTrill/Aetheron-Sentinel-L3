@@ -43,7 +43,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Restore Hardhat compiler cache
@@ -96,7 +96,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -135,7 +135,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
           cache-dependency-path: imports/remix_-aetheron-sentinel-l3/package-lock.json
 
@@ -195,7 +195,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -238,7 +238,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -276,7 +276,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -304,7 +304,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -351,7 +351,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -398,7 +398,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -451,7 +451,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-           node-version: 20
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
