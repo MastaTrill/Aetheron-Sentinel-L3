@@ -1,6 +1,8 @@
 # Aetheron Sentinel L3
 
-Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and Python telemetry modules.
+**Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/)
+
+Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and Python telemetry modules. Features advanced AI-powered yield optimization, quantum-resistant security, and comprehensive governance.
 
 ## Repository Scope
 
