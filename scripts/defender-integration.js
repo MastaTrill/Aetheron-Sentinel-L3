@@ -21,17 +21,18 @@ function generateSafePayload(contractAddress, functionName, params, value = 0) {
   const payload = {
     to: contractAddress,
     value: value.toString(),
-    data: '0x' + ethers.utils.defaultAbiCoder.encode(
-      ['string', ...params.map(p => p.type)],
-      [functionName, ...params.map(p => p.value)]
-    ).slice(10), // Remove function selector
+    data:
+      '0x' +
+      ethers.utils.defaultAbiCoder
+        .encode(['string', ...params.map(p => p.type)], [functionName, ...params.map(p => p.value)])
+        .slice(10), // Remove function selector
     operation: 0, // Call
     safeTxGas: 0,
     baseGas: 0,
     gasPrice: 0,
     gasToken: ethers.constants.AddressZero,
     refundReceiver: ethers.constants.AddressZero,
-    nonce: 0
+    nonce: 0,
   };
 
   return payload;
@@ -45,11 +46,11 @@ function prepareOwnershipHandoff(contracts) {
 
   contracts.forEach(contract => {
     if (contract.address !== RELAYER_ADDRESS) {
-      transactions.push(generateSafePayload(
-        contract.address,
-        'transferOwnership',
-        [{ type: 'address', value: RELAYER_ADDRESS }]
-      ));
+      transactions.push(
+        generateSafePayload(contract.address, 'transferOwnership', [
+          { type: 'address', value: RELAYER_ADDRESS },
+        ])
+      );
     }
   });
 
@@ -60,14 +61,21 @@ function prepareOwnershipHandoff(contracts) {
  * Export transactions for Defender import
  */
 function exportForDefender(transactions, filename = 'defender-transactions.json') {
-  fs.writeFileSync(filename, JSON.stringify({
-    transactions,
-    metadata: {
-      name: 'Sentinel L3 Ownership Handoff',
-      description: 'Transfer ownership to Defender Relayer',
-      network: 'base'
-    }
-  }, null, 2));
+  fs.writeFileSync(
+    filename,
+    JSON.stringify(
+      {
+        transactions,
+        metadata: {
+          name: 'Sentinel L3 Ownership Handoff',
+          description: 'Transfer ownership to Defender Relayer',
+          network: 'base',
+        },
+      },
+      null,
+      2
+    )
+  );
 
   console.log(`Exported ${transactions.length} transactions to ${filename}`);
 }
@@ -88,5 +96,5 @@ if (require.main === module) {
 module.exports = {
   generateSafePayload,
   prepareOwnershipHandoff,
-  exportForDefender
+  exportForDefender,
 };

@@ -28,6 +28,10 @@
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",
+    "@chainlink/contracts": "^0.6.1",
+    "@ensdomains/ens-contracts": "^1.7.0",
+    "@layerzerolabs/solidity-examples": "^1.1.0",
+    "@uniswap/v4-core": "^1.0.2",
     "dotenv": "^16.4.5",
     "fp-ts": "^2.16.11",
     "io-ts": "^2.2.22",

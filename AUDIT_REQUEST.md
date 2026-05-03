@@ -10,6 +10,7 @@
 ## Scope
 
 ### Smart Contracts (27 contracts)
+
 - SentinelToken.sol - Governance token with staking
 - SentinelStaking.sol - High-yield staking
 - SentinelAMM.sol - Automated market maker
@@ -20,6 +21,7 @@
 - [Full list in contracts/ directory]
 
 ### Key Features
+
 - Cross-chain security monitoring
 - AI-powered threat detection
 - Quantum-resistant encryption
@@ -29,6 +31,7 @@
 ## Audit Requirements
 
 ### Security Focus Areas
+
 - Reentrancy vulnerabilities
 - Access control issues
 - Integer overflow/underflow
@@ -38,6 +41,7 @@
 - Cross-chain bridge security
 
 ### Testing Scope
+
 - Unit tests (347 test cases)
 - Integration tests
 - Gas optimization review
@@ -86,4 +90,4 @@
 
 ---
 
-*Prepared for mainnet deployment readiness.*
+_Prepared for mainnet deployment readiness._
