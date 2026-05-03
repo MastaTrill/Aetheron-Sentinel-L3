@@ -8,7 +8,7 @@
     "test": "hardhat test",
     "test:gas": "npm run compile && node scripts/gas-analysis.js",
     "test:coverage": "hardhat coverage",
-    "compile": "hardhat compile",
+    "compile": "node scripts/compile-contracts.cjs",
     "deploy": "hardhat run scripts/deploy.js",
     "deploy:verify": "npm run compile && node scripts/deployment-verification.js",
     "lint": "eslint hardhat.config.js scripts/ test/ --config .eslintrc.json --max-warnings 20",

@@ -17,6 +17,9 @@ Thank you for your interest in contributing! Sentinel L3 is a high-security, ins
   - Update documentation (`README.md`, etc.) as needed
   - Ensure no sensitive or proprietary information is exposed
   - Submit a PR with a detailed description and reference related issues
+  - In the PR `## Testing` section, list exact commands you personally ran
+  - If anything was not executed in your environment, write `not run locally`
+  - Do not claim "tests passed" without command-level evidence
 
 ## Linting & Code Style
 

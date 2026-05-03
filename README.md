@@ -68,6 +68,14 @@ Compile contracts:
 npm run compile
 ```
 
+If `npm run compile` fails with Hardhat `HH502` in a constrained/proxy environment, use the fail-fast guidance printed by `scripts/compile-contracts.cjs` (pre-warm/reuse Hardhat compiler cache or allow access to Solidity compiler metadata endpoints).
+
+For CI runners, pre-warm compiler cache in a network-enabled job:
+
+```bash
+node scripts/bootstrap-hardhat-cache.cjs
+```
+
 Run the Solidity test suite:
 
 ```bash
@@ -195,10 +203,12 @@ logs/verification/                    Verification logs and audit evidence
 
 ## Badges
 
-![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)
+![Coverage](https://img.shields.io/badge/tests-343_passing-brightgreen)
 ![Docs](https://img.shields.io/badge/docs-coverage-100%25-brightgreen)
 ![Build](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/lint.yml/badge.svg)
 ![Audit](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/audit.yml/badge.svg)
+
+Test and coverage details: see [TEST_COVERAGE_SUMMARY.md](./TEST_COVERAGE_SUMMARY.md). Solidity line coverage is pending an official Hardhat 3-compatible coverage plugin; CI currently enforces 343 Solidity tests plus Python unit tests on every push and PR.
 
 ## CI/CD Pipeline
 

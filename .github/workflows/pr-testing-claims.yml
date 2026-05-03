@@ -1,0 +1,33 @@
+name: PR Testing Claims Guardrail
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate-pr-testing-claims:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Write PR body to file
+        run: |
+          cat > pr_body.md <<'EOF'
+          ${{ github.event.pull_request.body }}
+          EOF
+
+      - name: Validate testing claims
+        run: node scripts/validate-pr-testing-claims.cjs pr_body.md
+
+      - name: Run validator unit tests
+        run: node test/validate-pr-testing-claims.test.cjs
