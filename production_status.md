@@ -4,14 +4,16 @@ _Last updated: April 28, 2026_
 
 ---
 
-## Current Status (as of April 25–28, 2026)
+## Current Status (as of May 3, 2026)
 
-- **No new public posts or announcements since April 19.**
-- **Sentinel L3 is in “quiet execution” mode:**
-  - Dashboard is built and previewed
+- **Live Dashboard Published:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/) - Real-time monitoring now public with premium features for $AETH holders.
+- **Token Utility Implemented:** $AETH provides premium dashboard access (1000+ tokens) and enhanced staking APY up to 5.0%.
+- **Sentinel L3 is in "quiet execution" mode:**
+  - Dashboard is built, previewed, and live with GitHub Pages deployment
   - Cybersecurity AI module is live
   - BitMine/MAVAN-4 integration is in the 1–8 week window (target: May 3 – June 14)
-- **All public metrics** (5.0% alpha, ~2M core loop, 95% AI detection, <5s response, 19+ contracts) are self-reported and visible in your dashboard video/infographic.
+- **All public metrics** (5.0% alpha, ~2M core loop, 95% AI detection, <5s response, 19+ contracts) are self-reported and visible in your live dashboard.
+- **CI/CD Pipeline Optimized:** Comprehensive testing, linting, coverage, and deployment workflows in place.
 - **No external validation yet:** BitMine has not mentioned Sentinel L3 or Aetheron in any official channel, and there are no audits, co-announcements, or third-party coverage.
 
 ---
