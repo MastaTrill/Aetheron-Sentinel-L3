@@ -322,9 +322,7 @@ jobs:
             npm run compile
           fi
 
-          echo "📏 Contract Size Analysis:" >> contract-sizes.txt
-        run: |
-          echo "📏 Contract Size Analysis:" >> contract-sizes.txt
+          echo "📏 Contract Size Analysis:" > contract-sizes.txt
           echo "========================" >> contract-sizes.txt
 
           # Find all compiled contracts and check their sizes
