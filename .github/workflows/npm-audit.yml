@@ -49,5 +49,5 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: "high"
-          allow-ghsa-ids: ""
+          fail-on-severity: 'high'
+          allow-ghsa-ids: ''
