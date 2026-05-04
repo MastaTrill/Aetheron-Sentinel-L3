@@ -17,7 +17,7 @@ import re
 import logging
 import json
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as tz
 
 try:
     from fastapi import FastAPI, Request, HTTPException, Header, Depends
@@ -123,7 +123,7 @@ class SentinelGateway:
 
     def execute_gateway(self, agent_prompt, transaction_payload, source_ip=None):
         score, reasons = self.analyze_intent(agent_prompt)
-        now = datetime.now(datetime.UTC)
+        now = datetime.now(tz=tz.utc)
         log_entry = {
             "timestamp": now.isoformat(),
             "prompt": agent_prompt,
@@ -224,6 +224,20 @@ class ConfigUpdateRequest(BaseModel):
 class ConfigUpdateResponse(BaseModel):
     success: bool
     message: str
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
+# --- Prometheus monitoring integration ---
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+
+    Instrumentator().instrument(app).expose(app)
+except ImportError:
+    pass  # Prometheus monitoring is optional; install prometheus_fastapi_instrumentator for metrics
 
 
 @app.post(

@@ -1,6 +1,8 @@
 import '@nomicfoundation/hardhat-ethers';
+import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-network-helpers';
 import '@nomicfoundation/hardhat-verify';
+import '@typechain/hardhat';
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
@@ -16,34 +18,28 @@ const config = {
   networks: {
     hardhat: {
       // Local simulation
-      type: 'edr-simulated',
     },
     direct_l3: {
-      type: 'http',
       url: 'http://127.0.0.1:8545',
       // Using the ACTUAL Ganache Private Key (0) that has 1000 ETH
       accounts: ['0x916d2b372ba2f58298a30798ef027c25b0c1c388f04dfbf68769e232236fd4ae'],
     },
     mainnet: {
-      type: 'http',
       url: process.env.MAINNET_RPC_URL || 'https://mainnet.infura.io/v3/YOUR_KEY',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 20000000000, // 20 gwei
     },
     polygon: {
-      type: 'http',
       url: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 40000000000, // 40 gwei
     },
     base: {
-      type: 'http',
       url: process.env.BASE_RPC_URL || 'https://mainnet.base.org',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 1000000000, // 1 gwei (Base has very low fees)
     },
     arbitrum: {
-      type: 'http',
       url: process.env.ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 2000000000, // 2 gwei

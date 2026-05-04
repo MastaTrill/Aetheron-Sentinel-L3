@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
  * @notice ENS integration for human-readable Sentinel identities
  * Provides decentralized naming for contracts and users
  * 
- * NOTE: ENS integration disabled due to @ensdomains/ens-contracts malware vulnerability (GHSA-58x9-4xmp-8mg5)
+ * NOTE: ENS integration disabled due to malware vulnerability (GHSA-58x9-4xmp-8mg5)
  * This contract is preserved for future ENS integration once dependencies are updated.
  * 
  * DO NOT USE IN PRODUCTION - awaiting secure dependency update
@@ -23,21 +23,21 @@ contract SentinelENSManager {
     event ContractRegistered(address indexed contractAddr, bytes32 indexed node, string name);
 
     /**
-     * @dev ENS integration is currently disabled due to security vulnerability in @ensdomains/ens-contracts
-     * This contract requires @ensdomains/ens-contracts upgrade to safe version
+    * @dev ENS integration is currently disabled due to security vulnerability in ENS contracts
+    * This contract requires ENS contracts upgrade to safe version
      */
     constructor() {}
 
     /**
      * @notice Placeholder - ENS integration disabled
-     * @dev This function will be enabled once @ensdomains/ens-contracts vulnerability is resolved
+    * @dev This function will be enabled once ENS contracts vulnerability is resolved
      */
     function registerContract(
         address,
         string calldata,
         address
     ) external pure returns (bool, string memory) {
-        return (false, "ENS integration disabled - vulnerability in @ensdomains/ens-contracts");
+        return (false, "ENS integration disabled - vulnerability in ENS contracts");
     }
 
     /**

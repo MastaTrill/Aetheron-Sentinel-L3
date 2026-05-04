@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
+import "@chainlink/contracts-ccip/node_modules/@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 import "./SentinelCore.sol";
 
 /**
@@ -28,7 +28,7 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
      * @return upkeepNeeded True if upkeep should be performed
      * @return performData Encoded data for performUpkeep
      */
-    function checkUpkeep(bytes calldata checkData)
+    function checkUpkeep(bytes calldata /* checkData */)
         external
         view
         override
@@ -46,9 +46,8 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
 
     /**
      * @notice Perform automated upkeep
-     * @param performData Encoded data from checkUpkeep
      */
-    function performUpkeep(bytes calldata performData) external override {
+    function performUpkeep(bytes calldata /* performData */) external override {
         uint256 startGas = gasleft();
 
         // Update last upkeep time
@@ -75,7 +74,7 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
     /**
      * @dev Check if Sentinel system needs upkeep
      */
-    function _checkSentinelNeeds() internal view returns (bool) {
+    function _checkSentinelNeeds() internal pure returns (bool) {
         // Implement checks like:
         // - TVL thresholds
         // - Anomaly detection

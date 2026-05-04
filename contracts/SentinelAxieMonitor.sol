@@ -76,7 +76,8 @@ contract SentinelAxieMonitor is Ownable {
         uint256 axieId,
         uint256 price
     ) external {
-        AxieTransaction memory tx = AxieTransaction({
+
+        AxieTransaction memory axieTx = AxieTransaction({
             seller: seller,
             buyer: buyer,
             axieId: axieId,
@@ -85,10 +86,10 @@ contract SentinelAxieMonitor is Ownable {
             txType: TransactionType.SALE
         });
 
-        axieTransactions[axieId].push(tx);
+        axieTransactions[axieId].push(axieTx);
 
         // Check for suspicious patterns
-        _analyzeTransaction(tx);
+        _analyzeTransaction(axieTx);
 
         // Update user activity
         userActivityCount[seller]++;
@@ -109,7 +110,7 @@ contract SentinelAxieMonitor is Ownable {
     function monitorBreeding(
         uint256 axieId,
         address breeder,
-        uint256 fee
+        uint256 /*fee*/
     ) external {
         BreedingRecord storage record = breedingRecords[axieId];
         record.axieId = axieId;
@@ -131,7 +132,7 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @notice Report stolen Axie
      */
-    function reportStolenAxie(uint256 axieId, bytes memory evidence) external {
+    function reportStolenAxie(uint256 axieId, bytes memory /*evidence*/) external {
         // Mark Axie as flagged
         bytes32 txHash = keccak256(abi.encodePacked(axieId, block.timestamp));
         flaggedTransactions[txHash] = true;
@@ -178,22 +179,22 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @dev Analyze transaction for suspicious patterns
      */
-    function _analyzeTransaction(AxieTransaction memory tx) internal {
+    function _analyzeTransaction(AxieTransaction memory axieTx) internal {
         // Check for high-value transactions
-        if (tx.price > HIGH_VALUE_THRESHOLD) {
-            emit SuspiciousTransaction(tx.axieId, tx.seller, tx.price, "HighValueTransaction");
+        if (axieTx.price > HIGH_VALUE_THRESHOLD) {
+            emit SuspiciousTransaction(axieTx.axieId, axieTx.seller, axieTx.price, "HighValueTransaction");
         }
 
         // Check for unusual price patterns
-        AxieTransaction[] memory history = axieTransactions[tx.axieId];
+        AxieTransaction[] memory history = axieTransactions[axieTx.axieId];
         if (history.length > 1) {
             AxieTransaction memory lastTx = history[history.length - 2];
-            uint256 priceChange = tx.price > lastTx.price ?
-                ((tx.price - lastTx.price) * 100) / lastTx.price :
-                ((lastTx.price - tx.price) * 100) / tx.price;
+            uint256 priceChange = axieTx.price > lastTx.price ?
+                ((axieTx.price - lastTx.price) * 100) / lastTx.price :
+                ((lastTx.price - axieTx.price) * 100) / axieTx.price;
 
             if (priceChange > 200) { // 200% price change
-                emit SuspiciousTransaction(tx.axieId, tx.seller, tx.price, "ExtremePriceChange");
+                emit SuspiciousTransaction(axieTx.axieId, axieTx.seller, axieTx.price, "ExtremePriceChange");
             }
         }
     }
@@ -201,9 +202,9 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @notice Get marketplace statistics
      */
-    function getMarketplaceStats() external view returns (
+    function getMarketplaceStats() external pure returns (
         uint256 totalTransactions,
-        uint256 flaggedTransactions,
+        uint256 /* flaggedTransactions */,
         uint256 activeUsers
     ) {
         // Simplified statistics
