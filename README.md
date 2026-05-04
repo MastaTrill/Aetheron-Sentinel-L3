@@ -69,6 +69,8 @@ This repository includes:
 - [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Third-party audit status
 - [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program details
 
+# (Recommended) Use a Python virtual environment
+
 ```bash
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
 cd Aetheron-Sentinel-L3
@@ -356,6 +358,65 @@ These top-level documents are present in the repository and are the best startin
 - `DEPLOYMENT_OWNERSHIP_CHECKLIST.md`
 - `HARDENING_CERTIFICATION.md`
 - `RELEASE_SUMMARY_2026-04-23.md`
+
+## Sentinel Gateway (FastAPI Python Service)
+
+The `sentinel_gateway_prototype.py` provides an intent-filtering gateway for agent prompts and transaction signing. It exposes a FastAPI web API for integration with DeFi and agentic services.
+
+### Usage
+
+```bash
+# (Recommended) Use a Python virtual environment
+python -m venv .venv
+.venv/Scripts/activate  # Windows
+source .venv/bin/activate  # Linux/macOS
+pip install -r requirements.txt  # Or install fastapi, uvicorn, pydantic, requests
+
+# Run the gateway
+
+python sentinel_gateway_prototype.py
+```
+
+The gateway will be available at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+### API Endpoints
+
+- `POST /analyze` — Analyze an agent prompt and transaction payload
+  - Requires header: `x-api-key: supersecretapikey` (change in code for production)
+  - Request body:
+
+```json
+{
+  "agent_prompt": "...",
+  "transaction_payload": "..."
+}
+```
+
+- Response:
+
+```json
+{ "result": "SIGNED_TX: ..." }
+```
+
+- `POST /update-config` — Update gateway config (rate limits, blacklist, etc)
+
+### Configuration
+
+- Config file: `sentinel_gateway_config.json` (auto-created on first run)
+- Audit log: `audit_log.jsonl` (JSON lines)
+- Webhook: Set `webhook_url` in code or config for alerting
+
+### Extending
+
+- Add new intent heuristics in `analyze_intent()`
+- Integrate with other chains/services via the webhook or by extending `execute_gateway()`
+
+### Release Info
+
+- Latest release: `v0.2.0` (see [Releases](https://github.com/MastaTrill/Aetheron-Sentinel-L3/releases))
+- See [SECURITY_POLICY.md](SECURITY_POLICY.md) for coordinated disclosure
+
+---
 
 ## Security
 
