@@ -38,8 +38,8 @@
   "devDependencies": {
     "@chainlink/contracts": "^0.4.0",
     "@chainlink/contracts-ccip": "^1.6.4",
-    "@graphprotocol/graph-cli": "^0.91.1",
-    "@graphprotocol/graph-ts": "^0.26.0",
+    "@graphprotocol/graph-cli": "^0.98.1",
+    "@graphprotocol/graph-ts": "^0.38.2",
     "@layerzerolabs/solidity-examples": "^1.1.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
     "@nomicfoundation/hardhat-ethers": "^4.0.10",
