@@ -12,422 +12,428 @@ const path = require('path');
  * Institutional Security Consulting Service
  */
 class SentinelInstitutionalConsulting {
-    constructor() {
-        this.assessmentsPath = './institutional-assessments';
-        this.reportsPath = './consulting-reports';
-        this.clientsPath = './client-portfolios';
-        this.ensureDirectories();
+  constructor() {
+    this.assessmentsPath = './institutional-assessments';
+    this.reportsPath = './consulting-reports';
+    this.clientsPath = './client-portfolios';
+    this.ensureDirectories();
+  }
+
+  ensureDirectories() {
+    const dirs = [
+      this.assessmentsPath,
+      this.reportsPath,
+      this.clientsPath,
+      `${this.assessmentsPath}/pending`,
+      `${this.assessmentsPath}/completed`,
+      `${this.reportsPath}/executive`,
+      `${this.reportsPath}/technical`,
+      `${this.reportsPath}/compliance`,
+    ];
+
+    dirs.forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    });
+  }
+
+  /**
+   * Create security assessment request
+   */
+  createAssessmentRequest(clientData) {
+    const assessmentId = `assessment-${Date.now()}`;
+    const requestPath = path.join(this.assessmentsPath, 'pending', `${assessmentId}.json`);
+
+    const assessment = {
+      id: assessmentId,
+      client: {
+        name: clientData.clientName,
+        industry: clientData.industry,
+        contact: clientData.contactEmail,
+        portfolioValue: clientData.portfolioValue,
+        protocols: clientData.protocols || [],
+      },
+      requirements: {
+        assessmentType: clientData.assessmentType, // "comprehensive", "targeted", "compliance"
+        scope: clientData.scope || 'full-protocol-suite',
+        timeline: clientData.timeline || '2-weeks',
+        deliverables: clientData.deliverables || [
+          'executive-summary',
+          'technical-report',
+          'risk-mitigation-plan',
+          'ongoing-monitoring-setup',
+        ],
+      },
+      pricing: {
+        baseFee: this.calculateBaseFee(clientData),
+        complexityMultiplier: this.calculateComplexityMultiplier(clientData),
+        totalCost: 0,
+        paymentTerms: '50% upfront, 50% on delivery',
+      },
+      status: {
+        currentPhase: 'initial-review',
+        progress: 0,
+        nextMilestone: 'contract-signing',
+        assignedConsultants: [],
+      },
+      timeline: {
+        created: new Date().toISOString(),
+        targetCompletion: this.calculateTargetDate(clientData.timeline),
+        actualCompletion: null,
+      },
+    };
+
+    // Calculate total cost
+    assessment.pricing.totalCost =
+      assessment.pricing.baseFee * assessment.pricing.complexityMultiplier;
+
+    fs.writeFileSync(requestPath, JSON.stringify(assessment, null, 2));
+    console.log(`Assessment request created: ${assessmentId}`);
+
+    return assessment;
+  }
+
+  /**
+   * Start security assessment
+   */
+  startAssessment(assessmentId, consultants) {
+    const pendingPath = path.join(this.assessmentsPath, 'pending', `${assessmentId}.json`);
+    const activePath = path.join(this.assessmentsPath, 'active', `${assessmentId}.json`);
+
+    if (!fs.existsSync(pendingPath)) {
+      throw new Error(`Assessment ${assessmentId} not found`);
     }
 
-    ensureDirectories() {
-        const dirs = [
-            this.assessmentsPath,
-            this.reportsPath,
-            this.clientsPath,
-            `${this.assessmentsPath}/pending`,
-            `${this.assessmentsPath}/completed`,
-            `${this.reportsPath}/executive`,
-            `${this.reportsPath}/technical`,
-            `${this.reportsPath}/compliance`
-        ];
+    const assessment = JSON.parse(fs.readFileSync(pendingPath, 'utf8'));
 
-        dirs.forEach(dir => {
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-        });
+    // Assign consultants
+    assessment.status.assignedConsultants = consultants;
+    assessment.status.currentPhase = 'scoping';
+    assessment.status.progress = 10;
+    assessment.status.nextMilestone = 'protocol-analysis';
+
+    // Create active directory if needed
+    if (!fs.existsSync(path.join(this.assessmentsPath, 'active'))) {
+      fs.mkdirSync(path.join(this.assessmentsPath, 'active'), { recursive: true });
     }
 
-    /**
-     * Create security assessment request
-     */
-    createAssessmentRequest(clientData) {
-        const assessmentId = `assessment-${Date.now()}`;
-        const requestPath = path.join(this.assessmentsPath, 'pending', `${assessmentId}.json`);
+    fs.writeFileSync(activePath, JSON.stringify(assessment, null, 2));
+    fs.unlinkSync(pendingPath);
 
-        const assessment = {
-            id: assessmentId,
-            client: {
-                name: clientData.clientName,
-                industry: clientData.industry,
-                contact: clientData.contactEmail,
-                portfolioValue: clientData.portfolioValue,
-                protocols: clientData.protocols || []
-            },
-            requirements: {
-                assessmentType: clientData.assessmentType, // "comprehensive", "targeted", "compliance"
-                scope: clientData.scope || "full-protocol-suite",
-                timeline: clientData.timeline || "2-weeks",
-                deliverables: clientData.deliverables || [
-                    "executive-summary",
-                    "technical-report",
-                    "risk-mitigation-plan",
-                    "ongoing-monitoring-setup"
-                ]
-            },
-            pricing: {
-                baseFee: this.calculateBaseFee(clientData),
-                complexityMultiplier: this.calculateComplexityMultiplier(clientData),
-                totalCost: 0,
-                paymentTerms: "50% upfront, 50% on delivery"
-            },
-            status: {
-                currentPhase: "initial-review",
-                progress: 0,
-                nextMilestone: "contract-signing",
-                assignedConsultants: []
-            },
-            timeline: {
-                created: new Date().toISOString(),
-                targetCompletion: this.calculateTargetDate(clientData.timeline),
-                actualCompletion: null
-            }
-        };
+    console.log(`Assessment ${assessmentId} started with consultants: ${consultants.join(', ')}`);
 
-        // Calculate total cost
-        assessment.pricing.totalCost =
-            assessment.pricing.baseFee * assessment.pricing.complexityMultiplier;
+    return assessment;
+  }
 
-        fs.writeFileSync(requestPath, JSON.stringify(assessment, null, 2));
-        console.log(`Assessment request created: ${assessmentId}`);
-
-        return assessment;
+  /**
+   * Generate assessment report
+   */
+  generateAssessmentReport(assessmentId, findings) {
+    const assessment = this.getAssessment(assessmentId);
+    if (!assessment) {
+      throw new Error(`Assessment ${assessmentId} not found`);
     }
 
-    /**
-     * Start security assessment
-     */
-    startAssessment(assessmentId, consultants) {
-        const pendingPath = path.join(this.assessmentsPath, 'pending', `${assessmentId}.json`);
-        const activePath = path.join(this.assessmentsPath, 'active', `${assessmentId}.json`);
+    const reportId = `report-${assessmentId}-${Date.now()}`;
+    const reportPath = path.join(this.reportsPath, 'executive', `${reportId}.json`);
 
-        if (!fs.existsSync(pendingPath)) {
-            throw new Error(`Assessment ${assessmentId} not found`);
-        }
+    const report = {
+      id: reportId,
+      assessmentId,
+      client: assessment.client,
+      executiveSummary: {
+        overallRiskLevel: this.calculateOverallRisk(findings),
+        criticalFindings: findings.filter(f => f.severity === 'critical').length,
+        highFindings: findings.filter(f => f.severity === 'high').length,
+        recommendedActions: this.generateRecommendations(findings),
+        confidenceLevel: 'high',
+      },
+      technicalFindings: findings,
+      riskAssessment: {
+        currentRiskProfile: this.assessRiskProfile(findings),
+        potentialImpact: this.calculatePotentialImpact(findings),
+        mitigationPriority: this.prioritizeMitigations(findings),
+      },
+      complianceStatus: {
+        regulatoryCompliance: this.checkCompliance(findings),
+        industryStandards: this.checkIndustryStandards(findings),
+        auditReadiness: this.assessAuditReadiness(findings),
+      },
+      implementationRoadmap: {
+        immediateActions: this.getImmediateActions(findings),
+        mediumTerm: this.getMediumTermActions(findings),
+        longTerm: this.getLongTermActions(findings),
+      },
+      monitoringPlan: {
+        ongoingMonitoring: this.designMonitoringPlan(assessment),
+        alertThresholds: this.setAlertThresholds(assessment),
+        reportingFrequency: 'weekly',
+      },
+      generatedAt: new Date().toISOString(),
+      validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    };
 
-        const assessment = JSON.parse(fs.readFileSync(pendingPath, 'utf8'));
+    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
 
-        // Assign consultants
-        assessment.status.assignedConsultants = consultants;
-        assessment.status.currentPhase = "scoping";
-        assessment.status.progress = 10;
-        assessment.status.nextMilestone = "protocol-analysis";
+    // Update assessment status
+    assessment.status.currentPhase = 'completed';
+    assessment.status.progress = 100;
+    assessment.timeline.actualCompletion = new Date().toISOString();
 
-        // Create active directory if needed
-        if (!fs.existsSync(path.join(this.assessmentsPath, 'active'))) {
-            fs.mkdirSync(path.join(this.assessmentsPath, 'active'), { recursive: true });
-        }
+    this.updateAssessment(assessment);
 
-        fs.writeFileSync(activePath, JSON.stringify(assessment, null, 2));
-        fs.unlinkSync(pendingPath);
+    console.log(`Assessment report generated: ${reportId}`);
 
-        console.log(`Assessment ${assessmentId} started with consultants: ${consultants.join(', ')}`);
+    return report;
+  }
 
-        return assessment;
+  /**
+   * Create client portfolio management
+   */
+  createClientPortfolio(clientData) {
+    const portfolioId = `portfolio-${Date.now()}`;
+    const portfolioPath = path.join(this.clientsPath, `${portfolioId}.json`);
+
+    const portfolio = {
+      id: portfolioId,
+      client: clientData.client,
+      portfolio: {
+        totalValue: clientData.totalValue,
+        assets: clientData.assets,
+        protocols: clientData.protocols,
+        riskProfile: clientData.riskProfile,
+      },
+      securityProfile: {
+        currentScore: 0,
+        lastAssessment: new Date().toISOString(),
+        activeMonitors: [],
+        securityIncidents: [],
+      },
+      consultingHistory: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    fs.writeFileSync(portfolioPath, JSON.stringify(portfolio, null, 2));
+    console.log(`Client portfolio created: ${portfolioId}`);
+
+    return portfolio;
+  }
+
+  /**
+   * Calculate base fee for assessment
+   */
+  calculateBaseFee(clientData) {
+    let baseFee = 50000; // $50K base
+
+    // Adjust based on portfolio value
+    if (clientData.portfolioValue > 100000000) {
+      // $100M+
+      baseFee *= 2;
+    } else if (clientData.portfolioValue > 50000000) {
+      // $50M+
+      baseFee *= 1.5;
     }
 
-    /**
-     * Generate assessment report
-     */
-    generateAssessmentReport(assessmentId, findings) {
-        const assessment = this.getAssessment(assessmentId);
-        if (!assessment) {
-            throw new Error(`Assessment ${assessmentId} not found`);
-        }
-
-        const reportId = `report-${assessmentId}-${Date.now()}`;
-        const reportPath = path.join(this.reportsPath, 'executive', `${reportId}.json`);
-
-        const report = {
-            id: reportId,
-            assessmentId,
-            client: assessment.client,
-            executiveSummary: {
-                overallRiskLevel: this.calculateOverallRisk(findings),
-                criticalFindings: findings.filter(f => f.severity === 'critical').length,
-                highFindings: findings.filter(f => f.severity === 'high').length,
-                recommendedActions: this.generateRecommendations(findings),
-                confidenceLevel: "high"
-            },
-            technicalFindings: findings,
-            riskAssessment: {
-                currentRiskProfile: this.assessRiskProfile(findings),
-                potentialImpact: this.calculatePotentialImpact(findings),
-                mitigationPriority: this.prioritizeMitigations(findings)
-            },
-            complianceStatus: {
-                regulatoryCompliance: this.checkCompliance(findings),
-                industryStandards: this.checkIndustryStandards(findings),
-                auditReadiness: this.assessAuditReadiness(findings)
-            },
-            implementationRoadmap: {
-                immediateActions: this.getImmediateActions(findings),
-                mediumTerm: this.getMediumTermActions(findings),
-                longTerm: this.getLongTermActions(findings)
-            },
-            monitoringPlan: {
-                ongoingMonitoring: this.designMonitoringPlan(assessment),
-                alertThresholds: this.setAlertThresholds(assessment),
-                reportingFrequency: "weekly"
-            },
-            generatedAt: new Date().toISOString(),
-            validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-        };
-
-        fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-
-        // Update assessment status
-        assessment.status.currentPhase = "completed";
-        assessment.status.progress = 100;
-        assessment.timeline.actualCompletion = new Date().toISOString();
-
-        this.updateAssessment(assessment);
-
-        console.log(`Assessment report generated: ${reportId}`);
-
-        return report;
+    // Adjust based on assessment type
+    if (clientData.assessmentType === 'comprehensive') {
+      baseFee *= 1.5;
     }
 
-    /**
-     * Create client portfolio management
-     */
-    createClientPortfolio(clientData) {
-        const portfolioId = `portfolio-${Date.now()}`;
-        const portfolioPath = path.join(this.clientsPath, `${portfolioId}.json`);
+    return baseFee;
+  }
 
-        const portfolio = {
-            id: portfolioId,
-            client: clientData.client,
-            portfolio: {
-                totalValue: clientData.totalValue,
-                assets: clientData.assets,
-                protocols: clientData.protocols,
-                riskProfile: clientData.riskProfile
-            },
-            securityProfile: {
-                currentScore: 0,
-                lastAssessment: new Date().toISOString(),
-                activeMonitors: [],
-                securityIncidents: []
-            },
-            consultingHistory: [],
-            createdAt: new Date().toISOString()
-        };
+  /**
+   * Calculate complexity multiplier
+   */
+  calculateComplexityMultiplier(clientData) {
+    let multiplier = 1.0;
 
-        fs.writeFileSync(portfolioPath, JSON.stringify(portfolio, null, 2));
-        console.log(`Client portfolio created: ${portfolioId}`);
-
-        return portfolio;
+    // Protocol complexity
+    if (clientData.protocols && clientData.protocols.length > 5) {
+      multiplier *= 1.3;
     }
 
-    /**
-     * Calculate base fee for assessment
-     */
-    calculateBaseFee(clientData) {
-        let baseFee = 50000; // $50K base
-
-        // Adjust based on portfolio value
-        if (clientData.portfolioValue > 100000000) { // $100M+
-            baseFee *= 2;
-        } else if (clientData.portfolioValue > 50000000) { // $50M+
-            baseFee *= 1.5;
-        }
-
-        // Adjust based on assessment type
-        if (clientData.assessmentType === "comprehensive") {
-            baseFee *= 1.5;
-        }
-
-        return baseFee;
+    // Industry risk
+    if (clientData.industry === 'defi-lending' || clientData.industry === 'cross-chain') {
+      multiplier *= 1.2;
     }
 
-    /**
-     * Calculate complexity multiplier
-     */
-    calculateComplexityMultiplier(clientData) {
-        let multiplier = 1.0;
-
-        // Protocol complexity
-        if (clientData.protocols && clientData.protocols.length > 5) {
-            multiplier *= 1.3;
-        }
-
-        // Industry risk
-        if (clientData.industry === "defi-lending" || clientData.industry === "cross-chain") {
-            multiplier *= 1.2;
-        }
-
-        // Timeline pressure
-        if (clientData.timeline === "rush" || clientData.timeline === "1-week") {
-            multiplier *= 1.4;
-        }
-
-        return multiplier;
+    // Timeline pressure
+    if (clientData.timeline === 'rush' || clientData.timeline === '1-week') {
+      multiplier *= 1.4;
     }
 
-    /**
-     * Calculate target completion date
-     */
-    calculateTargetDate(timeline) {
-        const now = Date.now();
-        let days = 14; // Default 2 weeks
+    return multiplier;
+  }
 
-        switch (timeline) {
-            case "rush":
-            case "1-week":
-                days = 7;
-                break;
-            case "1-month":
-                days = 30;
-                break;
-            case "2-weeks":
-            default:
-                days = 14;
-                break;
-        }
+  /**
+   * Calculate target completion date
+   */
+  calculateTargetDate(timeline) {
+    const now = Date.now();
+    let days = 14; // Default 2 weeks
 
-        return new Date(now + days * 24 * 60 * 60 * 1000).toISOString();
+    switch (timeline) {
+      case 'rush':
+      case '1-week':
+        days = 7;
+        break;
+      case '1-month':
+        days = 30;
+        break;
+      case '2-weeks':
+      default:
+        days = 14;
+        break;
     }
 
-    /**
-     * Get assessment by ID
-     */
-    getAssessment(assessmentId) {
-        const dirs = ['pending', 'active', 'completed'];
+    return new Date(now + days * 24 * 60 * 60 * 1000).toISOString();
+  }
 
-        for (const dir of dirs) {
-            const filePath = path.join(this.assessmentsPath, dir, `${assessmentId}.json`);
-            if (fs.existsSync(filePath)) {
-                return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-            }
-        }
+  /**
+   * Get assessment by ID
+   */
+  getAssessment(assessmentId) {
+    const dirs = ['pending', 'active', 'completed'];
 
-        return null;
+    for (const dir of dirs) {
+      const filePath = path.join(this.assessmentsPath, dir, `${assessmentId}.json`);
+      if (fs.existsSync(filePath)) {
+        return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      }
     }
 
-    /**
-     * Update assessment
-     */
-    updateAssessment(assessment) {
-        const status = assessment.status.currentPhase === 'completed' ? 'completed' : 'active';
-        const filePath = path.join(this.assessmentsPath, status, `${assessment.id}.json`);
-        fs.writeFileSync(filePath, JSON.stringify(assessment, null, 2));
-    }
+    return null;
+  }
 
-    /**
-     * Helper methods for report generation
-     */
-    calculateOverallRisk(findings) {
-        const critical = findings.filter(f => f.severity === 'critical').length;
-        const high = findings.filter(f => f.severity === 'high').length;
+  /**
+   * Update assessment
+   */
+  updateAssessment(assessment) {
+    const status = assessment.status.currentPhase === 'completed' ? 'completed' : 'active';
+    const filePath = path.join(this.assessmentsPath, status, `${assessment.id}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(assessment, null, 2));
+  }
 
-        if (critical > 0) return 'critical';
-        if (high > 2) return 'high';
-        if (high > 0) return 'medium';
-        return 'low';
-    }
+  /**
+   * Helper methods for report generation
+   */
+  calculateOverallRisk(findings) {
+    const critical = findings.filter(f => f.severity === 'critical').length;
+    const high = findings.filter(f => f.severity === 'high').length;
 
-    generateRecommendations(findings) {
-        // Generate prioritized recommendations
-        return [
-            "Implement multi-signature controls",
-            "Enable comprehensive monitoring",
-            "Conduct regular security audits",
-            "Establish incident response procedures"
-        ];
-    }
+    if (critical > 0) return 'critical';
+    if (high > 2) return 'high';
+    if (high > 0) return 'medium';
+    return 'low';
+  }
 
-    assessRiskProfile(findings) {
-        // Detailed risk assessment logic
-        return {
-            overall: "medium",
-            breakdown: {
-                smartContract: "low",
-                operational: "medium",
-                market: "high"
-            }
-        };
-    }
+  generateRecommendations(findings) {
+    // Generate prioritized recommendations
+    return [
+      'Implement multi-signature controls',
+      'Enable comprehensive monitoring',
+      'Conduct regular security audits',
+      'Establish incident response procedures',
+    ];
+  }
 
-    calculatePotentialImpact(findings) {
-        // Calculate financial impact of vulnerabilities
-        return {
-            worstCase: "$50M+",
-            expected: "$10M",
-            mitigated: "$1M"
-        };
-    }
+  assessRiskProfile(findings) {
+    // Detailed risk assessment logic
+    return {
+      overall: 'medium',
+      breakdown: {
+        smartContract: 'low',
+        operational: 'medium',
+        market: 'high',
+      },
+    };
+  }
 
-    prioritizeMitigations(findings) {
-        return ["P0", "P1", "P2", "P3"];
-    }
+  calculatePotentialImpact(findings) {
+    // Calculate financial impact of vulnerabilities
+    return {
+      worstCase: '$50M+',
+      expected: '$10M',
+      mitigated: '$1M',
+    };
+  }
 
-    checkCompliance(findings) {
-        return {
-            soc2: "compliant",
-            iso27001: "partially-compliant",
-            gdpr: "compliant"
-        };
-    }
+  prioritizeMitigations(findings) {
+    return ['P0', 'P1', 'P2', 'P3'];
+  }
 
-    checkIndustryStandards(findings) {
-        return {
-            defiSecurity: "good",
-            web3Standards: "excellent",
-            regulatory: "adequate"
-        };
-    }
+  checkCompliance(findings) {
+    return {
+      soc2: 'compliant',
+      iso27001: 'partially-compliant',
+      gdpr: 'compliant',
+    };
+  }
 
-    assessAuditReadiness(findings) {
-        return "ready";
-    }
+  checkIndustryStandards(findings) {
+    return {
+      defiSecurity: 'good',
+      web3Standards: 'excellent',
+      regulatory: 'adequate',
+    };
+  }
 
-    getImmediateActions(findings) {
-        return ["Enable emergency pause", "Update access controls", "Implement monitoring"];
-    }
+  assessAuditReadiness(findings) {
+    return 'ready';
+  }
 
-    getMediumTermActions(findings) {
-        return ["Upgrade smart contracts", "Implement formal verification", "Staff security team"];
-    }
+  getImmediateActions(findings) {
+    return ['Enable emergency pause', 'Update access controls', 'Implement monitoring'];
+  }
 
-    getLongTermActions(findings) {
-        return ["Develop custom security protocols", "Lead industry standards", "Build security ecosystem"];
-    }
+  getMediumTermActions(findings) {
+    return ['Upgrade smart contracts', 'Implement formal verification', 'Staff security team'];
+  }
 
-    designMonitoringPlan(assessment) {
-        return {
-            metrics: ["TVL", "transaction-volume", "error-rates"],
-            alerts: ["anomalies", "large-transfers", "contract-changes"],
-            dashboards: ["executive", "technical", "compliance"]
-        };
-    }
+  getLongTermActions(findings) {
+    return [
+      'Develop custom security protocols',
+      'Lead industry standards',
+      'Build security ecosystem',
+    ];
+  }
 
-    setAlertThresholds(assessment) {
-        return {
-            anomalyScore: 80,
-            transactionSize: "1000000", // $1M
-            errorRate: 0.01
-        };
-    }
+  designMonitoringPlan(assessment) {
+    return {
+      metrics: ['TVL', 'transaction-volume', 'error-rates'],
+      alerts: ['anomalies', 'large-transfers', 'contract-changes'],
+      dashboards: ['executive', 'technical', 'compliance'],
+    };
+  }
+
+  setAlertThresholds(assessment) {
+    return {
+      anomalyScore: 80,
+      transactionSize: '1000000', // $1M
+      errorRate: 0.01,
+    };
+  }
 }
 
 // Example usage
 if (require.main === module) {
-    const consulting = new SentinelInstitutionalConsulting();
+  const consulting = new SentinelInstitutionalConsulting();
 
-    // Create sample assessment request
-    const assessment = consulting.createAssessmentRequest({
-        clientName: "Major DeFi Protocol",
-        industry: "defi-lending",
-        contactEmail: "security@defiproto.com",
-        portfolioValue: 200000000, // $200M
-        assessmentType: "comprehensive",
-        protocols: ["Compound", "Aave", "Uniswap", "Chainlink"],
-        timeline: "2-weeks"
-    });
+  // Create sample assessment request
+  const assessment = consulting.createAssessmentRequest({
+    clientName: 'Major DeFi Protocol',
+    industry: 'defi-lending',
+    contactEmail: 'security@defiproto.com',
+    portfolioValue: 200000000, // $200M
+    assessmentType: 'comprehensive',
+    protocols: ['Compound', 'Aave', 'Uniswap', 'Chainlink'],
+    timeline: '2-weeks',
+  });
 
-    console.log('Assessment created:', assessment.id);
-    console.log('Total cost:', `$${assessment.pricing.totalCost.toLocaleString()}`);
+  console.log('Assessment created:', assessment.id);
+  console.log('Total cost:', `$${assessment.pricing.totalCost.toLocaleString()}`);
 }
 
 module.exports = SentinelInstitutionalConsulting;

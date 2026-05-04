@@ -16,15 +16,19 @@ const AETHERX_API_KEY = process.env.AETHERX_API_KEY;
  */
 async function predictThreat(data) {
   try {
-    const response = await axios.post(`${AETHERX_API_URL}/predict/threat`, {
-      data,
-      model: 'sentinel-l3-v1'
-    }, {
-      headers: {
-        'Authorization': `Bearer ${AETHERX_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${AETHERX_API_URL}/predict/threat`,
+      {
+        data,
+        model: 'sentinel-l3-v1',
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${AETHERX_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -38,15 +42,19 @@ async function predictThreat(data) {
  */
 async function updateModel(trainingData) {
   try {
-    const response = await axios.post(`${AETHERX_API_URL}/models/update`, {
-      modelId: 'sentinel-l3-v1',
-      trainingData
-    }, {
-      headers: {
-        'Authorization': `Bearer ${AETHERX_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${AETHERX_API_URL}/models/update`,
+      {
+        modelId: 'sentinel-l3-v1',
+        trainingData,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${AETHERX_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -62,8 +70,8 @@ async function getModelMetrics() {
   try {
     const response = await axios.get(`${AETHERX_API_URL}/models/sentinel-l3-v1/metrics`, {
       headers: {
-        'Authorization': `Bearer ${AETHERX_API_KEY}`
-      }
+        Authorization: `Bearer ${AETHERX_API_KEY}`,
+      },
     });
 
     return response.data;
@@ -78,15 +86,19 @@ async function getModelMetrics() {
  */
 async function purchaseAICredits(amount) {
   try {
-    const response = await axios.post(`${AETHERX_API_URL}/purchase/credits`, {
-      amount,
-      currency: 'AETH'
-    }, {
-      headers: {
-        'Authorization': `Bearer ${AETHERX_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${AETHERX_API_URL}/purchase/credits`,
+      {
+        amount,
+        currency: 'AETH',
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${AETHERX_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -114,7 +126,7 @@ async function monitorAndFeedAI(contractAddresses) {
         await updateModel({
           events,
           timestamp: Date.now(),
-          source: 'sentinel-l3-monitor'
+          source: 'sentinel-l3-monitor',
         });
         console.log(`Fed ${events.length} events to AI model`);
       }
@@ -134,8 +146,8 @@ async function getLatestSecurityEvents(contracts) {
       contract: contracts[0],
       event: 'AnomalyDetected',
       severity: 7,
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    },
   ];
 }
 
@@ -147,7 +159,7 @@ if (require.main === module) {
     senderReputation: 0.8,
     receiverRisk: 0.2,
     timeOfDay: 14,
-    contractInteractions: 5
+    contractInteractions: 5,
   };
 
   predictThreat(threatData)
@@ -160,5 +172,5 @@ module.exports = {
   updateModel,
   getModelMetrics,
   purchaseAICredits,
-  monitorAndFeedAI
+  monitorAndFeedAI,
 };

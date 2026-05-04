@@ -11,7 +11,9 @@ describe('SentinelSecurityTokenization', function () {
     [owner, user, user2] = await ethers.getSigners();
 
     // Deploy the security tokenization contract
-    const SentinelSecurityTokenization = await ethers.getContractFactory('SentinelSecurityTokenization');
+    const SentinelSecurityTokenization = await ethers.getContractFactory(
+      'SentinelSecurityTokenization'
+    );
     securityTokenization = await SentinelSecurityTokenization.deploy();
     await securityTokenization.waitForDeployment();
   });
@@ -51,20 +53,19 @@ describe('SentinelSecurityTokenization', function () {
 
   describe('Access Control', function () {
     it('should allow only owner to set platform fee', async function () {
-      await expect(
-        securityTokenization.connect(user).setPlatformFee(800)
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      await expect(securityTokenization.connect(user).setPlatformFee(800)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      );
     });
 
     it('should allow owner to update platform fee', async function () {
-      await expect(securityTokenization.connect(owner).setPlatformFee(800))
-        .to.not.be.reverted;
+      await expect(securityTokenization.connect(owner).setPlatformFee(800)).to.not.be.reverted;
     });
 
     it('should revert if fee exceeds maximum', async function () {
-      await expect(
-        securityTokenization.connect(owner).setPlatformFee(1500)
-      ).to.be.revertedWith('Fee cannot exceed 10%');
+      await expect(securityTokenization.connect(owner).setPlatformFee(1500)).to.be.revertedWith(
+        'Fee cannot exceed 10%'
+      );
     });
   });
 

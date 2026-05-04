@@ -18,7 +18,8 @@ const IPFS_PROJECT_SECRET = process.env.IPFS_PROJECT_SECRET;
  */
 async function uploadSecurityLog(logData, filename = 'security-log.json') {
   try {
-    const auth = 'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
+    const auth =
+      'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
 
     const ipfs = create({
       host: 'ipfs.infura.io',
@@ -30,15 +31,19 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
     });
 
     // Create log file
-    const logContent = JSON.stringify({
-      timestamp: new Date().toISOString(),
-      data: logData,
-      version: '1.0.0'
-    }, null, 2);
+    const logContent = JSON.stringify(
+      {
+        timestamp: new Date().toISOString(),
+        data: logData,
+        version: '1.0.0',
+      },
+      null,
+      2
+    );
 
     const file = {
       path: filename,
-      content: Buffer.from(logContent)
+      content: Buffer.from(logContent),
     };
 
     const result = await ipfs.add(file);
@@ -47,7 +52,7 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
     return {
       cid: result.cid.toString(),
       url: `https://ipfs.io/ipfs/${result.cid.toString()}`,
-      filename
+      filename,
     };
   } catch (error) {
     console.error('Failed to upload to IPFS:', error);
@@ -60,7 +65,8 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
  */
 async function uploadAIModel(modelPath) {
   try {
-    const auth = 'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
+    const auth =
+      'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
 
     const ipfs = create({
       host: 'ipfs.infura.io',
@@ -74,7 +80,7 @@ async function uploadAIModel(modelPath) {
     const fileContent = fs.readFileSync(modelPath);
     const file = {
       path: modelPath.split('/').pop(),
-      content: fileContent
+      content: fileContent,
     };
 
     const result = await ipfs.add(file);
@@ -83,7 +89,7 @@ async function uploadAIModel(modelPath) {
     return {
       cid: result.cid.toString(),
       url: `https://ipfs.io/ipfs/${result.cid.toString()}`,
-      filename: file.path
+      filename: file.path,
     };
   } catch (error) {
     console.error('Failed to upload AI model to IPFS:', error);
@@ -106,7 +112,8 @@ async function pinToFilecoin(cid) {
  */
 async function retrieveFromIPFS(cid) {
   try {
-    const auth = 'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
+    const auth =
+      'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
 
     const ipfs = create({
       host: 'ipfs.infura.io',
@@ -137,8 +144,8 @@ if (require.main === module) {
   const exampleLog = {
     events: [
       { type: 'anomaly', severity: 8, timestamp: Date.now() },
-      { type: 'transfer', amount: '1000', address: '0x...' }
-    ]
+      { type: 'transfer', amount: '1000', address: '0x...' },
+    ],
   };
 
   uploadSecurityLog(exampleLog)
@@ -150,5 +157,5 @@ module.exports = {
   uploadSecurityLog,
   uploadAIModel,
   pinToFilecoin,
-  retrieveFromIPFS
+  retrieveFromIPFS,
 };

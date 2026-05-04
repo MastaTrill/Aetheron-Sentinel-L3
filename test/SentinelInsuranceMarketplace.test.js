@@ -14,7 +14,12 @@ describe('SentinelInsuranceMarketplace', function () {
 
     // Deploy a mock ERC20 token for payment
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    paymentToken = await ERC20Mock.deploy('Mock AETH', 'mAETH', owner.address, ethers.parseEther('1000000'));
+    paymentToken = await ERC20Mock.deploy(
+      'Mock AETH',
+      'mAETH',
+      owner.address,
+      ethers.parseEther('1000000')
+    );
     await paymentToken.waitForDeployment();
 
     // Deploy a mock insurance pool (could be a simple contract or just use an address)
@@ -22,8 +27,13 @@ describe('SentinelInsuranceMarketplace', function () {
     insurancePool = owner.address;
 
     // Deploy the insurance marketplace
-    const SentinelInsuranceMarketplace = await ethers.getContractFactory('SentinelInsuranceMarketplace');
-    insuranceMarketplace = await SentinelInsuranceMarketplace.deploy(await paymentToken.getAddress(), insurancePool);
+    const SentinelInsuranceMarketplace = await ethers.getContractFactory(
+      'SentinelInsuranceMarketplace'
+    );
+    insuranceMarketplace = await SentinelInsuranceMarketplace.deploy(
+      await paymentToken.getAddress(),
+      insurancePool
+    );
     await insuranceMarketplace.waitForDeployment();
 
     // Give some tokens to users for testing
@@ -32,9 +42,15 @@ describe('SentinelInsuranceMarketplace', function () {
     await paymentToken.transfer(provider.address, ethers.parseEther('1000'));
 
     // Approve the marketplace to spend tokens on behalf of users
-    await paymentToken.connect(user).approve(await insuranceMarketplace.getAddress(), ethers.MaxUint256);
-    await paymentToken.connect(user2).approve(await insuranceMarketplace.getAddress(), ethers.MaxUint256);
-    await paymentToken.connect(provider).approve(await insuranceMarketplace.getAddress(), ethers.MaxUint256);
+    await paymentToken
+      .connect(user)
+      .approve(await insuranceMarketplace.getAddress(), ethers.MaxUint256);
+    await paymentToken
+      .connect(user2)
+      .approve(await insuranceMarketplace.getAddress(), ethers.MaxUint256);
+    await paymentToken
+      .connect(provider)
+      .approve(await insuranceMarketplace.getAddress(), ethers.MaxUint256);
   });
 
   describe('Deployment', function () {
@@ -56,13 +72,9 @@ describe('SentinelInsuranceMarketplace', function () {
       const duration = 30 * 86400; // 30 days
       const maxCapacity = 5;
 
-      const tx = await insuranceMarketplace.connect(provider).createOffering(
-        coverageType,
-        coverageAmount,
-        premiumAmount,
-        duration,
-        maxCapacity
-      );
+      const tx = await insuranceMarketplace
+        .connect(provider)
+        .createOffering(coverageType, coverageAmount, premiumAmount, duration, maxCapacity);
 
       const offeringId = 1;
 
@@ -105,17 +117,11 @@ describe('SentinelInsuranceMarketplace', function () {
 
   describe('Policy Purchase', function () {
     it('should allow user to purchase a policy', async function () {
-      await insuranceMarketplace.connect(provider).createOffering(
-        'smart-contract',
-        100,
-        10,
-        30 * 86400,
-        100
-      );
+      await insuranceMarketplace
+        .connect(provider)
+        .createOffering('smart-contract', 100, 10, 30 * 86400, 100);
 
-      await expect(
-        insuranceMarketplace.connect(user).purchasePolicy(1, 50)
-      )
+      await expect(insuranceMarketplace.connect(user).purchasePolicy(1, 50))
         .to.emit(insuranceMarketplace, 'PolicyPurchased')
         .withArgs(1, 1, user.address);
 
@@ -127,17 +133,13 @@ describe('SentinelInsuranceMarketplace', function () {
     });
 
     it('should revert if purchasing exceeds capacity', async function () {
-      await insuranceMarketplace.connect(provider).createOffering(
-        'smart-contract',
-        100,
-        10,
-        30 * 86400,
-        100
-      );
+      await insuranceMarketplace
+        .connect(provider)
+        .createOffering('smart-contract', 100, 10, 30 * 86400, 100);
 
-      await expect(
-        insuranceMarketplace.connect(user).purchasePolicy(1, 600)
-      ).to.be.revertedWith('Exceeds capacity');
+      await expect(insuranceMarketplace.connect(user).purchasePolicy(1, 600)).to.be.revertedWith(
+        'Exceeds capacity'
+      );
     });
   });
 
@@ -145,9 +147,7 @@ describe('SentinelInsuranceMarketplace', function () {
     it('should allow adding liquidity', async function () {
       const amount = 100;
 
-      await expect(
-        insuranceMarketplace.connect(user).addLiquidity(amount)
-      )
+      await expect(insuranceMarketplace.connect(user).addLiquidity(amount))
         .to.emit(insuranceMarketplace, 'LiquidityAdded')
         .withArgs(user.address, amount);
 
@@ -167,31 +167,27 @@ describe('SentinelInsuranceMarketplace', function () {
     });
 
     it('should revert if removing more liquidity than available', async function () {
-      await expect(
-        insuranceMarketplace.connect(user).removeLiquidity(100)
-      ).to.be.revertedWith('Insufficient balance');
+      await expect(insuranceMarketplace.connect(user).removeLiquidity(100)).to.be.revertedWith(
+        'Insufficient balance'
+      );
     });
   });
 
   describe('Fees and Ownership', function () {
     it('should allow owner to set marketplace fee', async function () {
-      await expect(
-        insuranceMarketplace.connect(owner).setMarketplaceFee(500)
-      ).to.not.be.reverted;
+      await expect(insuranceMarketplace.connect(owner).setMarketplaceFee(500)).to.not.be.reverted;
 
       expect(await insuranceMarketplace.marketplaceFee()).to.equal(500);
     });
 
     it('should prevent non-owner from setting marketplace fee', async function () {
-      await expect(
-        insuranceMarketplace.connect(user).setMarketplaceFee(500)
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      await expect(insuranceMarketplace.connect(user).setMarketplaceFee(500)).to.be.revertedWith(
+        'Ownable: caller is not the owner'
+      );
     });
 
     it('should allow owner to update pool APY', async function () {
-      await expect(
-        insuranceMarketplace.connect(owner).updatePoolAPY(500)
-      ).to.not.be.reverted;
+      await expect(insuranceMarketplace.connect(owner).updatePoolAPY(500)).to.not.be.reverted;
     });
   });
 });

@@ -19,9 +19,9 @@ async function getAddressRisk(address) {
   try {
     const response = await axios.get(`${CHAINALYSIS_API_URL}/addresses/${address}`, {
       headers: {
-        'Authorization': `Bearer ${CHAINALYSIS_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${CHAINALYSIS_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     return {
@@ -29,7 +29,7 @@ async function getAddressRisk(address) {
       riskScore: response.data.riskScore,
       riskCategory: response.data.category,
       flags: response.data.flags,
-      lastUpdated: response.data.lastUpdated
+      lastUpdated: response.data.lastUpdated,
     };
   } catch (error) {
     console.error('Failed to get address risk:', error.response?.data || error.message);
@@ -44,9 +44,9 @@ async function getTransactionRisk(txHash, network = 'ethereum') {
   try {
     const response = await axios.get(`${CHAINALYSIS_API_URL}/transactions/${network}/${txHash}`, {
       headers: {
-        'Authorization': `Bearer ${CHAINALYSIS_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${CHAINALYSIS_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     return {
@@ -54,7 +54,7 @@ async function getTransactionRisk(txHash, network = 'ethereum') {
       riskScore: response.data.riskScore,
       exposure: response.data.exposure,
       sentTo: response.data.sentTo,
-      receivedFrom: response.data.receivedFrom
+      receivedFrom: response.data.receivedFrom,
     };
   } catch (error) {
     console.error('Failed to get transaction risk:', error.response?.data || error.message);
@@ -67,20 +67,24 @@ async function getTransactionRisk(txHash, network = 'ethereum') {
  */
 async function screenAddresses(addresses) {
   try {
-    const response = await axios.post(`${CHAINALYSIS_API_URL}/addresses/screen`, {
-      addresses
-    }, {
-      headers: {
-        'Authorization': `Bearer ${CHAINALYSIS_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${CHAINALYSIS_API_URL}/addresses/screen`,
+      {
+        addresses,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${CHAINALYSIS_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return response.data.screenedAddresses.map(result => ({
       address: result.address,
       isSanctioned: result.sanctions?.length > 0,
       sanctions: result.sanctions,
-      alerts: result.alerts
+      alerts: result.alerts,
     }));
   } catch (error) {
     console.error('Failed to screen addresses:', error.response?.data || error.message);
@@ -95,15 +99,15 @@ async function getEntityExposure(entityId) {
   try {
     const response = await axios.get(`${CHAINALYSIS_API_URL}/entities/${entityId}/exposure`, {
       headers: {
-        'Authorization': `Bearer ${CHAINALYSIS_API_KEY}`
-      }
+        Authorization: `Bearer ${CHAINALYSIS_API_KEY}`,
+      },
     });
 
     return {
       entityId,
       totalExposure: response.data.totalExposure,
       directExposure: response.data.directExposure,
-      indirectExposure: response.data.indirectExposure
+      indirectExposure: response.data.indirectExposure,
     };
   } catch (error) {
     console.error('Failed to get entity exposure:', error.response?.data || error.message);
@@ -118,7 +122,7 @@ async function generateComplianceReport(addresses, transactions) {
   try {
     const [addressRisks, txRisks] = await Promise.all([
       Promise.all(addresses.map(addr => getAddressRisk(addr))),
-      Promise.all(transactions.map(tx => getTransactionRisk(tx)))
+      Promise.all(transactions.map(tx => getTransactionRisk(tx))),
     ]);
 
     const highRiskAddresses = addressRisks.filter(addr => addr.riskScore > 0.7);
@@ -129,11 +133,11 @@ async function generateComplianceReport(addresses, transactions) {
         totalAddresses: addresses.length,
         highRiskAddresses: highRiskAddresses.length,
         totalTransactions: transactions.length,
-        highRiskTransactions: highRiskTransactions.length
+        highRiskTransactions: highRiskTransactions.length,
       },
       highRiskAddresses,
       highRiskTransactions,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     };
   } catch (error) {
     console.error('Failed to generate compliance report:', error);
@@ -146,20 +150,24 @@ async function generateComplianceReport(addresses, transactions) {
  */
 async function monitorAddress(address, webhookUrl) {
   try {
-    const response = await axios.post(`${CHAINALYSIS_API_URL}/addresses/${address}/monitor`, {
-      webhookUrl,
-      alertTypes: ['sanctions', 'risk_score_change', 'exposure_change']
-    }, {
-      headers: {
-        'Authorization': `Bearer ${CHAINALYSIS_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${CHAINALYSIS_API_URL}/addresses/${address}/monitor`,
+      {
+        webhookUrl,
+        alertTypes: ['sanctions', 'risk_score_change', 'exposure_change'],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${CHAINALYSIS_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return {
       address,
       monitorId: response.data.monitorId,
-      status: 'active'
+      status: 'active',
     };
   } catch (error) {
     console.error('Failed to monitor address:', error.response?.data || error.message);
@@ -182,5 +190,5 @@ module.exports = {
   screenAddresses,
   getEntityExposure,
   generateComplianceReport,
-  monitorAddress
+  monitorAddress,
 };

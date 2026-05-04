@@ -20,7 +20,7 @@ function createProposal(title, description, actions) {
     startBlock: 'latest',
     endBlock: 'latest + 50400', // ~1 week
     snapshot: 'latest',
-    type: 'single-choice'
+    type: 'single-choice',
   };
 
   return proposal;
@@ -38,8 +38,8 @@ function createSecurityUpdateProposal(severityThreshold, responseDelay) {
       calldata: ethers.utils.defaultAbiCoder.encode(
         ['uint256', 'uint256'],
         [severityThreshold, responseDelay]
-      )
-    }
+      ),
+    },
   ];
 
   return createProposal(
@@ -61,8 +61,8 @@ function createUpgradeProposal(newContractAddress, contractName) {
       calldata: ethers.utils.defaultAbiCoder.encode(
         ['address', 'string'],
         [newContractAddress, contractName]
-      )
-    }
+      ),
+    },
   ];
 
   return createProposal(
@@ -110,5 +110,5 @@ module.exports = {
   createSecurityUpdateProposal,
   createUpgradeProposal,
   exportProposal,
-  simulateProposal
+  simulateProposal,
 };

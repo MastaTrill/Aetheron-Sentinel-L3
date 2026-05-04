@@ -16,24 +16,28 @@ const HIVEMIND_API_KEY = process.env.HIVEMIND_API_KEY;
  */
 async function trainSentinelModel(trainingData) {
   try {
-    const response = await axios.post(`${HIVEMIND_API_URL}/models/train`, {
-      modelType: 'threat-detection',
-      trainingData,
-      hyperparameters: {
-        learningRate: 0.001,
-        epochs: 100,
-        batchSize: 32
+    const response = await axios.post(
+      `${HIVEMIND_API_URL}/models/train`,
+      {
+        modelType: 'threat-detection',
+        trainingData,
+        hyperparameters: {
+          learningRate: 0.001,
+          epochs: 100,
+          batchSize: 32,
+        },
+        incentives: {
+          rewardToken: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // AETH
+          rewardAmount: '100',
+        },
       },
-      incentives: {
-        rewardToken: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // AETH
-        rewardAmount: '100'
+      {
+        headers: {
+          Authorization: `Bearer ${HIVEMIND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    }, {
-      headers: {
-        'Authorization': `Bearer ${HIVEMIND_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -47,15 +51,19 @@ async function trainSentinelModel(trainingData) {
  */
 async function runInference(securityData) {
   try {
-    const response = await axios.post(`${HIVEMIND_API_URL}/inference/run`, {
-      modelId: 'sentinel-threat-detector',
-      inputData: securityData
-    }, {
-      headers: {
-        'Authorization': `Bearer ${HIVEMIND_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${HIVEMIND_API_URL}/inference/run`,
+      {
+        modelId: 'sentinel-threat-detector',
+        inputData: securityData,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${HIVEMIND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -69,19 +77,23 @@ async function runInference(securityData) {
  */
 async function contributeResources(resourceSpec) {
   try {
-    const response = await axios.post(`${HIVEMIND_API_URL}/resources/contribute`, {
-      resourceSpec,
-      availability: {
-        startTime: Date.now(),
-        duration: 3600000, // 1 hour
-        costPerHour: '10' // AETH tokens
+    const response = await axios.post(
+      `${HIVEMIND_API_URL}/resources/contribute`,
+      {
+        resourceSpec,
+        availability: {
+          startTime: Date.now(),
+          duration: 3600000, // 1 hour
+          costPerHour: '10', // AETH tokens
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${HIVEMIND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    }, {
-      headers: {
-        'Authorization': `Bearer ${HIVEMIND_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -97,8 +109,8 @@ async function getTrainingStatus(trainingId) {
   try {
     const response = await axios.get(`${HIVEMIND_API_URL}/training/${trainingId}/status`, {
       headers: {
-        'Authorization': `Bearer ${HIVEMIND_API_KEY}`
-      }
+        Authorization: `Bearer ${HIVEMIND_API_KEY}`,
+      },
     });
 
     return response.data;
@@ -113,16 +125,20 @@ async function getTrainingStatus(trainingId) {
  */
 async function validatePredictions(predictions, actualEvents) {
   try {
-    const response = await axios.post(`${HIVEMIND_API_URL}/validation/run`, {
-      predictions,
-      actualEvents,
-      metrics: ['accuracy', 'precision', 'recall', 'f1_score']
-    }, {
-      headers: {
-        'Authorization': `Bearer ${HIVEMIND_API_KEY}`,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      `${HIVEMIND_API_URL}/validation/run`,
+      {
+        predictions,
+        actualEvents,
+        metrics: ['accuracy', 'precision', 'recall', 'f1_score'],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${HIVEMIND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    });
+    );
 
     return response.data;
   } catch (error) {
@@ -138,13 +154,13 @@ if (require.main === module) {
     {
       features: [1000000, 0.8, 0.2, 14, 5],
       label: 1, // Threat detected
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     {
       features: [10000, 0.9, 0.1, 10, 1],
       label: 0, // No threat
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    },
   ];
 
   trainSentinelModel(trainingData)
@@ -157,5 +173,5 @@ module.exports = {
   runInference,
   contributeResources,
   getTrainingStatus,
-  validatePredictions
+  validatePredictions,
 };
