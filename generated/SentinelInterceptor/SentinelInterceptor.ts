@@ -8,7 +8,7 @@ import {
   Bytes,
   Address,
   BigInt,
-} from "@graphprotocol/graph-ts";
+} from '@graphprotocol/graph-ts';
 
 export class AnomalyDetected extends ethereum.Event {
   get params(): AnomalyDetected__Params {
@@ -315,10 +315,10 @@ export class SentinelInterceptor__getAnomalyStatsResult {
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set('value0', ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set('value1', ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set('value2', ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set('value3', ethereum.Value.fromUnsignedBigInt(this.value3));
     return map;
   }
 
@@ -341,25 +341,17 @@ export class SentinelInterceptor__getAnomalyStatsResult {
 
 export class SentinelInterceptor extends ethereum.SmartContract {
   static bind(address: Address): SentinelInterceptor {
-    return new SentinelInterceptor("SentinelInterceptor", address);
+    return new SentinelInterceptor('SentinelInterceptor', address);
   }
 
   COOLDOWN_PERIOD(): BigInt {
-    let result = super.call(
-      "COOLDOWN_PERIOD",
-      "COOLDOWN_PERIOD():(uint256)",
-      [],
-    );
+    let result = super.call('COOLDOWN_PERIOD', 'COOLDOWN_PERIOD():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_COOLDOWN_PERIOD(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "COOLDOWN_PERIOD",
-      "COOLDOWN_PERIOD():(uint256)",
-      [],
-    );
+    let result = super.tryCall('COOLDOWN_PERIOD', 'COOLDOWN_PERIOD():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -368,21 +360,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   DEFAULT_ADMIN_ROLE(): Bytes {
-    let result = super.call(
-      "DEFAULT_ADMIN_ROLE",
-      "DEFAULT_ADMIN_ROLE():(bytes32)",
-      [],
-    );
+    let result = super.call('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
 
     return result[0].toBytes();
   }
 
   try_DEFAULT_ADMIN_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "DEFAULT_ADMIN_ROLE",
-      "DEFAULT_ADMIN_ROLE():(bytes32)",
-      [],
-    );
+    let result = super.tryCall('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -391,20 +375,16 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   MAX_ANOMALIES_PER_BLOCK(): BigInt {
-    let result = super.call(
-      "MAX_ANOMALIES_PER_BLOCK",
-      "MAX_ANOMALIES_PER_BLOCK():(uint256)",
-      [],
-    );
+    let result = super.call('MAX_ANOMALIES_PER_BLOCK', 'MAX_ANOMALIES_PER_BLOCK():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_MAX_ANOMALIES_PER_BLOCK(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "MAX_ANOMALIES_PER_BLOCK",
-      "MAX_ANOMALIES_PER_BLOCK():(uint256)",
-      [],
+      'MAX_ANOMALIES_PER_BLOCK',
+      'MAX_ANOMALIES_PER_BLOCK():(uint256)',
+      []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -414,13 +394,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   MONITOR_ROLE(): Bytes {
-    let result = super.call("MONITOR_ROLE", "MONITOR_ROLE():(bytes32)", []);
+    let result = super.call('MONITOR_ROLE', 'MONITOR_ROLE():(bytes32)', []);
 
     return result[0].toBytes();
   }
 
   try_MONITOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall("MONITOR_ROLE", "MONITOR_ROLE():(bytes32)", []);
+    let result = super.tryCall('MONITOR_ROLE', 'MONITOR_ROLE():(bytes32)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -429,17 +409,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   OPERATOR_ROLE(): Bytes {
-    let result = super.call("OPERATOR_ROLE", "OPERATOR_ROLE():(bytes32)", []);
+    let result = super.call('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
 
     return result[0].toBytes();
   }
 
   try_OPERATOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "OPERATOR_ROLE",
-      "OPERATOR_ROLE():(bytes32)",
-      [],
-    );
+    let result = super.tryCall('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -448,13 +424,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   anomalyCount(): BigInt {
-    let result = super.call("anomalyCount", "anomalyCount():(uint256)", []);
+    let result = super.call('anomalyCount', 'anomalyCount():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_anomalyCount(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("anomalyCount", "anomalyCount():(uint256)", []);
+    let result = super.tryCall('anomalyCount', 'anomalyCount():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -463,21 +439,17 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   anomalyFrequency(param0: BigInt): BigInt {
-    let result = super.call(
-      "anomalyFrequency",
-      "anomalyFrequency(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(param0)],
-    );
+    let result = super.call('anomalyFrequency', 'anomalyFrequency(uint256):(uint256)', [
+      ethereum.Value.fromUnsignedBigInt(param0),
+    ]);
 
     return result[0].toBigInt();
   }
 
   try_anomalyFrequency(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "anomalyFrequency",
-      "anomalyFrequency(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(param0)],
-    );
+    let result = super.tryCall('anomalyFrequency', 'anomalyFrequency(uint256):(uint256)', [
+      ethereum.Value.fromUnsignedBigInt(param0),
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -486,21 +458,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   anomalyThreshold(): BigInt {
-    let result = super.call(
-      "anomalyThreshold",
-      "anomalyThreshold():(uint256)",
-      [],
-    );
+    let result = super.call('anomalyThreshold', 'anomalyThreshold():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_anomalyThreshold(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "anomalyThreshold",
-      "anomalyThreshold():(uint256)",
-      [],
-    );
+    let result = super.tryCall('anomalyThreshold', 'anomalyThreshold():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -509,21 +473,17 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   authorizedReporters(param0: Address): boolean {
-    let result = super.call(
-      "authorizedReporters",
-      "authorizedReporters(address):(bool)",
-      [ethereum.Value.fromAddress(param0)],
-    );
+    let result = super.call('authorizedReporters', 'authorizedReporters(address):(bool)', [
+      ethereum.Value.fromAddress(param0),
+    ]);
 
     return result[0].toBoolean();
   }
 
   try_authorizedReporters(param0: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "authorizedReporters",
-      "authorizedReporters(address):(bool)",
-      [ethereum.Value.fromAddress(param0)],
-    );
+    let result = super.tryCall('authorizedReporters', 'authorizedReporters(address):(bool)', [
+      ethereum.Value.fromAddress(param0),
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -532,13 +492,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   autonomousMode(): boolean {
-    let result = super.call("autonomousMode", "autonomousMode():(bool)", []);
+    let result = super.call('autonomousMode', 'autonomousMode():(bool)', []);
 
     return result[0].toBoolean();
   }
 
   try_autonomousMode(): ethereum.CallResult<boolean> {
-    let result = super.tryCall("autonomousMode", "autonomousMode():(bool)", []);
+    let result = super.tryCall('autonomousMode', 'autonomousMode():(bool)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -547,21 +507,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   consecutiveAnomalies(): BigInt {
-    let result = super.call(
-      "consecutiveAnomalies",
-      "consecutiveAnomalies():(uint256)",
-      [],
-    );
+    let result = super.call('consecutiveAnomalies', 'consecutiveAnomalies():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_consecutiveAnomalies(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "consecutiveAnomalies",
-      "consecutiveAnomalies():(uint256)",
-      [],
-    );
+    let result = super.tryCall('consecutiveAnomalies', 'consecutiveAnomalies():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -570,13 +522,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   currentTVL(): BigInt {
-    let result = super.call("currentTVL", "currentTVL():(uint256)", []);
+    let result = super.call('currentTVL', 'currentTVL():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_currentTVL(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("currentTVL", "currentTVL():(uint256)", []);
+    let result = super.tryCall('currentTVL', 'currentTVL():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -586,24 +538,24 @@ export class SentinelInterceptor extends ethereum.SmartContract {
 
   getAnomalyStats(): SentinelInterceptor__getAnomalyStatsResult {
     let result = super.call(
-      "getAnomalyStats",
-      "getAnomalyStats():(uint256,uint256,uint256,uint256)",
-      [],
+      'getAnomalyStats',
+      'getAnomalyStats():(uint256,uint256,uint256,uint256)',
+      []
     );
 
     return new SentinelInterceptor__getAnomalyStatsResult(
       result[0].toBigInt(),
       result[1].toBigInt(),
       result[2].toBigInt(),
-      result[3].toBigInt(),
+      result[3].toBigInt()
     );
   }
 
   try_getAnomalyStats(): ethereum.CallResult<SentinelInterceptor__getAnomalyStatsResult> {
     let result = super.tryCall(
-      "getAnomalyStats",
-      "getAnomalyStats():(uint256,uint256,uint256,uint256)",
-      [],
+      'getAnomalyStats',
+      'getAnomalyStats():(uint256,uint256,uint256,uint256)',
+      []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -614,13 +566,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
         value[0].toBigInt(),
         value[1].toBigInt(),
         value[2].toBigInt(),
-        value[3].toBigInt(),
-      ),
+        value[3].toBigInt()
+      )
     );
   }
 
   getRoleAdmin(role: Bytes): Bytes {
-    let result = super.call("getRoleAdmin", "getRoleAdmin(bytes32):(bytes32)", [
+    let result = super.call('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
       ethereum.Value.fromFixedBytes(role),
     ]);
 
@@ -628,11 +580,9 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   try_getRoleAdmin(role: Bytes): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "getRoleAdmin",
-      "getRoleAdmin(bytes32):(bytes32)",
-      [ethereum.Value.fromFixedBytes(role)],
-    );
+    let result = super.tryCall('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
+      ethereum.Value.fromFixedBytes(role),
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -641,7 +591,7 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   hasRole(role: Bytes, account: Address): boolean {
-    let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
+    let result = super.call('hasRole', 'hasRole(bytes32,address):(bool)', [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -650,7 +600,7 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   try_hasRole(role: Bytes, account: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall("hasRole", "hasRole(bytes32,address):(bool)", [
+    let result = super.tryCall('hasRole', 'hasRole(bytes32,address):(bool)', [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -662,21 +612,17 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   isAuthorizedReporter(reporter: Address): boolean {
-    let result = super.call(
-      "isAuthorizedReporter",
-      "isAuthorizedReporter(address):(bool)",
-      [ethereum.Value.fromAddress(reporter)],
-    );
+    let result = super.call('isAuthorizedReporter', 'isAuthorizedReporter(address):(bool)', [
+      ethereum.Value.fromAddress(reporter),
+    ]);
 
     return result[0].toBoolean();
   }
 
   try_isAuthorizedReporter(reporter: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "isAuthorizedReporter",
-      "isAuthorizedReporter(address):(bool)",
-      [ethereum.Value.fromAddress(reporter)],
-    );
+    let result = super.tryCall('isAuthorizedReporter', 'isAuthorizedReporter(address):(bool)', [
+      ethereum.Value.fromAddress(reporter),
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -685,21 +631,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   lastActionBlock(): BigInt {
-    let result = super.call(
-      "lastActionBlock",
-      "lastActionBlock():(uint256)",
-      [],
-    );
+    let result = super.call('lastActionBlock', 'lastActionBlock():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_lastActionBlock(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "lastActionBlock",
-      "lastActionBlock():(uint256)",
-      [],
-    );
+    let result = super.tryCall('lastActionBlock', 'lastActionBlock():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -708,21 +646,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   lastAnomalyBlock(): BigInt {
-    let result = super.call(
-      "lastAnomalyBlock",
-      "lastAnomalyBlock():(uint256)",
-      [],
-    );
+    let result = super.call('lastAnomalyBlock', 'lastAnomalyBlock():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_lastAnomalyBlock(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "lastAnomalyBlock",
-      "lastAnomalyBlock():(uint256)",
-      [],
-    );
+    let result = super.tryCall('lastAnomalyBlock', 'lastAnomalyBlock():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -731,13 +661,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   owner(): Address {
-    let result = super.call("owner", "owner():(address)", []);
+    let result = super.call('owner', 'owner():(address)', []);
 
     return result[0].toAddress();
   }
 
   try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall("owner", "owner():(address)", []);
+    let result = super.tryCall('owner', 'owner():(address)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -746,13 +676,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   paused(): boolean {
-    let result = super.call("paused", "paused():(bool)", []);
+    let result = super.call('paused', 'paused():(bool)', []);
 
     return result[0].toBoolean();
   }
 
   try_paused(): ethereum.CallResult<boolean> {
-    let result = super.tryCall("paused", "paused():(bool)", []);
+    let result = super.tryCall('paused', 'paused():(bool)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -761,21 +691,17 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   supportsInterface(interfaceId: Bytes): boolean {
-    let result = super.call(
-      "supportsInterface",
-      "supportsInterface(bytes4):(bool)",
-      [ethereum.Value.fromFixedBytes(interfaceId)],
-    );
+    let result = super.call('supportsInterface', 'supportsInterface(bytes4):(bool)', [
+      ethereum.Value.fromFixedBytes(interfaceId),
+    ]);
 
     return result[0].toBoolean();
   }
 
   try_supportsInterface(interfaceId: Bytes): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "supportsInterface",
-      "supportsInterface(bytes4):(bool)",
-      [ethereum.Value.fromFixedBytes(interfaceId)],
-    );
+    let result = super.tryCall('supportsInterface', 'supportsInterface(bytes4):(bool)', [
+      ethereum.Value.fromFixedBytes(interfaceId),
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -784,7 +710,7 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   thresholds(param0: BigInt): BigInt {
-    let result = super.call("thresholds", "thresholds(uint256):(uint256)", [
+    let result = super.call('thresholds', 'thresholds(uint256):(uint256)', [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
 
@@ -792,7 +718,7 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   try_thresholds(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("thresholds", "thresholds(uint256):(uint256)", [
+    let result = super.tryCall('thresholds', 'thresholds(uint256):(uint256)', [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
     if (result.reverted) {
@@ -803,13 +729,13 @@ export class SentinelInterceptor extends ethereum.SmartContract {
   }
 
   tvlThreshold(): BigInt {
-    let result = super.call("tvlThreshold", "tvlThreshold():(uint256)", []);
+    let result = super.call('tvlThreshold', 'tvlThreshold():(uint256)', []);
 
     return result[0].toBigInt();
   }
 
   try_tvlThreshold(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("tvlThreshold", "tvlThreshold():(uint256)", []);
+    let result = super.tryCall('tvlThreshold', 'tvlThreshold():(uint256)', []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }

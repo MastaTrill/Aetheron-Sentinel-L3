@@ -289,7 +289,7 @@ class SentinelMobileApp {
           );
           break;
 
-        case 'get_alerts':
+        case 'get_alerts': {
           const alerts = this.getUserAlerts(walletAddress);
           this.clients.get(walletAddress)?.send(
             JSON.stringify({
@@ -298,6 +298,7 @@ class SentinelMobileApp {
             })
           );
           break;
+        }
 
         default:
           console.log(`Unknown message type: ${data.type}`);

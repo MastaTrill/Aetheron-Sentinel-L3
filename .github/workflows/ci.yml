@@ -72,7 +72,7 @@ jobs:
         with:
           name: aetheronbridge-guardrail-test-log
           path: aetheronbridge-guardrails.log
-          if-no-files-found: error
+          if-no-files-found: 'error'
 
       - name: Save Hardhat compiler cache
         if: always()
@@ -264,7 +264,7 @@ jobs:
         with:
           name: gas-usage-report
           path: gas-report.txt
-          if-no-files-found: warn
+          if-no-files-found: 'warn'
           retention-days: 5
 
   code-quality:
@@ -346,7 +346,7 @@ jobs:
         with:
           name: contract-size-report
           path: contract-sizes.txt
-          if-no-files-found: warn
+          if-no-files-found: 'warn'
 
   performance-benchmark:
     name: Performance Benchmark
@@ -445,7 +445,7 @@ jobs:
           path: |
             coverage/
             coverage-summary.txt
-          if-no-files-found: warn
+          if-no-files-found: 'warn'
 
   deploy-preview:
     name: Deployment Preview
@@ -513,4 +513,4 @@ jobs:
         with:
           name: deployment-preview
           path: deploy-preview.txt
-          if-no-files-found: warn
+          if-no-files-found: 'warn'

@@ -1,8 +1,12 @@
-name: 'npm audit (Disabled - handled by main CI)'
+name: Security Audit
+
 on:
   workflow_dispatch: # Manual trigger only
+  schedule:
+    - cron: '0 6 * * 1' # Weekly Monday 6AM UTC
+
 jobs:
-  audit:
+  security-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -11,6 +15,39 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        run: npm ci
-      - name: Run npm audit
-        run: npm audit --audit-level=moderate || true
+        run: npm ci --legacy-peer-deps
+      - name: Run npm audit (non-blocking)
+        run: npm audit --json > audit-report.json || true
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: audit-report.json
+      - name: Count vulnerabilities
+        run: |
+          node -e "
+            const fs = require('fs');
+            try {
+              const report = JSON.parse(fs.readFileSync('audit-report.json', 'utf8'));
+              const v = report.vulnerabilities || {};
+              const total = (v.critical || 0) + (v.high || 0) + (v.moderate || 0) + (v.low || 0);
+              console.log('Total vulnerabilities:', total);
+              console.log('Critical:', v.critical || 0);
+              console.log('High:', v.high || 0);
+              console.log('Moderate:', v.moderate || 0);
+              console.log('Low:', v.low || 0);
+            } catch (e) {
+              console.log('Could not parse audit report:', e.message);
+            }
+          "
+
+  # Dependency review
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: "high"
+          allow-ghsa-ids: ""
