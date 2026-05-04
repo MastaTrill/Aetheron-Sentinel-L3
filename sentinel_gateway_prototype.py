@@ -123,7 +123,7 @@ class SentinelGateway:
 
     def execute_gateway(self, agent_prompt, transaction_payload, source_ip=None):
         score, reasons = self.analyze_intent(agent_prompt)
-        now = datetime.utcnow()
+        now = datetime.now(datetime.UTC)
         log_entry = {
             "timestamp": now.isoformat(),
             "prompt": agent_prompt,
