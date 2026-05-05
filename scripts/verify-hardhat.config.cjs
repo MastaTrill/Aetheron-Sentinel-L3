@@ -13,6 +13,8 @@ loadEnv({
 });
 
 const projectRoot = path.resolve(__dirname, '..');
+const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+const ownerAccounts = ownerKey ? [ownerKey] : [];
 
 module.exports = defineConfig({
   plugins: [hardhatVerify],
@@ -35,28 +37,28 @@ module.exports = defineConfig({
       type: 'http',
       chainType: 'l1',
       url: process.env.SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: ownerAccounts,
       chainId: 11155111,
     },
     mainnet: {
       type: 'http',
       chainType: 'l1',
       url: process.env.MAINNET_RPC_URL || 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: ownerAccounts,
       chainId: 1,
     },
     hoodi: {
       type: 'http',
       chainType: 'l1',
       url: process.env.HOODI_RPC_URL || 'https://ethereum-hoodi-rpc.publicnode.com',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: ownerAccounts,
       chainId: 560048,
     },
     baseSepolia: {
       type: 'http',
       chainType: 'l1',
       url: process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: ownerAccounts,
       chainId: 84532,
     },
   },

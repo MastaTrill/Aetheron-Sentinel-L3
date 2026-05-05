@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelSecurityTokenization
@@ -59,6 +59,8 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     event SecurityTokenCreated(address indexed tokenAddress, string name, AssetType assetType);
     event SecurityNFTMinted(uint256 indexed tokenId, address indexed creator, AssetType assetType);
     event TokenTransferred(address indexed token, address indexed from, address indexed to, uint256 amount);
+
+    constructor() Ownable(msg.sender) {}
 
     /**
      * @notice Create ERC20 Security Token
@@ -248,9 +250,8 @@ contract SecurityERC20 is ERC20, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address creator
-    ) ERC20(name, symbol) {
+    ) ERC20(name, symbol) Ownable(creator) {
         _mint(creator, initialSupply);
-        _transferOwnership(creator);
     }
 
     function burnFrom(address account, uint256 amount) external onlyOwner {

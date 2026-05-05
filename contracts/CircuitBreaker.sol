@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title CircuitBreaker
@@ -42,14 +42,11 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
     event EmergencyPaused(address indexed pauser);
     event EmergencyUnpaused(address indexed unpauser);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
         _grantRole(MONITOR_ROLE, initialOwner);
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**

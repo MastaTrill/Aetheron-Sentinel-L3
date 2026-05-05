@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelRewardAggregator
@@ -66,7 +66,7 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         address _liquidityMiningContract,
         address _governanceTokenContract,
         address _referralSystemContract
-    ) {
+    ) Ownable(msg.sender) {
         stakingContract = _stakingContract;
         liquidityMiningContract = _liquidityMiningContract;
         governanceTokenContract = _governanceTokenContract;

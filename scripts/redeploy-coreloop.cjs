@@ -39,11 +39,12 @@ async function main() {
   const network = getNetworkName();
   const provider = new ethers.JsonRpcProvider(getRpcUrl(network));
 
-  if (!process.env.PRIVATE_KEY) {
-    throw new Error('PRIVATE_KEY env var is required.');
+  const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(ownerKey)) {
+    throw new Error('OWNER_PRIVATE_KEY env var is required as a 0x-prefixed 32-byte hex key.');
   }
 
-  const deployer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const deployer = new ethers.Wallet(ownerKey, provider);
   const owner = process.env.SENTINEL_OWNER || deployer.address;
 
   const rawAddresses = process.env.DEPLOYED_ADDRESSES;

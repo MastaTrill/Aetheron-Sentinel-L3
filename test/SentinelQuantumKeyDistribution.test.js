@@ -1,7 +1,6 @@
-import { expect } from 'chai';
+const { expect } = require('chai');
 
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+const { ethers } = require('hardhat');
 
 describe('SentinelQuantumKeyDistribution', function () {
   let qkd;

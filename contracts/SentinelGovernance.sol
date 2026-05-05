@@ -77,7 +77,7 @@ contract SentinelGovernance is
         TimelockController _timelock
     )
         Governor("SentinelGovernance")
-        GovernorSettings(MIN_VOTING_DELAY, MAX_VOTING_DELAY, 10000) // 10k gas limit for proposal creation
+        GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 10000) // 10k gas limit for proposal creation
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4) // 4% quorum
         GovernorTimelockControl(_timelock)
@@ -181,7 +181,7 @@ contract SentinelGovernance is
         uint8 support,
         string calldata reason,
         bytes memory params
-    ) public override(Governor, IGovernor) returns (uint256) {
+    ) public override(Governor) returns (uint256) {
         uint256 weight = super.castVoteWithReasonAndParams(
             proposalId,
             support,
@@ -305,22 +305,22 @@ contract SentinelGovernance is
     function votingPeriod()
         public
         pure
-        override(GovernorSettings, IGovernor)
+        override(Governor, GovernorSettings)
         returns (uint256)
     {
         // This would be customized per proposal in production
-        return MIN_VOTING_PERIOD;
+        return uint256(MIN_VOTING_PERIOD);
     }
 
     // Override voting delay based on proposal category
     function votingDelay()
         public
         pure
-        override(GovernorSettings, IGovernor)
+        override(Governor, GovernorSettings)
         returns (uint256)
     {
         // This would be customized per proposal in production
-        return MIN_VOTING_DELAY;
+        return uint256(MIN_VOTING_DELAY);
     }
 
     // The following functions are overrides required by Solidity
@@ -335,14 +335,30 @@ contract SentinelGovernance is
         return super.state(proposalId);
     }
 
-    function _execute(
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.proposalNeedsQueuing(proposalId);
+    }
+
+    function _queueOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
+        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockControl) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
         totalProposalsExecuted++;
     }
 
@@ -366,7 +382,7 @@ contract SentinelGovernance is
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
+    ) public view override(Governor) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 

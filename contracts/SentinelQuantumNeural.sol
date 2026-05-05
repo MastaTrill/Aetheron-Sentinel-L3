@@ -2,9 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
@@ -14,7 +13,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  */
 contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     using ECDSA for bytes32;
-    using SafeMath for uint256;
 
     // Neural network structure
     struct NeuralLayer {
@@ -70,13 +68,10 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     event NeuralNetworkUpdated(uint256 layers, uint256 totalParameters);
     event QuantumCalibrationPerformed(uint256 coherence, uint256 stability);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "QNN: zero owner");
         _initializeQuantumNeuralNetwork();
         _initializeBaseThreatSignatures();
-        if (initialOwner != msg.sender) {
-            _transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -423,16 +418,12 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
             .min(
                 uint256(rawThreat >= 0 ? rawThreat : int256(0)),
                 QUANTUM_PRECISION
-            )
-            .mul(100)
-            .div(QUANTUM_PRECISION);
+            ) * 100 / QUANTUM_PRECISION;
         confidence = Math
             .min(
                 uint256(rawConfidence >= 0 ? rawConfidence : int256(0)),
                 QUANTUM_PRECISION
-            )
-            .mul(100)
-            .div(QUANTUM_PRECISION);
+            ) * 100 / QUANTUM_PRECISION;
 
         // Apply quantum enhancements
         threatLevel = Math.min(threatLevel + quantumBonus, 100);

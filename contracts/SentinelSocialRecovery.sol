@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
@@ -79,12 +79,9 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
     event GuardianAdded(address indexed account, address indexed guardian);
     event GuardianRemoved(address indexed account, address indexed guardian);
 
-    constructor(address _zkIdentityContract, address initialOwner) {
+    constructor(address _zkIdentityContract, address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "SR: zero owner");
         zkIdentityContract = _zkIdentityContract;
-        if (initialOwner != msg.sender) {
-            _transferOwnership(initialOwner);
-        }
     }
 
     /**

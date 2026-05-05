@@ -447,22 +447,21 @@ export const BUG_BOUNTY_STATS: BugBountyStats = {
 export const YIELD_STATS: YieldAggregator = {
   currentYield: 3.15,
   targetYield: 25.0,
-  totalStaked: '42,069,000 BMNR',
+  totalStaked: '42,069,000 $AETH',
   activePools: 12,
-  bmnrPower: 15.4,
 };
 
 export const REWARD_POOLS: RewardPool[] = [
   {
     id: 'rp-1',
-    name: 'BMNR/ETH LP',
+    name: 'AETH/ETH LP',
     apr: 18.5,
     multiplier: '2.5x',
     status: 'boosting',
   },
   {
     id: 'rp-2',
-    name: 'BMNR SINGLE STAKE',
+    name: 'AETH SINGLE STAKE',
     apr: 12.2,
     multiplier: '1.8x',
     status: 'active',

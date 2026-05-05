@@ -76,9 +76,9 @@ async function main() {
   const connection = await hre.network.getOrCreate();
   ethers = connection.ethers;
 
-  const privateKey = (process.env.PRIVATE_KEY || '').trim();
+  const privateKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
-    throw new Error('PRIVATE_KEY must be set in .env as a 0x-prefixed 32-byte hex key.');
+    throw new Error('OWNER_PRIVATE_KEY must be set in .env as a 0x-prefixed 32-byte hex key.');
   }
 
   const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();

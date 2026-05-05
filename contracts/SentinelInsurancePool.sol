@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -87,7 +87,7 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
         uint256 utilizationRate
     );
 
-    constructor(address _premiumToken, address _payoutToken) {
+    constructor(address _premiumToken, address _payoutToken) Ownable(msg.sender) {
         premiumToken = IERC20(_premiumToken);
         payoutToken = IERC20(_payoutToken);
 

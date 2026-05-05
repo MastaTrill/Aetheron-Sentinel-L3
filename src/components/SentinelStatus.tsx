@@ -42,7 +42,7 @@ export default function SentinelStatus() {
   if (!data)
     return (
       <div className="p-10 text-center animate-pulse text-blue-500">
-        Connecting to MAVAN-4 Cluster...
+        Connecting to Sentinel Cluster...
       </div>
     );
 

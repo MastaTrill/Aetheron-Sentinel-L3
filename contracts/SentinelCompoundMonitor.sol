@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelCompoundMonitor
@@ -59,7 +59,7 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
         address _comptroller,
         address _cEther,
         address _priceOracle
-    ) {
+    ) Ownable(msg.sender) {
         comptroller = IComptroller(_comptroller);
         cEther = ICEther(_cEther);
         priceOracle = IPriceOracle(_priceOracle);

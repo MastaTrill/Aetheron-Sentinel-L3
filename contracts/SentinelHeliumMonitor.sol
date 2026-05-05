@@ -44,6 +44,8 @@ contract SentinelHeliumMonitor is Ownable {
     event SecurityAlert(bytes32 indexed deviceId, string alertType, uint256 severity);
     event NetworkHealthUpdate(uint256 totalDevices, uint256 activeDevices, uint256 uptime);
 
+    constructor() Ownable(msg.sender) {}
+
     /**
      * @notice Register IoT device with Helium network
      */

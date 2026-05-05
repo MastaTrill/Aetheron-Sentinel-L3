@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
@@ -81,12 +81,9 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
     event QuantumKeyCompromised(bytes32 indexed keyId, string reason);
     event QuantumKeyRotated(bytes32 indexed oldKeyId, bytes32 indexed newKeyId);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "QKD: zero owner");
         _initializeQuantumParameters();
-        if (initialOwner != msg.sender) {
-            _transferOwnership(initialOwner);
-        }
     }
 
     /**

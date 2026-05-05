@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelAPIMarketplace
@@ -64,7 +64,7 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     event ReviewSubmitted(uint256 indexed listingId, address indexed reviewer, uint256 rating);
     event ListingUpdated(uint256 indexed listingId, uint256 newPrice);
 
-    constructor(address _paymentToken) {
+    constructor(address _paymentToken) Ownable(msg.sender) {
         paymentToken = IERC20(_paymentToken);
     }
 

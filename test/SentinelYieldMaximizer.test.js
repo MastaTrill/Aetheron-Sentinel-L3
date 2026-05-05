@@ -1,9 +1,8 @@
 // test/SentinelYieldMaximizer.test.js
 /* global describe, it, beforeEach */
 
-import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+const { expect } = require('chai');
+const { ethers } = require('hardhat');
 
 describe('SentinelYieldMaximizer', function () {
   let yieldMaximizer, token;

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelHomomorphicEncryption
@@ -55,12 +55,9 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
     );
     event CiphertextDecrypted(bytes32 indexed ciphertextId, uint256 plaintext);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializeHomomorphicSystem();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**

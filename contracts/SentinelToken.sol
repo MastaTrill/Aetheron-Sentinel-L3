@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelToken
@@ -71,7 +71,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     event SecurityReward(address indexed user, uint256 amount);
     event SecurityReporterUpdated(address indexed reporter, bool status);
 
-    constructor(address initialOwner) ERC20("Aetheron Sentinel", "SENT") {
+    constructor(address initialOwner) ERC20("Aetheron Sentinel", "SENT") Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _mint(address(this), TOTAL_SUPPLY);
 
@@ -86,9 +86,6 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
             STAKING_REWARDS +
             GOVERNANCE_REWARDS +
             SECURITY_REWARDS;
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
