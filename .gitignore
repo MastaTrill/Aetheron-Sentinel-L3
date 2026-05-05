@@ -1,6 +1,5 @@
 node_modules/
 .bun/
-artifacts/
 cache/
 typechain-types/
 coverage/
