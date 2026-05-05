@@ -43,7 +43,7 @@ describe('SentinelYieldMaximizer', function () {
     it('is only callable by owner', async function () {
       await expect(
         yieldMaximizer.connect(user).setYieldToken(await token.getAddress())
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWithCustomError(yieldMaximizer, 'OwnableUnauthorizedAccount');
     });
   });
 

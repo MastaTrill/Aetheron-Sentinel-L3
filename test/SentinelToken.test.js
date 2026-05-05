@@ -68,7 +68,7 @@ describe('SentinelToken', function () {
     it('non-owner cannot create a vesting schedule', async function () {
       await expect(
         token.connect(user).createVestingSchedule(user2.address, ethers.parseEther('100'), 86400, 0)
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWithCustomError(token, 'OwnableUnauthorizedAccount');
     });
 
     it('returns 0 releasable before cliff', async function () {
@@ -163,9 +163,9 @@ describe('SentinelToken', function () {
     });
 
     it('non-owner cannot set security reporter', async function () {
-      await expect(token.connect(user).setSecurityReporter(user2.address, true)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      );
+      await expect(
+        token.connect(user).setSecurityReporter(user2.address, true)
+      ).to.be.revertedWithCustomError(token, 'OwnableUnauthorizedAccount');
     });
 
     it('reverts on zero address', async function () {

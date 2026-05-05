@@ -7,14 +7,14 @@ describe('SentinelLiquidityMining', function () {
   let owner, user, other;
   let ethers;
 
-  const INITIAL_SUPPLY = '1000000';
-  const REWARD_PER_SECOND = '1';
+  let INITIAL_SUPPLY;
+  let REWARD_PER_SECOND;
 
   beforeEach(async function () {
     ({ ethers } = await network.getOrCreate());
     [owner, user, other] = await ethers.getSigners();
-    const INITIAL_SUPPLY_ETH = ethers.parseEther(INITIAL_SUPPLY);
-    const REWARD_PER_SECOND_ETH = ethers.parseEther(REWARD_PER_SECOND);
+    INITIAL_SUPPLY = ethers.parseEther('1000000');
+    REWARD_PER_SECOND = ethers.parseEther('1');
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
     lpToken = await ERC20Mock.deploy('LP Token', 'LP', owner.address, INITIAL_SUPPLY);

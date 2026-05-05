@@ -55,9 +55,9 @@ describe('CircuitBreaker', function () {
     });
 
     it('rejects non-monitor callers', async function () {
-      const monitorRole = await circuitBreaker.MONITOR_ROLE();
-      await expect(circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)).to.be.revertedWith(
-        `AccessControl: account ${attacker.address.toLowerCase()} is missing role ${monitorRole}`
+      await expect(circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)).to.be.revertedWithCustomError(
+        circuitBreaker,
+        'AccessControlUnauthorizedAccount'
       );
     });
   });

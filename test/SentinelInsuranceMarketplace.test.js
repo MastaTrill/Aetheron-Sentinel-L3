@@ -176,19 +176,19 @@ describe('SentinelInsuranceMarketplace', function () {
 
   describe('Fees and Ownership', function () {
     it('should allow owner to set marketplace fee', async function () {
-      await expect(insuranceMarketplace.connect(owner).setMarketplaceFee(500)).to.not.be.reverted;
+      await insuranceMarketplace.connect(owner).setMarketplaceFee(500);
 
       expect(await insuranceMarketplace.marketplaceFee()).to.equal(500);
     });
 
     it('should prevent non-owner from setting marketplace fee', async function () {
-      await expect(insuranceMarketplace.connect(user).setMarketplaceFee(500)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      );
+      await expect(
+        insuranceMarketplace.connect(user).setMarketplaceFee(500)
+      ).to.be.revertedWithCustomError(insuranceMarketplace, 'OwnableUnauthorizedAccount');
     });
 
     it('should allow owner to update pool APY', async function () {
-      await expect(insuranceMarketplace.connect(owner).updatePoolAPY(500)).to.not.be.reverted;
+      await insuranceMarketplace.connect(owner).updatePoolAPY(500);
     });
   });
 });

@@ -90,7 +90,9 @@ describe('SentinelReferralSystem', function () {
 
     it('reverts when paused', async function () {
       await referral.emergencyPause();
-      await expect(referral.connect(user1).register(ethers.ZeroAddress)).to.be.reverted;
+      await expect(
+        referral.connect(user1).register(ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(referral, 'EnforcedPause');
     });
   });
 
@@ -154,7 +156,9 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(referral.connect(user1).updateActiveReferrals(user1.address, 5)).to.be.reverted;
+      await expect(
+        referral.connect(user1).updateActiveReferrals(user1.address, 5)
+      ).to.be.revertedWithCustomError(referral, 'OwnableUnauthorizedAccount');
     });
   });
 
@@ -168,7 +172,10 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('non-owner cannot pause', async function () {
-      await expect(referral.connect(user1).emergencyPause()).to.be.reverted;
+      await expect(referral.connect(user1).emergencyPause()).to.be.revertedWithCustomError(
+        referral,
+        'OwnableUnauthorizedAccount'
+      );
     });
   });
 });

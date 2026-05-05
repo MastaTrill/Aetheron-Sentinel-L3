@@ -54,13 +54,13 @@ describe('SentinelSecurityTokenization', function () {
 
   describe('Access Control', function () {
     it('should allow only owner to set platform fee', async function () {
-      await expect(securityTokenization.connect(user).setPlatformFee(800)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
-      );
+      await expect(
+        securityTokenization.connect(user).setPlatformFee(800)
+      ).to.be.revertedWithCustomError(securityTokenization, 'OwnableUnauthorizedAccount');
     });
 
     it('should allow owner to update platform fee', async function () {
-      await expect(securityTokenization.connect(owner).setPlatformFee(800)).to.not.be.reverted;
+      await securityTokenization.connect(owner).setPlatformFee(800);
     });
 
     it('should revert if fee exceeds maximum', async function () {

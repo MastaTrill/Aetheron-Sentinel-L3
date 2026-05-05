@@ -189,7 +189,7 @@ describe('SentinelStaking', function () {
     it('reverts when called by a non-REWARD_MANAGER', async function () {
       await expect(
         staking.connect(user2).awardSecurityBonus(user.address, 'anomaly_report')
-      ).to.be.revertedWith(/AccessControl/);
+      ).to.be.revertedWithCustomError(staking, 'AccessControlUnauthorizedAccount');
     });
 
     it('owner (REWARD_MANAGER) can award anomaly_report bonus', async function () {

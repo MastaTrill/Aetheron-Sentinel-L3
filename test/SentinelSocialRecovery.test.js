@@ -47,9 +47,10 @@ describe('SentinelSocialRecovery', function () {
 
     it('rejects zero owner', async function () {
       const SentinelSocialRecovery = await ethers.getContractFactory('SentinelSocialRecovery');
+      // OZ's Ownable throws custom error when owner is zero
       await expect(
         SentinelSocialRecovery.deploy(owner.address, ethers.ZeroAddress)
-      ).to.be.revertedWith('SR: zero owner');
+      ).to.be.revertedWithCustomError(SentinelSocialRecovery, 'OwnableInvalidOwner');
     });
   });
 
@@ -119,13 +120,11 @@ describe('SentinelSocialRecovery', function () {
     });
 
     it('does not revert with recovery delay of 1 hour', async function () {
-      await expect(
-        recovery.connect(account).configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          3600 // 1 hour
-        )
-      ).to.not.be.reverted;
+      await recovery.connect(account).configureRecovery(
+        [guardian1.address, guardian2.address, guardian3.address],
+        2,
+        3600 // 1 hour
+      );
     });
 
     it('reverts if already configured', async function () {
@@ -204,7 +203,7 @@ describe('SentinelSocialRecovery', function () {
       const requestId = event.args[0];
 
       // Cancel should not revert
-      await expect(recovery.connect(account).cancelRecovery(requestId)).to.not.be.reverted;
+      await recovery.connect(account).cancelRecovery(requestId);
     });
 
     it('reverts if caller is not the request owner', async function () {
@@ -243,19 +242,15 @@ describe('SentinelSocialRecovery', function () {
     });
 
     it('allows guardian to approve with valid proof', async function () {
-      await expect(
-        recovery
-          .connect(guardian1)
-          .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 })
-      ).to.not.be.reverted;
+      await recovery
+        .connect(guardian1)
+        .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 });
     });
 
     it('accepts approval with any proof', async function () {
-      await expect(
-        recovery
-          .connect(guardian1)
-          .approveRecovery(account.address, requestId, '0x1234', { gasLimit: 1_000_000 })
-      ).to.not.be.reverted;
+      await recovery
+        .connect(guardian1)
+        .approveRecovery(account.address, requestId, '0x1234', { gasLimit: 1_000_000 });
     });
 
     it('rejects double approval by same guardian', async function () {
@@ -313,7 +308,7 @@ describe('SentinelSocialRecovery', function () {
         .connect(account)
         .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      await expect(recovery.connect(account).addGuardian(stranger.address)).to.not.be.reverted;
+      await recovery.connect(account).addGuardian(stranger.address);
     });
   });
 });

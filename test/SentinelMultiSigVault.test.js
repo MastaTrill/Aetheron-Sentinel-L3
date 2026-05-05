@@ -44,8 +44,10 @@ describe('SentinelMultiSigVault', function () {
 
     it('rejects zero address owner', async function () {
       const SentinelMultiSigVault = await ethers.getContractFactory('SentinelMultiSigVault');
-      await expect(SentinelMultiSigVault.deploy(ethers.ZeroAddress)).to.be.revertedWith(
-        'Invalid owner'
+      // OZ's Ownable throws custom error when owner is zero
+      await expect(SentinelMultiSigVault.deploy(ethers.ZeroAddress)).to.be.revertedWithCustomError(
+        SentinelMultiSigVault,
+        'OwnableInvalidOwner'
       );
     });
   });
@@ -83,8 +85,9 @@ describe('SentinelMultiSigVault', function () {
     });
 
     it('reverts when called by non-owner', async function () {
-      await expect(vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC)).to.be
-        .reverted;
+      await expect(
+        vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC)
+      ).to.be.revertedWithCustomError(vault, 'OwnableUnauthorizedAccount');
     });
   });
 

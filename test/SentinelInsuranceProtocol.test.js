@@ -21,6 +21,7 @@ describe('SentinelInsuranceProtocol', function () {
     ({ ethers } = await network.getOrCreate());
     [owner, policyHolder, other] = await ethers.getSigners();
     const MIN_COVERAGE = ethers.parseEther('1');
+    const SentinelInsuranceProtocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
     insurance = await SentinelInsuranceProtocol.deploy(
       ethers.ZeroAddress, // sentinelCore (not called in basic flows)
       ethers.ZeroAddress, // sentinelAuditor (not called in basic flows)
@@ -50,9 +51,13 @@ describe('SentinelInsuranceProtocol', function () {
       const SentinelInsuranceProtocol = await ethers.getContractFactory(
         'SentinelInsuranceProtocol'
       );
+      // OZ's Ownable throws custom error when owner is zero
       await expect(
         SentinelInsuranceProtocol.deploy(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress)
-      ).to.be.revertedWith('Invalid owner');
+      ).to.be.revertedWithCustomError(
+        SentinelInsuranceProtocol,
+        'OwnableInvalidOwner'
+      );
     });
   });
 
@@ -133,10 +138,11 @@ describe('SentinelInsuranceProtocol', function () {
     });
 
     it('reverts with coverage period below minimum', async function () {
+      const MIN_COVERAGE_AMOUNT = ethers.parseEther('1');
       await expect(
         insurance.connect(policyHolder).purchaseInsurance(
           other.address,
-          MIN_COVERAGE,
+          MIN_COVERAGE_AMOUNT,
           HACK_COVERAGE,
           3600, // 1 hour — below 30 day minimum
           { value: ethers.parseEther('1') }

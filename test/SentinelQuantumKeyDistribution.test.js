@@ -26,7 +26,9 @@ describe('SentinelQuantumKeyDistribution', function () {
   });
 
   it('only owner can generate keys', async function () {
-    await expect(qkd.connect(user).generateQuantumKey(user.address, 256)).to.be.reverted;
+    await expect(
+      qkd.connect(user).generateQuantumKey(user.address, 256)
+    ).to.be.revertedWithCustomError(qkd, 'OwnableUnauthorizedAccount');
   });
 
   it('generates and activates a key', async function () {

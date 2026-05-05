@@ -130,7 +130,10 @@ describe('SentinelRewardAggregator', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(aggregator.connect(user).updateSystemAPY()).to.be.reverted;
+      await expect(aggregator.connect(user).updateSystemAPY()).to.be.revertedWithCustomError(
+        aggregator,
+        'OwnableUnauthorizedAccount'
+      );
     });
   });
 
@@ -156,7 +159,9 @@ describe('SentinelRewardAggregator', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(aggregator.connect(user).updatePerformanceMultiplier(95)).to.be.reverted;
+      await expect(
+        aggregator.connect(user).updatePerformanceMultiplier(95)
+      ).to.be.revertedWithCustomError(aggregator, 'OwnableUnauthorizedAccount');
     });
   });
 });

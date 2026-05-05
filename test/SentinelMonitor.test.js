@@ -80,12 +80,13 @@ describe('SentinelMonitor', function () {
         monitor
           .connect(other)
           .updateHealth(stubSentinel.address, stubBridge.address, stubCircuit.address)
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWithCustomError(monitor, 'OwnableUnauthorizedAccount');
     });
 
     it('reverts addTrackedChain when called by non-owner', async function () {
-      await expect(monitor.connect(other).addTrackedChain(1)).to.be.revertedWith(
-        'Ownable: caller is not the owner'
+      await expect(monitor.connect(other).addTrackedChain(1)).to.be.revertedWithCustomError(
+        monitor,
+        'OwnableUnauthorizedAccount'
       );
     });
   });

@@ -70,7 +70,7 @@ describe('SentinelTimelock', function () {
             ethers.id('salt-1'),
             MIN_DELAY
           )
-      ).to.be.revertedWith(/AccessControl/);
+      ).to.be.revertedWithCustomError(timelock, 'AccessControlUnauthorizedAccount');
     });
 
     it('reverts when delay is below the minimum', async function () {
