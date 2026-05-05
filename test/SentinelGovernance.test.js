@@ -1,12 +1,12 @@
 // test/SentinelGovernance.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelGovernance', function () {
   let governance;
   let votesToken;
   let owner, voter;
+  let ethers;
 
   // Deploy helpers
   async function deployTimelockController(admin) {
@@ -34,6 +34,7 @@ describe('SentinelGovernance', function () {
   }
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, voter] = await ethers.getSigners();
     votesToken = await deployVotesToken(owner);
   });

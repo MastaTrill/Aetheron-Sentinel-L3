@@ -1,13 +1,14 @@
 // test/SentinelCore.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelCore', function () {
   let core;
   let owner, other;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, other] = await ethers.getSigners();
     const SentinelCore = await ethers.getContractFactory('SentinelCore');
     core = await SentinelCore.deploy(owner.address);
@@ -33,8 +34,9 @@ describe('SentinelCore', function () {
 
     it('rejects zero address owner', async function () {
       const SentinelCore = await ethers.getContractFactory('SentinelCore');
-      await expect(SentinelCore.deploy(ethers.ZeroAddress)).to.be.revertedWith(
-        'SentinelCore: invalid owner'
+      await expect(SentinelCore.deploy(ethers.ZeroAddress)).to.be.revertedWithCustomError(
+        SentinelCore,
+        'OwnableInvalidOwner'
       );
     });
   });
@@ -76,7 +78,10 @@ describe('SentinelCore', function () {
     });
 
     it('reverts if called by non-owner', async function () {
-      await expect(core.connect(other).releaseHeartbeat(500)).to.be.reverted;
+      await expect(core.connect(other).releaseHeartbeat(500)).to.be.revertedWithCustomError(
+        core,
+        'OwnableUnauthorizedAccount'
+      );
     });
   });
 
@@ -119,7 +124,10 @@ describe('SentinelCore', function () {
 
     it('reverts if called by non-owner', async function () {
       await core.releaseHeartbeat(500);
-      await expect(core.connect(other).lockHeartbeat()).to.be.reverted;
+      await expect(core.connect(other).lockHeartbeat()).to.be.revertedWithCustomError(
+        core,
+        'OwnableUnauthorizedAccount'
+      );
     });
   });
 });

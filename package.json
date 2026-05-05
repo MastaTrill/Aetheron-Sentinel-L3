@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "hardhat test test/smoke.test.js test/AetheronBridge.test.js",
-    "mocha": "hardhat test test/smoke.test.js test/AetheronBridge.test.js",
+    "test": "hardhat test test/smoke.test.js test/AetheronBridge.test.js test/SentinelCore.test.js test/SentinelGovernance.test.js test/SentinelOracleNetwork.test.js",
+    "mocha": "hardhat test test/smoke.test.js test/AetheronBridge.test.js test/SentinelCore.test.js test/SentinelGovernance.test.js test/SentinelOracleNetwork.test.js",
     "test:gas": "npm run compile && node scripts/gas-analysis.js",
     "test:coverage": "hardhat coverage",
     "compile": "node scripts/compile-contracts.cjs",
