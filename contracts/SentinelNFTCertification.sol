@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelNFTCertification
@@ -66,7 +66,7 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     event CertificateRenewed(uint256 indexed certificateId);
     event CertificateRevoked(uint256 indexed certificateId, string reason);
 
-    constructor() ERC721("Sentinel NFT Security Certificate", "SNSC") {}
+    constructor() ERC721("Sentinel NFT Security Certificate", "SNSC") Ownable(msg.sender) {}
 
     /**
      * @notice Certify individual NFT

@@ -2,8 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
  * @title SentinelZKOracle
@@ -68,16 +69,13 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     event OracleSlashed(address indexed oracle, uint256 amount, string reason);
     event DataFeedCreated(string feedName, address creator);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Initialize with some default feeds
         _createDataFeed("ETH/USD");
         _createDataFeed("BTC/USD");
         _createDataFeed("DEFI/TVL");
         _createDataFeed("BRIDGE/VOLUME");
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**

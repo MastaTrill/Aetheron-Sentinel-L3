@@ -2,8 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelSecurityAuditor
@@ -11,7 +10,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * Provides comprehensive threat detection and automated response
  */
 contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
 
     // Audit log structure
     struct AuditLog {
@@ -101,12 +99,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     );
     event SecurityScoreUpdated(uint256 newScore, string reason);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializeSecurityAuditor();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -384,7 +379,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
                 triggered = true;
 
                 // Update threat level
-                threatLevel = threatLevel.add(severity * 2);
+                threatLevel = threatLevel + (severity * 2);
                 if (threatLevel > 100) threatLevel = 100;
 
                 emit ThreatDetected(i, rule.ruleName, rule.severity);
@@ -441,11 +436,11 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      */
     function _updateSecurityScore(uint256 impact, bool positive) internal {
         if (positive) {
-            securityScore = securityScore.add(impact);
+            securityScore = securityScore + impact;
             if (securityScore > 1000) securityScore = 1000;
         } else {
             securityScore = securityScore > impact
-                ? securityScore.sub(impact)
+                ? securityScore - impact
                 : 0;
         }
 

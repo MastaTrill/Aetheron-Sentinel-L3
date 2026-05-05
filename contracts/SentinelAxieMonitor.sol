@@ -67,6 +67,8 @@ contract SentinelAxieMonitor is Ownable {
         string alertType
     );
 
+    constructor() Ownable(msg.sender) {}
+
     /**
      * @notice Monitor marketplace transaction
      */

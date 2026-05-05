@@ -2,8 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
@@ -12,7 +11,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  * Advanced machine learning for preemptive security measures
  */
 contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
 
     // Threat pattern structure
     struct ThreatPattern {
@@ -103,12 +101,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
         BehavioralState newState
     );
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializePredictiveModel();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -426,7 +421,7 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
         } else {
             profile.normalActivityCount++;
             profile.riskLevel = profile.riskLevel > 2
-                ? profile.riskLevel.sub(2)
+                ? profile.riskLevel - 2
                 : 0;
         }
 
@@ -474,7 +469,7 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
         }
 
         // Profile-based adjustments
-        anomalyScore = anomalyScore.mul(100 - profile.trustScore / 10).div(100); // Trust score reduction
+        anomalyScore = anomalyScore * (100 - profile.trustScore / 10) / 100; // Trust score reduction
 
         return Math.min(anomalyScore, 1000); // Cap at 1000
     }
@@ -733,9 +728,7 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
         string memory activityType,
         uint256 anomalyScore
     ) internal {
-        threatMetrics[activityType] = threatMetrics[activityType].add(
-            anomalyScore
-        );
+        threatMetrics[activityType] = threatMetrics[activityType] + anomalyScore;
     }
 
     /**

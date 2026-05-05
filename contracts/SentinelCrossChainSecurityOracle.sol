@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/LzApp.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import "./lzApp/LzApp.sol";
 
 /**
  * @title SentinelCrossChainSecurityOracle
  * @notice Cross-chain security oracles aggregating threat data across multiple blockchains
  */
-contract SentinelCrossChainSecurityOracle is Ownable, LzApp {
+contract SentinelCrossChainSecurityOracle is LzApp {
     using ECDSA for bytes32;
 
     // Chain configuration
@@ -333,7 +333,7 @@ contract SentinelCrossChainSecurityOracle is Ownable, LzApp {
             sourceChain, threatLevel, anomalyCount, activeAlerts, dataHash
         ));
 
-        address signer = messageHash.toEthSignedMessageHash().recover(signature);
+        address signer = ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(messageHash), signature);
         require(signer == chainConfigs[sourceChain].oracleAddress, "Invalid signature");
     }
 }

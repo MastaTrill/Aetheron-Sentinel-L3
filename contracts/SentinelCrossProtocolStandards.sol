@@ -67,7 +67,7 @@ contract SentinelCrossProtocolStandards is Ownable {
     event ProtocolCertified(address indexed protocol, bytes32 indexed standardId, ComplianceLevel level);
     event CertificationRevoked(address indexed protocol, bytes32 indexed standardId);
 
-    constructor() {
+    constructor() Ownable(msg.sender) {
         // Add initial certifying authorities
         certifyingAuthorities.push(owner());
     }

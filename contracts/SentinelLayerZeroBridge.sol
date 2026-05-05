@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@layerzerolabs/solidity-examples/contracts/lzApp/LzApp.sol";
+import "./lzApp/LzApp.sol";
 
 /**
  * @title SentinelLayerZeroBridge
