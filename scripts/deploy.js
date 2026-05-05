@@ -1,11 +1,15 @@
-console.log('=== DEPLOY SCRIPT START ===');
-let hre;
-let ethers;
-let deployer; // Will be set in main()
-require('dotenv').config();
+import 'dotenv/config.js';
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-// In Hardhat, when running a script with `hardhat run`,
-// the hre is available globally. We'll lazy-load it in main().
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+console.log('=== DEPLOY SCRIPT START ===');
+let ethers;
+let provider; // Will be set in main()
+let deployer; // Will be set in main()
 
 function parseAddressList(value) {
   return (value || '')
@@ -49,8 +53,9 @@ async function deployContract(name, args) {
   }
 
   // Get contract artifacts from hardhat artifacts
-  const artifactPath = require.resolve(`../artifacts/contracts/${name}.sol/${name}.json`);
-  const artifact = require(artifactPath);
+  const artifactPath = resolve(__dirname, `../artifacts/contracts/${name}.sol/${name}.json`);
+  const artifactJson = readFileSync(artifactPath, 'utf8');
+  const artifact = JSON.parse(artifactJson);
 
   // Create contract factory with the signer
   const Factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
@@ -78,28 +83,22 @@ async function getTxOverrides(provider) {
 }
 
 async function main() {
-  // Load hardhat and manually import ethers v6
-  const hardhatInstance = require('hardhat');
-  hre = hardhatInstance;
-
-  // Since the ethers plugin may not be fully injected in CommonJS context,
-  // import ethers directly as a module
-  const ethersModule = require('ethers');
+  // Import ethers v6 module
+  const ethersModule = await import('ethers');
   ethers = ethersModule;
 
   console.log('ethers version:', ethers.version);
-  console.log('hre.network.name:', hre.network?.name);
 
-  // Create provider from the network configured in hardhat.config.js
-  const networkConfig = hre.config.networks[hre.network?.name];
-  if (!networkConfig || !networkConfig.url) {
+  // Get RPC URL from environment (set by hardhat when running with --network base)
+  const rpcUrl = process.env.BASE_RPC_URL;
+  if (!rpcUrl) {
     throw new Error(
-      `Network '${hre.network?.name}' not configured or URL missing. ` +
-        `Ensure BASE_RPC_URL and OWNER_PRIVATE_KEY env vars are set.`
+      `BASE_RPC_URL not set. ` +
+        `Usage: BASE_RPC_URL=https://... OWNER_PRIVATE_KEY=... hardhat run scripts/deploy.js --network base`
     );
   }
 
-  const provider = new ethers.JsonRpcProvider(networkConfig.url);
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
 
   // Get signer from private key
   const privateKey = process.env.OWNER_PRIVATE_KEY;
@@ -107,14 +106,11 @@ async function main() {
     throw new Error('OWNER_PRIVATE_KEY environment variable not set');
   }
 
-  const deployer = new ethers.Wallet(privateKey, provider);
-
-  // Set up ethers.provider so the rest of the script can use it
-  ethers.provider = provider;
+  deployer = new ethers.Wallet(privateKey, provider);
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');
-  console.log('Hardhat network:', hre.network.name);
+  console.log('Network: base (mainnet)');
   const deployerAddress = await deployer.getAddress();
   if (!deployerAddress) {
     throw new Error('Could not derive deployer address from private key.');
@@ -153,10 +149,10 @@ async function main() {
 
   console.log('Deploying with account:', deployerAddress);
   console.log('Configured owner:', config.owner);
-  console.log('Network:', hre.network.name);
+  console.log('Network: base (mainnet)');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
-  const balance = await ethers.provider.getBalance(deployerAddress);
+  const balance = await provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
 
   const addresses = {};
@@ -306,7 +302,7 @@ async function main() {
   const reporterSet = new Set([...config.monitors, ...config.reporters]);
   if (deployerIsOwner) {
     console.log('\nConfiguring post-deploy authorization...');
-    const ov2 = await getTxOverrides(ethers.provider);
+    const ov2 = await getTxOverrides(provider);
 
     await (await monitor.authorizeContract(addresses.SentinelInterceptor, ov2)).wait();
     await (await monitor.authorizeContract(addresses.AetheronBridge, ov2)).wait();
@@ -436,7 +432,7 @@ async function main() {
 
   if (deployerIsOwner) {
     console.log('\nConfiguring SentinelCoreLoop components...');
-    const ov3 = await getTxOverrides(ethers.provider);
+    const ov3 = await getTxOverrides(provider);
     const coreLoopComponents = [
       ['sentinelInterceptor', addresses.SentinelInterceptor],
       ['aetheronBridge', addresses.AetheronBridge],
@@ -499,7 +495,7 @@ async function main() {
   );
 
   // Output the final block number for automation
-  const latestBlock = await ethers.provider.getBlockNumber();
+  const latestBlock = await provider.getBlockNumber();
   console.log(`Final Block: ${latestBlock}`);
 }
 

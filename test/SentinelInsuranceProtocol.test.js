@@ -54,10 +54,7 @@ describe('SentinelInsuranceProtocol', function () {
       // OZ's Ownable throws custom error when owner is zero
       await expect(
         SentinelInsuranceProtocol.deploy(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress)
-      ).to.be.revertedWithCustomError(
-        SentinelInsuranceProtocol,
-        'OwnableInvalidOwner'
-      );
+      ).to.be.revertedWithCustomError(SentinelInsuranceProtocol, 'OwnableInvalidOwner');
     });
   });
 

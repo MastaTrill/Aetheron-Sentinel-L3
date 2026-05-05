@@ -55,10 +55,9 @@ describe('CircuitBreaker', function () {
     });
 
     it('rejects non-monitor callers', async function () {
-      await expect(circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)).to.be.revertedWithCustomError(
-        circuitBreaker,
-        'AccessControlUnauthorizedAccount'
-      );
+      await expect(
+        circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)
+      ).to.be.revertedWithCustomError(circuitBreaker, 'AccessControlUnauthorizedAccount');
     });
   });
 
