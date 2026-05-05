@@ -12,7 +12,7 @@ function getOwnerAccounts() {
 const config = {
   plugins: [hardhatEthers, hardhatMocha, hardhatEthersChaiMatchers],
   solidity: {
-    version: '0.8.24',
+    version: '0.8.28',
     settings: {
       optimizer: {
         enabled: true,
