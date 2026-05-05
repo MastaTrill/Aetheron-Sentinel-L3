@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Use Node.js 20
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
       - name: Run npm audit (non-blocking)
@@ -51,3 +51,4 @@ jobs:
         with:
           fail-on-severity: 'high'
           allow-ghsa-ids: ''
+
