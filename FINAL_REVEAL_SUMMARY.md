@@ -105,7 +105,6 @@ script.js       - Interactive JavaScript with 3D core visualization
 ```
 SECURITY.md           - Comprehensive security features
 APY_ENHANCEMENT.md    - Yield optimization strategies
-BMNR_INTEGRATION.md   - Integration readiness report
 ADVANCED_SECURITY_YIELD_SYSTEM.md - Complete system overview
 ```
 

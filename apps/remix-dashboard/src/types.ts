@@ -140,7 +140,6 @@ export interface YieldAggregator {
   targetYield: number;
   totalStaked: string;
   activePools: number;
-  bmnrPower: number;
 }
 
 export interface RewardPool {

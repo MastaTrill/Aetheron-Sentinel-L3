@@ -7,11 +7,10 @@ _Last updated: April 28, 2026_
 ## Q2 2026
 
 - [x] Dashboard preview & benchmark infographic released (April 19)
-- [ ] Public launch of Sentinel L3 dashboard (read-only beta)
-- [ ] BitMine/MAVAN-4 full integration & merge confirmation
-- [ ] Publish addresses for all 19 smart contracts
+- [x] Public launch of Sentinel L3 dashboard (read-only beta) — live at GitHub Pages
+- [x] Publish addresses for all 19 smart contracts — see [site/contracts.js](site/contracts.js)
 - [ ] Open-source (or redacted) GitHub repo for core modules
-- [ ] Announce $AETH/$AETX utility, staking, and liquidity plans
+- [x] Announce $AETH/$AETX utility, staking, and liquidity plans — token utility implemented
 
 ## Q3 2026
 

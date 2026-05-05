@@ -45,7 +45,6 @@ This repository includes:
 
 ## Announcements & Audits
 
-- See [ANNOUNCEMENT_BITMINE_INTEGRATION.md](ANNOUNCEMENT_BITMINE_INTEGRATION.md) for the BitMine MAVAN-4 integration announcement (when complete).
 - See [AUDIT_REQUEST.md](AUDIT_REQUEST.md) for third-party security audit request template.
 
 ## Secret Management & Environment Variables

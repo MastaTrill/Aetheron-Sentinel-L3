@@ -8,11 +8,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: SentinelToken
-    network: base
+    network: sepolia
     source:
-      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3' # base deployment placeholder
+      address: '0xFf21fF20B61469075A2b2280724E9D99dA7e06Ed'
       abi: SentinelToken
-      startBlock: 1000000 # update after deployment
+      startBlock: 10713054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -36,11 +36,11 @@ dataSources:
 
   - kind: ethereum
     name: SentinelInterceptor
-    network: base
+    network: sepolia
     source:
-      address: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' # base deployment placeholder
+      address: '0x057c15fA83A008ba65A20b6e0dE91949Ab987954'
       abi: SentinelInterceptor
-      startBlock: 1000000 # update after deployment
+      startBlock: 10713054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -65,11 +65,11 @@ dataSources:
 
   - kind: ethereum
     name: AetheronBridge
-    network: base
+    network: sepolia
     source:
-      address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' # base deployment placeholder
+      address: '0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597'
       abi: AetheronBridge
-      startBlock: 1000000 # update after deployment
+      startBlock: 10713054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -93,11 +93,11 @@ dataSources:
 
   - kind: ethereum
     name: RateLimiter
-    network: base
+    network: sepolia
     source:
-      address: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9' # base deployment placeholder
+      address: '0xA084B67baDC91Dd6d8cEec65af73c4F21337A888'
       abi: RateLimiter
-      startBlock: 1000000 # update after deployment
+      startBlock: 10713054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -118,11 +118,11 @@ dataSources:
 
   - kind: ethereum
     name: CircuitBreaker
-    network: base
+    network: sepolia
     source:
-      address: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' # base deployment placeholder
+      address: '0x1FC97c1C54914E9053EDF97C390bF9b3b77eA885'
       abi: CircuitBreaker
-      startBlock: 1000000 # update after deployment
+      startBlock: 10713054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -147,11 +147,11 @@ dataSources:
 
   - kind: ethereum
     name: SentinelStaking
-    network: base
+    network: sepolia
     source:
-      address: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e' # base deployment placeholder
+      address: '0x1fADa3493E662F0aDDDb84259ee30b97C6A015E3'
       abi: SentinelStaking
-      startBlock: 1000000 # update after deployment
+      startBlock: 10713054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8

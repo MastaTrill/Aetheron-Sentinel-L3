@@ -50,6 +50,14 @@ function parseBoolean(value, fallback) {
   return value === 'true' || value === '1';
 }
 
+function requireOwnerPrivateKey() {
+  const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(ownerKey)) {
+    throw new Error('OWNER_PRIVATE_KEY must be set as a 0x-prefixed 32-byte hex key.');
+  }
+  return ownerKey;
+}
+
 function getVerifyCliConfig() {
   const verifyToolsDir = path.join(process.cwd(), '.verify-tools');
   const verifyConfigPath = path.join(process.cwd(), 'scripts', 'verify-hardhat.config.cjs');
@@ -132,10 +140,9 @@ async function main() {
 
   const addresses = JSON.parse(rawAddresses);
 
-  const deployerAddress = process.env.PRIVATE_KEY
-    ? new ethers.Wallet(process.env.PRIVATE_KEY).address
-    : ethers.ZeroAddress;
-  const owner = process.env.SENTINEL_OWNER || deployerAddress;
+  const ownerKey = requireOwnerPrivateKey();
+  const ownerAddress = new ethers.Wallet(ownerKey).address;
+  const owner = process.env.SENTINEL_OWNER || ownerAddress;
 
   const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
   const tvlThreshold = ethers.parseEther(process.env.TVL_THRESHOLD_ETH || '1000');

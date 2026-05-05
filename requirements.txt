@@ -48,7 +48,7 @@ cloudpickle==3.1.2
 colorama==0.4.6
 colorlog==6.10.1
 comm==0.2.3
-contourpy==1.3.3
+contourpy==1.3.2
 coverage==7.13.5
 cryptography==46.0.7
 crytic-compile==0.3.11

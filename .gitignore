@@ -60,3 +60,6 @@ transfer-treasury.js
 # Local skills workspace artifacts
 skills/
 skills-lock.json
+
+# VS Code Hardhat extension temp configs (auto-generated, machine-specific)
+.vscode_hardhat_config_*.ts

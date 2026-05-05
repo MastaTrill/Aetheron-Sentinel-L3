@@ -1,8 +1,7 @@
 // test/SentinelTimelock.test.js
-import { expect } from 'chai';
+const { expect } = require('chai');
 
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+const { ethers } = require('hardhat');
 
 describe('SentinelTimelock', function () {
   let timelock;

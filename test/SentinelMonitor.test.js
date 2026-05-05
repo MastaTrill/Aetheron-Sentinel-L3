@@ -1,8 +1,7 @@
 // test/SentinelMonitor.test.js
-import { expect } from 'chai';
+const { expect } = require('chai');
 
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+const { ethers } = require('hardhat');
 
 describe('SentinelMonitor', function () {
   let monitor;
