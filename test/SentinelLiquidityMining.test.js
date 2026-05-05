@@ -145,9 +145,11 @@ describe('SentinelLiquidityMining', function () {
   });
 
   describe('withdraw', function () {
-    const depositAmount = ethers.parseEther('1000');
+    const depositAmountStr = '1000';
+    let depositAmount;
 
     beforeEach(async function () {
+      depositAmount = ethers.parseEther(depositAmountStr);
       await mining.connect(user).deposit(0, depositAmount);
     });
 

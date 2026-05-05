@@ -12,15 +12,13 @@ describe('SentinelMultiSigVault', function () {
   let vault;
   let owner, guardian1, guardian2, guardian3, stranger;
   let ethers;
+  let pubKey1, pubKey2, pubKey3;
 
   beforeEach(async function () {
     ({ ethers } = await network.getOrCreate());
-
-  const pubKey1 = ethers.keccak256(ethers.toUtf8Bytes('guardian1'));
-  const pubKey2 = ethers.keccak256(ethers.toUtf8Bytes('guardian2'));
-  const pubKey3 = ethers.keccak256(ethers.toUtf8Bytes('guardian3'));
-
-  beforeEach(async function () {
+    pubKey1 = ethers.keccak256(ethers.toUtf8Bytes('guardian1'));
+    pubKey2 = ethers.keccak256(ethers.toUtf8Bytes('guardian2'));
+    pubKey3 = ethers.keccak256(ethers.toUtf8Bytes('guardian3'));
     [owner, guardian1, guardian2, guardian3, stranger] = await ethers.getSigners();
     const SentinelMultiSigVault = await ethers.getContractFactory('SentinelMultiSigVault');
     vault = await SentinelMultiSigVault.deploy(owner.address);

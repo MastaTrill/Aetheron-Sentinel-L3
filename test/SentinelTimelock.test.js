@@ -38,7 +38,7 @@ describe('SentinelTimelock', function () {
     });
 
     it('grants TIMELOCK_ADMIN_ROLE to the admin', async function () {
-      const ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
+      const ADMIN_ROLE = await timelock.DEFAULT_ADMIN_ROLE();
       expect(await timelock.hasRole(ADMIN_ROLE, owner.address)).to.be.true;
     });
 
@@ -49,10 +49,14 @@ describe('SentinelTimelock', function () {
   });
 
   describe('scheduleCriticalOperation', function () {
-    const target = ethers.ZeroAddress;
-    const value = 0n;
-    const data = '0x';
-    const predecessor = ethers.ZeroHash;
+    let target, value, data, predecessor;
+
+    beforeEach(async function () {
+      target = ethers.ZeroAddress;
+      value = 0n;
+      data = '0x';
+      predecessor = ethers.ZeroHash;
+    });
 
     it('reverts when called by a non-proposer', async function () {
       await expect(

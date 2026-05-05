@@ -1,17 +1,17 @@
 // test/SentinelStaking.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelStaking', function () {
   let staking, stakingToken, rewardToken;
   let owner, user, user2;
+  let ethers;
 
   // Bronze tier lock period (7 days in seconds)
   const BRONZE_LOCK = 7 * 24 * 3600;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, user2] = await ethers.getSigners();
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');

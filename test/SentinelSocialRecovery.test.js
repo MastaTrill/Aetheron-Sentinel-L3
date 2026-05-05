@@ -1,13 +1,12 @@
 // test/SentinelSocialRecovery.test.js
 import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 /**
  * Find an approvalProof value whose on-chain hash passes the 90%-gate:
  *   uint256(keccak256(abi.encodePacked(guardian, requestId, proof))) % 100 < 90
  */
-function findValidProof(guardianAddr, requestId) {
+function findValidProof(guardianAddr, requestId, ethers) {
   for (let i = 0; i < 500; i++) {
     const proof = ethers.hexlify(ethers.toUtf8Bytes(`proof_${i}`));
     const packed = ethers.concat([guardianAddr, requestId, proof]);
@@ -20,8 +19,10 @@ function findValidProof(guardianAddr, requestId) {
 describe('SentinelSocialRecovery', function () {
   let recovery, zkIdentity;
   let owner, account, guardian1, guardian2, guardian3, newOwner, stranger;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, account, guardian1, guardian2, guardian3, newOwner, stranger] =
       await ethers.getSigners();
 
@@ -238,7 +239,7 @@ describe('SentinelSocialRecovery', function () {
       requestId = event.args[0];
 
       // Find a valid proof for guardian1
-      proof1 = findValidProof(guardian1.address, requestId);
+      proof1 = findValidProof(guardian1.address, requestId, ethers);
     });
 
     it('allows guardian to approve with valid proof', async function () {
@@ -269,7 +270,7 @@ describe('SentinelSocialRecovery', function () {
     });
 
     it('executes recovery after reaching threshold', async function () {
-      const proof2 = findValidProof(guardian2.address, requestId);
+      const proof2 = findValidProof(guardian2.address, requestId, ethers);
 
       // First approval
       await recovery
