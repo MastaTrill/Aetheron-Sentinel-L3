@@ -1,14 +1,15 @@
 // test/SentinelTimelock.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelTimelock', function () {
   let timelock;
   let owner, proposer, executor, stranger;
+  let ethers;
   const MIN_DELAY = 100; // seconds
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, proposer, executor, stranger] = await ethers.getSigners();
 
     const SentinelTimelock = await ethers.getContractFactory('SentinelTimelock');

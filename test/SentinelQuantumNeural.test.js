@@ -1,9 +1,9 @@
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelQuantumNeural', function () {
   it('deploys successfully with explicit gas limit', async function () {
+    const { ethers } = await network.getOrCreate();
     const [owner] = await ethers.getSigners();
     const SentinelQuantumNeural = await ethers.getContractFactory('SentinelQuantumNeural');
 

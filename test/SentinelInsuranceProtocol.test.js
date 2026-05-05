@@ -1,7 +1,6 @@
 // test/SentinelInsuranceProtocol.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 // InsuranceType enum: HACK_COVERAGE=0, ORACLE_FAILURE=1, ... PROTOCOL_EXPLOIT=7
 const HACK_COVERAGE = 0;
@@ -13,13 +12,15 @@ const ACTIVE = 0n;
 describe('SentinelInsuranceProtocol', function () {
   let insurance;
   let owner, policyHolder, other;
+  let ethers;
 
-  const MIN_COVERAGE = ethers.parseEther('1');
+  const MIN_COVERAGE_AMOUNT = '1';
   const COVERAGE_PERIOD_MIN = 30 * 24 * 60 * 60; // 30 days in seconds
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, policyHolder, other] = await ethers.getSigners();
-    const SentinelInsuranceProtocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
+    const MIN_COVERAGE = ethers.parseEther('1');
     insurance = await SentinelInsuranceProtocol.deploy(
       ethers.ZeroAddress, // sentinelCore (not called in basic flows)
       ethers.ZeroAddress, // sentinelAuditor (not called in basic flows)

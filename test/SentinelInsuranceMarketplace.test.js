@@ -1,14 +1,16 @@
 // test/SentinelInsuranceMarketplace.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelInsuranceMarketplace', function () {
   let insuranceMarketplace;
   let paymentToken;
   let insurancePool;
   let owner, provider, user, user2;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, provider, user, user2] = await ethers.getSigners();
 
     // Deploy a mock ERC20 token for payment

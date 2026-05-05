@@ -1,13 +1,14 @@
 // test/SentinelSecurityTokenization.test.js
 import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelSecurityTokenization', function () {
   let securityTokenization;
   let owner, user, user2;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, user2] = await ethers.getSigners();
 
     // Deploy the security tokenization contract

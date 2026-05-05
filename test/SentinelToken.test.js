@@ -1,13 +1,14 @@
 // test/SentinelToken.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelToken', function () {
   let token;
   let owner, user, user2;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, user2] = await ethers.getSigners();
     const SentinelToken = await ethers.getContractFactory('SentinelToken');
     token = await SentinelToken.deploy(owner.address);

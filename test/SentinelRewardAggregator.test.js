@@ -1,18 +1,18 @@
 // test/SentinelRewardAggregator.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelRewardAggregator', function () {
   let aggregator;
   let owner, user, other;
+  let ethers;
   const STAKING = '0x0000000000000000000000000000000000000001';
   const LIQUIDITY = '0x0000000000000000000000000000000000000002';
   const GOV = '0x0000000000000000000000000000000000000003';
   const REFERRAL = '0x0000000000000000000000000000000000000004';
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, other] = await ethers.getSigners();
     const SentinelRewardAggregator = await ethers.getContractFactory('SentinelRewardAggregator');
     aggregator = await SentinelRewardAggregator.deploy(STAKING, LIQUIDITY, GOV, REFERRAL);

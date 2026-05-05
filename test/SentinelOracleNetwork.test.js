@@ -9,7 +9,7 @@ describe('SentinelOracleNetwork', function () {
   let owner, oracleSigner, other;
   let ethers;
 
-  const pubKey = '0x' + 'ab'.repeat(32);  // keccak256 hash
+  const pubKey = '0x' + 'ab'.repeat(32); // keccak256 hash
 
   beforeEach(async function () {
     ({ ethers } = await network.getOrCreate());
@@ -51,7 +51,9 @@ describe('SentinelOracleNetwork', function () {
 
   describe('registerOracle', function () {
     it('registers an oracle with sufficient stake', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
 
       const [active, reputation, stake] = await oracle.getOracleInfo(oracleSigner.address);
       expect(active).to.equal(true);
@@ -67,12 +69,16 @@ describe('SentinelOracleNetwork', function () {
 
     it('reverts with zero public key', async function () {
       await expect(
-        oracle.connect(oracleSigner).registerOracle(ethers.ZeroHash, { value: ethers.parseEther('1000') })
+        oracle
+          .connect(oracleSigner)
+          .registerOracle(ethers.ZeroHash, { value: ethers.parseEther('1000') })
       ).to.be.revertedWith('Invalid public key');
     });
 
     it('reverts if already registered', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await expect(
         oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') })
       ).to.be.revertedWith('Already registered');
@@ -95,10 +101,9 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(oracle.connect(other).addSupportedAsset('ETH/USD', 8)).to.be.revertedWithCustomError(
-        oracle,
-        'OwnableUnauthorizedAccount'
-      );
+      await expect(
+        oracle.connect(other).addSupportedAsset('ETH/USD', 8)
+      ).to.be.revertedWithCustomError(oracle, 'OwnableUnauthorizedAccount');
     });
   });
 
@@ -113,7 +118,9 @@ describe('SentinelOracleNetwork', function () {
 
   describe('submitPriceFeed', function () {
     beforeEach(async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await oracle.addSupportedAsset('ETH/USD', 8);
     });
 
@@ -158,14 +165,15 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(oracle.connect(other).triggerEmergencyShutdown('attack')).to.be.revertedWithCustomError(
-        oracle,
-        'OwnableUnauthorizedAccount'
-      );
+      await expect(
+        oracle.connect(other).triggerEmergencyShutdown('attack')
+      ).to.be.revertedWithCustomError(oracle, 'OwnableUnauthorizedAccount');
     });
 
     it('blocks price submissions after emergency shutdown', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await oracle.addSupportedAsset('ETH/USD', 8);
       await oracle.triggerEmergencyShutdown('test');
 
@@ -177,7 +185,9 @@ describe('SentinelOracleNetwork', function () {
 
   describe('slashOracle', function () {
     it('owner can slash an oracle stake', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
 
       const [, , stakeBefore] = await oracle.getOracleInfo(oracleSigner.address);
 
@@ -189,15 +199,18 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
-      await expect(oracle.connect(other).slashOracle(oracleSigner.address, 1000)).to.be.revertedWithCustomError(
-        oracle,
-        'OwnableUnauthorizedAccount'
-      );
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await expect(
+        oracle.connect(other).slashOracle(oracleSigner.address, 1000)
+      ).to.be.revertedWithCustomError(oracle, 'OwnableUnauthorizedAccount');
     });
 
     it('reverts with invalid penalty (> 10000)', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await expect(oracle.slashOracle(oracleSigner.address, 10001)).to.be.revertedWith(
         'Invalid penalty'
       );

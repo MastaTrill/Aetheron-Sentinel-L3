@@ -1,8 +1,6 @@
 // test/SentinelMultiSigVault.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 // SecurityLevel enum: LOW=0, MEDIUM=1, HIGH=2, CRITICAL=3
 // SecurityClearance enum: BASIC=0, ADVANCED=1, EXPERT=2, MASTER=3
@@ -13,6 +11,10 @@ const MASTER = 3n;
 describe('SentinelMultiSigVault', function () {
   let vault;
   let owner, guardian1, guardian2, guardian3, stranger;
+  let ethers;
+
+  beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
 
   const pubKey1 = ethers.keccak256(ethers.toUtf8Bytes('guardian1'));
   const pubKey2 = ethers.keccak256(ethers.toUtf8Bytes('guardian2'));

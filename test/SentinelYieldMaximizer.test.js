@@ -1,14 +1,16 @@
 // test/SentinelYieldMaximizer.test.js
 /* global describe, it, beforeEach */
 
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelYieldMaximizer', function () {
   let yieldMaximizer, token;
   let owner, user;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user] = await ethers.getSigners();
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');

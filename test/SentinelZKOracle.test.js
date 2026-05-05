@@ -1,10 +1,10 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
-const { ethers } = require('hardhat');
-
-const MIN_STAKE = ethers.parseEther('1000');
+const MIN_STAKE_AMOUNT = '1000';
 
 function abiEncodeProof(proof) {
+  const { ethers } = await network.getOrCreate();
   const coder = ethers.AbiCoder.defaultAbiCoder();
   return coder.encode(
     ['uint256[2]', 'uint256[2][2]', 'uint256[2]', 'uint256[]'],

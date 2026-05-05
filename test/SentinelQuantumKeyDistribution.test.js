@@ -1,14 +1,15 @@
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelQuantumKeyDistribution', function () {
   let qkd;
   let owner;
   let user;
   let responder;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, responder] = await ethers.getSigners();
     const SentinelQuantumKeyDistribution = await ethers.getContractFactory(
       'SentinelQuantumKeyDistribution'

@@ -1,13 +1,15 @@
 // test/CircuitBreaker.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('CircuitBreaker', function () {
   let circuitBreaker;
   let owner, monitor, attacker;
+  let ethers;
   const CHAIN_ID = 137;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, monitor, attacker] = await ethers.getSigners();
 
     const CircuitBreaker = await ethers.getContractFactory('CircuitBreaker');

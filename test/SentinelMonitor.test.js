@@ -1,16 +1,17 @@
 // test/SentinelMonitor.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelMonitor', function () {
   let monitor;
   let owner, other;
+  let ethers;
 
   // Stub contract addresses (no real contracts needed for authorization tests)
   let stubSentinel, stubBridge, stubCircuit;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, other, stubSentinel, stubBridge, stubCircuit] = await ethers.getSigners();
 
     const SentinelMonitor = await ethers.getContractFactory('SentinelMonitor');

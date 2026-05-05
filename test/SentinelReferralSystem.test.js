@@ -1,13 +1,14 @@
 // test/SentinelReferralSystem.test.js
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelReferralSystem', function () {
   let referral;
   let owner, user1, user2, user3;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user1, user2, user3] = await ethers.getSigners();
     const SentinelReferralSystem = await ethers.getContractFactory('SentinelReferralSystem');
     referral = await SentinelReferralSystem.deploy(

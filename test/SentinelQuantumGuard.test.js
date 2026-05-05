@@ -1,14 +1,15 @@
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelQuantumGuard', function () {
   let guard;
   let owner;
   let oracleSigner;
   let other;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, oracleSigner, other] = await ethers.getSigners();
     const SentinelQuantumGuard = await ethers.getContractFactory('SentinelQuantumGuard');
     guard = await SentinelQuantumGuard.deploy(owner.address);

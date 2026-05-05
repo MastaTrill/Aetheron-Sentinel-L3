@@ -1,13 +1,14 @@
-const { expect } = require('chai');
-
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('SentinelPredictiveThreatModel', function () {
   let model;
   let owner;
   let user;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user] = await ethers.getSigners();
     const SentinelPredictiveThreatModel = await ethers.getContractFactory(
       'SentinelPredictiveThreatModel'
