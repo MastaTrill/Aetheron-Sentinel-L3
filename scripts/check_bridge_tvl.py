@@ -37,7 +37,7 @@ def get_tvl():
                 print("STATUS: WARNING - Zero balance. Verify deployment.")
         else:
             print(f"RPC ERROR: {response}")
-    except Exception as e:
+    except (requests.RequestException, ValueError, KeyError) as e:
         print(f"SCRIPT ERROR: {e}")
 
 

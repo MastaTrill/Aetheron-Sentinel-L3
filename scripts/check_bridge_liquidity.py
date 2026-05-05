@@ -36,7 +36,7 @@ def get_erc20_balance(token_name, token_address):
         final_balance = balance / (10**decimals)
         print(f"SUCCESS: {token_name} Balance: {final_balance:,.2f}")
         return final_balance
-    except:
+    except (ValueError, AttributeError):
         return 0
 
 
