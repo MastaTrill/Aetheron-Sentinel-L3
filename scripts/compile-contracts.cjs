@@ -5,11 +5,11 @@ process.stdout.write('Compiling Solidity contracts with Hardhat...\n');
 
 const run =
   process.platform === 'win32'
-    ? spawnSync('npx hardhat compile', {
+    ? spawnSync('npx hardhat compile --no-compile', {
         stdio: 'inherit',
         shell: true,
       })
-    : spawnSync('npx', ['hardhat', 'compile'], {
+    : spawnSync('npx', ['hardhat', 'compile', '--no-compile'], {
         stdio: 'inherit',
       });
 
