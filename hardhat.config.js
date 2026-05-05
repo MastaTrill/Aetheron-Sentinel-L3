@@ -1,17 +1,16 @@
-import '@nomicfoundation/hardhat-ethers';
+import { defineConfig } from 'hardhat/config';
+import hardhatEthers from '@nomicfoundation/hardhat-ethers';
+import hardhatMocha from '@nomicfoundation/hardhat-mocha';
+import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
 
 function getOwnerAccounts() {
   const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
   return ownerKey ? [ownerKey] : [];
 }
 
-function conditionalNetwork(url, accounts) {
-  if (!url || !accounts.length) return undefined;
-  return { type: 'http', url, accounts };
-}
-
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
+  plugins: [hardhatEthers, hardhatMocha, hardhatEthersChaiMatchers],
   solidity: {
     version: '0.8.24',
     settings: {
@@ -75,4 +74,4 @@ const config = {
   },
 };
 
-export default config;
+export default defineConfig(config);

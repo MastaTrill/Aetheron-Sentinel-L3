@@ -1,12 +1,14 @@
 // test/AetheronBridge.test.js
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { network } from 'hardhat';
 
 describe('AetheronBridge', function () {
   let bridge, token;
   let owner, relayer, user, recipient;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, relayer, user, recipient] = await ethers.getSigners();
 
     // Deploy a minimal ERC-20 mock for bridging
