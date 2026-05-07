@@ -114,14 +114,17 @@ async function verify(address, constructorArguments) {
     }
 
     console.log(`  ✅ Verified: ${address}`);
+    return true;
   } catch (err) {
     const output = `${err.stdout || ''}\n${err.stderr || ''}\n${err.message || ''}`;
     if (/already verified/i.test(output)) {
       console.log(`  ℹ️  Already verified: ${address}`);
+      return true;
     } else {
       const reason =
         (err.stderr && err.stderr.trim()) || (err.stdout && err.stdout.trim()) || err.message;
       console.warn(`  ⚠️  Verification failed for ${address}: ${reason}`);
+      return false;
     }
   } finally {
     await fs.rm(argsFilePath, { force: true }).catch(() => {});
@@ -282,7 +285,7 @@ async function main() {
               BigInt(process.env.TIMELOCK_MIN_DELAY || '172800'),
               parseAddressList(process.env.TIMELOCK_PROPOSERS).length
                 ? parseAddressList(process.env.TIMELOCK_PROPOSERS)
-                : [deployerAddress],
+                : [ownerAddress],
               parseAddressList(process.env.TIMELOCK_EXECUTORS).length
                 ? parseAddressList(process.env.TIMELOCK_EXECUTORS)
                 : [ethers.ZeroAddress],
@@ -301,6 +304,8 @@ async function main() {
       : []),
   ];
 
+  const failedContracts = [];
+
   for (const { name, args } of tasks) {
     const address = addresses[name];
     if (!address) {
@@ -308,7 +313,16 @@ async function main() {
       continue;
     }
     console.log(`Verifying ${name} at ${address}...`);
-    await verify(address, args);
+    const verified = await verify(address, args);
+    if (!verified) {
+      failedContracts.push(`${name}@${address}`);
+    }
+  }
+
+  if (failedContracts.length > 0) {
+    throw new Error(
+      `Verification failed for ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`
+    );
   }
 
   console.log('\nVerification run complete.');

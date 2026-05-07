@@ -1,18 +1,18 @@
-# Aetheron Sentinel L3 Mainnet Deployment — Release Notes
+# Aetheron Sentinel L3 Mainnet Release Notes Draft
 
 **Date:** 2026-05-04  
-**Network:** Sepolia Testnet (chainId 11155111) — production mainnet deployment pending  
-**Status:** ✅ Sepolia deployment complete; mainnet deployment pending
+**Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)  
+**Status:** Draft pending objective mainnet execution evidence
 
-> Evidence gate: contract addresses and subgraph sync state are now recorded. Transaction hashes should be appended to this file as they are exported from deployment logs.
+> Evidence gate: this file must not be published as final until every placeholder below is replaced with Ethereum mainnet tx hashes, blocks, explorer links, and verification outputs.
 
 ---
 
 ## Executive Summary
 
-Aetheron Sentinel L3 mainnet deployment is complete. Security, governance, and operational controls have been validated and deployment addresses are now finalized. Subgraph indexing start block is set to `10713054`.
+Aetheron Sentinel L3 mainnet deployment has not been evidenced in this repository yet. The current address table and operational notes below still reference the completed Sepolia rehearsal deployment and exist only as a draft structure for the final mainnet release packet.
 
-**Key achievement:** 100% of privileged paths will terminate at the owner EOA, multisig, or explicitly approved service accounts. No temporary deployer roles will remain after deployment.
+**Release condition:** 100% of privileged paths must terminate at the owner EOA, multisig, or explicitly approved service accounts, and every claim below must be backed by mainnet explorer links plus archived verification outputs.
 
 ---
 
@@ -26,13 +26,19 @@ Aetheron Sentinel L3 mainnet deployment is complete. Security, governance, and o
 6. Sync The Graph subgraph and monitor contract events
 7. Update all documentation and publish release notes
 
+Operator references:
+
+- Use [docs/MAINNET_OPERATOR_RUNBOOK.md](./docs/MAINNET_OPERATOR_RUNBOOK.md) for the exact live execution order and command lines.
+- Use [docs/MAINNET_RELEASE_PR_CHECKLIST.md](./docs/MAINNET_RELEASE_PR_CHECKLIST.md) while filling the release PR during deployment.
+- Use [docs/MAINNET_EVIDENCE_CHECKLIST.md](./docs/MAINNET_EVIDENCE_CHECKLIST.md) for the final evidence packet.
+
 ---
 
 ## Deployment Addresses (Mainnet)
 
-Explorer base URL: `https://sepolia.etherscan.io/address`
+Explorer base URL: `https://etherscan.io/address`
 
-> ⚠️ These are Sepolia testnet addresses. Replace with mainnet addresses and `https://etherscan.io/address` URLs when mainnet deployment is executed.
+> Draft only: these rows currently mirror the Sepolia rehearsal addresses from [site/contracts.js](./site/contracts.js). Replace them with Ethereum mainnet addresses and explorer links before release.
 
 | Contract                       | Address                                      | Explorer                                                                                     |
 | ------------------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -67,31 +73,34 @@ Explorer base URL: `https://sepolia.etherscan.io/address`
 
 ## Key Transactions
 
-- Ownership handoff: Complete (tx hashes pending export)
-- Timelock role grants: Complete (tx hashes pending export)
-- Relayer enablement: Complete (tx hash pending export)
+- Ownership handoff: Pending mainnet execution evidence
+- Timelock role grants: Pending mainnet execution evidence
+- Relayer enablement: Pending mainnet execution evidence
 
 ---
 
 ## Verification Checklist
 
-- [x] All Ownable contracts have correct deployment addresses recorded
-- [x] Timelock admin/proposer/canceller roles assigned to multisig
-- [x] Relayer enabled and verified
-- [x] All allowlists audited (no unknown addresses)
-- [x] Subgraph deployed and indexing events (start block: 10713054)
-- [x] All verification scripts pass
-- [x] All documentation and configs reference deployment addresses
+- [ ] `npm run mainnet:preflight` passes and output is archived
+- [ ] `npm run deploy:mainnet` has been executed on Ethereum mainnet
+- [ ] `npm run setup:ownership -- --network mainnet` or equivalent multisig actions are complete
+- [ ] `npm run setup:verify-tooling` and `npm run verify:mainnet` have completed
+- [ ] All mainnet tx hashes, blocks, and explorer links have been inserted below
+- [ ] All read-only audit scripts pass against mainnet addresses
+- [ ] Subgraph is deployed and indexing the actual mainnet start block
+- [ ] [site/contracts.js](./site/contracts.js) has been regenerated with mainnet explorer links
+- [ ] [docs/MAINNET_RELEASE_PR_CHECKLIST.md](./docs/MAINNET_RELEASE_PR_CHECKLIST.md) is filled in and attached to the release PR
+- [ ] [docs/MAINNET_EVIDENCE_CHECKLIST.md](./docs/MAINNET_EVIDENCE_CHECKLIST.md) is fully completed
 
 ---
 
 ## Next Steps
 
-1. Complete ownership and governance handoff
-2. Run all verification scripts on mainnet
-3. Monitor The Graph and Etherscan for contract events
-4. Attach all verification outputs to release PR
-5. Require code and security review signoff before go-live
+1. Run `npm run mainnet:preflight` and store the output in the release evidence pack.
+2. Execute `npm run deploy:mainnet` and persist the emitted `DEPLOYED_ADDRESSES` JSON.
+3. Complete ownership handoff, relayer enablement, and any Safe-based role transitions.
+4. Run `npm run setup:verify-tooling`, `npm run verify:mainnet`, and the read-only audit scripts.
+5. Regenerate [site/contracts.js](./site/contracts.js), update subgraph start blocks, and finalize this file.
 
 ---
 
@@ -126,14 +135,14 @@ Explorer base URL: `https://sepolia.etherscan.io/address`
 
 ## Timeline & Milestones
 
-| Milestone              | Date/Window | Status   |
-| ---------------------- | ----------- | -------- |
-| Code freeze            | 2026-04-20  | Complete |
-| Final audit review     | 2026-04-22  | Complete |
-| Mainnet dry run        | 2026-05-04  | Complete |
-| Go/No-Go checkpoint    | 2026-05-04  | Passed   |
-| Mainnet deployment     | 2026-05-04  | Complete |
-| Post-deploy monitoring | 2026-05-04+ | Active   |
+| Milestone              | Date/Window              | Status           |
+| ---------------------- | ------------------------ | ---------------- |
+| Code freeze            | 2026-04-20               | Complete         |
+| Final audit review     | 2026-04-22               | Complete         |
+| Mainnet preflight      | Next run                 | Pending evidence |
+| Go/No-Go checkpoint    | After preflight + review | Pending          |
+| Mainnet deployment     | After go/no-go           | Not executed     |
+| Post-deploy monitoring | After deployment         | Not started      |
 
 ---
 
@@ -183,7 +192,7 @@ Explorer base URL: `https://sepolia.etherscan.io/address`
 - [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md)
 - [site/contracts.js](./site/contracts.js)
 
-_To be filled after mainnet deployment. Use the Sepolia format as a template, updating all addresses and Etherscan links for mainnet._
+_Draft file. Finalize only after Ethereum mainnet deployment is executed and all placeholders are replaced with objective evidence._
 
 ---
 
@@ -225,7 +234,7 @@ _To be filled after mainnet deployment. Use the Sepolia format as a template, up
 
 ## Mainnet Dry Run Results
 
-_This section will be updated after the mainnet dry run. Include all simulated contract addresses, block numbers, and any issues or lessons learned._
+_Use this section to paste the archived output of `npm run mainnet:preflight` plus any additional dry-run or rehearsal evidence. No objective mainnet preflight output is published in this repo yet._
 
 ---
 
@@ -233,4 +242,4 @@ _This section will be updated after the mainnet dry run. Include all simulated c
 
 - All operational and security procedures validated on testnet
 - Mainnet deployment will follow the exact steps rehearsed
-- This document will be finalized after the mainnet dry run and actual deployment
+- This document must remain a draft until mainnet tx hashes, verification outputs, and explorer links are attached

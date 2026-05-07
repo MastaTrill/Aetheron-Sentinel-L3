@@ -1,38 +1,47 @@
 # Aetheron Sentinel L3 - Mainnet Deployment Summary
 
 **Deployment Date:** May 4, 2026  
-**Network:** Sepolia Testnet (chainId 11155111) — production mainnet deployment pending  
-**Final Block:** 10713054  
-**Status:** Deployed (Sepolia)
+**Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)  
+**Final Block:** [TBD on mainnet]  
+**Status:** Mainnet release package prepared; objective mainnet transaction evidence pending
 
 ---
 
 ## Executive Summary
 
-Mainnet deployment completed successfully. This document records the finalized deployment addresses, dry run completion, and subgraph sync state.
+This file tracks mainnet release readiness, not a completed mainnet deployment. The repository currently contains a completed Sepolia deployment, a drafted mainnet runbook, and placeholder mainnet release artifacts that still need to be replaced with objective Ethereum mainnet transaction evidence.
+
+Primary operator references:
+
+- [docs/MAINNET_OPERATOR_RUNBOOK.md](./docs/MAINNET_OPERATOR_RUNBOOK.md)
+- [docs/MAINNET_RELEASE_PR_CHECKLIST.md](./docs/MAINNET_RELEASE_PR_CHECKLIST.md)
+- [docs/MAINNET_EVIDENCE_CHECKLIST.md](./docs/MAINNET_EVIDENCE_CHECKLIST.md)
 
 ## Mainnet Dry Run Results
 
-**Dry run completed:** May 4, 2026  
-**Outcome:** PASS  
-**Notes:** Deployment pipeline validated end-to-end before mainnet execution.
+**Dry run / preflight status:** Scripted support present  
+**Objective evidence committed in repo:** Not yet published  
+**Notes:** Use `npm run mainnet:preflight` for non-transaction validation and record the command output in the release evidence pack.
 
-## Post-Deployment Actions
+## Release Gates Remaining
 
-- [x] Monitor contract events and logs for anomalies
-- [x] Verify all contract addresses and roles on Etherscan
-- [x] Run all verification and audit scripts
-- [x] Confirm subgraph sync and event indexing (start block: 10713054)
-- [x] Update all documentation with final addresses and hashes
-- [ ] Announce deployment and publish release notes
+- [ ] Run `npm run mainnet:preflight` against Ethereum mainnet and archive the output
+- [ ] Run `npm run deploy:mainnet` and capture the printed `DEPLOYED_ADDRESSES` JSON map
+- [ ] Execute `npm run setup:ownership -- --network mainnet` or the equivalent multisig transactions
+- [ ] Run `npm run setup:verify-tooling` and `npm run verify:mainnet`
+- [ ] Regenerate [site/contracts.js](./site/contracts.js) with mainnet explorer links
+- [ ] Run read-only audit scripts and attach outputs to the release PR
+- [ ] Confirm subgraph sync using the actual mainnet start block
+- [ ] Publish finalized mainnet release notes with tx hashes and explorer links
+- [ ] Fill [docs/MAINNET_RELEASE_PR_CHECKLIST.md](./docs/MAINNET_RELEASE_PR_CHECKLIST.md) during the live deployment
 
 ---
 
 ## Deployment Addresses (Mainnet)
 
-Explorer base URL: https://sepolia.etherscan.io/address
+Explorer base URL: <https://etherscan.io/address>
 
-> ⚠️ These are Sepolia testnet addresses. Update this table and all URLs when mainnet deployment is executed.
+> Current repo snapshot: these are the Sepolia rehearsal addresses currently exported into [site/contracts.js](./site/contracts.js). Replace every row with Ethereum mainnet evidence after the deployment is executed.
 
 | Contract                       | Address                                      | Explorer                                                                                     |
 | ------------------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -65,9 +74,9 @@ Explorer base URL: https://sepolia.etherscan.io/address
 
 ## Timeline & Milestones
 
-| Milestone              | Date/Window | Status   |
-| ---------------------- | ----------- | -------- |
-| Mainnet dry run        | 2026-05-04  | Complete |
-| Go/No-Go checkpoint    | 2026-05-04  | Passed   |
-| Mainnet deployment     | 2026-05-04  | Complete |
-| Post-deploy monitoring | 2026-05-04+ | Active   |
+| Milestone              | Date/Window              | Status           |
+| ---------------------- | ------------------------ | ---------------- |
+| Mainnet preflight      | Next run                 | Pending evidence |
+| Go/No-Go checkpoint    | After preflight + review | Pending          |
+| Mainnet deployment     | After go/no-go           | Not executed     |
+| Post-deploy monitoring | After deployment         | Not started      |

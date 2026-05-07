@@ -36,12 +36,14 @@ This repository includes:
 
 ## Mainnet Deployment & Onboarding
 
-**Mainnet is now the current deployment target.**
+**Mainnet is the next deployment target. The current objective deployment evidence in this repo is still Sepolia.**
 
-- See [DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md) for the mainnet deployment summary and addresses.
+- See [DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md) for the mainnet readiness summary and remaining evidence gates.
 - See [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) for mainnet verification and handoff steps.
-- See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the mainnet release record.
+- See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the draft mainnet release packet that still needs tx hashes and explorer links.
 - For mainnet deployment workflow, use [MAINNET_PREPARATION_TEMPLATE.md](MAINNET_PREPARATION_TEMPLATE.md).
+- For the live execution order, use [docs/MAINNET_OPERATOR_RUNBOOK.md](docs/MAINNET_OPERATOR_RUNBOOK.md).
+- For the release PR evidence packet, use [docs/MAINNET_RELEASE_PR_CHECKLIST.md](docs/MAINNET_RELEASE_PR_CHECKLIST.md).
 
 ## Announcements & Audits
 
@@ -68,7 +70,7 @@ This repository includes:
 - [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Third-party audit status
 - [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program details
 
-# (Recommended) Use a Python virtual environment
+## (Recommended) Use a Python virtual environment
 
 ```bash
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
@@ -118,7 +120,7 @@ npm run codegen
 npm run build
 ```
 
-Build the dashboard workspace:
+Build the root dashboard workspace:
 
 ```bash
 npm run dashboard:build
@@ -154,6 +156,7 @@ See `echidna.yaml` for configuration and contract selection. Write Solidity prop
 npm run deploy:local
 npm run deploy:sepolia
 npm run deploy:mainnet
+npm run redeploy:coreloop
 npm run verify:testnet
 npm run verify:mainnet
 npm run setup:ownership
@@ -185,6 +188,8 @@ npm run dashboard:dev
 npm run dashboard:lint
 npm run dashboard:build
 ```
+
+The separate Remix dashboard workspace under [apps/remix-dashboard](apps/remix-dashboard) uses its own package.json and should be run from that directory.
 
 ## CI and Automation
 

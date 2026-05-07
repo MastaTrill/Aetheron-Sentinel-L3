@@ -3,38 +3,264 @@ name: Verify and Report
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      network:
+        description: Verification target (`auto` uses `site/contracts.js`)
+        required: false
+        default: auto
+        type: choice
+        options:
+          - auto
+          - sepolia
+          - mainnet
+      deployed_addresses_json:
+        description: Optional DEPLOYED_ADDRESSES JSON override
+        required: false
+        default: ''
+
+permissions:
+  contents: read
 
 jobs:
-  verify:
+  plan:
     runs-on: ubuntu-latest
-    env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+    outputs:
+      should_run: ${{ steps.prereqs.outputs.should_run }}
+      verify_network: ${{ steps.context.outputs.verify_network }}
+      skip_reason: ${{ steps.prereqs.outputs.skip_reason }}
     steps:
       - uses: actions/checkout@v6
+
+      - name: Resolve target network
+        id: context
+        env:
+          INPUT_NETWORK: ${{ github.event.inputs.network || 'auto' }}
+        run: |
+          set -euo pipefail
+
+          requested_network="${INPUT_NETWORK}"
+          if [ "${requested_network}" = "auto" ]; then
+            requested_network="$(sed -n "s/^window\.SENTINEL_NETWORK = ['\"]\([^'\"]*\)['\"];$/\1/p" site/contracts.js | head -n 1)"
+          fi
+
+          if [ -z "${requested_network}" ]; then
+            echo "Unable to resolve verification network from site/contracts.js" >&2
+            exit 1
+          fi
+
+          if [ "${requested_network}" != "sepolia" ] && [ "${requested_network}" != "mainnet" ]; then
+            echo "Unsupported verification network: ${requested_network}" >&2
+            exit 1
+          fi
+
+          echo "verify_network=${requested_network}" >> "$GITHUB_OUTPUT"
+
+      - name: Check workflow configuration
+        id: prereqs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          VERIFY_NETWORK: ${{ steps.context.outputs.verify_network }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+          SENTINEL_OWNER: ${{ vars.SENTINEL_OWNER }}
+          DEFAULT_SEPOLIA_OWNER: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
+          SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+
+          if [ -z "${ETHERSCAN_API_KEY}" ]; then
+            missing+=("ETHERSCAN_API_KEY")
+          fi
+
+          if [ -z "${OWNER_PRIVATE_KEY}" ]; then
+            missing+=("OWNER_PRIVATE_KEY")
+          fi
+
+          if [ "${VERIFY_NETWORK}" = "sepolia" ] && [ -z "${SEPOLIA_RPC_URL}" ]; then
+            missing+=("SEPOLIA_RPC_URL")
+          fi
+
+          if [ "${VERIFY_NETWORK}" = "mainnet" ] && [ -z "${MAINNET_RPC_URL}" ]; then
+            missing+=("MAINNET_RPC_URL")
+          fi
+
+          effective_owner="${SENTINEL_OWNER}"
+          if [ -z "${effective_owner}" ] && [ "${VERIFY_NETWORK}" = "sepolia" ]; then
+            effective_owner="${DEFAULT_SEPOLIA_OWNER}"
+          fi
+
+          if [ -z "${effective_owner}" ]; then
+            missing+=("SENTINEL_OWNER")
+          fi
+
+          if [ "${EVENT_NAME}" = "push" ] && [ ${#missing[@]} -gt 0 ]; then
+            skip_reason="Missing verification secrets/vars for ${VERIFY_NETWORK}: ${missing[*]}"
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "skip_reason=${skip_reason}" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Verification Skipped"
+              echo
+              echo "- Event: ${EVENT_NAME}"
+              echo "- Network: ${VERIFY_NETWORK}"
+              echo "- Reason: ${skip_reason}"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          echo "skip_reason=" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Verification Ready"
+            echo
+            echo "- Event: ${EVENT_NAME}"
+            echo "- Network: ${VERIFY_NETWORK}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    needs: plan
+    if: ${{ needs.plan.outputs.should_run == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ vars.SENTINEL_OWNER }}
+      DEFAULT_SEPOLIA_OWNER: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
+      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+
+    steps:
+      - uses: actions/checkout@v6
+
       - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
+
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
+
       - name: Verify deployment doc links
         run: node scripts/check-markdown-links.cjs
-      - name: Verify precompiled artifacts are present
-        run: test -d artifacts/contracts
-      - name: Run gas reporter
-        run: GAS_REPORT=true npx hardhat test --no-compile
-      - name: Verify contracts (example)
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Resolve verification context
+        env:
+          INPUT_NETWORK: ${{ github.event.inputs.network || 'auto' }}
+          INPUT_DEPLOYED_ADDRESSES_JSON: ${{ github.event.inputs.deployed_addresses_json || '' }}
         run: |
-          # Set ETHERSCAN_API_KEY in repo secrets for this to work
-          # npx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
-          echo "Add contract address and args for verification."
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+
+          const requestedNetwork = (process.env.INPUT_NETWORK || 'auto').trim();
+          const rawOverride = (process.env.INPUT_DEPLOYED_ADDRESSES_JSON || '').trim();
+          const ctx = { window: {} };
+          vm.runInNewContext(fs.readFileSync('site/contracts.js', 'utf8'), ctx);
+
+          const siteContracts = ctx.window.SENTINEL_CONTRACTS || {};
+          const siteNetwork = ctx.window.SENTINEL_NETWORK || 'unknown';
+          const deployedAddresses = rawOverride
+            ? JSON.parse(rawOverride)
+            : Object.fromEntries(
+                Object.entries(siteContracts)
+                  .filter(([, value]) => value && value.address)
+                  .map(([name, value]) => [name, value.address])
+              );
+
+          const verifyNetwork = requestedNetwork === 'auto' ? siteNetwork : requestedNetwork;
+          if (!['sepolia', 'mainnet'].includes(verifyNetwork)) {
+            throw new Error(`Unsupported verification network: ${verifyNetwork}`);
+          }
+
+          fs.appendFileSync(process.env.GITHUB_ENV, `VERIFY_NETWORK=${verifyNetwork}\n`);
+          fs.appendFileSync(
+            process.env.GITHUB_ENV,
+            `DEPLOYED_ADDRESSES<<EOF\n${JSON.stringify(deployedAddresses)}\nEOF\n`
+          );
+
+          fs.appendFileSync(
+            process.env.GITHUB_STEP_SUMMARY,
+            [
+              '## Verification Context',
+              '',
+              `- Network: ${verifyNetwork}`,
+              `- Address map source: ${rawOverride ? 'workflow input' : 'site/contracts.js'}`,
+              `- Contracts in map: ${Object.keys(deployedAddresses).length}`,
+              '',
+            ].join('\n')
+          );
+          NODE
+
+      - name: Check verification prerequisites
+        run: |
+          set -euo pipefail
+
+          missing=()
+
+          if [ -z "${ETHERSCAN_API_KEY}" ]; then
+            missing+=("ETHERSCAN_API_KEY")
+          fi
+
+          if [ -z "${OWNER_PRIVATE_KEY}" ]; then
+            missing+=("OWNER_PRIVATE_KEY")
+          fi
+
+          if [ "${VERIFY_NETWORK}" = "sepolia" ] && [ -z "${SEPOLIA_RPC_URL}" ]; then
+            missing+=("SEPOLIA_RPC_URL")
+          fi
+
+          if [ "${VERIFY_NETWORK}" = "mainnet" ] && [ -z "${MAINNET_RPC_URL}" ]; then
+            missing+=("MAINNET_RPC_URL")
+          fi
+
+          effective_owner="${SENTINEL_OWNER}"
+          if [ -z "${effective_owner}" ] && [ "${VERIFY_NETWORK}" = "sepolia" ]; then
+            effective_owner="${DEFAULT_SEPOLIA_OWNER}"
+          fi
+
+          if [ -z "${effective_owner}" ]; then
+            missing+=("SENTINEL_OWNER")
+          fi
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "Missing required verification secrets/vars: ${missing[*]}" >&2
+            exit 1
+          fi
+
+          echo "SENTINEL_OWNER=${effective_owner}" >> "$GITHUB_ENV"
+
+          if [ "${VERIFY_NETWORK}" = "sepolia" ]; then
+            echo "VERIFY_COMMAND=npm run verify:testnet" >> "$GITHUB_ENV"
+          else
+            echo "VERIFY_COMMAND=npm run verify:mainnet" >> "$GITHUB_ENV"
+          fi
+
+      - name: Prepare verification tooling
+        run: npm run setup:verify-tooling
+
+      - name: Run source verification
+        run: |
+          mkdir -p logs/verification/ci
+          ${VERIFY_COMMAND} | tee logs/verification/ci/verify-${VERIFY_NETWORK}.log
+
       - name: Export ABIs
-        run: npm run export:all-abis
-      - name: Upload ABIs as artifact
+        run: npm run export:abis
+
+      - name: Upload verification artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: abis
-          path: abis/
+          name: verification-${{ github.run_id }}
+          path: |
+            abis/
+            logs/verification/ci/*.log
+          if-no-files-found: warn

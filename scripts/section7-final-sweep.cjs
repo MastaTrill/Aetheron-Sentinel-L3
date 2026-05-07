@@ -4,11 +4,28 @@ const vm = require('vm');
 
 // Use MAINNET_RPC_URL from .env.mainnet
 require('dotenv').config({ path: '.env.mainnet' });
+
+function isUsableRpcUrl(value) {
+  const url = (value || '').trim();
+  if (!url) return false;
+  if (url.includes('YOUR_') || url.includes('your_') || url.endsWith('/v3/')) return false;
+
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 const RPC =
-  process.env.SEPOLIA_RPC_URL ||
-  process.env.MAINNET_RPC_URL ||
-  process.env.HARDHAT_RPC_URL ||
-  'http://127.0.0.1:8545'; // Hardhat local network
+  [
+    process.env.SEPOLIA_RPC_URL,
+    process.env.MAINNET_RPC_URL,
+    'https://ethereum-sepolia-rpc.publicnode.com',
+    process.env.HARDHAT_RPC_URL,
+    'http://127.0.0.1:8545',
+  ].find(isUsableRpcUrl) || 'https://ethereum-sepolia-rpc.publicnode.com';
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';

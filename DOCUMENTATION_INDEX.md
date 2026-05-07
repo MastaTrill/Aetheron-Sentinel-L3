@@ -1,6 +1,6 @@
 # 📋 Deployment Documentation Index
 
-**Mainnet Deployment:** Block [TBD] | **Status:** ⏳ PENDING EVIDENCE PUBLICATION
+**Mainnet Deployment:** Block [TBD] | **Status:** ⏳ NOT EXECUTED IN THIS REPO EVIDENCE YET
 **Sepolia Deployment:** Block 10715441 | **Status:** ✅ COMPLETE
 
 ---
@@ -12,10 +12,9 @@
 **Mainnet:**
 
 - **[DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](./DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md)** ← **START HERE**
-  - Executive summary of all 27 contracts deployed (mainnet dry run)
-  - Key transaction records and verification status
-  - Production decisions locked in
-  - Next steps for mainnet go-live
+  - Mainnet readiness summary and evidence gap tracker
+  - Current status of preflight, release drafting, and remaining go-live gates
+  - What must be replaced with objective mainnet transaction evidence
 
 **Testnet (Sepolia):**
 
@@ -38,10 +37,9 @@
 **Mainnet:**
 
 - **[RELEASE_NOTES_MAINNET_2026-04-27.md](./RELEASE_NOTES_MAINNET_2026-04-27.md)**
-  - All 27 contract addresses with Etherscan links
-  - All critical security handoffs documented
-  - Transaction records with timestamps
-  - Verification commands ready to run
+  - Draft mainnet release notes template
+  - Placeholders for transaction records and explorer links
+  - Final evidence checklist before publication
 
 **Testnet (Sepolia):**
 
@@ -60,6 +58,28 @@
   - Required tx hashes, blocks, and explorer links
   - Ownership/timelock/relayer evidence template
   - External validation publication checklist
+- **[docs/MAINNET_OPERATOR_RUNBOOK.md](./docs/MAINNET_OPERATOR_RUNBOOK.md)**
+  - Exact PowerShell commands and env vars in execution order
+  - Single-operator flow from preflight through release finalization
+- **[docs/MAINNET_RELEASE_PR_CHECKLIST.md](./docs/MAINNET_RELEASE_PR_CHECKLIST.md)**
+  - PR-style checklist for filling in tx hashes, outputs, artifacts, and approvals during the live deployment
+
+### Actual Mainnet Pipeline
+
+- `npm run mainnet:preflight`
+  - Validate RPC, signer, balance, relayer list, and address formatting without sending transactions
+- `npm run deploy:mainnet`
+  - Deploy contracts and print the `DEPLOYED_ADDRESSES` JSON map plus any pending owner actions
+- `npm run setup:ownership -- --network mainnet`
+  - Execute privileged post-deploy configuration when deployer and final owner differ
+- `npm run setup:verify-tooling`
+  - Install isolated Hardhat verify tooling under `.verify-tools/`
+- `DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run verify:mainnet`
+  - Submit source verification using the deployment address map and constructor args
+- `EXPLORER_BASE_URL=https://etherscan.io/address NETWORK=mainnet DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run export:site-config`
+  - Regenerate [site/contracts.js](./site/contracts.js) with mainnet explorer links after deployment
+- `npm run mainnet:finalize`
+  - Update release summary metadata and collect evidence attachments for the release PR
 
 ### For Mainnet Deployment
 
@@ -208,7 +228,10 @@ RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify
 
 Before considering deployment "fully complete":
 
-- [ ] All three verification scripts pass (section7, audit-allowlists, verify-bridge-relayers)
+- [ ] `npm run mainnet:preflight` passes against Ethereum mainnet
+- [ ] `npm run setup:verify-tooling` has been run locally or in CI
+- [ ] `npm run verify:mainnet` completes for the deployed address map
+- [ ] All three read-only verification scripts pass (section7, audit-allowlists, verify-bridge-relayers)
 - [ ] Release notes document matches on-chain reality (check tx hashes on Etherscan)
 - [ ] The Graph dashboard shows events being indexed
 - [ ] Multisig has verified control of timelock (can propose/cancel)
@@ -243,4 +266,4 @@ Before considering deployment "fully complete":
 
 **Last Updated:** April 23, 2026  
 **Deployment Block:** 10715441  
-**Status:** ✅ Production Ready for Testnet
+**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending
