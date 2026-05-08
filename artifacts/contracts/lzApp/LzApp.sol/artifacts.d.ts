@@ -15,7 +15,7 @@ export interface LzApp$Type {
   readonly deployedLinkReferences: {};
   readonly immutableReferences: {};
   readonly inputSourceName: "project/contracts/lzApp/LzApp.sol";
-  readonly buildInfoId: "solc-0_8_28-1b5c21a21cac4f08cf2c8993926ccb888320140e";
+  readonly buildInfoId: "solc-0_8_28-56b4d38520a07143560cd43eeb820c3102363d0a";
 };
 
 import "hardhat/types/artifacts";

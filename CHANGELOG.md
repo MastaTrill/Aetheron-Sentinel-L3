@@ -1,8 +1,11 @@
 # Changelog
+
 All notable changes to Sentinel L3 will be documented here.
 
 ## [1.0.0] — Initial Mainnet Release
+
 ### Added
+
 - Full Sentinel L3 security mesh deployed to mainnet at block **10713054**
 - 27 production contracts including:
   - Core execution layer (SentinelCore, CoreLoop, AMM)
@@ -25,9 +28,11 @@ All notable changes to Sentinel L3 will be documented here.
 - Hybrid Foundry + Hardhat development environment
 
 ### Security
+
 - All modules deployed with deterministic addresses
 - Governance routed through timelock + multisig
 - CircuitBreaker and RateLimiter enabled by default
 
 ### Notes
+
 This is the first stable, production-grade release of Sentinel L3.
