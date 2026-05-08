@@ -1,0 +1,86 @@
+// scripts/deploy-and-patch-mainnet.cjs
+// Usage: node scripts/deploy-and-patch-mainnet.js
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+// --- CONFIG ---
+const DEPLOY_SCRIPT = path.join(__dirname, 'deploy.cjs');
+const NETWORK = 'mainnet';
+const SUMMARY_MD = path.join(__dirname, '../DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md');
+const OWNERSHIP_MD = path.join(__dirname, '../DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md');
+const ENV_FILE = path.join(__dirname, '../.env.mainnet');
+
+function runDeployScript() {
+  console.log('Running deploy.cjs for mainnet...');
+  const output = execSync(`node ${DEPLOY_SCRIPT} --network ${NETWORK}`, {
+    encoding: 'utf-8',
+  });
+  return output;
+}
+
+function extractJsonAddresses(output) {
+  // Looks for the JSON block in the output
+  const match = output.match(/\{[\s\S]*?\}/);
+  if (!match) throw new Error('Could not find JSON addresses in deploy output');
+  return JSON.parse(match[0]);
+}
+
+function extractBlockNumber(output) {
+  // Looks for a line like: 'Final Block: 12345678'
+  const match = output.match(/Final Block:\s*(\d+)/);
+  return match ? match[1] : null;
+}
+
+function patchFile(filePath, replacements) {
+  let content = fs.readFileSync(filePath, 'utf-8');
+  for (const [key, value] of Object.entries(replacements)) {
+    const regex = new RegExp(`(${key}\\s*[:=]\\s*)(.*)`, 'i');
+    content = content.replace(regex, `$1${value}`);
+  }
+  fs.writeFileSync(filePath, content, 'utf-8');
+}
+
+function main() {
+  const output = runDeployScript();
+  const addresses = extractJsonAddresses(output);
+  const blockNumber = extractBlockNumber(output) || 'TO FILL';
+
+  // Print details to console
+  console.log('--- Deployment Details ---');
+  console.log('Block number:', blockNumber);
+  console.log('Deployed addresses:', JSON.stringify(addresses, null, 2));
+  console.log('--------------------------');
+
+  // Write details to log file
+  const logPath = path.join(__dirname, '../logs/deploy-mainnet-details.log');
+  const logContent = [
+    `Block number: ${blockNumber}`,
+    'Deployed addresses:',
+    JSON.stringify(addresses, null, 2),
+    '',
+  ].join('\n');
+  fs.writeFileSync(logPath, logContent, 'utf-8');
+
+  // Patch DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md
+  patchFile(SUMMARY_MD, {
+    'Final Block': blockNumber,
+    Status: '✅ MAINNET DRY RUN COMPLETE',
+  });
+
+  // Patch DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md (example: update owner/roles)
+  patchFile(OWNERSHIP_MD, {
+    'Deployed Addresses': JSON.stringify(addresses, null, 2),
+  });
+
+  // Patch .env.mainnet with DEPLOYED_ADDRESSES and START_BLOCK
+  patchFile(ENV_FILE, {
+    DEPLOYED_ADDRESSES: JSON.stringify(addresses),
+    START_BLOCK: blockNumber,
+  });
+
+  console.log('Deployment and patching complete.');
+}
+
+main();

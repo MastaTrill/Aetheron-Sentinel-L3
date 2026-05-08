@@ -1,0 +1,13 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "Strings",
+  "sourceName": "contracts/SentinelAPIMarketplace.sol",
+  "abi": [],
+  "bytecode": "0x60556032600b8282823980515f1a607314602657634e487b7160e01b5f525f60045260245ffd5b305f52607381538281f3fe730000000000000000000000000000000000000000301460806040525f5ffdfea2646970667358221220848c1b6d0c74aa52cd560a4940251d494baab3b165e52a5d31fd93b55be0c9ab64736f6c634300081c0033",
+  "deployedBytecode": "0x730000000000000000000000000000000000000000301460806040525f5ffdfea2646970667358221220848c1b6d0c74aa52cd560a4940251d494baab3b165e52a5d31fd93b55be0c9ab64736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/SentinelAPIMarketplace.sol",
+  "buildInfoId": "solc-0_8_28-1b5c21a21cac4f08cf2c8993926ccb888320140e"
+}
