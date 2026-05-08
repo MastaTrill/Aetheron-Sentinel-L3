@@ -209,7 +209,7 @@ jobs:
 
       - name: Run Slither static analysis
         if: github.event_name == 'push'
-        uses: crytic/slither-action@v0.3.0
+        uses: crytic/slither-action@v0.4.2
         id: slither
         with:
           slither-config: .slither.json
