@@ -38,6 +38,7 @@ jobs:
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
       HARDHAT_USER_HOME: ~/.cache/hardhat
+      HARDHAT_SOLC_PATH: ~/.cache/hardhat/solc
 
     steps:
       - name: Checkout repository
@@ -48,6 +49,12 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
+      - name: Download Solidity compiler
+        run: |
+          mkdir -p ~/.cache/hardhat
+          curl -L -o ~/.cache/hardhat/solc https://github.com/ethereum/solidity/releases/download/v0.8.28/solc-static-linux
+          chmod +x ~/.cache/hardhat/solc
 
       - name: Restore Hardhat compiler cache
         uses: actions/cache@v4
