@@ -37,6 +37,7 @@ jobs:
     timeout-minutes: 20
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      HARDHAT_USER_HOME: ~/.cache/hardhat
 
     steps:
       - name: Checkout repository
@@ -47,6 +48,14 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
+      - name: Restore Hardhat compiler cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/hardhat
+          key: ${{ runner.os }}-hardhat-compiler-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-hardhat-compiler-
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
