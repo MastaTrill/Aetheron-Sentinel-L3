@@ -28,19 +28,23 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   hardhat:
     name: Hardhat (Node 24)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      HARDHAT_USER_HOME: ~/.cache/hardhat
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Clean submodules
+        run: git submodule deinit --all -f || true
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
@@ -48,10 +52,34 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Download Solidity compiler
+        run: |
+          mkdir -p ~/.cache/hardhat
+          curl -L -o ~/.cache/hardhat/solc https://github.com/ethereum/solidity/releases/download/v0.8.28/solc-static-linux
+          chmod +x ~/.cache/hardhat/solc
+          echo "HARDHAT_SOLC_PATH=$HOME/.cache/hardhat/solc" >> $GITHUB_ENV
+
+      - name: Restore Hardhat compiler cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+            ~/.cache/hardhat
+            ~/.cache/solidity-nodejs
+          key: ${{ runner.os }}-hardhat-compiler-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-hardhat-compiler-
+
+      - name: Configure git for HTTPS
+        run: git config --global url."https://github.com/".insteadOf git@github.com:
+
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run Hardhat tests (no compile - using precompiled artifacts)
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Run Hardhat tests
         run: npx hardhat test --no-compile
 
       - name: Run targeted AetheronBridge guardrail tests
@@ -498,5 +526,3 @@ jobs:
           name: deployment-preview
           path: deploy-preview.txt
           if-no-files-found: 'warn'
-
-

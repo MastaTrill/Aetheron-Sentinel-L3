@@ -69,21 +69,20 @@ cp .env.example .env.mainnet
 ### Step 2: Deploy All Contracts
 
 ```bash
-# Dry run first
-npm run deploy:mainnet -- --dry-run
+# Validate config first without sending transactions
+npm run mainnet:preflight
 
-# Execute (requires OWNER_PRIVATE_KEY in .env)
+# Execute the deployment (requires OWNER_PRIVATE_KEY in .env)
 npm run deploy:mainnet
 
-# Save output JSON
-cp DEPLOYED_ADDRESSES.json DEPLOYED_ADDRESSES_mainnet_$(date +%s).json
+# Save the printed DEPLOYED_ADDRESSES JSON from stdout for later steps
 ```
 
 ### Step 3: Update Configuration Files
 
 ```bash
 # Export mainnet addresses to site/contracts.js
-npm run export:site-config -- --network mainnet
+EXPLORER_BASE_URL=https://etherscan.io/address NETWORK=mainnet DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run export:site-config
 
 # Update subgraph with mainnet start blocks
 # (Manually inspect DEPLOYED_ADDRESSES.json for deployment receipt blocks)
@@ -157,6 +156,12 @@ OWNER_PRIVATE_KEY=0x<owner-key> node scripts/.tmp_set_chain_limits.cjs
 Run the same verification suite used for Sepolia:
 
 ```bash
+# Install isolated verify tooling once
+npm run setup:verify-tooling
+
+# Etherscan verification
+DEPLOYED_ADDRESSES='{"SentinelToken":"0x..."}' npm run verify:mainnet
+
 # Ownership alignment
 node scripts/section7-final-sweep.cjs
 
@@ -174,10 +179,10 @@ node scripts/audit-allowlists.cjs > /tmp/mainnet_allowlists_$(date +%s).txt
 ### Step 9: Create Release Documentation
 
 ```bash
-# Copy and edit the Sepolia release notes template
-cp RELEASE_NOTES_SEPOLIA_*.md RELEASE_NOTES_MAINNET_$(date +%Y-%m-%d).md
+# Update the tracked mainnet draft files in-place
+npm run mainnet:finalize
 
-# Update all:
+# Then update all:
 # - Block numbers (from deployment receipts)
 # - Transaction hashes (from deployment output)
 # - Addresses (from contracts.js or deployment output)

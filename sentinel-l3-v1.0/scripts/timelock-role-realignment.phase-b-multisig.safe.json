@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "chainId": "11155111",
+  "createdAt": 1776902400000,
+  "meta": {
+    "name": "Sentinel Timelock Role Realignment Phase B (Sepolia)",
+    "description": "Execute after multisig has TIMELOCK_ADMIN_ROLE: revoke TIMELOCK_ADMIN_ROLE from owner EOA.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994",
+    "createdFromOwnerAddress": "",
+    "checksum": ""
+  },
+  "transactions": [
+    {
+      "to": "0x670F79bFe0829e491aB0c41A7A93B1E56a09f2a0",
+      "value": "0",
+      "data": "0xd547741f5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5000000000000000000000000a1b9cf0f48f815ce80ed2ab203fa7c0c8299a0fb",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "revokeRole",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "role": "0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5",
+        "account": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB"
+      }
+    }
+  ]
+}
