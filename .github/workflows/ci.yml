@@ -44,6 +44,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Clean submodules
+        run: git submodule deinit --all -f || true
+
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
@@ -59,7 +62,10 @@ jobs:
       - name: Restore Hardhat compiler cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/hardhat
+          path: |
+            ~/.cache/hardhat-nodejs
+            ~/.cache/hardhat
+            ~/.cache/solidity-nodejs
           key: ${{ runner.os }}-hardhat-compiler-${{ hashFiles('hardhat.config.js', 'package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-hardhat-compiler-
