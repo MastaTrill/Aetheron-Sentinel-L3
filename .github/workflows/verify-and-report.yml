@@ -1,9 +1,10 @@
 name: Verify and Report
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  # Disabled automatic verification on push to prevent accidental deployments
+  # push:
+  #   branches: [main]
     inputs:
       network:
         description: Verification target (`auto` uses `site/contracts.js`)

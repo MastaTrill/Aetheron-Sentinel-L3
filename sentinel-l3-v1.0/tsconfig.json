@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+    "jsx": "react-jsx"
+  },
+  "include": ["./src"],
+  "exclude": [
+    "generated",
+    "generated/**",
+    "node_modules",
+    "src/bridge-events.ts",
+    "src/circuit-breaker.ts",
+    "src/rate-limiter.ts",
+    "src/sentinel-interceptor.ts"
+  ]
+}

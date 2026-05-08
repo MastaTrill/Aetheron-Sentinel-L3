@@ -39,6 +39,9 @@ const config = {
         enabled: true,
         runs: 200,
       },
+      metadata: {
+        useLiteralContent: true,
+      },
     },
   },
   networks: {

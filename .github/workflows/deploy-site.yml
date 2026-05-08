@@ -1,9 +1,10 @@
 name: Deploy Site to GitHub Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  # Disabled automatic site deployment on push to prevent accidental deployments
+  # push:
+  #   branches: [main]
 
 permissions:
   contents: read
