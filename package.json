@@ -80,6 +80,7 @@
     "hardhat": "^3.4.4",
     "prettier": "^3.2.5",
     "solc": "0.8.28",
+    "@zksync/contracts": "^0.4.0",
     "ts-node": "^10.0.0",
     "typechain": "^8.3.2",
     "typescript": "^6.0.3"
