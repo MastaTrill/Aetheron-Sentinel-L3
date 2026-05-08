@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @dev Minimal interface for SentinelInterceptor
 interface ISentinelInterceptor {
@@ -80,7 +80,7 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
         uint256 severity
     );
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Set default alert conditions
         _setAlertCondition(
@@ -101,9 +101,6 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
             9,
             "Multiple circuits failed"
         );
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**

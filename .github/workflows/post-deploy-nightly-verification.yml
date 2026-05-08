@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Verify deployment doc links
         run: node scripts/check-markdown-links.cjs
@@ -50,7 +50,7 @@ jobs:
 
       - name: Run bridge relayer verification
         env:
-          RELAYER_ADDRESSES: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
+          RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
         run: |
           node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
 
@@ -72,9 +72,9 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Create audit directory
@@ -90,13 +90,13 @@ jobs:
 
       - name: Audit apps/remix-dashboard workspace
         run: |
-          npm audit --workspace=apps/remix-dashboard --json > logs/verification/ci/audit/apps-remix-dashboard-audit.json || true
-          npm audit --workspace=apps/remix-dashboard | tee logs/verification/ci/audit/apps-remix-dashboard-audit.txt
+          npm --prefix apps/remix-dashboard audit --json > logs/verification/ci/audit/apps-remix-dashboard-audit.json || true
+          npm --prefix apps/remix-dashboard audit | tee logs/verification/ci/audit/apps-remix-dashboard-audit.txt
 
       - name: Audit imports/remix_-aetheron-sentinel-l3 workspace
         run: |
-          npm audit --workspace=imports/remix_-aetheron-sentinel-l3 --json > logs/verification/ci/audit/imports-remix-audit.json || true
-          npm audit --workspace=imports/remix_-aetheron-sentinel-l3 | tee logs/verification/ci/audit/imports-remix-audit.txt
+          npm --prefix imports/remix_-aetheron-sentinel-l3 audit --json > logs/verification/ci/audit/imports-remix-audit.json || true
+          npm --prefix imports/remix_-aetheron-sentinel-l3 audit | tee logs/verification/ci/audit/imports-remix-audit.txt
 
       - name: Check for vulnerabilities
         run: |

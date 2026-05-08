@@ -1,0 +1,6 @@
+{
+  "treasury_anchor": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+  "security_mode": "hardened",
+  "bridge_kill_switch": true,
+  "yield_redirect": true
+}

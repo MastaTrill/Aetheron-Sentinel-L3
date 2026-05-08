@@ -2,14 +2,15 @@
 /* global describe, it, beforeEach */
 
 import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelYieldMaximizer', function () {
   let yieldMaximizer, token;
   let owner, user;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user] = await ethers.getSigners();
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
@@ -42,7 +43,7 @@ describe('SentinelYieldMaximizer', function () {
     it('is only callable by owner', async function () {
       await expect(
         yieldMaximizer.connect(user).setYieldToken(await token.getAddress())
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWithCustomError(yieldMaximizer, 'OwnableUnauthorizedAccount');
     });
   });
 

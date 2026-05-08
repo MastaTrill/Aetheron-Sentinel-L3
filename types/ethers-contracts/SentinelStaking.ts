@@ -434,9 +434,7 @@ export interface SentinelStaking extends BaseContract {
   getFunction(
     nameOrSignature: 'getRoleAdmin'
   ): TypedContractMethod<[role: BytesLike], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'getStakeInfo'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getStakeInfo'): TypedContractMethod<
     [user: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -478,9 +476,7 @@ export interface SentinelStaking extends BaseContract {
   getFunction(
     nameOrSignature: 'stake'
   ): TypedContractMethod<[amount: BigNumberish], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'stakes'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'stakes'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -497,9 +493,7 @@ export interface SentinelStaking extends BaseContract {
   getFunction(
     nameOrSignature: 'supportsInterface'
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>;
-  getFunction(
-    nameOrSignature: 'tiers'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'tiers'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, bigint] & {

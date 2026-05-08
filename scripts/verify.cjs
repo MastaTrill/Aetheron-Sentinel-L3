@@ -27,8 +27,7 @@ const execFileAsync = promisify(execFile);
 const execAsync = promisify(exec);
 
 function getCliNetworkName() {
-  const envNetwork =
-    process.env.HARDHAT_NETWORK || process.env.npm_config_network;
+  const envNetwork = process.env.HARDHAT_NETWORK || process.env.npm_config_network;
   if (envNetwork) return envNetwork;
 
   const networkIndex = process.argv.indexOf('--network');
@@ -42,7 +41,7 @@ function getCliNetworkName() {
 function parseAddressList(value) {
   return (value || '')
     .split(',')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .filter(Boolean);
 }
 
@@ -51,24 +50,26 @@ function parseBoolean(value, fallback) {
   return value === 'true' || value === '1';
 }
 
+function requireOwnerPrivateKey() {
+  const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(ownerKey)) {
+    throw new Error('OWNER_PRIVATE_KEY must be set as a 0x-prefixed 32-byte hex key.');
+  }
+  return ownerKey;
+}
+
 function getVerifyCliConfig() {
   const verifyToolsDir = path.join(process.cwd(), '.verify-tools');
-  const verifyConfigPath = path.join(
-    process.cwd(),
-    'scripts',
-    'verify-hardhat.config.cjs',
-  );
+  const verifyConfigPath = path.join(process.cwd(), 'scripts', 'verify-hardhat.config.cjs');
   const hardhatCmd = path.join(
     verifyToolsDir,
     'node_modules',
     '.bin',
-    process.platform === 'win32' ? 'hardhat.cmd' : 'hardhat',
+    process.platform === 'win32' ? 'hardhat.cmd' : 'hardhat'
   );
 
   if (!fsSync.existsSync(hardhatCmd) || !fsSync.existsSync(verifyConfigPath)) {
-    throw new Error(
-      'Verification tooling is not installed. Run: npm run setup:verify-tooling',
-    );
+    throw new Error('Verification tooling is not installed. Run: npm run setup:verify-tooling');
   }
 
   return { hardhatCmd, verifyConfigPath };
@@ -77,24 +78,16 @@ function getVerifyCliConfig() {
 async function verify(address, constructorArguments) {
   const networkName = getCliNetworkName();
   const { hardhatCmd, verifyConfigPath } = getVerifyCliConfig();
-  const argsFilePath = path.join(
-    process.cwd(),
-    '.verify-args',
-    `${address.toLowerCase()}.cjs`,
-  );
+  const argsFilePath = path.join(process.cwd(), '.verify-args', `${address.toLowerCase()}.cjs`);
 
   // Hardhat verify accepts constructor args from a JS module path.
   const encodedArgs = JSON.stringify(constructorArguments, (_, value) =>
-    typeof value === 'bigint' ? value.toString() : value,
+    typeof value === 'bigint' ? value.toString() : value
   );
 
   try {
     await fs.mkdir(path.dirname(argsFilePath), { recursive: true });
-    await fs.writeFile(
-      argsFilePath,
-      `module.exports = ${encodedArgs};\n`,
-      'utf8',
-    );
+    await fs.writeFile(argsFilePath, `module.exports = ${encodedArgs};\n`, 'utf8');
 
     const cliArgs = [
       'verify',
@@ -108,7 +101,7 @@ async function verify(address, constructorArguments) {
     ];
 
     if (process.platform === 'win32') {
-      const command = `"${hardhatCmd}" ${cliArgs.map((arg) => `"${arg}"`).join(' ')}`;
+      const command = `"${hardhatCmd}" ${cliArgs.map(arg => `"${arg}"`).join(' ')}`;
       await execAsync(command, {
         cwd: process.cwd(),
         env: process.env,
@@ -121,16 +114,17 @@ async function verify(address, constructorArguments) {
     }
 
     console.log(`  ✅ Verified: ${address}`);
+    return true;
   } catch (err) {
     const output = `${err.stdout || ''}\n${err.stderr || ''}\n${err.message || ''}`;
     if (/already verified/i.test(output)) {
       console.log(`  ℹ️  Already verified: ${address}`);
+      return true;
     } else {
       const reason =
-        (err.stderr && err.stderr.trim()) ||
-        (err.stdout && err.stdout.trim()) ||
-        err.message;
+        (err.stderr && err.stderr.trim()) || (err.stdout && err.stdout.trim()) || err.message;
       console.warn(`  ⚠️  Verification failed for ${address}: ${reason}`);
+      return false;
     }
   } finally {
     await fs.rm(argsFilePath, { force: true }).catch(() => {});
@@ -143,27 +137,22 @@ async function main() {
     throw new Error(
       'DEPLOYED_ADDRESSES env var is required.\n' +
         'Set it to the JSON output printed by deploy.js, e.g.:\n' +
-        '  DEPLOYED_ADDRESSES=\'{"SentinelToken":"0x..."}\' npx hardhat run scripts/verify.js --network sepolia',
+        '  DEPLOYED_ADDRESSES=\'{"SentinelToken":"0x..."}\' npx hardhat run scripts/verify.js --network sepolia'
     );
   }
 
   const addresses = JSON.parse(rawAddresses);
 
-  const deployerAddress = process.env.PRIVATE_KEY
-    ? new ethers.Wallet(process.env.PRIVATE_KEY).address
-    : ethers.ZeroAddress;
-  const owner = process.env.SENTINEL_OWNER || deployerAddress;
+  const ownerKey = requireOwnerPrivateKey();
+  const ownerAddress = new ethers.Wallet(ownerKey).address;
+  const owner = process.env.SENTINEL_OWNER || ownerAddress;
 
   const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
-  const tvlThreshold = ethers.parseEther(
-    process.env.TVL_THRESHOLD_ETH || '1000',
-  );
+  const tvlThreshold = ethers.parseEther(process.env.TVL_THRESHOLD_ETH || '1000');
   const autonomousMode = parseBoolean(process.env.AUTONOMOUS_MODE, true);
 
-  const stakingTokenAddress =
-    process.env.STAKING_TOKEN_ADDRESS || addresses.SentinelToken || '';
-  const rewardTokenAddress =
-    process.env.REWARD_TOKEN_ADDRESS || addresses.SentinelToken || '';
+  const stakingTokenAddress = process.env.STAKING_TOKEN_ADDRESS || addresses.SentinelToken || '';
+  const rewardTokenAddress = process.env.REWARD_TOKEN_ADDRESS || addresses.SentinelToken || '';
   // const yieldTokenAddress =
   //   process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
   const lpTokenAddress = process.env.LP_TOKEN_ADDRESS || '';
@@ -296,7 +285,7 @@ async function main() {
               BigInt(process.env.TIMELOCK_MIN_DELAY || '172800'),
               parseAddressList(process.env.TIMELOCK_PROPOSERS).length
                 ? parseAddressList(process.env.TIMELOCK_PROPOSERS)
-                : [deployerAddress],
+                : [ownerAddress],
               parseAddressList(process.env.TIMELOCK_EXECUTORS).length
                 ? parseAddressList(process.env.TIMELOCK_EXECUTORS)
                 : [ethers.ZeroAddress],
@@ -315,6 +304,8 @@ async function main() {
       : []),
   ];
 
+  const failedContracts = [];
+
   for (const { name, args } of tasks) {
     const address = addresses[name];
     if (!address) {
@@ -322,13 +313,22 @@ async function main() {
       continue;
     }
     console.log(`Verifying ${name} at ${address}...`);
-    await verify(address, args);
+    const verified = await verify(address, args);
+    if (!verified) {
+      failedContracts.push(`${name}@${address}`);
+    }
+  }
+
+  if (failedContracts.length > 0) {
+    throw new Error(
+      `Verification failed for ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`
+    );
   }
 
   console.log('\nVerification run complete.');
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

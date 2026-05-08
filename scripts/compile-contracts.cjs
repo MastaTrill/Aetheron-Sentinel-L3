@@ -3,13 +3,25 @@ const { spawnSync } = require('node:child_process');
 
 process.stdout.write('Compiling Solidity contracts with Hardhat...\n');
 
-const run = spawnSync('npx', ['hardhat', 'compile'], {
-  stdio: 'inherit',
-  shell: process.platform === 'win32',
-});
+const run =
+  process.platform === 'win32'
+    ? spawnSync('npx hardhat compile', {
+        stdio: 'inherit',
+        shell: true,
+      })
+    : spawnSync('npx', ['hardhat', 'compile'], {
+        stdio: 'inherit',
+      });
+
+if (run.error) {
+  process.stderr.write(`${run.error.message}\n`);
+  process.exitCode = 2;
+  return;
+}
 
 if (run.status === 0) {
-  process.exit(0);
+  process.exitCode = 0;
+  return;
 }
 
 process.stderr.write(`
@@ -26,4 +38,4 @@ Fail-fast guidance:
 Until then, compile cannot proceed in this environment.
 `);
 
-process.exit(2);
+process.exitCode = 2;

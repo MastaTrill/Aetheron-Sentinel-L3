@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelToken
@@ -71,7 +71,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     event SecurityReward(address indexed user, uint256 amount);
     event SecurityReporterUpdated(address indexed reporter, bool status);
 
-    constructor(address initialOwner) ERC20("Aetheron Sentinel", "SENT") {
+    constructor(address initialOwner) ERC20("Aetheron Sentinel", "SENT") Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _mint(address(this), TOTAL_SUPPLY);
 
@@ -86,9 +86,6 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
             STAKING_REWARDS +
             GOVERNANCE_REWARDS +
             SECURITY_REWARDS;
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -401,5 +398,40 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         );
         rewardPoolRemaining -= amount;
         _transfer(address(this), recipient, amount);
+    }
+
+    /**
+     * @notice Check if address has premium dashboard access
+     * @param user Address to check
+     * @return True if user has premium access (holds minimum tokens)
+     */
+    function hasPremiumAccess(address user) external view returns (bool) {
+        return balanceOf(user) >= 1000 ether; // Require 1000 AETH for premium access
+    }
+
+    /**
+     * @notice Get user's staking APY including bonuses
+     * @param user Address to check
+     * @return APY in basis points (e.g., 300 = 3.00%)
+     */
+    function getUserStakingAPY(address user) external view returns (uint256) {
+        uint256 baseAPY = BASE_STAKING_APY;
+
+        // Governance bonus
+        if (governanceParticipation[user] > 0) {
+            baseAPY += GOVERNANCE_APY_BONUS;
+        }
+
+        // Security bonus (simplified)
+        if (securityContributions[user] > 0) {
+            baseAPY += SECURITY_APY_BONUS;
+        }
+
+        // Cap at max
+        if (baseAPY > MAX_ENHANCED_APY) {
+            baseAPY = MAX_ENHANCED_APY;
+        }
+
+        return baseAPY;
     }
 }

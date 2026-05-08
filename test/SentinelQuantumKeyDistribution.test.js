@@ -1,15 +1,15 @@
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelQuantumKeyDistribution', function () {
   let qkd;
   let owner;
   let user;
   let responder;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, responder] = await ethers.getSigners();
     const SentinelQuantumKeyDistribution = await ethers.getContractFactory(
       'SentinelQuantumKeyDistribution'
@@ -26,7 +26,9 @@ describe('SentinelQuantumKeyDistribution', function () {
   });
 
   it('only owner can generate keys', async function () {
-    await expect(qkd.connect(user).generateQuantumKey(user.address, 256)).to.be.reverted;
+    await expect(
+      qkd.connect(user).generateQuantumKey(user.address, 256)
+    ).to.be.revertedWithCustomError(qkd, 'OwnableUnauthorizedAccount');
   });
 
   it('generates and activates a key', async function () {

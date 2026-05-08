@@ -461,9 +461,7 @@ export interface SentinelAMM extends BaseContract {
   getFunction(
     nameOrSignature: 'feeTiers'
   ): TypedContractMethod<[arg0: BigNumberish], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'getQuantumPoolStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getQuantumPoolStats'): TypedContractMethod<
     [poolId: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -480,9 +478,7 @@ export interface SentinelAMM extends BaseContract {
   >;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
   getFunction(nameOrSignature: 'poolCount'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'pools'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'pools'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [string, string, bigint, bigint, bigint, bigint, bigint, bigint, bigint, boolean] & {
@@ -503,9 +499,7 @@ export interface SentinelAMM extends BaseContract {
   getFunction(
     nameOrSignature: 'rebalanceQuantumPool'
   ): TypedContractMethod<[poolId: BigNumberish], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'rebalanceStrategies'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'rebalanceStrategies'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, boolean, bigint] & {
@@ -525,9 +519,7 @@ export interface SentinelAMM extends BaseContract {
   getFunction(
     nameOrSignature: 'transferOwnership'
   ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'userPositions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'userPositions'): TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint, boolean, bigint, bigint] & {

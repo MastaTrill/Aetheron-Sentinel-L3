@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title SentinelReferralSystem
@@ -69,15 +69,12 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
         string activityType
     );
 
-    constructor(address _rewardToken, address initialOwner) {
+    constructor(address _rewardToken, address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         rewardToken = _rewardToken;
 
         // Initialize referral tiers
         _initializeTiers();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**

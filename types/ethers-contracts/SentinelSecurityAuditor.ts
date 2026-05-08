@@ -464,9 +464,7 @@ export interface SentinelSecurityAuditor extends BaseContract {
     nameOrSignature: 'alertRecipients'
   ): TypedContractMethod<[arg0: BigNumberish], [string], 'view'>;
   getFunction(nameOrSignature: 'alertThreshold'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'auditLogs'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'auditLogs'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, string, string, string, bigint, bigint, string, boolean, bigint] & {
@@ -501,9 +499,7 @@ export interface SentinelSecurityAuditor extends BaseContract {
     [SentinelSecurityAuditor.AuditLogStructOutput[]],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getSecurityDashboard'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getSecurityDashboard'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -539,9 +535,7 @@ export interface SentinelSecurityAuditor extends BaseContract {
   ): TypedContractMethod<[arg0: string], [string], 'view'>;
   getFunction(nameOrSignature: 'responseCooldown'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(nameOrSignature: 'ruleCount'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'securityIncidents'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'securityIncidents'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, string, bigint, bigint, string, string, boolean, boolean, bigint, string] & {
@@ -567,9 +561,7 @@ export interface SentinelSecurityAuditor extends BaseContract {
     nameOrSignature: 'setAutomatedResponse'
   ): TypedContractMethod<[ruleName: string, responseContract: AddressLike], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'threatLevel'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'threatRules'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'threatRules'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [string, bigint, bigint, boolean, bigint, bigint, string] & {

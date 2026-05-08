@@ -835,7 +835,6 @@ export default function App() {
       setYieldStats(prev => ({
         ...prev,
         currentYield: Math.min(target, prev.currentYield + increment),
-        bmnrPower: prev.bmnrPower + 0.8, // Increased power gain
       }));
       currentStep++;
       if (currentStep >= steps) {
@@ -934,7 +933,7 @@ export default function App() {
                   INITIALIZING SOVEREIGN PROTOCOLS
                 </p>
                 <p className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-primary animate-pulse">
-                  BMNR YIELD AGGREGATOR: ONLINE
+                  YIELD AGGREGATOR: ONLINE
                 </p>
               </div>
             </motion.div>
@@ -1160,10 +1159,10 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-2 rounded bg-black/40 border border-primary/10">
                     <p className="text-[7px] font-bold text-primary/40 uppercase mb-1">
-                      Quantum BMNR Power
+                      Quantum Yield Power
                     </p>
                     <p className="text-xs font-mono font-bold text-primary">
-                      {yieldStats.bmnrPower.toFixed(1)}x
+                      {yieldStats.currentYield.toFixed(1)}%
                     </p>
                   </div>
                   <div className="p-2 rounded bg-black/40 border border-primary/10">

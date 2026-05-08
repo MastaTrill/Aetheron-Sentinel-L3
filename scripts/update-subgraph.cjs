@@ -24,7 +24,7 @@ function main() {
       'Error: DEPLOYED_ADDRESSES env var is required.\n' +
         'Set it to the JSON output printed by deploy.js.\n' +
         'Example:\n' +
-        '  DEPLOYED_ADDRESSES=\'{"SentinelInterceptor":"0x...", ...}\' node scripts/update-subgraph.js',
+        '  DEPLOYED_ADDRESSES=\'{"SentinelInterceptor":"0x...", ...}\' node scripts/update-subgraph.js'
     );
     process.exit(1);
   }
@@ -42,33 +42,24 @@ function main() {
   let yaml = fs.readFileSync(SUBGRAPH_PATH, 'utf8');
   let patchCount = 0;
 
-  for (const [contractName, dataSourceName] of Object.entries(
-    contractToDataSource,
-  )) {
+  for (const [contractName, dataSourceName] of Object.entries(contractToDataSource)) {
     const address = addresses[contractName];
     if (!address) {
-      console.warn(
-        `  ⚠️  No address for ${contractName} in DEPLOYED_ADDRESSES — skipping`,
-      );
+      console.warn(`  ⚠️  No address for ${contractName} in DEPLOYED_ADDRESSES — skipping`);
       continue;
     }
 
     // Replace address lines for this data source block.
     // Strategy: locate the data source by name, then replace the next address line.
     const dataSourceRegex = new RegExp(
-      `(name:\\s*${dataSourceName}[\\s\\S]*?address:\\s*")[^"]*("\\s*#[^\\n]*)`,
+      `(name:\\s*${dataSourceName}[\\s\\S]*?address:\\s*")[^"]*("\\s*#[^\\n]*)`
     );
     const updated = yaml.replace(dataSourceRegex, (match, pre, post) => {
-      return `${pre}${address}${post.replace(
-        /#[^\n]*/,
-        `# updated by update-subgraph.js`,
-      )}`;
+      return `${pre}${address}${post.replace(/#[^\n]*/, `# updated by update-subgraph.js`)}`;
     });
 
     if (updated === yaml) {
-      console.warn(
-        `  ⚠️  Could not find address placeholder for ${dataSourceName}`,
-      );
+      console.warn(`  ⚠️  Could not find address placeholder for ${dataSourceName}`);
     } else {
       yaml = updated;
       patchCount++;
@@ -81,9 +72,7 @@ function main() {
   console.log(`  ✅ startBlock: ${startBlock}`);
 
   fs.writeFileSync(SUBGRAPH_PATH, yaml, 'utf8');
-  console.log(
-    `\nPatched ${patchCount} data source addresses in subgraph.yaml.`,
-  );
+  console.log(`\nPatched ${patchCount} data source addresses in subgraph.yaml.`);
 }
 
 main();

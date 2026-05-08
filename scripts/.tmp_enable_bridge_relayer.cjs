@@ -8,8 +8,7 @@ const vm = require('vm');
 
 const RPC = 'https://ethereum-sepolia-rpc.publicnode.com';
 const PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY;
-const RELAYER =
-  process.env.RELAYER_ADDRESSES || '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
+const RELAYER = process.env.RELAYER_ADDRESSES || '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 
 if (!PRIVATE_KEY || PRIVATE_KEY.length < 60) {
   console.error('OWNER_PRIVATE_KEY not set or too short.');
@@ -27,7 +26,7 @@ if (!PRIVATE_KEY || PRIVATE_KEY.length < 60) {
   const bridge = new ethers.Contract(
     c.AetheronBridge.address,
     ['function setRelayer(address relayer, bool authorized) external'],
-    signer,
+    signer
   );
 
   console.log(`Signer: ${signer.address}`);

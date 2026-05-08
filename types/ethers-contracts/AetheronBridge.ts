@@ -619,9 +619,7 @@ export interface AetheronBridge extends BaseContract {
   getFunction(
     nameOrSignature: 'transferOwnership'
   ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'transfers'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'transfers'): TypedContractMethod<
     [arg0: BytesLike],
     [
       [string, string, bigint, bigint, string, string, boolean] & {

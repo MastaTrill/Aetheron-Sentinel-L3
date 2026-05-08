@@ -379,9 +379,7 @@ export interface SentinelRewardAggregator extends BaseContract {
   getFunction(
     nameOrSignature: 'claimAllRewards'
   ): TypedContractMethod<[user: AddressLike], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'currentSystemAPY'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'currentSystemAPY'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -399,9 +397,7 @@ export interface SentinelRewardAggregator extends BaseContract {
   getFunction(
     nameOrSignature: 'getSystemAPY'
   ): TypedContractMethod<[], [SentinelRewardAggregator.SystemAPYStructOutput], 'view'>;
-  getFunction(
-    nameOrSignature: 'getUserRewardBreakdown'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getUserRewardBreakdown'): TypedContractMethod<
     [user: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -439,9 +435,7 @@ export interface SentinelRewardAggregator extends BaseContract {
   getFunction(
     nameOrSignature: 'updateUserRewards'
   ): TypedContractMethod<[user: AddressLike], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'userRewards'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'userRewards'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {

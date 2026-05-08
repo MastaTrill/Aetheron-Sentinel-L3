@@ -638,9 +638,7 @@ export interface SentinelToken extends BaseContract {
   getFunction(
     nameOrSignature: 'getUserAPY'
   ): TypedContractMethod<[user: AddressLike], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'getVestingSchedule'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getVestingSchedule'): TypedContractMethod<
     [beneficiary: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -723,9 +721,7 @@ export interface SentinelToken extends BaseContract {
   getFunction(
     nameOrSignature: 'unstake'
   ): TypedContractMethod<[amount: BigNumberish], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'vestingSchedules'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'vestingSchedules'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint, boolean] & {

@@ -440,9 +440,7 @@ export interface SentinelYieldMaximizer extends BaseContract {
   getFunction(
     nameOrSignature: 'deposit'
   ): TypedContractMethod<[amount: BigNumberish], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'getSystemMetrics'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getSystemMetrics'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -479,9 +477,7 @@ export interface SentinelYieldMaximizer extends BaseContract {
   getFunction(
     nameOrSignature: 'updateVolatilityIndex'
   ): TypedContractMethod<[newVolatility: BigNumberish], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'userPositions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'userPositions'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -499,9 +495,7 @@ export interface SentinelYieldMaximizer extends BaseContract {
     nameOrSignature: 'withdraw'
   ): TypedContractMethod<[amount: BigNumberish], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'yieldPredictionHorizon'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'yieldStrategies'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'yieldStrategies'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [string, bigint, bigint, bigint, boolean, bigint, string] & {

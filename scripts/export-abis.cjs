@@ -35,8 +35,7 @@ function walkArtifacts(dir) {
 function main() {
   if (!fs.existsSync(ARTIFACTS_DIR)) {
     console.error(
-      `Artifacts directory not found: ${ARTIFACTS_DIR}\n` +
-        'Run `npx hardhat compile` first.',
+      `Artifacts directory not found: ${ARTIFACTS_DIR}\n` + 'Run `npx hardhat compile` first.'
     );
     process.exit(1);
   }

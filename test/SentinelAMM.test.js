@@ -1,14 +1,14 @@
 // test/SentinelAMM.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelAMM', function () {
   let amm;
   let owner, user;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user] = await ethers.getSigners();
 
     const SentinelAMM = await ethers.getContractFactory('SentinelAMM');

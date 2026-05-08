@@ -83,9 +83,7 @@ export interface ISentinelInterceptor extends BaseContract {
 
   getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-  getFunction(
-    nameOrSignature: 'getAnomalyStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getAnomalyStats'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint] & {

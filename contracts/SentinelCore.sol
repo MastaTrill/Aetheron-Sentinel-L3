@@ -24,16 +24,13 @@ contract SentinelCore is Ownable {
     );
     event RebalanceHookFired(uint256 currentBlock, string status);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "SentinelCore: invalid owner");
 
         heartbeatActive = false; // Starts locked pending settlement/authorization
         targetYieldBps = BASELINE_YIELD_BPS;
         lastSyncTimestamp = block.timestamp;
 
-        if (initialOwner != msg.sender) {
-            _transferOwnership(initialOwner);
-        }
     }
 
     /**

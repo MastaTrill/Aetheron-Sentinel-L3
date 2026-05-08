@@ -1,15 +1,15 @@
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelQuantumGuard', function () {
   let guard;
   let owner;
   let oracleSigner;
   let other;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, oracleSigner, other] = await ethers.getSigners();
     const SentinelQuantumGuard = await ethers.getContractFactory('SentinelQuantumGuard');
     guard = await SentinelQuantumGuard.deploy(owner.address);
@@ -34,8 +34,9 @@ describe('SentinelQuantumGuard', function () {
 
   it('rejects non-owner oracle registration', async function () {
     const pubKey = ethers.keccak256(ethers.toUtf8Bytes('oracle1'));
-    await expect(guard.connect(other).registerSecurityOracle(oracleSigner.address, pubKey)).to.be
-      .reverted;
+    await expect(
+      guard.connect(other).registerSecurityOracle(oracleSigner.address, pubKey)
+    ).to.be.revertedWithCustomError(guard, 'OwnableUnauthorizedAccount');
   });
 
   it('submits quantum proofs and validates a transaction', async function () {

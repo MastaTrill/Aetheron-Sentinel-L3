@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
@@ -79,11 +79,8 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
     event ZKProofVerified(bytes32 indexed proofId, bool success);
     event IdentityVerified(bytes32 indexed identityHash, uint256 trustScore);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "ZKI: zero owner");
-        if (initialOwner != msg.sender) {
-            _transferOwnership(initialOwner);
-        }
     }
 
     /**

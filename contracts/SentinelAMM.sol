@@ -2,9 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
@@ -13,7 +12,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  * Advanced liquidity provision with AI-powered rebalancing and impermanent loss protection
  */
 contract SentinelAMM is ReentrancyGuard, Ownable {
-    using SafeMath for uint256;
 
     // Pool structure with advanced features
     struct QuantumPool {
@@ -110,14 +108,11 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         uint256 protectionAmount
     );
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Create initial pools — pass feeTiers array indices (not raw fee values)
         _createPool(address(0x1), address(0x2), 1); // feeTiers[1] = 5 → 0.05% fee
         _createPool(address(0x3), address(0x4), 2); // feeTiers[2] = 30 → 0.30% fee
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -166,24 +161,19 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         // Calculate liquidity amount
         uint256 liquidity;
         if (pool.totalLiquidity == 0) {
-            liquidity = Math.sqrt(amount0.mul(amount1));
+            liquidity = Math.sqrt(amount0 * amount1);
         } else {
-            uint256 liquidity0 = amount0.mul(pool.totalLiquidity).div(
-                pool.reserve0
-            );
-            uint256 liquidity1 = amount1.mul(pool.totalLiquidity).div(
-                pool.reserve1
-            );
+            uint256 liquidity0 = amount0 * pool.totalLiquidity / pool.reserve0;
+            uint256 liquidity1 = amount1 * pool.totalLiquidity / pool.reserve1;
             liquidity = Math.min(liquidity0, liquidity1);
         }
 
         // Update pool reserves
-        pool.reserve0 = pool.reserve0.add(amount0);
-        pool.reserve1 = pool.reserve1.add(amount1);
-        pool.totalLiquidity = pool.totalLiquidity.add(liquidity);
+        pool.reserve0 = pool.reserve0 + amount0;
+        pool.reserve1 = pool.reserve1 + amount1;
+        pool.totalLiquidity = pool.totalLiquidity + liquidity;
         pool.liquidityPositions[msg.sender] = pool
-            .liquidityPositions[msg.sender]
-            .add(liquidity);
+            .liquidityPositions[msg.sender] + liquidity;
 
         // Create position tracking
         userPositions[msg.sender].push(
@@ -201,7 +191,7 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
             })
         );
 
-        totalValueLocked = totalValueLocked.add(amount0).add(amount1);
+        totalValueLocked = totalValueLocked + amount0 + amount1;
 
         emit LiquidityAdded(poolId, msg.sender, amount0, amount1, liquidity);
     }
@@ -230,8 +220,8 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         );
 
         // Calculate output amount with fee
-        uint256 fee = amountIn.mul(pool.feeTier).div(10000);
-        uint256 amountInAfterFee = amountIn.sub(fee);
+        uint256 fee = amountIn * pool.feeTier / 10000;
+        uint256 amountInAfterFee = amountIn - fee;
 
         if (tokenIn == pool.token0) {
             amountOut = _getAmountOut(
@@ -242,8 +232,8 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
             require(amountOut >= minAmountOut, "Insufficient output amount");
 
             // Update reserves
-            pool.reserve0 = pool.reserve0.add(amountIn);
-            pool.reserve1 = pool.reserve1.sub(amountOut);
+            pool.reserve0 = pool.reserve0 + amountIn;
+            pool.reserve1 = pool.reserve1 - amountOut;
         } else {
             amountOut = _getAmountOut(
                 amountInAfterFee,
@@ -253,8 +243,8 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
             require(amountOut >= minAmountOut, "Insufficient output amount");
 
             // Update reserves
-            pool.reserve1 = pool.reserve1.add(amountIn);
-            pool.reserve0 = pool.reserve0.sub(amountOut);
+            pool.reserve1 = pool.reserve1 + amountIn;
+            pool.reserve0 = pool.reserve0 - amountOut;
         }
 
         // Transfer tokens
@@ -270,7 +260,7 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         );
 
         // Collect fees
-        totalFeesCollected = totalFeesCollected.add(fee);
+        totalFeesCollected = totalFeesCollected + fee;
 
         // Update pool volatility
         _updatePoolVolatility(poolId, amountIn, amountOut);
@@ -295,19 +285,19 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         RebalanceStrategy storage strategy = rebalanceStrategies[poolId];
 
         require(
-            block.timestamp >= strategy.cooldownPeriod.add(pool.lastRebalance),
+            block.timestamp >= strategy.cooldownPeriod + pool.lastRebalance,
             "Rebalance cooldown active"
         );
 
         // Calculate current ratio
-        uint256 currentRatio = pool.reserve0.mul(10000).div(pool.reserve1);
+        uint256 currentRatio = pool.reserve0 * 10000 / pool.reserve1;
         uint256 targetRatio = strategy.targetRatio;
 
         // Check if rebalance needed
         uint256 ratioDiff = currentRatio > targetRatio
-            ? currentRatio.sub(targetRatio)
-            : targetRatio.sub(currentRatio);
-        uint256 ratioChangePercent = ratioDiff.mul(100).div(targetRatio);
+            ? currentRatio - targetRatio
+            : targetRatio - currentRatio;
+        uint256 ratioChangePercent = ratioDiff * 100 / targetRatio;
 
         if (ratioChangePercent >= strategy.rebalanceThreshold) {
             // Execute AI-powered rebalance
@@ -338,15 +328,14 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
 
         // Calculate impermanent loss
         uint256 currentValue = _calculatePositionValue(position, pool);
-        uint256 entryValue = position.token0Amount.add(position.token1Amount);
+        uint256 entryValue = position.token0Amount + position.token1Amount;
         uint256 lossPercent = entryValue > currentValue
-            ? ((entryValue.sub(currentValue)).mul(10000)).div(entryValue)
+            ? ((entryValue - currentValue) * 10000) / entryValue
             : 0;
 
         if (lossPercent >= IMPERMANENT_LOSS_THRESHOLD) {
-            uint256 protectionAmount = (
-                lossPercent.sub(IMPERMANENT_LOSS_THRESHOLD)
-            ).mul(entryValue).div(10000);
+            uint256 protectionAmount = (lossPercent - IMPERMANENT_LOSS_THRESHOLD)
+                * entryValue / 10000;
 
             // Mint protection tokens (simplified - would use actual token in production)
             // For demo, we just emit the event
@@ -404,11 +393,11 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         require(amountIn > 0, "Insufficient input amount");
         require(reserveIn > 0 && reserveOut > 0, "Insufficient liquidity");
 
-        uint256 amountInWithFee = amountIn.mul(997); // 0.3% fee
-        uint256 numerator = amountInWithFee.mul(reserveOut);
-        uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
+        uint256 amountInWithFee = amountIn * 997; // 0.3% fee
+        uint256 numerator = amountInWithFee * reserveOut;
+        uint256 denominator = reserveIn * 1000 + amountInWithFee;
 
-        return numerator.div(denominator);
+        return numerator / denominator;
     }
 
     /**
@@ -423,12 +412,12 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
 
         // Calculate trade impact
         uint256 tradeSize = Math.max(amountIn, amountOut);
-        uint256 poolSize = pool.reserve0.add(pool.reserve1);
+        uint256 poolSize = pool.reserve0 + pool.reserve1;
 
-        uint256 volatilityIncrease = tradeSize.mul(100).div(poolSize);
+        uint256 volatilityIncrease = tradeSize * 100 / poolSize;
 
         pool.volatilityIndex = Math.min(
-            pool.volatilityIndex.add(volatilityIncrease),
+            pool.volatilityIndex + volatilityIncrease,
             MAX_VOLATILITY_INDEX
         );
     }
@@ -448,13 +437,11 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
 
         // Adjust reserves based on target ratio
         // This is a simplified version - real implementation would be more complex
-        uint256 totalValue = pool.reserve0.add(pool.reserve1);
-        uint256 targetReserve0 = totalValue.mul(targetRatio).div(
-            targetRatio.add(10000)
-        );
+        uint256 totalValue = pool.reserve0 + pool.reserve1;
+        uint256 targetReserve0 = totalValue * targetRatio / (targetRatio + 10000);
 
         pool.reserve0 = targetReserve0;
-        pool.reserve1 = totalValue.sub(targetReserve0);
+        pool.reserve1 = totalValue - targetReserve0;
     }
 
     /**
@@ -464,10 +451,10 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         QuantumPool storage pool = pools[poolId];
 
         // Simplified APY prediction based on fees and volatility
-        uint256 baseAPY = pool.feeTier.mul(365).mul(24); // Annualized fee capture
-        uint256 volatilityBonus = pool.volatilityIndex.mul(5); // Higher volatility = higher APY
+        uint256 baseAPY = pool.feeTier * 365 * 24; // Annualized fee capture
+        uint256 volatilityBonus = pool.volatilityIndex * 5; // Higher volatility = higher APY
 
-        return Math.min(baseAPY.add(volatilityBonus), 5000); // Max 50% APY
+        return Math.min(baseAPY + volatilityBonus, 5000); // Max 50% APY
     }
 
     /**
@@ -478,7 +465,7 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
 
         // Simplified IL risk calculation
         // Higher volatility = higher IL risk
-        return Math.min(pool.volatilityIndex.mul(10), 1000); // Max 10% risk
+        return Math.min(pool.volatilityIndex * 10, 1000); // Max 10% risk
     }
 
     /**
@@ -489,10 +476,8 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         QuantumPool storage pool
     ) internal view returns (uint256) {
         // Calculate current value based on liquidity share
-        uint256 poolValue = pool.reserve0.add(pool.reserve1);
-        uint256 positionValue = poolValue.mul(position.liquidityAmount).div(
-            pool.totalLiquidity
-        );
+        uint256 poolValue = pool.reserve0 + pool.reserve1;
+        uint256 positionValue = poolValue * position.liquidityAmount / pool.totalLiquidity;
 
         return positionValue;
     }

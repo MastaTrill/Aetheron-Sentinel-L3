@@ -1,19 +1,20 @@
 // test/SentinelOracleNetwork.test.js
 import { expect } from 'chai';
+import { network } from 'hardhat';
 
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
-
-const MIN_STAKE = ethers.parseEther('1000');
+const MIN_STAKE = '1000'; // Will be parsed in tests
 
 describe('SentinelOracleNetwork', function () {
   let oracle;
   let owner, oracleSigner, other;
+  let ethers;
 
-  const pubKey = ethers.keccak256(ethers.toUtf8Bytes('oracle_pubkey'));
+  const pubKey = '0x' + 'ab'.repeat(32); // keccak256 hash
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, oracleSigner, other] = await ethers.getSigners();
+    const MIN_STAKE_ETHER = ethers.parseEther('1000');
     const SentinelOracleNetwork = await ethers.getContractFactory('SentinelOracleNetwork');
     oracle = await SentinelOracleNetwork.deploy(owner.address);
     await oracle.waitForDeployment();
@@ -36,7 +37,7 @@ describe('SentinelOracleNetwork', function () {
 
   describe('constants', function () {
     it('MIN_STAKE is 1000 ether', async function () {
-      expect(await oracle.MIN_STAKE()).to.equal(MIN_STAKE);
+      expect(await oracle.MIN_STAKE()).to.equal(ethers.parseEther('1000'));
     });
 
     it('MAX_ORACLES is 50', async function () {
@@ -50,12 +51,14 @@ describe('SentinelOracleNetwork', function () {
 
   describe('registerOracle', function () {
     it('registers an oracle with sufficient stake', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
 
       const [active, reputation, stake] = await oracle.getOracleInfo(oracleSigner.address);
       expect(active).to.equal(true);
       expect(reputation).to.equal(500n);
-      expect(stake).to.equal(MIN_STAKE);
+      expect(stake).to.equal(ethers.parseEther('1000'));
     });
 
     it('reverts with insufficient stake', async function () {
@@ -66,14 +69,18 @@ describe('SentinelOracleNetwork', function () {
 
     it('reverts with zero public key', async function () {
       await expect(
-        oracle.connect(oracleSigner).registerOracle(ethers.ZeroHash, { value: MIN_STAKE })
+        oracle
+          .connect(oracleSigner)
+          .registerOracle(ethers.ZeroHash, { value: ethers.parseEther('1000') })
       ).to.be.revertedWith('Invalid public key');
     });
 
     it('reverts if already registered', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await expect(
-        oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE })
+        oracle.connect(oracleSigner).registerOracle(pubKey, { value: ethers.parseEther('1000') })
       ).to.be.revertedWith('Already registered');
     });
   });
@@ -94,7 +101,9 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(oracle.connect(other).addSupportedAsset('ETH/USD', 8)).to.be.reverted;
+      await expect(
+        oracle.connect(other).addSupportedAsset('ETH/USD', 8)
+      ).to.be.revertedWithCustomError(oracle, 'OwnableUnauthorizedAccount');
     });
   });
 
@@ -109,7 +118,9 @@ describe('SentinelOracleNetwork', function () {
 
   describe('submitPriceFeed', function () {
     beforeEach(async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await oracle.addSupportedAsset('ETH/USD', 8);
     });
 
@@ -154,11 +165,15 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(oracle.connect(other).triggerEmergencyShutdown('attack')).to.be.reverted;
+      await expect(
+        oracle.connect(other).triggerEmergencyShutdown('attack')
+      ).to.be.revertedWithCustomError(oracle, 'OwnableUnauthorizedAccount');
     });
 
     it('blocks price submissions after emergency shutdown', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await oracle.addSupportedAsset('ETH/USD', 8);
       await oracle.triggerEmergencyShutdown('test');
 
@@ -170,7 +185,9 @@ describe('SentinelOracleNetwork', function () {
 
   describe('slashOracle', function () {
     it('owner can slash an oracle stake', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
 
       const [, , stakeBefore] = await oracle.getOracleInfo(oracleSigner.address);
 
@@ -182,12 +199,18 @@ describe('SentinelOracleNetwork', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
-      await expect(oracle.connect(other).slashOracle(oracleSigner.address, 1000)).to.be.reverted;
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
+      await expect(
+        oracle.connect(other).slashOracle(oracleSigner.address, 1000)
+      ).to.be.revertedWithCustomError(oracle, 'OwnableUnauthorizedAccount');
     });
 
     it('reverts with invalid penalty (> 10000)', async function () {
-      await oracle.connect(oracleSigner).registerOracle(pubKey, { value: MIN_STAKE });
+      await oracle
+        .connect(oracleSigner)
+        .registerOracle(pubKey, { value: ethers.parseEther('1000') });
       await expect(oracle.slashOracle(oracleSigner.address, 10001)).to.be.revertedWith(
         'Invalid penalty'
       );

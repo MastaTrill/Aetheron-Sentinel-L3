@@ -981,9 +981,7 @@ export interface SentinelGovernance extends BaseContract {
     'nonpayable'
   >;
   getFunction(nameOrSignature: 'clock'): TypedContractMethod<[], [bigint], 'view'>;
-  getFunction(
-    nameOrSignature: 'eip712Domain'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'eip712Domain'): TypedContractMethod<
     [],
     [
       [string, string, string, bigint, string, string, bigint[]] & {
@@ -1004,9 +1002,7 @@ export interface SentinelGovernance extends BaseContract {
   getFunction(
     nameOrSignature: 'emergencyVoters'
   ): TypedContractMethod<[arg0: AddressLike], [boolean], 'view'>;
-  getFunction(
-    nameOrSignature: 'enhancedProposals'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'enhancedProposals'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [bigint, bigint, bigint, bigint, boolean, string] & {
@@ -1032,9 +1028,7 @@ export interface SentinelGovernance extends BaseContract {
     [bigint],
     'payable'
   >;
-  getFunction(
-    nameOrSignature: 'getGovernanceStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getGovernanceStats'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint] & {

@@ -504,9 +504,7 @@ export interface SentinelInterceptor extends BaseContract {
   ): TypedContractMethod<[anomalyType: BigNumberish, severity: BigNumberish], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'emergencyPause'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'emergencyUnpause'): TypedContractMethod<[], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'getAnomalyStats'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getAnomalyStats'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint] & {

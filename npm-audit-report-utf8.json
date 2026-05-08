@@ -1,0 +1,1485 @@
+﻿{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@arbitrum/nitro-contracts": {
+      "name": "@arbitrum/nitro-contracts",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@offchainlabs/upgrade-executor",
+        "@openzeppelin/contracts",
+        "@openzeppelin/contracts-upgradeable",
+        "patch-package"
+      ],
+      "effects": ["@chainlink/contracts"],
+      "range": "*",
+      "nodes": ["node_modules/@arbitrum/nitro-contracts"],
+      "fixAvailable": true
+    },
+    "@chainlink/contracts": {
+      "name": "@chainlink/contracts",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": ["@arbitrum/nitro-contracts", "@eth-optimism/contracts", "@openzeppelin/contracts"],
+      "effects": [],
+      "range": ">=0.4.2",
+      "nodes": ["node_modules/@chainlink/contracts"],
+      "fixAvailable": true
+    },
+    "@eth-optimism/contracts": {
+      "name": "@eth-optimism/contracts",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@eth-optimism/core-utils",
+        "@ethersproject/abstract-provider",
+        "@ethersproject/abstract-signer",
+        "ethers"
+      ],
+      "effects": ["@chainlink/contracts"],
+      "range": "<=0.0.0-alpha.1 || >=0.0.2-alpha.0",
+      "nodes": ["node_modules/@chainlink/contracts/node_modules/@eth-optimism/contracts"],
+      "fixAvailable": true
+    },
+    "@eth-optimism/core-utils": {
+      "name": "@eth-optimism/core-utils",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abi",
+        "@ethersproject/abstract-provider",
+        "@ethersproject/contracts",
+        "@ethersproject/hash",
+        "@ethersproject/providers",
+        "@ethersproject/transactions"
+      ],
+      "effects": ["@eth-optimism/contracts"],
+      "range": "*",
+      "nodes": ["node_modules/@eth-optimism/core-utils"],
+      "fixAvailable": true
+    },
+    "@ethersproject/abi": {
+      "name": "@ethersproject/abi",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["@ethersproject/hash"],
+      "effects": [
+        "@ethersproject/contracts",
+        "@nomicfoundation/hardhat-verify",
+        "@nomiclabs/hardhat-etherscan",
+        "@openzeppelin/platform-deploy-client",
+        "ethers",
+        "hardhat"
+      ],
+      "range": "5.0.10 - 5.8.0",
+      "nodes": ["node_modules/@ethersproject/abi"],
+      "fixAvailable": false
+    },
+    "@ethersproject/abstract-provider": {
+      "name": "@ethersproject/abstract-provider",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["@ethersproject/transactions"],
+      "effects": [
+        "@eth-optimism/contracts",
+        "@eth-optimism/core-utils",
+        "@ethersproject/abstract-signer",
+        "@ethersproject/contracts"
+      ],
+      "range": "*",
+      "nodes": ["node_modules/@ethersproject/abstract-provider"],
+      "fixAvailable": false
+    },
+    "@ethersproject/abstract-signer": {
+      "name": "@ethersproject/abstract-signer",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["@ethersproject/abstract-provider"],
+      "effects": ["@eth-optimism/contracts", "@ethersproject/hash"],
+      "range": "*",
+      "nodes": ["node_modules/@ethersproject/abstract-signer"],
+      "fixAvailable": false
+    },
+    "@ethersproject/contracts": {
+      "name": "@ethersproject/contracts",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abi",
+        "@ethersproject/abstract-provider",
+        "@ethersproject/abstract-signer",
+        "@ethersproject/transactions"
+      ],
+      "effects": ["@eth-optimism/core-utils", "ethers", "hardhat-deploy"],
+      "range": "*",
+      "nodes": ["node_modules/@ethersproject/contracts"],
+      "fixAvailable": true
+    },
+    "@ethersproject/hardware-wallets": {
+      "name": "@ethersproject/hardware-wallets",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["ethers"],
+      "effects": ["hardhat-deploy"],
+      "range": "*",
+      "nodes": ["node_modules/@ethersproject/hardware-wallets"],
+      "fixAvailable": true
+    },
+    "@ethersproject/hash": {
+      "name": "@ethersproject/hash",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["@ethersproject/abstract-signer"],
+      "effects": [
+        "@eth-optimism/core-utils",
+        "@ethersproject/abi",
+        "@ethersproject/providers",
+        "@ethersproject/wallet",
+        "@ethersproject/wordlists",
+        "ethers"
+      ],
+      "range": "5.0.6 - 5.8.0",
+      "nodes": ["node_modules/@ethersproject/hash"],
+      "fixAvailable": false
+    },
+    "@ethersproject/hdnode": {
+      "name": "@ethersproject/hdnode",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abstract-signer",
+        "@ethersproject/signing-key",
+        "@ethersproject/transactions",
+        "@ethersproject/wordlists"
+      ],
+      "effects": ["@ethersproject/json-wallets"],
+      "range": "*",
+      "nodes": ["node_modules/@ethersproject/hdnode"],
+      "fixAvailable": true
+    },
+    "@ethersproject/json-wallets": {
+      "name": "@ethersproject/json-wallets",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abstract-signer",
+        "@ethersproject/hdnode",
+        "@ethersproject/transactions"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": ["node_modules/@ethersproject/json-wallets"],
+      "fixAvailable": true
+    },
+    "@ethersproject/providers": {
+      "name": "@ethersproject/providers",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abstract-provider",
+        "@ethersproject/abstract-signer",
+        "@ethersproject/hash",
+        "@ethersproject/transactions"
+      ],
+      "effects": ["@eth-optimism/core-utils"],
+      "range": "<=5.8.0",
+      "nodes": ["node_modules/@ethersproject/providers"],
+      "fixAvailable": true
+    },
+    "@ethersproject/signing-key": {
+      "name": "@ethersproject/signing-key",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["elliptic"],
+      "effects": [
+        "@ethersproject/hdnode",
+        "@ethersproject/transactions",
+        "@ethersproject/wallet",
+        "ethers"
+      ],
+      "range": "<=5.8.0",
+      "nodes": ["node_modules/@ethersproject/signing-key"],
+      "fixAvailable": false
+    },
+    "@ethersproject/transactions": {
+      "name": "@ethersproject/transactions",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["@ethersproject/signing-key"],
+      "effects": [
+        "@eth-optimism/core-utils",
+        "@ethersproject/abstract-provider",
+        "@ethersproject/contracts",
+        "@ethersproject/providers"
+      ],
+      "range": "<=5.8.0",
+      "nodes": ["node_modules/@ethersproject/transactions"],
+      "fixAvailable": false
+    },
+    "@ethersproject/wallet": {
+      "name": "@ethersproject/wallet",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abstract-provider",
+        "@ethersproject/abstract-signer",
+        "@ethersproject/hash",
+        "@ethersproject/hdnode",
+        "@ethersproject/json-wallets",
+        "@ethersproject/signing-key",
+        "@ethersproject/transactions",
+        "@ethersproject/wordlists"
+      ],
+      "effects": [],
+      "range": "<=5.8.0",
+      "nodes": ["node_modules/@ethersproject/wallet"],
+      "fixAvailable": true
+    },
+    "@ethersproject/wordlists": {
+      "name": "@ethersproject/wordlists",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["@ethersproject/hash"],
+      "effects": ["@ethersproject/hdnode"],
+      "range": "5.0.8 - 5.8.0",
+      "nodes": ["node_modules/@ethersproject/wordlists"],
+      "fixAvailable": true
+    },
+    "@graphprotocol/graph-cli": {
+      "name": "@graphprotocol/graph-cli",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["glob", "gluegun", "immutable", "jayson", "js-yaml", "undici", "yaml"],
+      "effects": [],
+      "range": ">=0.2.4",
+      "nodes": ["node_modules/@graphprotocol/graph-cli"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@layerzerolabs/lz-evm-sdk-v1-0.7": {
+      "name": "@layerzerolabs/lz-evm-sdk-v1-0.7",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@openzeppelin/contracts", "@openzeppelin/contracts-upgradeable"],
+      "effects": ["@layerzerolabs/solidity-examples"],
+      "range": "*",
+      "nodes": ["node_modules/@layerzerolabs/lz-evm-sdk-v1-0.7"],
+      "fixAvailable": true
+    },
+    "@layerzerolabs/solidity-examples": {
+      "name": "@layerzerolabs/solidity-examples",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "@layerzerolabs/lz-evm-sdk-v1-0.7",
+        "@openzeppelin/contracts",
+        "@openzeppelin/hardhat-upgrades",
+        "hardhat-deploy",
+        "hardhat-deploy-ethers"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": ["node_modules/@layerzerolabs/solidity-examples"],
+      "fixAvailable": true
+    },
+    "@nomicfoundation/hardhat-verify": {
+      "name": "@nomicfoundation/hardhat-verify",
+      "severity": "low",
+      "isDirect": true,
+      "via": ["@ethersproject/abi"],
+      "effects": [],
+      "range": "*",
+      "nodes": ["node_modules/@nomicfoundation/hardhat-verify"],
+      "fixAvailable": false
+    },
+    "@nomiclabs/hardhat-ethers": {
+      "name": "@nomiclabs/hardhat-ethers",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["ethers"],
+      "effects": ["@openzeppelin/hardhat-upgrades"],
+      "range": "2.0.0-rc.0 - 2.2.3",
+      "nodes": [
+        "node_modules/@layerzerolabs/solidity-examples/node_modules/@nomiclabs/hardhat-ethers"
+      ],
+      "fixAvailable": true
+    },
+    "@nomiclabs/hardhat-etherscan": {
+      "name": "@nomiclabs/hardhat-etherscan",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@ethersproject/abi", "undici"],
+      "effects": ["@openzeppelin/hardhat-upgrades"],
+      "range": ">=2.1.4",
+      "nodes": [
+        "node_modules/@layerzerolabs/solidity-examples/node_modules/@nomiclabs/hardhat-etherscan"
+      ],
+      "fixAvailable": true
+    },
+    "@offchainlabs/upgrade-executor": {
+      "name": "@offchainlabs/upgrade-executor",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["@openzeppelin/contracts", "@openzeppelin/contracts-upgradeable"],
+      "effects": ["@arbitrum/nitro-contracts"],
+      "range": "*",
+      "nodes": ["node_modules/@offchainlabs/upgrade-executor"],
+      "fixAvailable": true
+    },
+    "@openzeppelin/contracts": {
+      "name": "@openzeppelin/contracts",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1089132,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts initializer reentrancy may lead to double initialization",
+          "url": "https://github.com/advisories/GHSA-9c22-pwxw-p6hx",
+          "severity": "moderate",
+          "cwe": ["CWE-665"],
+          "cvss": {
+            "score": 5.6,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L"
+          },
+          "range": ">=3.2.0 <4.4.1"
+        },
+        {
+          "source": 1090433,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "Improper Initialization in OpenZeppelin",
+          "url": "https://github.com/advisories/GHSA-88g8-f5mf-f5rj",
+          "severity": "high",
+          "cwe": ["CWE-665"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": "<4.4.1"
+        },
+        {
+          "source": 1091839,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "GovernorCompatibilityBravo may trim proposal calldata",
+          "url": "https://github.com/advisories/GHSA-93hq-5wgc-jc82",
+          "severity": "high",
+          "cwe": ["CWE-20"],
+          "cvss": {
+            "score": 8.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+          },
+          "range": ">=4.3.0 <4.8.3"
+        },
+        {
+          "source": 1092641,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts ERC165Checker unbounded gas consumption",
+          "url": "https://github.com/advisories/GHSA-7grf-83vw-6f5x",
+          "severity": "moderate",
+          "cwe": ["CWE-400", "CWE-770"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=2.0.0 <4.7.2"
+        },
+        {
+          "source": 1094526,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts vulnerable to Improper Escaping of Output",
+          "url": "https://github.com/advisories/GHSA-g4vp-m682-qqmp",
+          "severity": "moderate",
+          "cwe": ["CWE-116"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=4.0.0 <4.9.3"
+        },
+        {
+          "source": 1094706,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts using MerkleProof multiproofs may allow proving arbitrary leaves for specific trees",
+          "url": "https://github.com/advisories/GHSA-wprv-93r4-jj2p",
+          "severity": "moderate",
+          "cwe": ["CWE-354"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": ">=4.7.0 <4.9.2"
+        },
+        {
+          "source": 1094945,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts TransparentUpgradeableProxy clashing selector calls may not be delegated",
+          "url": "https://github.com/advisories/GHSA-mx2q-35m2-x2rh",
+          "severity": "moderate",
+          "cwe": ["CWE-436"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=3.2.0 <4.8.3"
+        },
+        {
+          "source": 1094980,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts's governor proposal creation may be blocked by frontrunning",
+          "url": "https://github.com/advisories/GHSA-5h3x-9wvq-w4m2",
+          "severity": "moderate",
+          "cwe": ["CWE-862"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=4.3.0 <4.9.1"
+        },
+        {
+          "source": 1114648,
+          "name": "@openzeppelin/contracts",
+          "dependency": "@openzeppelin/contracts",
+          "title": "OpenZeppelin Contracts base64 encoding may read from potentially dirty memory",
+          "url": "https://github.com/advisories/GHSA-9vx6-7xxf-x967",
+          "severity": "moderate",
+          "cwe": ["CWE-125"],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:H"
+          },
+          "range": ">=4.5.0 <4.9.6"
+        }
+      ],
+      "effects": [
+        "@arbitrum/nitro-contracts",
+        "@chainlink/contracts",
+        "@layerzerolabs/lz-evm-sdk-v1-0.7",
+        "@layerzerolabs/solidity-examples",
+        "@offchainlabs/upgrade-executor"
+      ],
+      "range": "<=4.9.5",
+      "nodes": [
+        "node_modules/@arbitrum/nitro-contracts/node_modules/@openzeppelin/contracts",
+        "node_modules/@layerzerolabs/lz-evm-sdk-v1-0.7/node_modules/@openzeppelin/contracts",
+        "node_modules/@offchainlabs/upgrade-executor/node_modules/@openzeppelin/contracts",
+        "node_modules/@openzeppelin-3/contracts",
+        "node_modules/@openzeppelin/contracts-4.7.3",
+        "node_modules/@openzeppelin/contracts-4.8.3"
+      ],
+      "fixAvailable": true
+    },
+    "@openzeppelin/contracts-upgradeable": {
+      "name": "@openzeppelin/contracts-upgradeable",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1091838,
+          "name": "@openzeppelin/contracts-upgradeable",
+          "dependency": "@openzeppelin/contracts-upgradeable",
+          "title": "GovernorCompatibilityBravo may trim proposal calldata",
+          "url": "https://github.com/advisories/GHSA-93hq-5wgc-jc82",
+          "severity": "high",
+          "cwe": ["CWE-20"],
+          "cvss": {
+            "score": 8.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+          },
+          "range": ">=4.3.0 <4.8.3"
+        },
+        {
+          "source": 1094525,
+          "name": "@openzeppelin/contracts-upgradeable",
+          "dependency": "@openzeppelin/contracts-upgradeable",
+          "title": "OpenZeppelin Contracts vulnerable to Improper Escaping of Output",
+          "url": "https://github.com/advisories/GHSA-g4vp-m682-qqmp",
+          "severity": "moderate",
+          "cwe": ["CWE-116"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=4.0.0 <4.9.3"
+        },
+        {
+          "source": 1094705,
+          "name": "@openzeppelin/contracts-upgradeable",
+          "dependency": "@openzeppelin/contracts-upgradeable",
+          "title": "OpenZeppelin Contracts using MerkleProof multiproofs may allow proving arbitrary leaves for specific trees",
+          "url": "https://github.com/advisories/GHSA-wprv-93r4-jj2p",
+          "severity": "moderate",
+          "cwe": ["CWE-354"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": ">=4.7.0 <4.9.2"
+        },
+        {
+          "source": 1094944,
+          "name": "@openzeppelin/contracts-upgradeable",
+          "dependency": "@openzeppelin/contracts-upgradeable",
+          "title": "OpenZeppelin Contracts TransparentUpgradeableProxy clashing selector calls may not be delegated",
+          "url": "https://github.com/advisories/GHSA-mx2q-35m2-x2rh",
+          "severity": "moderate",
+          "cwe": ["CWE-436"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=3.2.0 <4.8.3"
+        },
+        {
+          "source": 1094979,
+          "name": "@openzeppelin/contracts-upgradeable",
+          "dependency": "@openzeppelin/contracts-upgradeable",
+          "title": "OpenZeppelin Contracts's governor proposal creation may be blocked by frontrunning",
+          "url": "https://github.com/advisories/GHSA-5h3x-9wvq-w4m2",
+          "severity": "moderate",
+          "cwe": ["CWE-862"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=4.3.0 <4.9.1"
+        },
+        {
+          "source": 1114645,
+          "name": "@openzeppelin/contracts-upgradeable",
+          "dependency": "@openzeppelin/contracts-upgradeable",
+          "title": "OpenZeppelin Contracts base64 encoding may read from potentially dirty memory",
+          "url": "https://github.com/advisories/GHSA-9vx6-7xxf-x967",
+          "severity": "moderate",
+          "cwe": ["CWE-125"],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:H"
+          },
+          "range": ">=4.5.0 <4.9.6"
+        }
+      ],
+      "effects": [],
+      "range": "<=4.9.5",
+      "nodes": [
+        "node_modules/@arbitrum/nitro-contracts/node_modules/@openzeppelin/contracts-upgradeable",
+        "node_modules/@layerzerolabs/lz-evm-sdk-v1-0.7/node_modules/@openzeppelin/contracts-upgradeable",
+        "node_modules/@offchainlabs/upgrade-executor/node_modules/@openzeppelin/contracts-upgradeable"
+      ],
+      "fixAvailable": true
+    },
+    "@openzeppelin/hardhat-upgrades": {
+      "name": "@openzeppelin/hardhat-upgrades",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@nomiclabs/hardhat-ethers",
+        "@nomiclabs/hardhat-etherscan",
+        "@openzeppelin/platform-deploy-client",
+        "@openzeppelin/upgrades-core",
+        "ethers"
+      ],
+      "effects": ["@layerzerolabs/solidity-examples"],
+      "range": "*",
+      "nodes": [
+        "node_modules/@layerzerolabs/solidity-examples/node_modules/@openzeppelin/hardhat-upgrades"
+      ],
+      "fixAvailable": true
+    },
+    "@openzeppelin/platform-deploy-client": {
+      "name": "@openzeppelin/platform-deploy-client",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["@ethersproject/abi", "axios"],
+      "effects": ["@openzeppelin/hardhat-upgrades"],
+      "range": "*",
+      "nodes": ["node_modules/@openzeppelin/platform-deploy-client"],
+      "fixAvailable": true
+    },
+    "@openzeppelin/upgrades-core": {
+      "name": "@openzeppelin/upgrades-core",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["ethereumjs-util"],
+      "effects": ["@openzeppelin/hardhat-upgrades"],
+      "range": "*",
+      "nodes": ["node_modules/@openzeppelin/upgrades-core"],
+      "fixAvailable": true
+    },
+    "@sentry/node": {
+      "name": "@sentry/node",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["cookie"],
+      "effects": ["hardhat"],
+      "range": "4.0.0-beta.0 - 7.74.2-alpha.1",
+      "nodes": ["node_modules/@sentry/node"],
+      "fixAvailable": true
+    },
+    "apisauce": {
+      "name": "apisauce",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["axios"],
+      "effects": ["gluegun"],
+      "range": "<=3.0.0",
+      "nodes": ["node_modules/apisauce"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "axios": {
+      "name": "axios",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1097679,
+          "name": "axios",
+          "dependency": "axios",
+          "title": "Axios Cross-Site Request Forgery Vulnerability",
+          "url": "https://github.com/advisories/GHSA-wf5p-g6vw-rhxx",
+          "severity": "moderate",
+          "cwe": ["CWE-352"],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=0.8.1 <0.28.0"
+        },
+        {
+          "source": 1111034,
+          "name": "axios",
+          "dependency": "axios",
+          "title": "axios Requests Vulnerable To Possible SSRF and Credential Leakage via Absolute URL",
+          "url": "https://github.com/advisories/GHSA-jr5f-v2jv-69x6",
+          "severity": "high",
+          "cwe": ["CWE-918"],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<0.30.0"
+        },
+        {
+          "source": 1113274,
+          "name": "axios",
+          "dependency": "axios",
+          "title": "Axios is Vulnerable to Denial of Service via __proto__ Key in mergeConfig",
+          "url": "https://github.com/advisories/GHSA-43fc-jf86-j433",
+          "severity": "high",
+          "cwe": ["CWE-754"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=0.30.2"
+        },
+        {
+          "source": 1116672,
+          "name": "axios",
+          "dependency": "axios",
+          "title": "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF",
+          "url": "https://github.com/advisories/GHSA-3p68-rc4w-qgx5",
+          "severity": "moderate",
+          "cwe": ["CWE-441", "CWE-918"],
+          "cvss": {
+            "score": 4.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N"
+          },
+          "range": "<0.31.0"
+        },
+        {
+          "source": 1116674,
+          "name": "axios",
+          "dependency": "axios",
+          "title": "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain",
+          "url": "https://github.com/advisories/GHSA-fvcv-3m26-pcqx",
+          "severity": "moderate",
+          "cwe": ["CWE-113", "CWE-444", "CWE-918"],
+          "cvss": {
+            "score": 4.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N"
+          },
+          "range": "<0.31.0"
+        }
+      ],
+      "effects": ["@openzeppelin/platform-deploy-client", "apisauce", "hardhat-deploy"],
+      "range": "<=0.30.3",
+      "nodes": ["node_modules/axios"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "bn.js": {
+      "name": "bn.js",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1113442,
+          "name": "bn.js",
+          "dependency": "bn.js",
+          "title": "bn.js affected by an infinite loop",
+          "url": "https://github.com/advisories/GHSA-378v-28hj-76wf",
+          "severity": "moderate",
+          "cwe": ["CWE-835"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<4.12.3"
+        }
+      ],
+      "effects": ["ethjs-unit", "number-to-bn"],
+      "range": "<4.12.3",
+      "nodes": [
+        "node_modules/ethjs-unit/node_modules/bn.js",
+        "node_modules/number-to-bn/node_modules/bn.js"
+      ],
+      "fixAvailable": true
+    },
+    "cookie": {
+      "name": "cookie",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1103907,
+          "name": "cookie",
+          "dependency": "cookie",
+          "title": "cookie accepts cookie name, path, and domain with out of bounds characters",
+          "url": "https://github.com/advisories/GHSA-pxg6-pf52-xh8x",
+          "severity": "low",
+          "cwe": ["CWE-74"],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<0.7.0"
+        }
+      ],
+      "effects": ["@sentry/node"],
+      "range": "<0.7.0",
+      "nodes": ["node_modules/cookie"],
+      "fixAvailable": true
+    },
+    "cross-spawn": {
+      "name": "cross-spawn",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1104664,
+          "name": "cross-spawn",
+          "dependency": "cross-spawn",
+          "title": "Regular Expression Denial of Service (ReDoS) in cross-spawn",
+          "url": "https://github.com/advisories/GHSA-3xgq-45jj-v275",
+          "severity": "high",
+          "cwe": ["CWE-1333"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=7.0.0 <7.0.5"
+        }
+      ],
+      "effects": ["gluegun"],
+      "range": "7.0.0 - 7.0.4",
+      "nodes": ["node_modules/gluegun/node_modules/cross-spawn"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "ejs": {
+      "name": "ejs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1098366,
+          "name": "ejs",
+          "dependency": "ejs",
+          "title": "ejs lacks certain pollution protection",
+          "url": "https://github.com/advisories/GHSA-ghr5-ch3p-vcr6",
+          "severity": "moderate",
+          "cwe": ["CWE-693", "CWE-1321"],
+          "cvss": {
+            "score": 4,
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<3.1.10"
+        }
+      ],
+      "effects": ["gluegun"],
+      "range": "<3.1.10",
+      "nodes": ["node_modules/gluegun/node_modules/ejs"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "elliptic": {
+      "name": "elliptic",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112030,
+          "name": "elliptic",
+          "dependency": "elliptic",
+          "title": "Elliptic Uses a Cryptographic Primitive with a Risky Implementation",
+          "url": "https://github.com/advisories/GHSA-848j-6mx2-7j84",
+          "severity": "low",
+          "cwe": ["CWE-1240"],
+          "cvss": {
+            "score": 5.6,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L"
+          },
+          "range": "<=6.6.1"
+        }
+      ],
+      "effects": ["@ethersproject/signing-key", "secp256k1"],
+      "range": "*",
+      "nodes": ["node_modules/elliptic"],
+      "fixAvailable": false
+    },
+    "eth-gas-reporter": {
+      "name": "eth-gas-reporter",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["ethers", "mocha"],
+      "effects": [],
+      "range": ">=0.2.26",
+      "nodes": ["node_modules/eth-gas-reporter"],
+      "fixAvailable": true
+    },
+    "ethereum-cryptography": {
+      "name": "ethereum-cryptography",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["secp256k1"],
+      "effects": ["ethereumjs-util"],
+      "range": "0.1.0 - 0.1.3",
+      "nodes": ["node_modules/ethereumjs-util/node_modules/ethereum-cryptography"],
+      "fixAvailable": true
+    },
+    "ethereumjs-util": {
+      "name": "ethereumjs-util",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["ethereum-cryptography"],
+      "effects": ["@openzeppelin/upgrades-core"],
+      "range": "4.5.1 || 5.2.1 || 6.2.1 || >=7.0.3",
+      "nodes": ["node_modules/ethereumjs-util"],
+      "fixAvailable": true
+    },
+    "ethers": {
+      "name": "ethers",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abi",
+        "@ethersproject/abstract-provider",
+        "@ethersproject/abstract-signer",
+        "@ethersproject/contracts",
+        "@ethersproject/hash",
+        "@ethersproject/hdnode",
+        "@ethersproject/json-wallets",
+        "@ethersproject/providers",
+        "@ethersproject/signing-key",
+        "@ethersproject/transactions",
+        "@ethersproject/wallet",
+        "@ethersproject/wordlists"
+      ],
+      "effects": [
+        "@eth-optimism/contracts",
+        "@ethersproject/hardware-wallets",
+        "@nomiclabs/hardhat-ethers",
+        "@openzeppelin/hardhat-upgrades",
+        "hardhat-deploy-ethers"
+      ],
+      "range": "5.0.0-beta.119 - 5.8.0",
+      "nodes": [
+        "node_modules/@chainlink/contracts/node_modules/ethers",
+        "node_modules/@ethersproject/hardware-wallets/node_modules/ethers",
+        "node_modules/@layerzerolabs/solidity-examples/node_modules/ethers",
+        "node_modules/eth-gas-reporter/node_modules/ethers"
+      ],
+      "fixAvailable": true
+    },
+    "ethjs-unit": {
+      "name": "ethjs-unit",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["bn.js", "number-to-bn"],
+      "effects": ["web3-utils"],
+      "range": ">=0.1.3",
+      "nodes": ["node_modules/ethjs-unit"],
+      "fixAvailable": true
+    },
+    "glob": {
+      "name": "glob",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1109843,
+          "name": "glob",
+          "dependency": "glob",
+          "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+          "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+          "severity": "high",
+          "cwe": ["CWE-78"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H"
+          },
+          "range": ">=11.0.0 <11.1.0"
+        }
+      ],
+      "effects": [],
+      "range": "11.0.0 - 11.0.3",
+      "nodes": ["node_modules/glob"],
+      "fixAvailable": true
+    },
+    "gluegun": {
+      "name": "gluegun",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["apisauce", "cross-spawn", "ejs", "semver"],
+      "effects": ["@graphprotocol/graph-cli"],
+      "range": "0.3.0 - 5.2.1 || >=6.0.0-alpha.1",
+      "nodes": ["node_modules/gluegun"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "hardhat": {
+      "name": "hardhat",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["@ethersproject/abi", "@sentry/node", "mocha", "solc", "undici", "uuid"],
+      "effects": [],
+      "range": "0.1.0-rc.0 - 3.0.0-next.32",
+      "nodes": ["node_modules/@layerzerolabs/solidity-examples/node_modules/hardhat"],
+      "fixAvailable": true
+    },
+    "hardhat-deploy": {
+      "name": "hardhat-deploy",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@ethersproject/abi",
+        "@ethersproject/abstract-signer",
+        "@ethersproject/contracts",
+        "@ethersproject/hardware-wallets",
+        "@ethersproject/providers",
+        "@ethersproject/transactions",
+        "@ethersproject/wallet",
+        "axios"
+      ],
+      "effects": ["@layerzerolabs/solidity-examples"],
+      "range": "<=1.0.4",
+      "nodes": ["node_modules/@layerzerolabs/solidity-examples/node_modules/hardhat-deploy"],
+      "fixAvailable": true
+    },
+    "hardhat-deploy-ethers": {
+      "name": "hardhat-deploy-ethers",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["ethers"],
+      "effects": [],
+      "range": "<=0.3.0-beta.13",
+      "nodes": ["node_modules/@layerzerolabs/solidity-examples/node_modules/hardhat-deploy-ethers"],
+      "fixAvailable": true
+    },
+    "immutable": {
+      "name": "immutable",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1117068,
+          "name": "immutable",
+          "dependency": "immutable",
+          "title": "Immutable is vulnerable to Prototype Pollution",
+          "url": "https://github.com/advisories/GHSA-wf6x-7x77-mvgw",
+          "severity": "high",
+          "cwe": ["CWE-1321"],
+          "cvss": {
+            "score": 9.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+          },
+          "range": ">=5.0.0 <5.1.5"
+        }
+      ],
+      "effects": [],
+      "range": "5.0.0 - 5.1.4",
+      "nodes": ["node_modules/immutable"],
+      "fixAvailable": true
+    },
+    "jayson": {
+      "name": "jayson",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["uuid"],
+      "effects": ["@graphprotocol/graph-cli"],
+      "range": ">=2.0.6",
+      "nodes": ["node_modules/jayson"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "js-yaml": {
+      "name": "js-yaml",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112715,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "js-yaml has prototype pollution in merge (<<)",
+          "url": "https://github.com/advisories/GHSA-mh29-5h37-fv8m",
+          "severity": "moderate",
+          "cwe": ["CWE-1321"],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=4.0.0 <4.1.1"
+        }
+      ],
+      "effects": ["@graphprotocol/graph-cli"],
+      "range": "4.0.0 - 4.1.0",
+      "nodes": ["node_modules/@graphprotocol/graph-cli/node_modules/js-yaml"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "mocha": {
+      "name": "mocha",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["serialize-javascript"],
+      "effects": ["eth-gas-reporter", "solidity-coverage"],
+      "range": "8.0.0 - 12.0.0-beta-2",
+      "nodes": ["node_modules/mocha"],
+      "fixAvailable": true
+    },
+    "number-to-bn": {
+      "name": "number-to-bn",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["bn.js"],
+      "effects": [],
+      "range": "*",
+      "nodes": ["node_modules/number-to-bn"],
+      "fixAvailable": true
+    },
+    "patch-package": {
+      "name": "patch-package",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["tmp"],
+      "effects": ["@arbitrum/nitro-contracts"],
+      "range": "<=8.0.0 || >=8.1.0-canary",
+      "nodes": ["node_modules/patch-package"],
+      "fixAvailable": true
+    },
+    "secp256k1": {
+      "name": "secp256k1",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["elliptic"],
+      "effects": ["ethereum-cryptography"],
+      "range": ">=2.0.0",
+      "nodes": ["node_modules/secp256k1"],
+      "fixAvailable": true
+    },
+    "semver": {
+      "name": "semver",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112921,
+          "name": "semver",
+          "dependency": "semver",
+          "title": "semver vulnerable to Regular Expression Denial of Service",
+          "url": "https://github.com/advisories/GHSA-c2qf-rxjj-qqgw",
+          "severity": "high",
+          "cwe": ["CWE-1333"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=7.0.0 <7.5.2"
+        }
+      ],
+      "effects": ["gluegun"],
+      "range": "7.0.0 - 7.5.1",
+      "nodes": ["node_modules/gluegun/node_modules/semver"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "serialize-javascript": {
+      "name": "serialize-javascript",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1113686,
+          "name": "serialize-javascript",
+          "dependency": "serialize-javascript",
+          "title": "Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
+          "url": "https://github.com/advisories/GHSA-5c6j-r48x-rmvq",
+          "severity": "high",
+          "cwe": ["CWE-96"],
+          "cvss": {
+            "score": 8.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+          },
+          "range": "<=7.0.2"
+        },
+        {
+          "source": 1115723,
+          "name": "serialize-javascript",
+          "dependency": "serialize-javascript",
+          "title": "Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects",
+          "url": "https://github.com/advisories/GHSA-qj8w-gfj5-8c6v",
+          "severity": "moderate",
+          "cwe": ["CWE-400", "CWE-834"],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<7.0.5"
+        }
+      ],
+      "effects": ["mocha"],
+      "range": "<=7.0.4",
+      "nodes": ["node_modules/serialize-javascript"],
+      "fixAvailable": true
+    },
+    "solc": {
+      "name": "solc",
+      "severity": "low",
+      "isDirect": false,
+      "via": ["tmp"],
+      "effects": [],
+      "range": ">=0.5.1",
+      "nodes": ["node_modules/solc"],
+      "fixAvailable": true
+    },
+    "solidity-coverage": {
+      "name": "solidity-coverage",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["mocha", "web3-utils"],
+      "effects": [],
+      "range": "0.7.0-beta.0 - 0.8.0-rc.test.0 || >=0.8.1",
+      "nodes": ["node_modules/solidity-coverage"],
+      "fixAvailable": true
+    },
+    "tmp": {
+      "name": "tmp",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1109537,
+          "name": "tmp",
+          "dependency": "tmp",
+          "title": "tmp allows arbitrary temporary file / directory write via symbolic link `dir` parameter",
+          "url": "https://github.com/advisories/GHSA-52f5-9888-hmc6",
+          "severity": "low",
+          "cwe": ["CWE-59"],
+          "cvss": {
+            "score": 2.5,
+            "vectorString": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": "<=0.2.3"
+        }
+      ],
+      "effects": ["patch-package", "solc"],
+      "range": "<=0.2.3",
+      "nodes": ["node_modules/tmp"],
+      "fixAvailable": true
+    },
+    "undici": {
+      "name": "undici",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112496,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has an unbounded decompression chain in HTTP responses on Node.js Fetch API via Content-Encoding leads to resource exhaustion",
+          "url": "https://github.com/advisories/GHSA-g9mf-h72j-4rw9",
+          "severity": "moderate",
+          "cwe": ["CWE-770"],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<6.23.0"
+        },
+        {
+          "source": 1112497,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has an unbounded decompression chain in HTTP responses on Node.js Fetch API via Content-Encoding leads to resource exhaustion",
+          "url": "https://github.com/advisories/GHSA-g9mf-h72j-4rw9",
+          "severity": "moderate",
+          "cwe": ["CWE-770"],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=7.0.0 <7.18.2"
+        },
+        {
+          "source": 1114591,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici: Malicious WebSocket 64-bit length overflows parser and crashes the client",
+          "url": "https://github.com/advisories/GHSA-f269-vfmq-vjvj",
+          "severity": "high",
+          "cwe": ["CWE-248", "CWE-1284"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=7.0.0 <7.24.0"
+        },
+        {
+          "source": 1114593,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has an HTTP Request/Response Smuggling issue",
+          "url": "https://github.com/advisories/GHSA-2mjp-6q6p-2qxm",
+          "severity": "moderate",
+          "cwe": ["CWE-444"],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L"
+          },
+          "range": ">=7.0.0 <7.24.0"
+        },
+        {
+          "source": 1114594,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has an HTTP Request/Response Smuggling issue",
+          "url": "https://github.com/advisories/GHSA-2mjp-6q6p-2qxm",
+          "severity": "moderate",
+          "cwe": ["CWE-444"],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L"
+          },
+          "range": "<6.24.0"
+        },
+        {
+          "source": 1114637,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has Unbounded Memory Consumption in WebSocket permessage-deflate Decompression",
+          "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q",
+          "severity": "high",
+          "cwe": ["CWE-409"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=7.0.0 <7.24.0"
+        },
+        {
+          "source": 1114638,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has Unbounded Memory Consumption in WebSocket permessage-deflate Decompression",
+          "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q",
+          "severity": "high",
+          "cwe": ["CWE-409"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<6.24.0"
+        },
+        {
+          "source": 1114639,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits Validation",
+          "url": "https://github.com/advisories/GHSA-v9p9-hfj2-hcw8",
+          "severity": "high",
+          "cwe": ["CWE-248"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=7.0.0 <7.24.0"
+        },
+        {
+          "source": 1114640,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits Validation",
+          "url": "https://github.com/advisories/GHSA-v9p9-hfj2-hcw8",
+          "severity": "high",
+          "cwe": ["CWE-248"],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<6.24.0"
+        },
+        {
+          "source": 1114641,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has CRLF Injection in undici via `upgrade` option",
+          "url": "https://github.com/advisories/GHSA-4992-7rv2-5pvq",
+          "severity": "moderate",
+          "cwe": ["CWE-93"],
+          "cvss": {
+            "score": 4.6,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:N"
+          },
+          "range": ">=7.0.0 <7.24.0"
+        },
+        {
+          "source": 1114642,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has CRLF Injection in undici via `upgrade` option",
+          "url": "https://github.com/advisories/GHSA-4992-7rv2-5pvq",
+          "severity": "moderate",
+          "cwe": ["CWE-93"],
+          "cvss": {
+            "score": 4.6,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:N"
+          },
+          "range": "<6.24.0"
+        }
+      ],
+      "effects": ["@nomiclabs/hardhat-etherscan", "hardhat"],
+      "range": "<=6.23.0 || 7.0.0 - 7.23.0",
+      "nodes": ["node_modules/@graphprotocol/graph-cli/node_modules/undici", "node_modules/undici"],
+      "fixAvailable": true
+    },
+    "uuid": {
+      "name": "uuid",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1116970,
+          "name": "uuid",
+          "dependency": "uuid",
+          "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+          "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+          "severity": "moderate",
+          "cwe": ["CWE-787", "CWE-1285"],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<14.0.0"
+        }
+      ],
+      "effects": ["hardhat", "jayson"],
+      "range": "<14.0.0",
+      "nodes": ["node_modules/uuid"],
+      "fixAvailable": {
+        "name": "@graphprotocol/graph-cli",
+        "version": "0.91.1",
+        "isSemVerMajor": true
+      }
+    },
+    "web3-utils": {
+      "name": "web3-utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["ethjs-unit", "number-to-bn"],
+      "effects": ["solidity-coverage"],
+      "range": "1.0.0-beta.8 - 3.0.0-rc.5",
+      "nodes": ["node_modules/web3-utils"],
+      "fixAvailable": true
+    },
+    "yaml": {
+      "name": "yaml",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1115556,
+          "name": "yaml",
+          "dependency": "yaml",
+          "title": "yaml is vulnerable to Stack Overflow via deeply nested YAML collections",
+          "url": "https://github.com/advisories/GHSA-48c2-rrv3-qjmp",
+          "severity": "moderate",
+          "cwe": ["CWE-674"],
+          "cvss": {
+            "score": 4.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=2.0.0 <2.8.3"
+        }
+      ],
+      "effects": [],
+      "range": "2.0.0 - 2.8.2",
+      "nodes": ["node_modules/yaml"],
+      "fixAvailable": true
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 29,
+      "moderate": 14,
+      "high": 20,
+      "critical": 0,
+      "total": 63
+    },
+    "dependencies": {
+      "prod": 663,
+      "dev": 552,
+      "optional": 91,
+      "peer": 82,
+      "peerOptional": 0,
+      "total": 1304
+    }
+  }
+}

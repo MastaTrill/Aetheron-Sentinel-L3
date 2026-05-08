@@ -1,8 +1,6 @@
 // test/SentinelMultiSigVault.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 // SecurityLevel enum: LOW=0, MEDIUM=1, HIGH=2, CRITICAL=3
 // SecurityClearance enum: BASIC=0, ADVANCED=1, EXPERT=2, MASTER=3
@@ -13,12 +11,14 @@ const MASTER = 3n;
 describe('SentinelMultiSigVault', function () {
   let vault;
   let owner, guardian1, guardian2, guardian3, stranger;
-
-  const pubKey1 = ethers.keccak256(ethers.toUtf8Bytes('guardian1'));
-  const pubKey2 = ethers.keccak256(ethers.toUtf8Bytes('guardian2'));
-  const pubKey3 = ethers.keccak256(ethers.toUtf8Bytes('guardian3'));
+  let ethers;
+  let pubKey1, pubKey2, pubKey3;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
+    pubKey1 = ethers.keccak256(ethers.toUtf8Bytes('guardian1'));
+    pubKey2 = ethers.keccak256(ethers.toUtf8Bytes('guardian2'));
+    pubKey3 = ethers.keccak256(ethers.toUtf8Bytes('guardian3'));
     [owner, guardian1, guardian2, guardian3, stranger] = await ethers.getSigners();
     const SentinelMultiSigVault = await ethers.getContractFactory('SentinelMultiSigVault');
     vault = await SentinelMultiSigVault.deploy(owner.address);
@@ -44,8 +44,10 @@ describe('SentinelMultiSigVault', function () {
 
     it('rejects zero address owner', async function () {
       const SentinelMultiSigVault = await ethers.getContractFactory('SentinelMultiSigVault');
-      await expect(SentinelMultiSigVault.deploy(ethers.ZeroAddress)).to.be.revertedWith(
-        'Invalid owner'
+      // OZ's Ownable throws custom error when owner is zero
+      await expect(SentinelMultiSigVault.deploy(ethers.ZeroAddress)).to.be.revertedWithCustomError(
+        SentinelMultiSigVault,
+        'OwnableInvalidOwner'
       );
     });
   });
@@ -83,8 +85,9 @@ describe('SentinelMultiSigVault', function () {
     });
 
     it('reverts when called by non-owner', async function () {
-      await expect(vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC)).to.be
-        .reverted;
+      await expect(
+        vault.connect(stranger).addGuardian(guardian1.address, pubKey1, BASIC)
+      ).to.be.revertedWithCustomError(vault, 'OwnableUnauthorizedAccount');
     });
   });
 

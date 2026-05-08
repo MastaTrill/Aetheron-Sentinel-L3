@@ -742,9 +742,7 @@ export interface SentinelCoreLoop extends BaseContract {
   getFunction(
     nameOrSignature: 'coreComponentsBootstrapped'
   ): TypedContractMethod<[], [boolean], 'view'>;
-  getFunction(
-    nameOrSignature: 'coreMetrics'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'coreMetrics'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -767,9 +765,7 @@ export interface SentinelCoreLoop extends BaseContract {
     nameOrSignature: 'emergencySystemReset'
   ): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'executeCoreLoop'): TypedContractMethod<[], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'getCoreMetrics'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getCoreMetrics'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint, bigint] & {
@@ -783,9 +779,7 @@ export interface SentinelCoreLoop extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getQuantumState'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getQuantumState'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, string] & {
@@ -800,9 +794,7 @@ export interface SentinelCoreLoop extends BaseContract {
   getFunction(
     nameOrSignature: 'getRoleAdmin'
   ): TypedContractMethod<[role: BytesLike], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'getSystemOverview'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getSystemOverview'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -856,9 +848,7 @@ export interface SentinelCoreLoop extends BaseContract {
     'view'
   >;
   getFunction(nameOrSignature: 'quantumGuard'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'quantumState'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quantumState'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, string, bigint] & {

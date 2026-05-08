@@ -1,4 +1,5 @@
 {
+  "root": true,
   "env": {
     "browser": true,
     "es2021": true,
@@ -39,7 +40,6 @@
     "**/*.generated.*",
     "**/imports/**",
     "**/site/**",
-    "**/src/**",
-    "**/hardhat.config.*"
+    "**/src/**"
   ]
 }

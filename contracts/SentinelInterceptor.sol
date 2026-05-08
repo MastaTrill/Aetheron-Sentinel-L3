@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title SentinelInterceptor
@@ -59,7 +59,7 @@ contract SentinelInterceptor is
         uint256 _tvlThreshold,
         bool _autonomousMode,
         address initialOwner
-    ) {
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         anomalyThreshold = _anomalyThreshold;
         tvlThreshold = _tvlThreshold;
@@ -68,9 +68,6 @@ contract SentinelInterceptor is
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
         _grantRole(MONITOR_ROLE, initialOwner);
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**

@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelPredictiveThreatModel', function () {
   let model;
   let owner;
   let user;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user] = await ethers.getSigners();
     const SentinelPredictiveThreatModel = await ethers.getContractFactory(
       'SentinelPredictiveThreatModel'
@@ -58,7 +58,10 @@ describe('SentinelPredictiveThreatModel', function () {
   });
 
   it('only owner can update AI model', async function () {
-    await expect(model.connect(user).updateAIModel(250, 12, 300)).to.be.reverted;
+    await expect(model.connect(user).updateAIModel(250, 12, 300)).to.be.revertedWithCustomError(
+      model,
+      'OwnableUnauthorizedAccount'
+    );
 
     await model.updateAIModel(250, 12, 300);
     const [threshold, horizon] = await model.getAIModelMetrics();

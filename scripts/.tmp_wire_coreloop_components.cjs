@@ -38,7 +38,7 @@ if (!PRIVATE_KEY || PRIVATE_KEY.length < 60) {
       'function liquidityMining() view returns (address)',
       'function rewardAggregator() view returns (address)',
     ],
-    signer,
+    signer
   );
 
   const components = [
@@ -66,7 +66,7 @@ if (!PRIVATE_KEY || PRIVATE_KEY.length < 60) {
   for (let i = 0; i < txs.length; i++) {
     const receipt = await txs[i].wait();
     console.log(
-      `Tx[${i}] mined in block ${receipt.blockNumber} — status: ${receipt.status === 1 ? '✅' : '❌'}`,
+      `Tx[${i}] mined in block ${receipt.blockNumber} — status: ${receipt.status === 1 ? '✅' : '❌'}`
     );
     if (receipt.status !== 1) process.exit(1);
   }
@@ -76,9 +76,9 @@ if (!PRIVATE_KEY || PRIVATE_KEY.length < 60) {
   console.log(`  securityAuditor: ${await coreLoop.securityAuditor()}`);
   console.log(`  stakingSystem: ${await coreLoop.stakingSystem()}`);
   console.log(
-    `  liquidityMining: ${await coreLoop.liquidityMining()} (intentional zero — not deployed in this phase)`,
+    `  liquidityMining: ${await coreLoop.liquidityMining()} (intentional zero — not deployed in this phase)`
   );
   console.log(
-    `  rewardAggregator: ${await coreLoop.rewardAggregator()} (intentional zero — not deployed in this phase)`,
+    `  rewardAggregator: ${await coreLoop.rewardAggregator()} (intentional zero — not deployed in this phase)`
   );
 })();

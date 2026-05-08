@@ -1,0 +1,43 @@
+{
+  "runDay": "2026-05-06",
+  "logDir": "logs\\verification\\2026-05-06",
+  "fullRun": false,
+  "dryRun": true,
+  "startedAt": "2026-05-06T17:01:15.904Z",
+  "environment": {
+    "network": "sepolia",
+    "relayers": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "subgraphConfigured": false,
+    "dashboardUrl": "",
+    "commit": ""
+  },
+  "steps": [
+    {
+      "name": "section7-final-sweep",
+      "command": "node scripts/section7-final-sweep.cjs",
+      "exitCode": 0,
+      "startedAt": "2026-05-06T17:01:15.904Z",
+      "finishedAt": "2026-05-06T17:01:15.905Z",
+      "logPath": "logs\\verification\\2026-05-06\\section7-final-sweep.log"
+    },
+    {
+      "name": "audit-allowlists",
+      "command": "node scripts/audit-allowlists.cjs",
+      "exitCode": 0,
+      "startedAt": "2026-05-06T17:01:15.905Z",
+      "finishedAt": "2026-05-06T17:01:15.906Z",
+      "logPath": "logs\\verification\\2026-05-06\\audit-allowlists.log"
+    },
+    {
+      "name": "verify-bridge-relayers",
+      "command": "node scripts/verify-bridge-relayers.cjs",
+      "exitCode": 0,
+      "startedAt": "2026-05-06T17:01:15.906Z",
+      "finishedAt": "2026-05-06T17:01:15.907Z",
+      "logPath": "logs\\verification\\2026-05-06\\verify-bridge-relayers.log"
+    }
+  ],
+  "finishedAt": "2026-05-06T17:01:15.909Z",
+  "overall": "PASS",
+  "failedSteps": []
+}

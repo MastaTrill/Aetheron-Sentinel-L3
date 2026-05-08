@@ -285,9 +285,7 @@ export interface SentinelMonitor extends BaseContract {
   getFunction(
     nameOrSignature: 'addTrackedChain'
   ): TypedContractMethod<[chainId: BigNumberish], [void], 'nonpayable'>;
-  getFunction(
-    nameOrSignature: 'alertConditions'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'alertConditions'): TypedContractMethod<
     [arg0: string],
     [
       [string, bigint, boolean, bigint] & {
@@ -318,9 +316,7 @@ export interface SentinelMonitor extends BaseContract {
     [void],
     'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: 'systemHealth'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'systemHealth'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, boolean, bigint] & {

@@ -1,6 +1,8 @@
 # Aetheron Sentinel L3
 
-Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and Python telemetry modules.
+**Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/)
+
+Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and Python telemetry modules. Features advanced AI-powered yield optimization, quantum-resistant security, and comprehensive governance.
 
 ## Repository Scope
 
@@ -22,16 +24,30 @@ This repository includes:
 
 ## Public Dashboard
 
-- The [Remix Dashboard](./apps/remix-dashboard/) is now public. Monitoring, bug bounty stats, and live metrics are available.
+- **Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/) - Real-time monitoring, security metrics, and system status.
+- **Token Utility:** Hold 1000+ $AETH for premium dashboard access and enhanced staking APY (up to 5.0% with governance/security bonuses).
+- **Liquidity:** Run `npm run add-liquidity` to create Uniswap V3 pool and add initial liquidity for $AETH/ETH trading.
+- **Multi-Chain Deployments:** Available on Ethereum, Polygon, Base, and Arbitrum networks
+- **Advanced Integrations:** Compound/Aave lending security, Hivemind AI training, Chainalysis AML/KYC, Helium IoT monitoring, Axie Infinity gaming security
+- **Cross-Chain Security:** LayerZero, Hyperlane, and ENS name resolution
+- **Decentralized Storage:** IPFS/Filecoin for security logs and AI models
+- **Governance Tools:** Snapshot DAO proposals and Uniswap V4 automated liquidity
+- The [Remix Dashboard](./apps/remix-dashboard/) is also available for development. Monitoring, bug bounty stats, and live metrics are available.
 
 ## Mainnet Deployment & Onboarding
 
-**Mainnet is now the current deployment target.**
+**Mainnet is the next deployment target. The current objective deployment evidence in this repo is still Sepolia.**
 
-- See [DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md) for the mainnet deployment summary and addresses.
+- See [DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md) for the mainnet readiness summary and remaining evidence gates.
 - See [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) for mainnet verification and handoff steps.
-- See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the mainnet release record.
+- See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the draft mainnet release packet that still needs tx hashes and explorer links.
 - For mainnet deployment workflow, use [MAINNET_PREPARATION_TEMPLATE.md](MAINNET_PREPARATION_TEMPLATE.md).
+- For the live execution order, use [docs/MAINNET_OPERATOR_RUNBOOK.md](docs/MAINNET_OPERATOR_RUNBOOK.md).
+- For the release PR evidence packet, use [docs/MAINNET_RELEASE_PR_CHECKLIST.md](docs/MAINNET_RELEASE_PR_CHECKLIST.md).
+
+## Announcements & Audits
+
+- See [AUDIT_REQUEST.md](AUDIT_REQUEST.md) for third-party security audit request template.
 
 ## Secret Management & Environment Variables
 
@@ -53,6 +69,8 @@ This repository includes:
 - [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Formal incident response plan
 - [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Third-party audit status
 - [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program details
+
+## (Recommended) Use a Python virtual environment
 
 ```bash
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
@@ -102,7 +120,7 @@ npm run codegen
 npm run build
 ```
 
-Build the dashboard workspace:
+Build the root dashboard workspace:
 
 ```bash
 npm run dashboard:build
@@ -138,6 +156,7 @@ See `echidna.yaml` for configuration and contract selection. Write Solidity prop
 npm run deploy:local
 npm run deploy:sepolia
 npm run deploy:mainnet
+npm run redeploy:coreloop
 npm run verify:testnet
 npm run verify:mainnet
 npm run setup:ownership
@@ -169,6 +188,8 @@ npm run dashboard:dev
 npm run dashboard:lint
 npm run dashboard:build
 ```
+
+The separate Remix dashboard workspace under [apps/remix-dashboard](apps/remix-dashboard) uses its own package.json and should be run from that directory.
 
 ## CI and Automation
 
@@ -341,6 +362,65 @@ These top-level documents are present in the repository and are the best startin
 - `DEPLOYMENT_OWNERSHIP_CHECKLIST.md`
 - `HARDENING_CERTIFICATION.md`
 - `RELEASE_SUMMARY_2026-04-23.md`
+
+## Sentinel Gateway (FastAPI Python Service)
+
+The `sentinel_gateway_prototype.py` provides an intent-filtering gateway for agent prompts and transaction signing. It exposes a FastAPI web API for integration with DeFi and agentic services.
+
+### Usage
+
+```bash
+# (Recommended) Use a Python virtual environment
+python -m venv .venv
+.venv/Scripts/activate  # Windows
+source .venv/bin/activate  # Linux/macOS
+pip install -r requirements.txt  # Or install fastapi, uvicorn, pydantic, requests
+
+# Run the gateway
+
+python sentinel_gateway_prototype.py
+```
+
+The gateway will be available at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+### API Endpoints
+
+- `POST /analyze` — Analyze an agent prompt and transaction payload
+  - Requires header: `x-api-key: supersecretapikey` (change in code for production)
+  - Request body:
+
+```json
+{
+  "agent_prompt": "...",
+  "transaction_payload": "..."
+}
+```
+
+- Response:
+
+```json
+{ "result": "SIGNED_TX: ..." }
+```
+
+- `POST /update-config` — Update gateway config (rate limits, blacklist, etc)
+
+### Configuration
+
+- Config file: `sentinel_gateway_config.json` (auto-created on first run)
+- Audit log: `audit_log.jsonl` (JSON lines)
+- Webhook: Set `webhook_url` in code or config for alerting
+
+### Extending
+
+- Add new intent heuristics in `analyze_intent()`
+- Integrate with other chains/services via the webhook or by extending `execute_gateway()`
+
+### Release Info
+
+- Latest release: `v0.2.0` (see [Releases](https://github.com/MastaTrill/Aetheron-Sentinel-L3/releases))
+- See [SECURITY_POLICY.md](SECURITY_POLICY.md) for coordinated disclosure
+
+---
 
 ## Security
 

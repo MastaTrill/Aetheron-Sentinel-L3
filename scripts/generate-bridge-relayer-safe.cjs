@@ -6,19 +6,17 @@ function parseAddressList(value) {
   if (!value) return [];
   return value
     .split(',')
-    .map((x) => x.trim())
+    .map(x => x.trim())
     .filter(Boolean)
-    .map((addr) => ethers.getAddress(addr));
+    .map(addr => ethers.getAddress(addr));
 }
 
 (function main() {
   const relayers = parseAddressList(process.env.RELAYER_ADDRESSES || '');
   if (relayers.length === 0) {
+    console.error('No relayers provided. Set RELAYER_ADDRESSES as comma-separated addresses.');
     console.error(
-      'No relayers provided. Set RELAYER_ADDRESSES as comma-separated addresses.',
-    );
-    console.error(
-      'Example: RELAYER_ADDRESSES=0xabc...,0xdef... node scripts/generate-bridge-relayer-safe.cjs',
+      'Example: RELAYER_ADDRESSES=0xabc...,0xdef... node scripts/generate-bridge-relayer-safe.cjs'
     );
     process.exit(1);
   }
@@ -30,16 +28,12 @@ function parseAddressList(value) {
   const multisig = contracts.SentinelMultiSigVault?.address;
   const bridge = contracts.AetheronBridge?.address;
   if (!multisig || !bridge) {
-    console.error(
-      'Missing SentinelMultiSigVault or AetheronBridge in site/contracts.js',
-    );
+    console.error('Missing SentinelMultiSigVault or AetheronBridge in site/contracts.js');
     process.exit(1);
   }
 
-  const iface = new ethers.Interface([
-    'function setRelayer(address relayer, bool authorized)',
-  ]);
-  const transactions = relayers.map((relayer) => ({
+  const iface = new ethers.Interface(['function setRelayer(address relayer, bool authorized)']);
+  const transactions = relayers.map(relayer => ({
     to: bridge,
     value: '0',
     data: iface.encodeFunctionData('setRelayer', [relayer, true]),
@@ -80,5 +74,5 @@ function parseAddressList(value) {
   console.log(`Bridge: ${bridge}`);
   console.log(`Multisig: ${multisig}`);
   console.log('Relayers included:');
-  relayers.forEach((r) => console.log(`- ${r}`));
+  relayers.forEach(r => console.log(`- ${r}`));
 })();

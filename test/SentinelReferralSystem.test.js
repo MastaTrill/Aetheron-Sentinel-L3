@@ -1,14 +1,14 @@
 // test/SentinelReferralSystem.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelReferralSystem', function () {
   let referral;
   let owner, user1, user2, user3;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user1, user2, user3] = await ethers.getSigners();
     const SentinelReferralSystem = await ethers.getContractFactory('SentinelReferralSystem');
     referral = await SentinelReferralSystem.deploy(
@@ -90,7 +90,9 @@ describe('SentinelReferralSystem', function () {
 
     it('reverts when paused', async function () {
       await referral.emergencyPause();
-      await expect(referral.connect(user1).register(ethers.ZeroAddress)).to.be.reverted;
+      await expect(
+        referral.connect(user1).register(ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(referral, 'EnforcedPause');
     });
   });
 
@@ -154,7 +156,9 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('reverts for non-owner', async function () {
-      await expect(referral.connect(user1).updateActiveReferrals(user1.address, 5)).to.be.reverted;
+      await expect(
+        referral.connect(user1).updateActiveReferrals(user1.address, 5)
+      ).to.be.revertedWithCustomError(referral, 'OwnableUnauthorizedAccount');
     });
   });
 
@@ -168,7 +172,10 @@ describe('SentinelReferralSystem', function () {
     });
 
     it('non-owner cannot pause', async function () {
-      await expect(referral.connect(user1).emergencyPause()).to.be.reverted;
+      await expect(referral.connect(user1).emergencyPause()).to.be.revertedWithCustomError(
+        referral,
+        'OwnableUnauthorizedAccount'
+      );
     });
   });
 });

@@ -408,9 +408,7 @@ export interface SentinelOracleNetwork extends BaseContract {
     nameOrSignature: 'addSupportedAsset'
   ): TypedContractMethod<[symbol: string, decimals: BigNumberish], [void], 'nonpayable'>;
   getFunction(nameOrSignature: 'emergencyShutdown'): TypedContractMethod<[], [boolean], 'view'>;
-  getFunction(
-    nameOrSignature: 'getOracleInfo'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getOracleInfo'): TypedContractMethod<
     [oracle: AddressLike],
     [
       [boolean, bigint, bigint, bigint] & {
@@ -422,9 +420,7 @@ export interface SentinelOracleNetwork extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getPrice'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getPrice'): TypedContractMethod<
     [symbol: string],
     [
       [bigint, bigint, bigint, boolean] & {
@@ -436,9 +432,7 @@ export interface SentinelOracleNetwork extends BaseContract {
     ],
     'view'
   >;
-  getFunction(
-    nameOrSignature: 'getSecurityMetric'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getSecurityMetric'): TypedContractMethod<
     [metricName: string],
     [
       [bigint, bigint, bigint] & {
@@ -457,9 +451,7 @@ export interface SentinelOracleNetwork extends BaseContract {
   getFunction(
     nameOrSignature: 'oracleList'
   ): TypedContractMethod<[arg0: BigNumberish], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'oracles'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'oracles'): TypedContractMethod<
     [arg0: AddressLike],
     [
       [string, string, bigint, bigint, bigint, boolean, bigint] & {
@@ -475,9 +467,7 @@ export interface SentinelOracleNetwork extends BaseContract {
     'view'
   >;
   getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
-  getFunction(
-    nameOrSignature: 'priceFeeds'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'priceFeeds'): TypedContractMethod<
     [arg0: string],
     [
       [string, bigint, bigint, bigint, bigint, boolean] & {
@@ -502,9 +492,7 @@ export interface SentinelOracleNetwork extends BaseContract {
     [void],
     'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: 'securityMetrics'
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'securityMetrics'): TypedContractMethod<
     [arg0: string, arg1: BigNumberish],
     [
       [string, bigint, bigint, bigint, string] & {

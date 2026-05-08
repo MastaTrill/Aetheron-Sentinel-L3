@@ -1,11 +1,9 @@
 import { expect } from 'chai';
+import { network } from 'hardhat';
 
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+const MIN_STAKE_AMOUNT = '1000'; // Will be parsed to ether inside beforeEach
 
-const MIN_STAKE = ethers.parseEther('1000');
-
-function abiEncodeProof(proof) {
+function abiEncodeProof(proof, ethers) {
   const coder = ethers.AbiCoder.defaultAbiCoder();
   return coder.encode(
     ['uint256[2]', 'uint256[2][2]', 'uint256[2]', 'uint256[]'],
@@ -25,10 +23,10 @@ function makeProof(nonce) {
   };
 }
 
-function findValidProof() {
+function findValidProof(ethers) {
   for (let i = 0; i < 500; i++) {
     const p = makeProof(i);
-    const hash = ethers.keccak256(abiEncodeProof(p));
+    const hash = ethers.keccak256(abiEncodeProof(p, ethers));
     if (BigInt(hash) % 100n < 95n) {
       return p;
     }
@@ -40,8 +38,12 @@ describe('SentinelZKOracle', function () {
   let zkOracle;
   let owner;
   let oracle1;
+  let ethers;
+  let MIN_STAKE;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
+    MIN_STAKE = ethers.parseEther(MIN_STAKE_AMOUNT);
     [owner, oracle1] = await ethers.getSigners();
     const SentinelZKOracle = await ethers.getContractFactory('SentinelZKOracle');
     zkOracle = await SentinelZKOracle.deploy(owner.address);
@@ -73,7 +75,7 @@ describe('SentinelZKOracle', function () {
   });
 
   it('rejects ZK submission from unstaked oracle', async function () {
-    const proof = findValidProof();
+    const proof = findValidProof(ethers);
     await expect(
       zkOracle
         .connect(owner)
@@ -82,7 +84,7 @@ describe('SentinelZKOracle', function () {
   });
 
   it('accepts valid ZK submission for active feed', async function () {
-    const proof = findValidProof();
+    const proof = findValidProof(ethers);
     const dataHash = ethers.keccak256(ethers.toUtf8Bytes('eth-price-1'));
 
     await zkOracle.connect(owner).registerZKOracle(ethers.keccak256(ethers.toUtf8Bytes('pk')), {
@@ -98,7 +100,7 @@ describe('SentinelZKOracle', function () {
   });
 
   it('updates feed after consensus threshold (3 matching submissions)', async function () {
-    const proof = findValidProof();
+    const proof = findValidProof(ethers);
     const dataHash = ethers.keccak256(ethers.toUtf8Bytes('eth-consensus'));
     const value = 210000000000n;
 

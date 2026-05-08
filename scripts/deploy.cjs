@@ -1,12 +1,16 @@
 console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
+let deployer; // Will be set in main()
 require('dotenv').config();
+
+// In Hardhat, when running a script with `hardhat run`,
+// the hre is available globally. We'll lazy-load it in main().
 
 function parseAddressList(value) {
   return (value || '')
     .split(',')
-    .map((item) => item.trim())
+    .map(item => item.trim())
     .filter(Boolean);
 }
 
@@ -27,10 +31,10 @@ function parseBoolean(value, fallback) {
 function parseChainLimits(value) {
   return (value || '')
     .split(',')
-    .map((item) => item.trim())
+    .map(item => item.trim())
     .filter(Boolean)
-    .map((entry) => {
-      const [chainId, limit] = entry.split(':').map((part) => part.trim());
+    .map(entry => {
+      const [chainId, limit] = entry.split(':').map(part => part.trim());
       if (!chainId || !limit) {
         throw new Error(`Invalid CHAIN_LIMITS entry: ${entry}`);
       }
@@ -41,11 +45,15 @@ function parseChainLimits(value) {
 async function deployContract(name, args) {
   const sandboxContracts = new Set(['Base', 'Lottery', 'Staking', 'Vault']);
   if (sandboxContracts.has(name)) {
-    throw new Error(
-      `Refusing to deploy sandbox contract "${name}" from imported Remix sandbox`,
-    );
+    throw new Error(`Refusing to deploy sandbox contract "${name}" from imported Remix sandbox`);
   }
-  const Factory = await ethers.getContractFactory(name);
+
+  // Get contract artifacts from hardhat artifacts
+  const artifactPath = require.resolve(`../artifacts/contracts/${name}.sol/${name}.json`);
+  const artifact = require(artifactPath);
+
+  // Create contract factory with the signer
+  const Factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
   const contract = await Factory.deploy(...args);
   await contract.waitForDeployment();
   return contract;
@@ -54,8 +62,7 @@ async function deployContract(name, args) {
 async function getTxOverrides(provider) {
   const feeData = await provider.getFeeData();
   if (feeData.maxFeePerGas != null) {
-    const priorityFee =
-      feeData.maxPriorityFeePerGas ?? feeData.maxFeePerGas / 2n;
+    const priorityFee = feeData.maxPriorityFeePerGas ?? feeData.maxFeePerGas / 2n;
     return {
       maxFeePerGas: (feeData.maxFeePerGas * 3n) / 2n,
       maxPriorityFeePerGas: (priorityFee * 3n) / 2n,
@@ -71,21 +78,47 @@ async function getTxOverrides(provider) {
 }
 
 async function main() {
-  const hardhatModule = await import('hardhat');
-  hre = hardhatModule.default ?? hardhatModule;
-  ethers = hre.ethers;
+  // Load hardhat and manually import ethers v6
+  const hardhatInstance = require('hardhat');
+  hre = hardhatInstance;
+
+  // Since the ethers plugin may not be fully injected in CommonJS context,
+  // import ethers directly as a module
+  const ethersModule = require('ethers');
+  ethers = ethersModule;
+
+  console.log('ethers version:', ethers.version);
+  console.log('hre.network.name:', hre.network?.name);
+
+  // Create provider from the network configured in hardhat.config.js
+  const networkConfig = hre.config.networks[hre.network?.name];
+  if (!networkConfig || !networkConfig.url) {
+    throw new Error(
+      `Network '${hre.network?.name}' not configured or URL missing. ` +
+        `Ensure BASE_RPC_URL and OWNER_PRIVATE_KEY env vars are set.`
+    );
+  }
+
+  const provider = new ethers.JsonRpcProvider(networkConfig.url);
+
+  // Get signer from private key
+  const privateKey = process.env.OWNER_PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error('OWNER_PRIVATE_KEY environment variable not set');
+  }
+
+  const deployer = new ethers.Wallet(privateKey, provider);
+
+  // Set up ethers.provider so the rest of the script can use it
+  ethers.provider = provider;
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');
   console.log('Hardhat network:', hre.network.name);
-  const signers = await ethers.getSigners();
-  if (!signers.length) {
-    throw new Error(
-      'No deployer signer available. Set PRIVATE_KEY or OWNER_PRIVATE_KEY to a valid 0x-prefixed hex private key.',
-    );
-  }
-  const [deployer] = signers;
   const deployerAddress = await deployer.getAddress();
+  if (!deployerAddress) {
+    throw new Error('Could not derive deployer address from private key.');
+  }
   console.log('Deployer address:', deployerAddress);
   console.log('-------------------------');
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
@@ -101,21 +134,17 @@ async function main() {
     callers: parseAddressList(process.env.CALLER_ADDRESSES),
     monitors: parseAddressList(process.env.MONITOR_ADDRESSES),
     reporters: parseAddressList(process.env.REPORTER_ADDRESSES),
-    trackedChains: parseAddressList(process.env.TRACKED_CHAIN_IDS).map((id) =>
-      BigInt(id),
-    ),
+    trackedChains: parseAddressList(process.env.TRACKED_CHAIN_IDS).map(id => BigInt(id)),
     bridgeTokens: parseAddressList(process.env.BRIDGE_TOKEN_ADDRESSES),
     chainLimits: parseChainLimits(process.env.CHAIN_LIMITS),
     lpToken: process.env.LP_TOKEN_ADDRESS || '',
     stakingToken: process.env.STAKING_TOKEN_ADDRESS || '',
     rewardToken: process.env.REWARD_TOKEN_ADDRESS || '',
     yieldToken: process.env.YIELD_TOKEN_ADDRESS || '',
-    grantSecurityReporters: parseAddressList(
-      process.env.SECURITY_REPORTER_ADDRESSES,
-    ),
+    grantSecurityReporters: parseAddressList(process.env.SECURITY_REPORTER_ADDRESSES),
     timelockMinDelay: parseUint(
       process.env.TIMELOCK_MIN_DELAY,
-      172800n, // 2 days
+      172800n // 2 days
     ),
     timelockProposers: parseAddressList(process.env.TIMELOCK_PROPOSERS),
     timelockExecutors: parseAddressList(process.env.TIMELOCK_EXECUTORS),
@@ -125,10 +154,7 @@ async function main() {
   console.log('Deploying with account:', deployerAddress);
   console.log('Configured owner:', config.owner);
   console.log('Network:', hre.network.name);
-  console.log(
-    'Deployer controls owner-only setup:',
-    deployerIsOwner ? 'yes' : 'no',
-  );
+  console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
   const balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
@@ -167,30 +193,22 @@ async function main() {
   console.log('   RateLimiter:', addresses.RateLimiter);
 
   console.log('6. Deploying SentinelQuantumGuard...');
-  const quantumGuard = await deployContract('SentinelQuantumGuard', [
-    config.owner,
-  ]);
+  const quantumGuard = await deployContract('SentinelQuantumGuard', [config.owner]);
   addresses.SentinelQuantumGuard = await quantumGuard.getAddress();
   console.log('   SentinelQuantumGuard:', addresses.SentinelQuantumGuard);
 
   console.log('7. Deploying SentinelMultiSigVault...');
-  const multiSigVault = await deployContract('SentinelMultiSigVault', [
-    config.owner,
-  ]);
+  const multiSigVault = await deployContract('SentinelMultiSigVault', [config.owner]);
   addresses.SentinelMultiSigVault = await multiSigVault.getAddress();
   console.log('   SentinelMultiSigVault:', addresses.SentinelMultiSigVault);
 
   console.log('8. Deploying SentinelOracleNetwork...');
-  const oracleNetwork = await deployContract('SentinelOracleNetwork', [
-    config.owner,
-  ]);
+  const oracleNetwork = await deployContract('SentinelOracleNetwork', [config.owner]);
   addresses.SentinelOracleNetwork = await oracleNetwork.getAddress();
   console.log('   SentinelOracleNetwork:', addresses.SentinelOracleNetwork);
 
   console.log('9. Deploying SentinelSecurityAuditor...');
-  const securityAuditor = await deployContract('SentinelSecurityAuditor', [
-    config.owner,
-  ]);
+  const securityAuditor = await deployContract('SentinelSecurityAuditor', [config.owner]);
   addresses.SentinelSecurityAuditor = await securityAuditor.getAddress();
   console.log('   SentinelSecurityAuditor:', addresses.SentinelSecurityAuditor);
 
@@ -200,9 +218,7 @@ async function main() {
   console.log('   SentinelMonitor:', addresses.SentinelMonitor);
 
   console.log('11. Deploying SentinelYieldMaximizer...');
-  const yieldMaximizer = await deployContract('SentinelYieldMaximizer', [
-    config.owner,
-  ]);
+  const yieldMaximizer = await deployContract('SentinelYieldMaximizer', [config.owner]);
   addresses.SentinelYieldMaximizer = await yieldMaximizer.getAddress();
   console.log('   SentinelYieldMaximizer:', addresses.SentinelYieldMaximizer);
 
@@ -236,14 +252,9 @@ async function main() {
       config.owner,
     ]);
     addresses.SentinelLiquidityMining = await liquidityMining.getAddress();
-    console.log(
-      '   SentinelLiquidityMining:',
-      addresses.SentinelLiquidityMining,
-    );
+    console.log('   SentinelLiquidityMining:', addresses.SentinelLiquidityMining);
   } else {
-    console.log(
-      '14. Skipping SentinelLiquidityMining: LP_TOKEN_ADDRESS not provided',
-    );
+    console.log('14. Skipping SentinelLiquidityMining: LP_TOKEN_ADDRESS not provided');
   }
 
   console.log('15. Deploying SentinelTimelock...');
@@ -276,28 +287,18 @@ async function main() {
     const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
     const CANCELLER_ROLE = await timelock.CANCELLER_ROLE();
     const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
-    await (
-      await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)
-    ).wait();
-    await (
-      await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)
-    ).wait();
-    console.log(
-      '   Granted PROPOSER + CANCELLER roles to SentinelGovernance on timelock',
-    );
+    await (await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)).wait();
+    await (await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)).wait();
+    console.log('   Granted PROPOSER + CANCELLER roles to SentinelGovernance on timelock');
     // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
-      await (
-        await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)
-      ).wait();
-      console.log(
-        '   Renounced deployer TIMELOCK_ADMIN_ROLE (timelockAdmin is separate account)',
-      );
+      await (await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)).wait();
+      console.log('   Renounced deployer TIMELOCK_ADMIN_ROLE (timelockAdmin is separate account)');
     }
   } else {
     pendingActions.push(
       `SentinelTimelock.grantRole(PROPOSER_ROLE, ${addresses.SentinelGovernance})`,
-      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`
     );
   }
 
@@ -307,15 +308,9 @@ async function main() {
     console.log('\nConfiguring post-deploy authorization...');
     const ov2 = await getTxOverrides(ethers.provider);
 
-    await (
-      await monitor.authorizeContract(addresses.SentinelInterceptor, ov2)
-    ).wait();
-    await (
-      await monitor.authorizeContract(addresses.AetheronBridge, ov2)
-    ).wait();
-    await (
-      await monitor.authorizeContract(addresses.CircuitBreaker, ov2)
-    ).wait();
+    await (await monitor.authorizeContract(addresses.SentinelInterceptor, ov2)).wait();
+    await (await monitor.authorizeContract(addresses.AetheronBridge, ov2)).wait();
+    await (await monitor.authorizeContract(addresses.CircuitBreaker, ov2)).wait();
 
     for (const chainId of config.trackedChains) {
       await (await monitor.addTrackedChain(chainId, ov2)).wait();
@@ -331,9 +326,7 @@ async function main() {
 
     const monitorRole = await interceptor.MONITOR_ROLE();
     for (const monitorAddress of config.monitors) {
-      await (
-        await interceptor.grantRole(monitorRole, monitorAddress, ov2)
-      ).wait();
+      await (await interceptor.grantRole(monitorRole, monitorAddress, ov2)).wait();
     }
 
     for (const reporter of reporterSet) {
@@ -341,9 +334,7 @@ async function main() {
     }
 
     for (const securityReporter of config.grantSecurityReporters) {
-      await (
-        await sentinelToken.setSecurityReporter(securityReporter, true, ov2)
-      ).wait();
+      await (await sentinelToken.setSecurityReporter(securityReporter, true, ov2)).wait();
     }
 
     await (await yieldMaximizer.setYieldToken(yieldTokenAddress, ov2)).wait();
@@ -362,34 +353,22 @@ async function main() {
       `SentinelMonitor.authorizeContract(${addresses.SentinelInterceptor})`,
       `SentinelMonitor.authorizeContract(${addresses.AetheronBridge})`,
       `SentinelMonitor.authorizeContract(${addresses.CircuitBreaker})`,
-      ...config.trackedChains.map(
-        (chainId) => `SentinelMonitor.addTrackedChain(${chainId})`,
-      ),
-      ...config.relayers.map(
-        (relayer) => `AetheronBridge.setRelayer(${relayer}, true)`,
-      ),
-      ...Array.from(callerSet).map(
-        (caller) => `RateLimiter.setCaller(${caller}, true)`,
-      ),
+      ...config.trackedChains.map(chainId => `SentinelMonitor.addTrackedChain(${chainId})`),
+      ...config.relayers.map(relayer => `AetheronBridge.setRelayer(${relayer}, true)`),
+      ...Array.from(callerSet).map(caller => `RateLimiter.setCaller(${caller}, true)`),
       ...config.monitors.map(
-        (monitorAddress) =>
-          `SentinelInterceptor.grantRole(MONITOR_ROLE, ${monitorAddress})`,
+        monitorAddress => `SentinelInterceptor.grantRole(MONITOR_ROLE, ${monitorAddress})`
       ),
-      ...Array.from(reporterSet).map(
-        (reporter) => `SentinelInterceptor.addReporter(${reporter})`,
-      ),
+      ...Array.from(reporterSet).map(reporter => `SentinelInterceptor.addReporter(${reporter})`),
       ...config.grantSecurityReporters.map(
-        (securityReporter) =>
-          `SentinelToken.setSecurityReporter(${securityReporter}, true)`,
+        securityReporter => `SentinelToken.setSecurityReporter(${securityReporter}, true)`
       ),
       `SentinelYieldMaximizer.setYieldToken(${yieldTokenAddress})`,
-      ...config.bridgeTokens.map(
-        (token) => `AetheronBridge.setTokenSupport(${token}, true)`,
-      ),
+      ...config.bridgeTokens.map(token => `AetheronBridge.setTokenSupport(${token}, true)`),
       ...config.chainLimits.flatMap(({ chainId, limit }) => [
         `AetheronBridge.setChainLimit(${chainId}, ${limit})`,
         `RateLimiter.setChainLimit(${chainId}, ${limit})`,
-      ]),
+      ])
     );
   }
 
@@ -409,40 +388,22 @@ async function main() {
   console.log('   SentinelAMM:', addresses.SentinelAMM);
 
   console.log('20. Deploying SentinelPredictiveThreatModel...');
-  const predictiveThreat = await deployContract(
-    'SentinelPredictiveThreatModel',
-    [config.owner],
-  );
+  const predictiveThreat = await deployContract('SentinelPredictiveThreatModel', [config.owner]);
   addresses.SentinelPredictiveThreatModel = await predictiveThreat.getAddress();
-  console.log(
-    '   SentinelPredictiveThreatModel:',
-    addresses.SentinelPredictiveThreatModel,
-  );
+  console.log('   SentinelPredictiveThreatModel:', addresses.SentinelPredictiveThreatModel);
 
   console.log('21. Deploying SentinelHomomorphicEncryption...');
-  const homomorphic = await deployContract('SentinelHomomorphicEncryption', [
-    config.owner,
-  ]);
+  const homomorphic = await deployContract('SentinelHomomorphicEncryption', [config.owner]);
   addresses.SentinelHomomorphicEncryption = await homomorphic.getAddress();
-  console.log(
-    '   SentinelHomomorphicEncryption:',
-    addresses.SentinelHomomorphicEncryption,
-  );
+  console.log('   SentinelHomomorphicEncryption:', addresses.SentinelHomomorphicEncryption);
 
   console.log('22. Deploying SentinelQuantumKeyDistribution...');
-  const qkd = await deployContract('SentinelQuantumKeyDistribution', [
-    config.owner,
-  ]);
+  const qkd = await deployContract('SentinelQuantumKeyDistribution', [config.owner]);
   addresses.SentinelQuantumKeyDistribution = await qkd.getAddress();
-  console.log(
-    '   SentinelQuantumKeyDistribution:',
-    addresses.SentinelQuantumKeyDistribution,
-  );
+  console.log('   SentinelQuantumKeyDistribution:', addresses.SentinelQuantumKeyDistribution);
 
   console.log('23. Deploying SentinelQuantumNeural...');
-  const quantumNeural = await deployContract('SentinelQuantumNeural', [
-    config.owner,
-  ]);
+  const quantumNeural = await deployContract('SentinelQuantumNeural', [config.owner]);
   addresses.SentinelQuantumNeural = await quantumNeural.getAddress();
   console.log('   SentinelQuantumNeural:', addresses.SentinelQuantumNeural);
 
@@ -471,10 +432,7 @@ async function main() {
     config.owner,
   ]);
   addresses.SentinelInsuranceProtocol = await insuranceProtocol.getAddress();
-  console.log(
-    '   SentinelInsuranceProtocol:',
-    addresses.SentinelInsuranceProtocol,
-  );
+  console.log('   SentinelInsuranceProtocol:', addresses.SentinelInsuranceProtocol);
 
   if (deployerIsOwner) {
     console.log('\nConfiguring SentinelCoreLoop components...');
@@ -504,10 +462,7 @@ async function main() {
         ['oracleNetwork', addresses.SentinelOracleNetwork],
       ]
         .filter(([, address]) => address)
-        .map(
-          ([name, address]) =>
-            `SentinelCoreLoop.setSystemComponent(${name}, ${address})`,
-        ),
+        .map(([name, address]) => `SentinelCoreLoop.setSystemComponent(${name}, ${address})`)
     );
   }
 
@@ -524,7 +479,7 @@ async function main() {
         reporters: Array.from(reporterSet),
         trackedChains: config.trackedChains.map(String),
         bridgeTokens: config.bridgeTokens,
-        chainLimits: config.chainLimits.map((item) => ({
+        chainLimits: config.chainLimits.map(item => ({
           chainId: item.chainId.toString(),
           limit: item.limit.toString(),
         })),
@@ -539,8 +494,8 @@ async function main() {
         pendingActions,
       },
       null,
-      2,
-    ),
+      2
+    )
   );
 
   // Output the final block number for automation
@@ -548,7 +503,7 @@ async function main() {
   console.log(`Final Block: ${latestBlock}`);
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

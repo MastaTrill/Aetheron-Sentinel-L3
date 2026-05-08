@@ -1,14 +1,15 @@
 // test/CircuitBreaker.test.js
 import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('CircuitBreaker', function () {
   let circuitBreaker;
   let owner, monitor, attacker;
+  let ethers;
   const CHAIN_ID = 137;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, monitor, attacker] = await ethers.getSigners();
 
     const CircuitBreaker = await ethers.getContractFactory('CircuitBreaker');
@@ -54,10 +55,9 @@ describe('CircuitBreaker', function () {
     });
 
     it('rejects non-monitor callers', async function () {
-      const monitorRole = await circuitBreaker.MONITOR_ROLE();
-      await expect(circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)).to.be.revertedWith(
-        `AccessControl: account ${attacker.address.toLowerCase()} is missing role ${monitorRole}`
-      );
+      await expect(
+        circuitBreaker.connect(attacker).recordFailure(CHAIN_ID, 3)
+      ).to.be.revertedWithCustomError(circuitBreaker, 'AccessControlUnauthorizedAccount');
     });
   });
 
