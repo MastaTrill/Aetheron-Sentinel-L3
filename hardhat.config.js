@@ -32,19 +32,19 @@ function hasNetworkConfig(rpcUrl) {
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
   plugins: [hardhatEthers, hardhatMocha, hardhatEthersChaiMatchers],
-  solidity: {
-    compiler: 'solcjs',
-    version: '0.8.28',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-      },
-      metadata: {
-        useLiteralContent: true,
-      },
-    },
-  },
+   solidity: {
+     compiler: 'solc',
+     version: '0.8.28',
+     settings: {
+       optimizer: {
+         enabled: true,
+         runs: 200,
+       },
+       metadata: {
+         useLiteralContent: true,
+       },
+     },
+   },
   networks: {
     hardhat: {
       // Local simulation
