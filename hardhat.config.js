@@ -33,7 +33,7 @@ function hasNetworkConfig(rpcUrl) {
 const config = {
   plugins: [hardhatEthers, hardhatMocha, hardhatEthersChaiMatchers],
    solidity: {
-     compiler: 'solc',
+     compiler: 'solcjs',
      version: '0.8.28',
      settings: {
        optimizer: {

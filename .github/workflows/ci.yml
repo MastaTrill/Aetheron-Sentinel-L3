@@ -51,37 +51,37 @@ jobs:
           node-version: 24
           cache: npm
 
-       - name: Restore Hardhat compiler cache
-         uses: actions/cache@v4
-         with:
-           path: |
-             ~/.cache/hardhat-nodejs
-             ~/.cache/hardhat
-             ~/.cache/solidity-nodejs
-           key: ${{ runner.os }}-hardhat-compiler-${{ hashFiles('hardhat.config.js', 'package.json', 'package-lock.json') }}
-           restore-keys: |
-             ${{ runner.os }}-hardhat-compiler-
+      - name: Restore Hardhat compiler cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+            ~/.cache/hardhat
+            ~/.cache/solidity-nodejs
+          key: ${{ runner.os }}-hardhat-compiler-${{ hashFiles('hardhat.config.js', 'package.json', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-hardhat-compiler-
 
-       - name: Configure git for HTTPS
-         run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+      - name: Configure git for HTTPS
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
-       - name: Install dependencies
-         run: npm ci --legacy-peer-deps
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
-       - name: Setup Solidity compiler (offline)
-         run: |
-           # Use solc-js (JavaScript implementation) to avoid network downloads
-           # The solc npm package includes solc-js which works without network access
-           echo "Using solcjs from node_modules"
-           # Verify solc is installed
-           if [ -f "node_modules/.bin/solcjs" ]; then
-             echo "✅ solcjs found in node_modules"
-           else
-             echo "❌ solcjs not found, installing..."
-             npm install solc@0.8.28
-           fi
-           # Set environment variable for Hardhat to use local solc
-           echo "HARDHAT_SOLC_PATH=$(pwd)/node_modules/.bin/solcjs" >> $GITHUB_ENV
+      - name: Setup Solidity compiler (offline)
+        run: |
+          # Use solc-js (JavaScript implementation) to avoid network downloads
+          # The solc npm package includes solc-js which works without network access
+          echo "Using solcjs from node_modules"
+          # Verify solc is installed
+          if [ -f "node_modules/.bin/solcjs" ]; then
+            echo "✅ solcjs found in node_modules"
+          else
+            echo "❌ solcjs not found, installing..."
+            npm install solc@0.8.28
+          fi
+          # Set environment variable for Hardhat to use local solc
+          echo "HARDHAT_SOLC_PATH=$(pwd)/node_modules/.bin/solcjs" >> $GITHUB_ENV
 
       - name: Compile contracts
         run: npm run compile
