@@ -32,8 +32,8 @@ concurrency:
 
 jobs:
   hardhat:
-    name: Hardhat (Node 24)
-    runs-on: ubuntu-latest
+     name: Hardhat (Node 24)
+     runs-on: ubuntu-latest
      timeout-minutes: 30
      env:
        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
@@ -46,10 +46,10 @@ jobs:
       - name: Clean submodules
         run: git submodule deinit --all -f || true
 
-      - name: Setup Node.js 24
+      - name: Setup Node.js 25
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Restore Hardhat compiler cache
@@ -66,17 +66,17 @@ jobs:
       - name: Configure git for HTTPS
         run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
-       - name: Install dependencies
-         run: npm ci --legacy-peer-deps
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
-       - name: Download Solidity compiler
-         run: |
-           mkdir -p ~/.cache/hardhat
-           curl -L -o ~/.cache/hardhat/solc https://github.com/ethereum/solidity/releases/download/v0.8.28/solc-static-linux
-           chmod +x ~/.cache/hardhat/solc
-           echo "HARDHAT_SOLC_PATH=$HOME/.cache/hardhat/solc" >> $GITHUB_ENV
+      - name: Download Solidity compiler
+        run: |
+          mkdir -p ~/.cache/hardhat
+          curl -L -o ~/.cache/hardhat/solc https://github.com/ethereum/solidity/releases/download/v0.8.28/solc-static-linux
+          chmod +x ~/.cache/hardhat/solc
+          echo "HARDHAT_SOLC_PATH=$HOME/.cache/hardhat/solc" >> $GITHUB_ENV
 
-       - name: Compile contracts
+      - name: Compile contracts
         run: npm run compile
 
       - name: Run Hardhat tests
@@ -108,7 +108,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -147,7 +147,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
           cache-dependency-path: imports/remix_-aetheron-sentinel-l3/package-lock.json
 
@@ -172,7 +172,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
 
       - name: Verify markdown links in deployment docs
         run: node scripts/check-markdown-links.cjs
@@ -210,7 +210,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -253,7 +253,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -292,7 +292,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -320,7 +320,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -373,7 +373,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -423,7 +423,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies
@@ -473,7 +473,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 25
           cache: npm
 
       - name: Install dependencies

@@ -53,7 +53,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@chainlink/contracts": "^0.4.0",
+    "@chainlink/contracts": "^1.5.0",
     "@chainlink/contracts-ccip": "^1.6.4",
     "@graphprotocol/graph-cli": "^0.98.1",
     "@graphprotocol/graph-ts": "^0.26.0",
