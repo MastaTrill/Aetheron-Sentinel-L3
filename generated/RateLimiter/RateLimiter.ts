@@ -8,7 +8,7 @@ import {
   Bytes,
   Address,
   BigInt,
-} from '@graphprotocol/graph-ts';
+} from "@graphprotocol/graph-ts";
 
 export class CallerUpdated extends ethereum.Event {
   get params(): CallerUpdated__Params {
@@ -339,9 +339,9 @@ export class RateLimiter__withdrawalsResult {
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set('value0', ethereum.Value.fromAddress(this.value0));
-    map.set('value1', ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set('value2', ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     return map;
   }
 
@@ -360,17 +360,17 @@ export class RateLimiter__withdrawalsResult {
 
 export class RateLimiter extends ethereum.SmartContract {
   static bind(address: Address): RateLimiter {
-    return new RateLimiter('RateLimiter', address);
+    return new RateLimiter("RateLimiter", address);
   }
 
   CALLER_ROLE(): Bytes {
-    let result = super.call('CALLER_ROLE', 'CALLER_ROLE():(bytes32)', []);
+    let result = super.call("CALLER_ROLE", "CALLER_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_CALLER_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('CALLER_ROLE', 'CALLER_ROLE():(bytes32)', []);
+    let result = super.tryCall("CALLER_ROLE", "CALLER_ROLE():(bytes32)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -379,13 +379,21 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   DEFAULT_ADMIN_ROLE(): Bytes {
-    let result = super.call('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
+    let result = super.call(
+      "DEFAULT_ADMIN_ROLE",
+      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      [],
+    );
 
     return result[0].toBytes();
   }
 
   try_DEFAULT_ADMIN_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
+    let result = super.tryCall(
+      "DEFAULT_ADMIN_ROLE",
+      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -394,13 +402,21 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   DEFAULT_RESET_PERIOD(): BigInt {
-    let result = super.call('DEFAULT_RESET_PERIOD', 'DEFAULT_RESET_PERIOD():(uint256)', []);
+    let result = super.call(
+      "DEFAULT_RESET_PERIOD",
+      "DEFAULT_RESET_PERIOD():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_DEFAULT_RESET_PERIOD(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('DEFAULT_RESET_PERIOD', 'DEFAULT_RESET_PERIOD():(uint256)', []);
+    let result = super.tryCall(
+      "DEFAULT_RESET_PERIOD",
+      "DEFAULT_RESET_PERIOD():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -409,13 +425,13 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   MONITOR_ROLE(): Bytes {
-    let result = super.call('MONITOR_ROLE', 'MONITOR_ROLE():(bytes32)', []);
+    let result = super.call("MONITOR_ROLE", "MONITOR_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_MONITOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('MONITOR_ROLE', 'MONITOR_ROLE():(bytes32)', []);
+    let result = super.tryCall("MONITOR_ROLE", "MONITOR_ROLE():(bytes32)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -424,13 +440,17 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   OPERATOR_ROLE(): Bytes {
-    let result = super.call('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
+    let result = super.call("OPERATOR_ROLE", "OPERATOR_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_OPERATOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
+    let result = super.tryCall(
+      "OPERATOR_ROLE",
+      "OPERATOR_ROLE():(bytes32)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -439,7 +459,7 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   chainLimits(param0: BigInt): BigInt {
-    let result = super.call('chainLimits', 'chainLimits(uint256):(uint256)', [
+    let result = super.call("chainLimits", "chainLimits(uint256):(uint256)", [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
 
@@ -447,9 +467,11 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   try_chainLimits(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('chainLimits', 'chainLimits(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "chainLimits",
+      "chainLimits(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -458,17 +480,21 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   chainResetPeriods(param0: BigInt): BigInt {
-    let result = super.call('chainResetPeriods', 'chainResetPeriods(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "chainResetPeriods",
+      "chainResetPeriods(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_chainResetPeriods(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('chainResetPeriods', 'chainResetPeriods(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "chainResetPeriods",
+      "chainResetPeriods(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -477,7 +503,7 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   currentUsage(param0: BigInt): BigInt {
-    let result = super.call('currentUsage', 'currentUsage(uint256):(uint256)', [
+    let result = super.call("currentUsage", "currentUsage(uint256):(uint256)", [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
 
@@ -485,9 +511,11 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   try_currentUsage(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('currentUsage', 'currentUsage(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "currentUsage",
+      "currentUsage(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -496,7 +524,7 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   getRoleAdmin(role: Bytes): Bytes {
-    let result = super.call('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
+    let result = super.call("getRoleAdmin", "getRoleAdmin(bytes32):(bytes32)", [
       ethereum.Value.fromFixedBytes(role),
     ]);
 
@@ -504,9 +532,11 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   try_getRoleAdmin(role: Bytes): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
-      ethereum.Value.fromFixedBytes(role),
-    ]);
+    let result = super.tryCall(
+      "getRoleAdmin",
+      "getRoleAdmin(bytes32):(bytes32)",
+      [ethereum.Value.fromFixedBytes(role)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -515,7 +545,7 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   hasRole(role: Bytes, account: Address): boolean {
-    let result = super.call('hasRole', 'hasRole(bytes32,address):(bool)', [
+    let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -524,7 +554,7 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   try_hasRole(role: Bytes, account: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall('hasRole', 'hasRole(bytes32,address):(bool)', [
+    let result = super.tryCall("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -536,13 +566,13 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   owner(): Address {
-    let result = super.call('owner', 'owner():(address)', []);
+    let result = super.call("owner", "owner():(address)", []);
 
     return result[0].toAddress();
   }
 
   try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall('owner', 'owner():(address)', []);
+    let result = super.tryCall("owner", "owner():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -551,13 +581,13 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   paused(): boolean {
-    let result = super.call('paused', 'paused():(bool)', []);
+    let result = super.call("paused", "paused():(bool)", []);
 
     return result[0].toBoolean();
   }
 
   try_paused(): ethereum.CallResult<boolean> {
-    let result = super.tryCall('paused', 'paused():(bool)', []);
+    let result = super.tryCall("paused", "paused():(bool)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -566,7 +596,7 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   periodStart(param0: BigInt): BigInt {
-    let result = super.call('periodStart', 'periodStart(uint256):(uint256)', [
+    let result = super.call("periodStart", "periodStart(uint256):(uint256)", [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
 
@@ -574,9 +604,11 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   try_periodStart(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('periodStart', 'periodStart(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "periodStart",
+      "periodStart(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -585,17 +617,21 @@ export class RateLimiter extends ethereum.SmartContract {
   }
 
   supportsInterface(interfaceId: Bytes): boolean {
-    let result = super.call('supportsInterface', 'supportsInterface(bytes4):(bool)', [
-      ethereum.Value.fromFixedBytes(interfaceId),
-    ]);
+    let result = super.call(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_supportsInterface(interfaceId: Bytes): ethereum.CallResult<boolean> {
-    let result = super.tryCall('supportsInterface', 'supportsInterface(bytes4):(bool)', [
-      ethereum.Value.fromFixedBytes(interfaceId),
-    ]);
+    let result = super.tryCall(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -605,26 +641,32 @@ export class RateLimiter extends ethereum.SmartContract {
 
   withdrawals(param0: BigInt, param1: BigInt): RateLimiter__withdrawalsResult {
     let result = super.call(
-      'withdrawals',
-      'withdrawals(uint256,uint256):(address,uint256,uint256)',
-      [ethereum.Value.fromUnsignedBigInt(param0), ethereum.Value.fromUnsignedBigInt(param1)]
+      "withdrawals",
+      "withdrawals(uint256,uint256):(address,uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
     );
 
     return new RateLimiter__withdrawalsResult(
       result[0].toAddress(),
       result[1].toBigInt(),
-      result[2].toBigInt()
+      result[2].toBigInt(),
     );
   }
 
   try_withdrawals(
     param0: BigInt,
-    param1: BigInt
+    param1: BigInt,
   ): ethereum.CallResult<RateLimiter__withdrawalsResult> {
     let result = super.tryCall(
-      'withdrawals',
-      'withdrawals(uint256,uint256):(address,uint256,uint256)',
-      [ethereum.Value.fromUnsignedBigInt(param0), ethereum.Value.fromUnsignedBigInt(param1)]
+      "withdrawals",
+      "withdrawals(uint256,uint256):(address,uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -634,8 +676,8 @@ export class RateLimiter extends ethereum.SmartContract {
       new RateLimiter__withdrawalsResult(
         value[0].toAddress(),
         value[1].toBigInt(),
-        value[2].toBigInt()
-      )
+        value[2].toBigInt(),
+      ),
     );
   }
 }
