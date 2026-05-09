@@ -52,3 +52,7 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Audit reports
+npm-audit-report.json
+npm-audit-prod-report.json

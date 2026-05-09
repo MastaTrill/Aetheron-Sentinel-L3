@@ -8,7 +8,7 @@ import {
   Bytes,
   Address,
   BigInt,
-} from '@graphprotocol/graph-ts';
+} from "@graphprotocol/graph-ts";
 
 export class CircuitClosed extends ethereum.Event {
   get params(): CircuitClosed__Params {
@@ -291,7 +291,13 @@ export class CircuitBreaker__getCircuitStatsResult {
   value3: BigInt;
   value4: boolean;
 
-  constructor(value0: i32, value1: BigInt, value2: BigInt, value3: BigInt, value4: boolean) {
+  constructor(
+    value0: i32,
+    value1: BigInt,
+    value2: BigInt,
+    value3: BigInt,
+    value4: boolean,
+  ) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
@@ -301,11 +307,14 @@ export class CircuitBreaker__getCircuitStatsResult {
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set('value0', ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0)));
-    map.set('value1', ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set('value2', ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set('value3', ethereum.Value.fromUnsignedBigInt(this.value3));
-    map.set('value4', ethereum.Value.fromBoolean(this.value4));
+    map.set(
+      "value0",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0)),
+    );
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromBoolean(this.value4));
     return map;
   }
 
@@ -332,17 +341,25 @@ export class CircuitBreaker__getCircuitStatsResult {
 
 export class CircuitBreaker extends ethereum.SmartContract {
   static bind(address: Address): CircuitBreaker {
-    return new CircuitBreaker('CircuitBreaker', address);
+    return new CircuitBreaker("CircuitBreaker", address);
   }
 
   DEFAULT_ADMIN_ROLE(): Bytes {
-    let result = super.call('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
+    let result = super.call(
+      "DEFAULT_ADMIN_ROLE",
+      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      [],
+    );
 
     return result[0].toBytes();
   }
 
   try_DEFAULT_ADMIN_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
+    let result = super.tryCall(
+      "DEFAULT_ADMIN_ROLE",
+      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -351,13 +368,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   FAILURE_THRESHOLD(): BigInt {
-    let result = super.call('FAILURE_THRESHOLD', 'FAILURE_THRESHOLD():(uint256)', []);
+    let result = super.call(
+      "FAILURE_THRESHOLD",
+      "FAILURE_THRESHOLD():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_FAILURE_THRESHOLD(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('FAILURE_THRESHOLD', 'FAILURE_THRESHOLD():(uint256)', []);
+    let result = super.tryCall(
+      "FAILURE_THRESHOLD",
+      "FAILURE_THRESHOLD():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -366,13 +391,17 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   FAILURE_WINDOW(): BigInt {
-    let result = super.call('FAILURE_WINDOW', 'FAILURE_WINDOW():(uint256)', []);
+    let result = super.call("FAILURE_WINDOW", "FAILURE_WINDOW():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
   try_FAILURE_WINDOW(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('FAILURE_WINDOW', 'FAILURE_WINDOW():(uint256)', []);
+    let result = super.tryCall(
+      "FAILURE_WINDOW",
+      "FAILURE_WINDOW():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -381,13 +410,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   MAX_FAILURE_HISTORY(): BigInt {
-    let result = super.call('MAX_FAILURE_HISTORY', 'MAX_FAILURE_HISTORY():(uint256)', []);
+    let result = super.call(
+      "MAX_FAILURE_HISTORY",
+      "MAX_FAILURE_HISTORY():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_MAX_FAILURE_HISTORY(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('MAX_FAILURE_HISTORY', 'MAX_FAILURE_HISTORY():(uint256)', []);
+    let result = super.tryCall(
+      "MAX_FAILURE_HISTORY",
+      "MAX_FAILURE_HISTORY():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -396,13 +433,13 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   MONITOR_ROLE(): Bytes {
-    let result = super.call('MONITOR_ROLE', 'MONITOR_ROLE():(bytes32)', []);
+    let result = super.call("MONITOR_ROLE", "MONITOR_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_MONITOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('MONITOR_ROLE', 'MONITOR_ROLE():(bytes32)', []);
+    let result = super.tryCall("MONITOR_ROLE", "MONITOR_ROLE():(bytes32)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -411,13 +448,17 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   OPERATOR_ROLE(): Bytes {
-    let result = super.call('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
+    let result = super.call("OPERATOR_ROLE", "OPERATOR_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_OPERATOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
+    let result = super.tryCall(
+      "OPERATOR_ROLE",
+      "OPERATOR_ROLE():(bytes32)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -426,13 +467,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   RECOVERY_ATTEMPTS(): BigInt {
-    let result = super.call('RECOVERY_ATTEMPTS', 'RECOVERY_ATTEMPTS():(uint256)', []);
+    let result = super.call(
+      "RECOVERY_ATTEMPTS",
+      "RECOVERY_ATTEMPTS():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_RECOVERY_ATTEMPTS(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('RECOVERY_ATTEMPTS', 'RECOVERY_ATTEMPTS():(uint256)', []);
+    let result = super.tryCall(
+      "RECOVERY_ATTEMPTS",
+      "RECOVERY_ATTEMPTS():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -441,13 +490,17 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   TIMEOUT_PERIOD(): BigInt {
-    let result = super.call('TIMEOUT_PERIOD', 'TIMEOUT_PERIOD():(uint256)', []);
+    let result = super.call("TIMEOUT_PERIOD", "TIMEOUT_PERIOD():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
   try_TIMEOUT_PERIOD(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('TIMEOUT_PERIOD', 'TIMEOUT_PERIOD():(uint256)', []);
+    let result = super.tryCall(
+      "TIMEOUT_PERIOD",
+      "TIMEOUT_PERIOD():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -456,7 +509,7 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   circuitStates(param0: BigInt): i32 {
-    let result = super.call('circuitStates', 'circuitStates(uint256):(uint8)', [
+    let result = super.call("circuitStates", "circuitStates(uint256):(uint8)", [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
 
@@ -464,9 +517,11 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   try_circuitStates(param0: BigInt): ethereum.CallResult<i32> {
-    let result = super.tryCall('circuitStates', 'circuitStates(uint256):(uint8)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "circuitStates",
+      "circuitStates(uint256):(uint8)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -475,17 +530,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   failureCounts(param0: BigInt): BigInt {
-    let result = super.call('failureCounts', 'failureCounts(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "failureCounts",
+      "failureCounts(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_failureCounts(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('failureCounts', 'failureCounts(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "failureCounts",
+      "failureCounts(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -494,19 +553,30 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   failureHistory(param0: BigInt, param1: BigInt): BigInt {
-    let result = super.call('failureHistory', 'failureHistory(uint256,uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-      ethereum.Value.fromUnsignedBigInt(param1),
-    ]);
+    let result = super.call(
+      "failureHistory",
+      "failureHistory(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
+    );
 
     return result[0].toBigInt();
   }
 
-  try_failureHistory(param0: BigInt, param1: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('failureHistory', 'failureHistory(uint256,uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-      ethereum.Value.fromUnsignedBigInt(param1),
-    ]);
+  try_failureHistory(
+    param0: BigInt,
+    param1: BigInt,
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "failureHistory",
+      "failureHistory(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1),
+      ],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -516,9 +586,9 @@ export class CircuitBreaker extends ethereum.SmartContract {
 
   getCircuitStats(chainId: BigInt): CircuitBreaker__getCircuitStatsResult {
     let result = super.call(
-      'getCircuitStats',
-      'getCircuitStats(uint256):(uint8,uint256,uint256,uint256,bool)',
-      [ethereum.Value.fromUnsignedBigInt(chainId)]
+      "getCircuitStats",
+      "getCircuitStats(uint256):(uint8,uint256,uint256,uint256,bool)",
+      [ethereum.Value.fromUnsignedBigInt(chainId)],
     );
 
     return new CircuitBreaker__getCircuitStatsResult(
@@ -526,15 +596,17 @@ export class CircuitBreaker extends ethereum.SmartContract {
       result[1].toBigInt(),
       result[2].toBigInt(),
       result[3].toBigInt(),
-      result[4].toBoolean()
+      result[4].toBoolean(),
     );
   }
 
-  try_getCircuitStats(chainId: BigInt): ethereum.CallResult<CircuitBreaker__getCircuitStatsResult> {
+  try_getCircuitStats(
+    chainId: BigInt,
+  ): ethereum.CallResult<CircuitBreaker__getCircuitStatsResult> {
     let result = super.tryCall(
-      'getCircuitStats',
-      'getCircuitStats(uint256):(uint8,uint256,uint256,uint256,bool)',
-      [ethereum.Value.fromUnsignedBigInt(chainId)]
+      "getCircuitStats",
+      "getCircuitStats(uint256):(uint8,uint256,uint256,uint256,bool)",
+      [ethereum.Value.fromUnsignedBigInt(chainId)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -546,23 +618,27 @@ export class CircuitBreaker extends ethereum.SmartContract {
         value[1].toBigInt(),
         value[2].toBigInt(),
         value[3].toBigInt(),
-        value[4].toBoolean()
-      )
+        value[4].toBoolean(),
+      ),
     );
   }
 
   getFailureHistory(chainId: BigInt): Array<BigInt> {
-    let result = super.call('getFailureHistory', 'getFailureHistory(uint256):(uint256[])', [
-      ethereum.Value.fromUnsignedBigInt(chainId),
-    ]);
+    let result = super.call(
+      "getFailureHistory",
+      "getFailureHistory(uint256):(uint256[])",
+      [ethereum.Value.fromUnsignedBigInt(chainId)],
+    );
 
     return result[0].toBigIntArray();
   }
 
   try_getFailureHistory(chainId: BigInt): ethereum.CallResult<Array<BigInt>> {
-    let result = super.tryCall('getFailureHistory', 'getFailureHistory(uint256):(uint256[])', [
-      ethereum.Value.fromUnsignedBigInt(chainId),
-    ]);
+    let result = super.tryCall(
+      "getFailureHistory",
+      "getFailureHistory(uint256):(uint256[])",
+      [ethereum.Value.fromUnsignedBigInt(chainId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -571,7 +647,7 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   getRoleAdmin(role: Bytes): Bytes {
-    let result = super.call('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
+    let result = super.call("getRoleAdmin", "getRoleAdmin(bytes32):(bytes32)", [
       ethereum.Value.fromFixedBytes(role),
     ]);
 
@@ -579,9 +655,11 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   try_getRoleAdmin(role: Bytes): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
-      ethereum.Value.fromFixedBytes(role),
-    ]);
+    let result = super.tryCall(
+      "getRoleAdmin",
+      "getRoleAdmin(bytes32):(bytes32)",
+      [ethereum.Value.fromFixedBytes(role)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -590,17 +668,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   halfOpenSuccessCount(param0: BigInt): BigInt {
-    let result = super.call('halfOpenSuccessCount', 'halfOpenSuccessCount(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "halfOpenSuccessCount",
+      "halfOpenSuccessCount(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_halfOpenSuccessCount(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('halfOpenSuccessCount', 'halfOpenSuccessCount(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "halfOpenSuccessCount",
+      "halfOpenSuccessCount(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -609,7 +691,7 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   hasRole(role: Bytes, account: Address): boolean {
-    let result = super.call('hasRole', 'hasRole(bytes32,address):(bool)', [
+    let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -618,7 +700,7 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   try_hasRole(role: Bytes, account: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall('hasRole', 'hasRole(bytes32,address):(bool)', [
+    let result = super.tryCall("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -630,17 +712,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   isCircuitClosed(chainId: BigInt): boolean {
-    let result = super.call('isCircuitClosed', 'isCircuitClosed(uint256):(bool)', [
-      ethereum.Value.fromUnsignedBigInt(chainId),
-    ]);
+    let result = super.call(
+      "isCircuitClosed",
+      "isCircuitClosed(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(chainId)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_isCircuitClosed(chainId: BigInt): ethereum.CallResult<boolean> {
-    let result = super.tryCall('isCircuitClosed', 'isCircuitClosed(uint256):(bool)', [
-      ethereum.Value.fromUnsignedBigInt(chainId),
-    ]);
+    let result = super.tryCall(
+      "isCircuitClosed",
+      "isCircuitClosed(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(chainId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -649,17 +735,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   lastFailureTime(param0: BigInt): BigInt {
-    let result = super.call('lastFailureTime', 'lastFailureTime(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "lastFailureTime",
+      "lastFailureTime(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_lastFailureTime(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('lastFailureTime', 'lastFailureTime(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "lastFailureTime",
+      "lastFailureTime(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -668,17 +758,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   lastSuccessTime(param0: BigInt): BigInt {
-    let result = super.call('lastSuccessTime', 'lastSuccessTime(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "lastSuccessTime",
+      "lastSuccessTime(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_lastSuccessTime(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('lastSuccessTime', 'lastSuccessTime(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "lastSuccessTime",
+      "lastSuccessTime(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -687,13 +781,13 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   owner(): Address {
-    let result = super.call('owner', 'owner():(address)', []);
+    let result = super.call("owner", "owner():(address)", []);
 
     return result[0].toAddress();
   }
 
   try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall('owner', 'owner():(address)', []);
+    let result = super.tryCall("owner", "owner():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -702,13 +796,13 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   paused(): boolean {
-    let result = super.call('paused', 'paused():(bool)', []);
+    let result = super.call("paused", "paused():(bool)", []);
 
     return result[0].toBoolean();
   }
 
   try_paused(): ethereum.CallResult<boolean> {
-    let result = super.tryCall('paused', 'paused():(bool)', []);
+    let result = super.tryCall("paused", "paused():(bool)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -717,17 +811,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   permanentShutdown(param0: BigInt): boolean {
-    let result = super.call('permanentShutdown', 'permanentShutdown(uint256):(bool)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "permanentShutdown",
+      "permanentShutdown(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_permanentShutdown(param0: BigInt): ethereum.CallResult<boolean> {
-    let result = super.tryCall('permanentShutdown', 'permanentShutdown(uint256):(bool)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "permanentShutdown",
+      "permanentShutdown(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -736,17 +834,21 @@ export class CircuitBreaker extends ethereum.SmartContract {
   }
 
   supportsInterface(interfaceId: Bytes): boolean {
-    let result = super.call('supportsInterface', 'supportsInterface(bytes4):(bool)', [
-      ethereum.Value.fromFixedBytes(interfaceId),
-    ]);
+    let result = super.call(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_supportsInterface(interfaceId: Bytes): ethereum.CallResult<boolean> {
-    let result = super.tryCall('supportsInterface', 'supportsInterface(bytes4):(bool)', [
-      ethereum.Value.fromFixedBytes(interfaceId),
-    ]);
+    let result = super.tryCall(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }

@@ -8,7 +8,7 @@ import {
   Bytes,
   Address,
   BigInt,
-} from '@graphprotocol/graph-ts';
+} from "@graphprotocol/graph-ts";
 
 export class BridgeInitialized extends ethereum.Event {
   get params(): BridgeInitialized__Params {
@@ -351,9 +351,9 @@ export class AetheronBridge__getBridgeStatsResult {
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set('value0', ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set('value1', ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set('value2', ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     return map;
   }
 
@@ -386,7 +386,7 @@ export class AetheronBridge__transfersResult {
     value3: BigInt,
     value4: Address,
     value5: Bytes,
-    value6: boolean
+    value6: boolean,
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -399,13 +399,13 @@ export class AetheronBridge__transfersResult {
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set('value0', ethereum.Value.fromAddress(this.value0));
-    map.set('value1', ethereum.Value.fromAddress(this.value1));
-    map.set('value2', ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set('value3', ethereum.Value.fromUnsignedBigInt(this.value3));
-    map.set('value4', ethereum.Value.fromAddress(this.value4));
-    map.set('value5', ethereum.Value.fromFixedBytes(this.value5));
-    map.set('value6', ethereum.Value.fromBoolean(this.value6));
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
+    map.set("value1", ethereum.Value.fromAddress(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromAddress(this.value4));
+    map.set("value5", ethereum.Value.fromFixedBytes(this.value5));
+    map.set("value6", ethereum.Value.fromBoolean(this.value6));
     return map;
   }
 
@@ -440,17 +440,25 @@ export class AetheronBridge__transfersResult {
 
 export class AetheronBridge extends ethereum.SmartContract {
   static bind(address: Address): AetheronBridge {
-    return new AetheronBridge('AetheronBridge', address);
+    return new AetheronBridge("AetheronBridge", address);
   }
 
   DEFAULT_ADMIN_ROLE(): Bytes {
-    let result = super.call('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
+    let result = super.call(
+      "DEFAULT_ADMIN_ROLE",
+      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      [],
+    );
 
     return result[0].toBytes();
   }
 
   try_DEFAULT_ADMIN_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('DEFAULT_ADMIN_ROLE', 'DEFAULT_ADMIN_ROLE():(bytes32)', []);
+    let result = super.tryCall(
+      "DEFAULT_ADMIN_ROLE",
+      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -459,13 +467,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   MAX_CHAIN_VOLUME(): BigInt {
-    let result = super.call('MAX_CHAIN_VOLUME', 'MAX_CHAIN_VOLUME():(uint256)', []);
+    let result = super.call(
+      "MAX_CHAIN_VOLUME",
+      "MAX_CHAIN_VOLUME():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_MAX_CHAIN_VOLUME(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('MAX_CHAIN_VOLUME', 'MAX_CHAIN_VOLUME():(uint256)', []);
+    let result = super.tryCall(
+      "MAX_CHAIN_VOLUME",
+      "MAX_CHAIN_VOLUME():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -474,13 +490,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   MAX_TRANSFERS_PER_USER(): BigInt {
-    let result = super.call('MAX_TRANSFERS_PER_USER', 'MAX_TRANSFERS_PER_USER():(uint256)', []);
+    let result = super.call(
+      "MAX_TRANSFERS_PER_USER",
+      "MAX_TRANSFERS_PER_USER():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_MAX_TRANSFERS_PER_USER(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('MAX_TRANSFERS_PER_USER', 'MAX_TRANSFERS_PER_USER():(uint256)', []);
+    let result = super.tryCall(
+      "MAX_TRANSFERS_PER_USER",
+      "MAX_TRANSFERS_PER_USER():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -489,13 +513,17 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   OPERATOR_ROLE(): Bytes {
-    let result = super.call('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
+    let result = super.call("OPERATOR_ROLE", "OPERATOR_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_OPERATOR_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('OPERATOR_ROLE', 'OPERATOR_ROLE():(bytes32)', []);
+    let result = super.tryCall(
+      "OPERATOR_ROLE",
+      "OPERATOR_ROLE():(bytes32)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -504,13 +532,13 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   RELAYER_ROLE(): Bytes {
-    let result = super.call('RELAYER_ROLE', 'RELAYER_ROLE():(bytes32)', []);
+    let result = super.call("RELAYER_ROLE", "RELAYER_ROLE():(bytes32)", []);
 
     return result[0].toBytes();
   }
 
   try_RELAYER_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('RELAYER_ROLE', 'RELAYER_ROLE():(bytes32)', []);
+    let result = super.tryCall("RELAYER_ROLE", "RELAYER_ROLE():(bytes32)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -519,13 +547,13 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   bridgeFee(): BigInt {
-    let result = super.call('bridgeFee', 'bridgeFee():(uint256)', []);
+    let result = super.call("bridgeFee", "bridgeFee():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
   try_bridgeFee(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('bridgeFee', 'bridgeFee():(uint256)', []);
+    let result = super.tryCall("bridgeFee", "bridgeFee():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -534,17 +562,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   canProcessTransfer(transferId: Bytes): boolean {
-    let result = super.call('canProcessTransfer', 'canProcessTransfer(bytes32):(bool)', [
-      ethereum.Value.fromFixedBytes(transferId),
-    ]);
+    let result = super.call(
+      "canProcessTransfer",
+      "canProcessTransfer(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(transferId)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_canProcessTransfer(transferId: Bytes): ethereum.CallResult<boolean> {
-    let result = super.tryCall('canProcessTransfer', 'canProcessTransfer(bytes32):(bool)', [
-      ethereum.Value.fromFixedBytes(transferId),
-    ]);
+    let result = super.tryCall(
+      "canProcessTransfer",
+      "canProcessTransfer(bytes32):(bool)",
+      [ethereum.Value.fromFixedBytes(transferId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -553,7 +585,7 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   chainLimits(param0: BigInt): BigInt {
-    let result = super.call('chainLimits', 'chainLimits(uint256):(uint256)', [
+    let result = super.call("chainLimits", "chainLimits(uint256):(uint256)", [
       ethereum.Value.fromUnsignedBigInt(param0),
     ]);
 
@@ -561,9 +593,11 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   try_chainLimits(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('chainLimits', 'chainLimits(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "chainLimits",
+      "chainLimits(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -572,17 +606,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   chainTransferVolume(param0: BigInt): BigInt {
-    let result = super.call('chainTransferVolume', 'chainTransferVolume(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.call(
+      "chainTransferVolume",
+      "chainTransferVolume(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_chainTransferVolume(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('chainTransferVolume', 'chainTransferVolume(uint256):(uint256)', [
-      ethereum.Value.fromUnsignedBigInt(param0),
-    ]);
+    let result = super.tryCall(
+      "chainTransferVolume",
+      "chainTransferVolume(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -591,17 +629,25 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   getBridgeStats(): AetheronBridge__getBridgeStatsResult {
-    let result = super.call('getBridgeStats', 'getBridgeStats():(uint256,uint256,uint256)', []);
+    let result = super.call(
+      "getBridgeStats",
+      "getBridgeStats():(uint256,uint256,uint256)",
+      [],
+    );
 
     return new AetheronBridge__getBridgeStatsResult(
       result[0].toBigInt(),
       result[1].toBigInt(),
-      result[2].toBigInt()
+      result[2].toBigInt(),
     );
   }
 
   try_getBridgeStats(): ethereum.CallResult<AetheronBridge__getBridgeStatsResult> {
-    let result = super.tryCall('getBridgeStats', 'getBridgeStats():(uint256,uint256,uint256)', []);
+    let result = super.tryCall(
+      "getBridgeStats",
+      "getBridgeStats():(uint256,uint256,uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -610,13 +656,13 @@ export class AetheronBridge extends ethereum.SmartContract {
       new AetheronBridge__getBridgeStatsResult(
         value[0].toBigInt(),
         value[1].toBigInt(),
-        value[2].toBigInt()
-      )
+        value[2].toBigInt(),
+      ),
     );
   }
 
   getRoleAdmin(role: Bytes): Bytes {
-    let result = super.call('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
+    let result = super.call("getRoleAdmin", "getRoleAdmin(bytes32):(bytes32)", [
       ethereum.Value.fromFixedBytes(role),
     ]);
 
@@ -624,9 +670,11 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   try_getRoleAdmin(role: Bytes): ethereum.CallResult<Bytes> {
-    let result = super.tryCall('getRoleAdmin', 'getRoleAdmin(bytes32):(bytes32)', [
-      ethereum.Value.fromFixedBytes(role),
-    ]);
+    let result = super.tryCall(
+      "getRoleAdmin",
+      "getRoleAdmin(bytes32):(bytes32)",
+      [ethereum.Value.fromFixedBytes(role)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -635,7 +683,7 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   hasRole(role: Bytes, account: Address): boolean {
-    let result = super.call('hasRole', 'hasRole(bytes32,address):(bool)', [
+    let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -644,7 +692,7 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   try_hasRole(role: Bytes, account: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall('hasRole', 'hasRole(bytes32,address):(bool)', [
+    let result = super.tryCall("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
       ethereum.Value.fromAddress(account),
     ]);
@@ -656,13 +704,13 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   owner(): Address {
-    let result = super.call('owner', 'owner():(address)', []);
+    let result = super.call("owner", "owner():(address)", []);
 
     return result[0].toAddress();
   }
 
   try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall('owner', 'owner():(address)', []);
+    let result = super.tryCall("owner", "owner():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -671,13 +719,13 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   paused(): boolean {
-    let result = super.call('paused', 'paused():(bool)', []);
+    let result = super.call("paused", "paused():(bool)", []);
 
     return result[0].toBoolean();
   }
 
   try_paused(): ethereum.CallResult<boolean> {
-    let result = super.tryCall('paused', 'paused():(bool)', []);
+    let result = super.tryCall("paused", "paused():(bool)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -686,13 +734,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   supportedTokenCount(): BigInt {
-    let result = super.call('supportedTokenCount', 'supportedTokenCount():(uint256)', []);
+    let result = super.call(
+      "supportedTokenCount",
+      "supportedTokenCount():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_supportedTokenCount(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('supportedTokenCount', 'supportedTokenCount():(uint256)', []);
+    let result = super.tryCall(
+      "supportedTokenCount",
+      "supportedTokenCount():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -701,17 +757,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   supportedTokens(param0: Address): boolean {
-    let result = super.call('supportedTokens', 'supportedTokens(address):(bool)', [
-      ethereum.Value.fromAddress(param0),
-    ]);
+    let result = super.call(
+      "supportedTokens",
+      "supportedTokens(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_supportedTokens(param0: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall('supportedTokens', 'supportedTokens(address):(bool)', [
-      ethereum.Value.fromAddress(param0),
-    ]);
+    let result = super.tryCall(
+      "supportedTokens",
+      "supportedTokens(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -720,17 +780,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   supportsInterface(interfaceId: Bytes): boolean {
-    let result = super.call('supportsInterface', 'supportsInterface(bytes4):(bool)', [
-      ethereum.Value.fromFixedBytes(interfaceId),
-    ]);
+    let result = super.call(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)],
+    );
 
     return result[0].toBoolean();
   }
 
   try_supportsInterface(interfaceId: Bytes): ethereum.CallResult<boolean> {
-    let result = super.tryCall('supportsInterface', 'supportsInterface(bytes4):(bool)', [
-      ethereum.Value.fromFixedBytes(interfaceId),
-    ]);
+    let result = super.tryCall(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -739,13 +803,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   totalTransferCount(): BigInt {
-    let result = super.call('totalTransferCount', 'totalTransferCount():(uint256)', []);
+    let result = super.call(
+      "totalTransferCount",
+      "totalTransferCount():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_totalTransferCount(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('totalTransferCount', 'totalTransferCount():(uint256)', []);
+    let result = super.tryCall(
+      "totalTransferCount",
+      "totalTransferCount():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -754,13 +826,21 @@ export class AetheronBridge extends ethereum.SmartContract {
   }
 
   totalValueLocked(): BigInt {
-    let result = super.call('totalValueLocked', 'totalValueLocked():(uint256)', []);
+    let result = super.call(
+      "totalValueLocked",
+      "totalValueLocked():(uint256)",
+      [],
+    );
 
     return result[0].toBigInt();
   }
 
   try_totalValueLocked(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('totalValueLocked', 'totalValueLocked():(uint256)', []);
+    let result = super.tryCall(
+      "totalValueLocked",
+      "totalValueLocked():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -770,9 +850,9 @@ export class AetheronBridge extends ethereum.SmartContract {
 
   transfers(param0: Bytes): AetheronBridge__transfersResult {
     let result = super.call(
-      'transfers',
-      'transfers(bytes32):(address,address,uint256,uint256,address,bytes32,bool)',
-      [ethereum.Value.fromFixedBytes(param0)]
+      "transfers",
+      "transfers(bytes32):(address,address,uint256,uint256,address,bytes32,bool)",
+      [ethereum.Value.fromFixedBytes(param0)],
     );
 
     return new AetheronBridge__transfersResult(
@@ -782,15 +862,17 @@ export class AetheronBridge extends ethereum.SmartContract {
       result[3].toBigInt(),
       result[4].toAddress(),
       result[5].toBytes(),
-      result[6].toBoolean()
+      result[6].toBoolean(),
     );
   }
 
-  try_transfers(param0: Bytes): ethereum.CallResult<AetheronBridge__transfersResult> {
+  try_transfers(
+    param0: Bytes,
+  ): ethereum.CallResult<AetheronBridge__transfersResult> {
     let result = super.tryCall(
-      'transfers',
-      'transfers(bytes32):(address,address,uint256,uint256,address,bytes32,bool)',
-      [ethereum.Value.fromFixedBytes(param0)]
+      "transfers",
+      "transfers(bytes32):(address,address,uint256,uint256,address,bytes32,bool)",
+      [ethereum.Value.fromFixedBytes(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -804,23 +886,27 @@ export class AetheronBridge extends ethereum.SmartContract {
         value[3].toBigInt(),
         value[4].toAddress(),
         value[5].toBytes(),
-        value[6].toBoolean()
-      )
+        value[6].toBoolean(),
+      ),
     );
   }
 
   userTransferCount(param0: Address): BigInt {
-    let result = super.call('userTransferCount', 'userTransferCount(address):(uint256)', [
-      ethereum.Value.fromAddress(param0),
-    ]);
+    let result = super.call(
+      "userTransferCount",
+      "userTransferCount(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
 
     return result[0].toBigInt();
   }
 
   try_userTransferCount(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall('userTransferCount', 'userTransferCount(address):(uint256)', [
-      ethereum.Value.fromAddress(param0),
-    ]);
+    let result = super.tryCall(
+      "userTransferCount",
+      "userTransferCount(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
