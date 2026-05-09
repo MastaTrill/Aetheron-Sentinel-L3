@@ -6,33 +6,6 @@ repository: https://github.com/MastaTrill/Aetheron-Sentinel-L3
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
-    name: SentinelToken
-    network: sepolia
-    source:
-      address: '0xFf21fF20B61469075A2b2280724E9D99dA7e06Ed'
-      abi: SentinelToken
-      startBlock: 10713054
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - Token
-        - Staking
-      abis:
-        - name: SentinelToken
-          file: ./abis/SentinelToken.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: Staked(indexed address,uint256)
-          handler: handleStaked
-        - event: Unstaked(indexed address,uint256)
-          handler: handleUnstaked
-      file: ./src/sentinel-token.ts
 
   - kind: ethereum
     name: SentinelInterceptor
@@ -145,29 +118,3 @@ dataSources:
           handler: handleSuccessRecorded
       file: ./src/circuit-breaker.ts
 
-  - kind: ethereum
-    name: SentinelStaking
-    network: sepolia
-    source:
-      address: '0x1fADa3493E662F0aDDDb84259ee30b97C6A015E3'
-      abi: SentinelStaking
-      startBlock: 10713054
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.8
-      language: wasm/AssemblyScript
-      entities:
-        - StakingPosition
-      abis:
-        - name: SentinelStaking
-          file: ./abis/SentinelStaking.json
-      eventHandlers:
-        - event: Staked(indexed address,uint256)
-          handler: handleStaked
-        - event: Unstaked(indexed address,uint256)
-          handler: handleUnstaked
-        - event: RewardsClaimed(indexed address,uint256)
-          handler: handleRewardsClaimed
-      file: ./src/sentinel-staking.ts
-
-templates: []
