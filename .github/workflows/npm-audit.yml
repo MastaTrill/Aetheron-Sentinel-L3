@@ -4,13 +4,14 @@ on:
   workflow_dispatch: # Manual trigger only
   schedule:
     - cron: '0 6 * * 1' # Weekly Monday 6AM UTC
+  pull_request:
 
 jobs:
   security-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Use Node.js 20
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -43,6 +44,7 @@ jobs:
 
   # Dependency review
   dependency-review:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -50,5 +52,3 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: 'high'
-          allow-ghsa-ids: ''
-
