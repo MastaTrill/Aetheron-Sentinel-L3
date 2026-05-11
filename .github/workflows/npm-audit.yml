@@ -1,7 +1,7 @@
 name: Security Audit
 
 on:
-  workflow_dispatch: # Manual trigger only
+  workflow_dispatch:
   schedule:
     - cron: '0 6 * * 1' # Weekly Monday 6AM UTC
   pull_request:
