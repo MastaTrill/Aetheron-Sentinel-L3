@@ -8,7 +8,10 @@ on:
 
 jobs:
   security-audit:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
       - name: Use Node.js 24
