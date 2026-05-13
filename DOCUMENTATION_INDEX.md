@@ -5,6 +5,23 @@
 
 ---
 
+## Customer-Facing Guides (How-To Documentation)
+
+**Getting started with Aetheron Sentinel's services?** Start here:
+
+- **[HOW_TO_REQUEST_AUDIT.md](./docs/HOW_TO_REQUEST_AUDIT.md)** - Request a professional smart contract audit
+- **[HOW_TO_SECURE_NETWORKING.md](./docs/HOW_TO_SECURE_NETWORKING.md)** - Set up zero-knowledge encrypted cross-chain messaging
+- **[HOW_TO_CODE_ANALYSIS.md](./docs/HOW_TO_CODE_ANALYSIS.md)** - Scan your contracts for vulnerabilities
+- **[HOW_TO_ENHANCE_APY.md](./docs/HOW_TO_ENHANCE_APY.md)** - Optimize your yield farming returns
+- **[HOW_TO_BUG_BOUNTY.md](./docs/HOW_TO_BUG_BOUNTY.md)** - Participate in our bug bounty program
+
+**Legal & Safety:**
+- **[TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md)** - Service terms and limitations
+- **[PRIVACY_POLICY.md](./PRIVACY_POLICY.md)** - Data collection and retention
+- **[DISCLAIMERS.md](./DISCLAIMERS.md)** - Risk acknowledgments and audit status
+
+---
+
 ## Quick Navigation
 
 ### For Stakeholders & Decision-Makers
