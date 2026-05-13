@@ -30,12 +30,13 @@
                 <a href="#technology" class="nav-link">Technology</a>
                 <a href="#security" class="nav-link">Security</a>
                 <a href="#yield" class="nav-link">Yield</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
                 <a href="#telemetry" class="nav-link">Telemetry</a>
                 <a href="#ecosystem" class="nav-link">Ecosystem</a>
                 <a href="#community" class="nav-link">Community</a>
             </div>
             <div class="nav-actions">
-                <button class="btn-primary" id="nav-launch-btn">Launch App</button>
+                <a href="https://ais-dev-d5pmjqmenmoshxzeztjr47-166148305149.us-east1.run.app" target="_blank" class="btn-primary">Launch App</a>
                 <button class="btn-secondary">Documentation</button>
             </div>
         </div>
@@ -329,6 +330,79 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Service Pricing</h2>
+            <p class="section-subtitle">Transparent, flexible pricing for all security needs</p>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Starter</h3>
+                        <p class="pricing-desc">For individual developers</p>
+                    </div>
+                    <div class="pricing-amount">
+                        <span class="currency">Free</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Dashboard access</li>
+                        <li>✓ Real-time anomaly detection</li>
+                        <li>✓ Basic telemetry (1 chain)</li>
+                        <li>✓ Community support</li>
+                        <li>✗ API access</li>
+                        <li>✗ Custom alerts</li>
+                    </ul>
+                    <button class="btn-secondary">Get Started</button>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">POPULAR</div>
+                    <div class="pricing-header">
+                        <h3>Professional</h3>
+                        <p class="pricing-desc">For active traders & protocols</p>
+                    </div>
+                    <div class="pricing-amount">
+                        <span class="currency">$99</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Dashboard + Advanced UI</li>
+                        <li>✓ Multi-chain monitoring (5 chains)</li>
+                        <li>✓ REST API access (1M calls/mo)</li>
+                        <li>✓ Custom alerts (50/month)</li>
+                        <li>✓ Priority support</li>
+                        <li>✓ 30-day data retention</li>
+                    </ul>
+                    <button class="btn-primary">Start Free Trial</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Enterprise</h3>
+                        <p class="pricing-desc">For institutions & protocols</p>
+                    </div>
+                    <div class="pricing-amount">
+                        <span class="currency">Custom</span>
+                        <span class="period">/year</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Dedicated instance</li>
+                        <li>✓ Unlimited chains & monitoring</li>
+                        <li>✓ Unlimited API calls</li>
+                        <li>✓ Custom AI threat models</li>
+                        <li>✓ SLA (99.9% uptime)</li>
+                        <li>✓ 1-year data retention</li>
+                    </ul>
+                    <button class="btn-secondary">Contact Sales</button>
+                </div>
+            </div>
+            <div class="pricing-note">
+                <p><strong>$AETH Token Holders:</strong> 20% discount on all plans. Stake 1000+ $AETH for premium access.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Community Section -->
     <section id="community" class="community">
         <div class="container">
@@ -385,6 +459,11 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            window.sentinelApp = new SentinelInterface();
+        });
+    </script>
 </body>
 
 </html>
