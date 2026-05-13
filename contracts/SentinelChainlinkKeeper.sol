@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@chainlink/contracts/src/v0.8/automation/interfaces/KeeperCompatibleInterface.sol";
+import "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 import "./SentinelCore.sol";
 
 /**
@@ -9,7 +9,7 @@ import "./SentinelCore.sol";
  * @notice Chainlink Automation integration for Sentinel L3 upkeep
  * Handles automated security checks, rebalancing, and maintenance
  */
-contract SentinelChainlinkKeeper is KeeperCompatibleInterface {
+contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
     SentinelCore public sentinelCore;
     uint256 public lastUpkeepTime;
     uint256 public upkeepInterval = 1 hours;
@@ -23,8 +23,9 @@ contract SentinelChainlinkKeeper is KeeperCompatibleInterface {
         lastUpkeepTime = block.timestamp;
     }
 
-    function checkUpkeep(bytes calldata checkData)
+    function checkUpkeep(bytes calldata)
         external
+        view
         returns (bool upkeepNeeded, bytes memory performData)
     {
         // Check if enough time has passed
@@ -40,7 +41,7 @@ contract SentinelChainlinkKeeper is KeeperCompatibleInterface {
     /**
      * @notice Perform automated upkeep
      */
-    function performUpkeep(bytes calldata performData) external override {
+    function performUpkeep(bytes calldata) external override {
         uint256 startGas = gasleft();
 
         // Update last upkeep time

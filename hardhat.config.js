@@ -43,7 +43,6 @@ const config = {
   },
   networks: {
     hardhat: {
-      // Local simulation
       type: 'edr-simulated',
     },
     direct_l3: {
