@@ -1,0 +1,188 @@
+// Telemetry bootstrap config and fallback seed data.
+// Live data is fetched by script.js from endpoint(s) below.
+window.SENTINEL_TELEMETRY_CONFIG = {
+  endpoint: window.SENTINEL_TELEMETRY_ENDPOINT || '/api/telemetry',
+  fallbackEndpoints: [],
+  refreshMs: 15000,
+};
+
+window.SENTINEL_TELEMETRY_SEED = {
+  watchpoints: [
+    {
+      id: 'wp-1',
+      label: 'ORDERBOOK DRIFT',
+      status: 'stable',
+      trend: [10, 12, 11, 14, 13, 15, 14],
+    },
+    {
+      id: 'wp-2',
+      label: 'PORTFOLIO BALANCE',
+      status: 'stable',
+      trend: [20, 18, 22, 21, 23, 22, 24],
+    },
+    {
+      id: 'wp-3',
+      label: 'CROSS-CHAIN SYNC',
+      status: 'warning',
+      trend: [15, 14, 16, 12, 10, 8, 12],
+    },
+    {
+      id: 'wp-4',
+      label: 'SETTLEMENT DELTA',
+      status: 'warning',
+      trend: [25, 24, 26, 22, 20, 18, 22],
+    },
+    {
+      id: 'wp-5',
+      label: 'NEGATIVE BALANCE',
+      status: 'critical',
+      trend: [5, 4, 6, 8, 12, 15, 18],
+    },
+  ],
+  anomalies: [
+    {
+      id: 'an-1',
+      timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      severity: 'critical',
+      source: 'Invariant Engine',
+      message: 'Critical breach detected',
+      txHash: '0xabc...def',
+    },
+    {
+      id: 'an-2',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+      severity: 'high',
+      source: 'Identity Oracle',
+      message: 'Unauthorized access attempt',
+      txHash: '0xghi...jkl',
+    },
+    {
+      id: 'an-3',
+      timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+      severity: 'medium',
+      source: 'Protocol Watcher',
+      message: 'Protocol anomaly identified',
+      txHash: '0xdef...123',
+    },
+    {
+      id: 'an-4',
+      timestamp: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
+      severity: 'low',
+      source: 'Logic Guard',
+      message: 'Low confidence drift warning',
+      txHash: '0x789...abc',
+    },
+  ],
+  verdicts: [
+    {
+      id: 'vd-1',
+      message: 'CROSS-CHAIN SYNC VERIFIED',
+      block: 830192,
+      status: 'verified',
+    },
+    {
+      id: 'vd-2',
+      message: 'SETTLEMENT DELTA ACCURATE',
+      block: 830189,
+      status: 'verified',
+    },
+    {
+      id: 'vd-3',
+      message: 'FEE CONSISTENCY ISSUE RESOLVED',
+      block: 830187,
+      status: 'resolved',
+    },
+    {
+      id: 'vd-4',
+      message: 'ORDERBOOK STABLE',
+      block: 830185,
+      status: 'stable',
+    },
+  ],
+  operators: [
+    {
+      id: 'op-1',
+      timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+      operatorId: 'Operator_0x44',
+      action: 'Rebalance Liquidity Pool',
+      identityVerified: true,
+      status: 'authorized',
+    },
+    {
+      id: 'op-2',
+      timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      operatorId: 'Operator_0x99',
+      action: 'Update Oracle Parameters',
+      identityVerified: true,
+      status: 'flagged',
+    },
+  ],
+  threatLocations: [
+    {
+      id: 'tl-1',
+      lat: 40.7128,
+      lng: -74.006,
+      intensity: 0.8,
+      label: 'New York',
+      region: 'AMER',
+    },
+    {
+      id: 'tl-2',
+      lat: 51.5074,
+      lng: -0.1278,
+      intensity: 0.6,
+      label: 'London',
+      region: 'EMEA',
+    },
+    {
+      id: 'tl-3',
+      lat: 35.6762,
+      lng: 139.6503,
+      intensity: 0.9,
+      label: 'Tokyo',
+      region: 'APAC',
+    },
+    {
+      id: 'tl-4',
+      lat: -33.8688,
+      lng: 151.2093,
+      intensity: 0.4,
+      label: 'Sydney',
+      region: 'APAC',
+    },
+    {
+      id: 'tl-5',
+      lat: 55.7558,
+      lng: 37.6173,
+      intensity: 0.7,
+      label: 'Moscow',
+      region: 'EMEA',
+    },
+  ],
+  stateTransitions: [
+    {
+      id: 'st-1',
+      from: 'INGRESS',
+      to: 'VERIFICATION',
+      timestamp: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
+      trigger: 'Packet Received',
+      severity: 'low',
+    },
+    {
+      id: 'st-2',
+      from: 'VERIFICATION',
+      to: 'EXECUTION',
+      timestamp: new Date(Date.now() - 1000 * 60 * 6).toISOString(),
+      trigger: 'Auth Confirmed',
+      severity: 'low',
+    },
+    {
+      id: 'st-3',
+      from: 'VERIFICATION',
+      to: 'LOCKDOWN',
+      timestamp: new Date(Date.now() - 1000 * 60 * 9).toISOString(),
+      trigger: 'Anomaly Detected',
+      severity: 'high',
+    },
+  ],
+};
