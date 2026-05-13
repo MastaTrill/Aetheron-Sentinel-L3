@@ -62,7 +62,7 @@
   "devDependencies": {
     "@chainlink/contracts": "^1.5.0",
     "@graphprotocol/graph-cli": "^0.98.1",
-    "@graphprotocol/graph-ts": "^0.25.0",
+    "@graphprotocol/graph-ts": "^0.38.2",
     "@layerzerolabs/solidity-examples": "^1.1.0",
     "@nomicfoundation/hardhat-ethers": "^4.0.10",
     "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.7",
