@@ -2,6 +2,13 @@ const path = require('path');
 const { config: loadEnv } = require('dotenv');
 const { defineConfig } = require('hardhat/config');
 
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const networkArgIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  process.env.npm_config_network ||
+  (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
+
 const verifyPluginModule = require(
   path.join(process.cwd(), '.verify-tools', 'node_modules', '@nomicfoundation', 'hardhat-verify')
 );
@@ -11,10 +18,21 @@ loadEnv({
   path: path.resolve(__dirname, '..', '.env'),
   override: true,
 });
+if (requestedNetwork === 'mainnet') {
+  loadEnv({
+    path: path.resolve(__dirname, '..', '.env.mainnet'),
+    override: true,
+  });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
 
 const projectRoot = path.resolve(__dirname, '..');
+function isRealPrivateKey(value) {
+  return /^0x[0-9a-fA-F]{64}$/.test((value || '').trim());
+}
 const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
-const ownerAccounts = ownerKey ? [ownerKey] : [];
+const ownerAccounts = isRealPrivateKey(ownerKey) ? [ownerKey] : [];
 
 module.exports = defineConfig({
   plugins: [hardhatVerify],

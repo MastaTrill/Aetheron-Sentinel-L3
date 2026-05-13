@@ -2,7 +2,17 @@ console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
 let deployer; // Will be set in main()
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const networkArgIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
 require('dotenv').config();
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: '.env.mainnet', override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
 
 // In Hardhat, when running a script with `hardhat run`,
 // the hre is available globally. We'll lazy-load it in main().
@@ -77,44 +87,46 @@ async function getTxOverrides(provider) {
   return {};
 }
 
-async function main() {
-  // Load hardhat and manually import ethers v6
-  const hardhatInstance = require('hardhat');
-  hre = hardhatInstance;
+function requireOwnerPrivateKey() {
+  const privateKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
+    throw new Error(
+      requestedNetwork === 'mainnet'
+        ? 'Mainnet deploy requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+        : 'OWNER_PRIVATE_KEY environment variable must be set as a 0x-prefixed 32-byte hex key.'
+    );
+  }
+  return privateKey;
+}
 
-  // Since the ethers plugin may not be fully injected in CommonJS context,
-  // import ethers directly as a module
-  const ethersModule = require('ethers');
-  ethers = ethersModule;
+async function main() {
+  // Hardhat v3 is ESM-first, so load it via dynamic import from CommonJS.
+  const hardhatModule = await import('hardhat');
+  hre = hardhatModule.default ?? hardhatModule;
+
+  // Use the active Hardhat connection instead of reading raw network config.
+  const connection = await hre.network.getOrCreate();
+  ethers = connection.ethers;
 
   console.log('ethers version:', ethers.version);
   console.log('hre.network.name:', hre.network?.name);
 
-  // Create provider from the network configured in hardhat.config.js
-  const networkConfig = hre.config.networks[hre.network?.name];
-  if (!networkConfig || !networkConfig.url) {
-    throw new Error(
-      `Network '${hre.network?.name}' not configured or URL missing. ` +
-        `Ensure BASE_RPC_URL and OWNER_PRIVATE_KEY env vars are set.`
-    );
+  const provider = ethers.provider;
+  if (!provider) {
+    throw new Error('Active Hardhat connection did not expose an ethers provider.');
   }
-
-  const provider = new ethers.JsonRpcProvider(networkConfig.url);
 
   // Get signer from private key
-  const privateKey = process.env.OWNER_PRIVATE_KEY;
-  if (!privateKey) {
-    throw new Error('OWNER_PRIVATE_KEY environment variable not set');
-  }
+  const privateKey = requireOwnerPrivateKey();
 
-  const deployer = new ethers.Wallet(privateKey, provider);
+  deployer = new ethers.Wallet(privateKey, provider);
 
   // Set up ethers.provider so the rest of the script can use it
   ethers.provider = provider;
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');
-  console.log('Hardhat network:', hre.network.name);
+  console.log('Hardhat network:', requestedNetwork || hre.network?.name || '<active connection>');
   const deployerAddress = await deployer.getAddress();
   if (!deployerAddress) {
     throw new Error('Could not derive deployer address from private key.');
@@ -153,11 +165,17 @@ async function main() {
 
   console.log('Deploying with account:', deployerAddress);
   console.log('Configured owner:', config.owner);
-  console.log('Network:', hre.network.name);
+  console.log('Network:', requestedNetwork || hre.network?.name || '<active connection>');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
   const balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
+
+  if (balance === 0n) {
+    throw new Error(
+      `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
+    );
+  }
 
   const addresses = {};
   const pendingActions = [];

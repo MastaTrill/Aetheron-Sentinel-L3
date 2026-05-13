@@ -2,6 +2,21 @@ import { defineConfig } from 'hardhat/config';
 import hardhatEthers from '@nomicfoundation/hardhat-ethers';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
+import { config as loadEnv } from 'dotenv';
+
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const networkArgIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  process.env.npm_config_network ||
+  (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
+
+loadEnv();
+if (requestedNetwork === 'mainnet') {
+  loadEnv({ path: '.env.mainnet', override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
 
 function getOwnerAccounts() {
   const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
@@ -28,6 +43,16 @@ function isRealRpcUrl(value) {
 function hasNetworkConfig(rpcUrl) {
   return isRealRpcUrl(rpcUrl) && getOwnerAccounts().length > 0;
 }
+
+function requireMainnetOwnerKey() {
+  if (requestedNetwork === 'mainnet' && getOwnerAccounts().length === 0) {
+    throw new Error(
+      'Mainnet commands require OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. Do not store it in .env.mainnet.'
+    );
+  }
+}
+
+requireMainnetOwnerKey();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {

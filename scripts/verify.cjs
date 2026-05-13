@@ -15,9 +15,21 @@
  * Set DEPLOYED_ADDRESSES as a JSON string of { ContractName: address }.
  */
 
+const cliNetworkIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  process.env.npm_config_network ||
+  (cliNetworkIndex >= 0 ? process.argv[cliNetworkIndex + 1] : undefined) ||
+  'sepolia';
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
 require('dotenv').config();
-const { ethers } = require('ethers');
 const path = require('path');
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: path.resolve(__dirname, '..', '.env.mainnet'), override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
+const { ethers } = require('ethers');
 const fsSync = require('fs');
 const fs = require('fs/promises');
 const { execFile, exec } = require('child_process');
@@ -53,7 +65,11 @@ function parseBoolean(value, fallback) {
 function requireOwnerPrivateKey() {
   const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
   if (!/^0x[0-9a-fA-F]{64}$/.test(ownerKey)) {
-    throw new Error('OWNER_PRIVATE_KEY must be set as a 0x-prefixed 32-byte hex key.');
+    throw new Error(
+      requestedNetwork === 'mainnet'
+        ? 'Mainnet verification requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+        : 'OWNER_PRIVATE_KEY must be set as a 0x-prefixed 32-byte hex key.'
+    );
   }
   return ownerKey;
 }

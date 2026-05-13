@@ -1,4 +1,15 @@
+const cliNetworkIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  (cliNetworkIndex >= 0 ? process.argv[cliNetworkIndex + 1] : undefined) ||
+  'sepolia';
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
 require('dotenv').config();
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: '.env.mainnet', override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
 const fs = require('fs');
 const path = require('path');
 const { ethers } = require('ethers');
@@ -41,7 +52,11 @@ async function main() {
 
   const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
   if (!/^0x[0-9a-fA-F]{64}$/.test(ownerKey)) {
-    throw new Error('OWNER_PRIVATE_KEY env var is required as a 0x-prefixed 32-byte hex key.');
+    throw new Error(
+      requestedNetwork === 'mainnet'
+        ? 'Mainnet core loop redeploy requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+        : 'OWNER_PRIVATE_KEY env var is required as a 0x-prefixed 32-byte hex key.'
+    );
   }
 
   const deployer = new ethers.Wallet(ownerKey, provider);
