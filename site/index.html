@@ -469,7 +469,7 @@
                 <div class="contact-info">
                     <div class="contact-item">
                         <h4>Email</h4>
-                        <p><a href="mailto:security@aetheron.org">security@aetheron.org</a></p>
+                        <p><a href="mailto:aetheron.solana@gmail.com">aetheron.solana@gmail.com</a></p>
                     </div>
                     <div class="contact-item">
                         <h4>Bug Bounty</h4>
@@ -520,14 +520,14 @@
 
         const subject = `Service Request: ${service} from ${name}`;
         const body = `Name: ${name}\nEmail: ${email}\nCompany: ${company}\nService: ${service}\n\nMessage:\n${message}`;
-        const mailtoLink = `mailto:security@aetheron.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const mailtoLink = `mailto:aetheron.solana@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
         window.location.href = mailtoLink;
 
         // Clear form
         setTimeout(() => {
           this.reset();
-          alert('Thank you! Your request has been prepared. Please send the email from your mail client, or contact security@aetheron.org directly.');
+          alert('Thank you! Your request has been prepared. Please send the email from your mail client, or contact aetheron.solana@gmail.com directly.');
         }, 100);
       });
     </script>
