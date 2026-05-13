@@ -33,11 +33,12 @@
           <a href="#yield" class="nav-link">Yield</a>
           <a href="#telemetry" class="nav-link">Telemetry</a>
           <a href="#ecosystem" class="nav-link">Ecosystem</a>
-          <a href="#community" class="nav-link">Community</a>
+          <a href="#documentation" class="nav-link">Docs</a>
+          <a href="#contact" class="nav-link">Contact</a>
         </div>
         <div class="nav-actions">
-          <button class="btn-primary" id="nav-launch-btn">Launch App</button>
-          <button class="btn-secondary">Documentation</button>
+          <a href="https://ais-dev-d5pmjqmenmoshxzeztjr47-166148305149.us-east1.run.app" target="_blank" class="btn-primary">Launch App</a>
+          <a href="#documentation" class="btn-secondary">Documentation</a>
         </div>
       </div>
     </nav>
@@ -389,6 +390,104 @@
       </div>
     </section>
 
+    <!-- Documentation Section -->
+    <section id="documentation" class="documentation">
+        <div class="container">
+            <h2 class="section-title">Documentation & Resources</h2>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <h3>Getting Started</h3>
+                    <p>Learn how to integrate Sentinel L3 security into your protocol or application.</p>
+                    <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/README.md" target="_blank" class="doc-link">Read Guide →</a>
+                </div>
+                <div class="doc-card">
+                    <h3>Smart Contract Audit</h3>
+                    <p>Request a comprehensive security audit for your smart contracts. Security-first approach, transparent reporting.</p>
+                    <a href="#contact" class="doc-link">Request Audit →</a>
+                </div>
+                <div class="doc-card">
+                    <h3>Secure Networking</h3>
+                    <p>Deploy secure infrastructure with our networking solutions. Zero-knowledge encrypted communications.</p>
+                    <a href="#contact" class="doc-link">Learn More →</a>
+                </div>
+                <div class="doc-card">
+                    <h3>Code Analysis</h3>
+                    <p>Automated error finding and vulnerability detection in your smart contracts and dApps.</p>
+                    <a href="#contact" class="doc-link">Start Analysis →</a>
+                </div>
+                <div class="doc-card">
+                    <h3>APY Enhancement</h3>
+                    <p>Optimize your yield farming strategies with AI-powered risk analysis and recommendation engine.</p>
+                    <a href="#contact" class="doc-link">Explore Services →</a>
+                </div>
+                <div class="doc-card">
+                    <h3>API Reference</h3>
+                    <p>Integrate Sentinel L3 monitoring and security APIs directly into your application.</p>
+                    <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/CONTRACTS.md" target="_blank" class="doc-link">View APIs →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact & Request Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <p class="section-subtitle">Request a service, ask questions, or schedule a demo</p>
+            <div class="contact-wrapper">
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company / Protocol</label>
+                        <input type="text" id="company" name="company" placeholder="Your company or protocol name">
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Service Requested</label>
+                        <select id="service" name="service" required>
+                            <option value="">Select a service...</option>
+                            <option value="audit">Smart Contract Audit</option>
+                            <option value="networking">Secure Networking</option>
+                            <option value="code-analysis">Code Analysis & Error Finding</option>
+                            <option value="apy-enhancement">APY Enhancement</option>
+                            <option value="bug-bounty">Bug Bounty Participation</option>
+                            <option value="other">Other / Inquiry</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Tell us about your project and what you need..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Send Request</button>
+                </form>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <h4>Email</h4>
+                        <p><a href="mailto:security@aetheron.org">security@aetheron.org</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>Bug Bounty</h4>
+                        <p><a href="https://hackenproof.com" target="_blank">HackenProof</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>GitHub</h4>
+                        <p><a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3" target="_blank">Repository</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>Response Time</h4>
+                        <p>Within 24 hours</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
@@ -410,5 +509,25 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
-  </body>
-</html>
+    <script>
+      document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const company = document.getElementById('company').value;
+        const service = document.getElementById('service').value;
+        const message = document.getElementById('message').value;
+
+        const subject = `Service Request: ${service} from ${name}`;
+        const body = `Name: ${name}\nEmail: ${email}\nCompany: ${company}\nService: ${service}\n\nMessage:\n${message}`;
+        const mailtoLink = `mailto:security@aetheron.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        window.location.href = mailtoLink;
+
+        // Clear form
+        setTimeout(() => {
+          this.reset();
+          alert('Thank you! Your request has been prepared. Please send the email from your mail client, or contact security@aetheron.org directly.');
+        }, 100);
+      });
+    </script>
