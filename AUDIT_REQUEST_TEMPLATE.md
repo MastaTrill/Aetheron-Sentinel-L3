@@ -185,8 +185,8 @@ We are seeking auditors with:
 
 **Primary Contact:**  
 Name: Aetheron Sentinel  
-Email: security@aetheron.org  
-Phone: Available upon request  
+Email: aetheron.solana@gmail.com  
+Security Issues: security@aetheron.org  
 
 **Technical Lead:**  
 Available for kick-off call, architecture walkthrough, and Q&A
