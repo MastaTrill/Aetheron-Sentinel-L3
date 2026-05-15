@@ -1,4 +1,4 @@
-name: Security Scan (Slither + Foundry)
+name: Security Scan (Slither + Mythril + Foundry)
 
 on:
   push:
@@ -33,21 +33,33 @@ jobs:
       - name: Run Forge Tests with Gas Report
         run: forge test --gas-report
 
+      # === Slither ===
       - name: Run Slither Analysis
         uses: crytic/slither-action@v0.4.2
         id: slither
         with:
           target: '.'
           config: slither.config.json
-          sarif: results.sarif
+          sarif: results-slither.sarif
           fail-on: high
           ignore-compile: true
 
-      - name: Upload SARIF to GitHub Security
+      # === Mythril ===
+      - name: Run Mythril Analysis
+        uses: crytic/mythril-action@v0.1.0
+        id: mythril
+        with:
+          target: 'src'
+          solc_version: '0.8.30'
+          timeout: 300
+          # Optional: limit to high severity
+          args: '--execution-timeout 300 --max-depth 512'
+
+      - name: Upload Slither SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: results.sarif
+          sarif_file: results-slither.sarif
           category: slither
 
       - name: Post PR Comment
@@ -55,14 +67,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            let summary = '## 🛡️ Sentinel L3 Security Report\n\n';
-            if (${{ steps.slither.outputs.exit-code }} == 0) {
-              summary += '✅ **No high severity issues found.**\n';
-            } else {
-              summary += '⚠️ **Issues detected** — Check GitHub Security tab.\n';
-            }
-            summary += `\n**Exit Code:** ${{ steps.slither.outputs.exit-code }}\n`;
-            summary += '**Tests + Gas Report:** Completed\n';
+            let summary = '## 🛡️ Aetheron Sentinel L3 Security Report\n\n';
+            summary += '**Slither:** ' + (${{ steps.slither.outputs.exit-code }} == 0 ? '✅ Clean' : '⚠️ Issues') + '\n';
+            summary += '**Mythril:** Completed (check logs for findings)\n';
+            summary += '**Tests + Gas:** Completed\n\n';
+            summary += 'Full results available in **Security → Code scanning** tab.';
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

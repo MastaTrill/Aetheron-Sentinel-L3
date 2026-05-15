@@ -15,7 +15,7 @@ jobs:
         with:
           version: stable
       - run: forge build
-      - run: forge test --no-match-test testFuzz  # Faster: skip heavy fuzz tests
+      - run: forge test --no-match-test testFuzz
 
   security:
     runs-on: ubuntu-latest
