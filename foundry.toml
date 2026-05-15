@@ -11,6 +11,12 @@ fuzz = { runs = 1000 }
 gas_reports = ["*"]
 coverage = true
 
+# Remappings
+remappings = [
+  "forge-std/=lib/forge-std/src/",
+  "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
+]
+
 [rpc_endpoints]
 base = "https://mainnet.base.org"
 
