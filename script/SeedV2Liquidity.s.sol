@@ -8,11 +8,11 @@ contract SeedV2Liquidity is Script {
     function run() external {
         vm.startBroadcast();
 
-        EchoV2LiquidityModule module = 
+        EchoV2LiquidityModule module =
             EchoV2LiquidityModule(0x420B3d4Ba88387Fb128D1cc7f317040C135EcEEB);
 
         uint256 amountTokenDesired = 100_000e18;
-        uint256 amountWethDesired  = 0.1 ether;
+        uint256 amountWethDesired = 0.1 ether;
 
         module.seedLiquidityVolatile(amountTokenDesired, amountWethDesired);
 
