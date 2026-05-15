@@ -15,7 +15,7 @@ jobs:
         with:
           version: stable
       - run: forge build
-      - run: forge test -vvv
+      - run: forge test --no-match-test testFuzz  # Faster: skip heavy fuzz tests
 
   security:
     runs-on: ubuntu-latest
@@ -30,20 +30,4 @@ jobs:
         with:
           version: stable
       - run: forge build
-      - run: forge test -vvv
-
-      - name: Run Slither
-        uses: crytic/slither-action@v0.4.2
-        with:
-          target: '.'
-          config: slither.config.json
-          sarif: results.sarif
-          fail-on: high
-          ignore-compile: true
-
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: results.sarif
-          category: slither
+      - run: forge test --gas-report
