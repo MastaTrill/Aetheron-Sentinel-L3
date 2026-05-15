@@ -235,6 +235,6 @@ When a firm submits their proposal, confirm they've provided:
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** May 13, 2026  
+**Document Version:** 2.0  
+**Last Updated:** May 15, 2026  
 **RFP Status:** Ready to Send

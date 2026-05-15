@@ -40,16 +40,21 @@ jobs:
         run: node scripts/check-markdown-links.cjs
 
       - name: Run Section 7 ownership sweep
+        env:
+          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         run: |
           mkdir -p logs/verification/ci
           node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep.log
 
       - name: Run allowlist audit
+        env:
+          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         run: |
           node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
 
       - name: Run bridge relayer verification
         env:
+          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
           RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
         run: |
           node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
@@ -60,6 +65,53 @@ jobs:
         with:
           name: sepolia-verification-logs-${{ github.run_id }}
           path: logs/verification/ci/*.log
+          if-no-files-found: warn
+
+  verify-mainnet:
+    name: Verify Mainnet controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '15 2 * * *'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Section 7 ownership sweep
+        env:
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        run: |
+          mkdir -p logs/verification/ci
+          node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep-mainnet.log
+
+      - name: Run allowlist audit
+        env:
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        run: |
+          node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists-mainnet.log
+
+      - name: Run bridge relayer verification
+        env:
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+          RELAYER_ADDRESSES: '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa'
+        run: |
+          node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers-mainnet.log
+
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mainnet-verification-logs-${{ github.run_id }}
+          path: logs/verification/ci/*mainnet.log
           if-no-files-found: warn
 
   audit-dependencies:

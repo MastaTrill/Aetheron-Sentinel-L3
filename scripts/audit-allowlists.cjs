@@ -10,7 +10,28 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const vm = require('vm');
 
-const RPC = 'https://ethereum-sepolia-rpc.publicnode.com';
+function isUsableRpcUrl(value) {
+  const url = (value || '').trim();
+  if (!url) return false;
+  if (url.includes('YOUR_') || url.includes('your_') || url.endsWith('/v3/')) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
+const RPC_MAP = {
+  mainnet: process.env.MAINNET_RPC_URL,
+  sepolia: process.env.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
+  hoodi: process.env.HOODI_RPC_URL,
+};
+const FALLBACK_RPC = network === 'mainnet'
+  ? 'https://ethereum-rpc.publicnode.com'
+  : 'https://ethereum-sepolia-rpc.publicnode.com';
+const RPC = [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(isUsableRpcUrl) || FALLBACK_RPC;
 
 function parseAddressList(value) {
   if (!value) return [];

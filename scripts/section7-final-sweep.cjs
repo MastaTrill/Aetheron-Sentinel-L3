@@ -2,7 +2,6 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const vm = require('vm');
 
-// Use MAINNET_RPC_URL from .env.mainnet
 require('dotenv').config({ path: '.env.mainnet' });
 
 function isUsableRpcUrl(value) {
@@ -18,14 +17,16 @@ function isUsableRpcUrl(value) {
   }
 }
 
-const RPC =
-  [
-    process.env.SEPOLIA_RPC_URL,
-    process.env.MAINNET_RPC_URL,
-    'https://ethereum-sepolia-rpc.publicnode.com',
-    process.env.HARDHAT_RPC_URL,
-    'http://127.0.0.1:8545',
-  ].find(isUsableRpcUrl) || 'https://ethereum-sepolia-rpc.publicnode.com';
+const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
+const RPC_MAP = {
+  mainnet: process.env.MAINNET_RPC_URL,
+  sepolia: process.env.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
+  hoodi: process.env.HOODI_RPC_URL,
+};
+const FALLBACK_RPC = network === 'mainnet'
+  ? 'https://ethereum-rpc.publicnode.com'
+  : 'https://ethereum-sepolia-rpc.publicnode.com';
+const RPC = [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(isUsableRpcUrl) || FALLBACK_RPC;
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';
@@ -83,7 +84,9 @@ function short(addr) {
 
   let allPass = true;
 
-  console.log('SECTION 7 FINAL SWEEP (Sepolia)');
+  const networkLabel = network === 'mainnet' ? 'Mainnet' : 'Sepolia';
+  console.log(`SECTION 7 FINAL SWEEP (${networkLabel})`);
+  console.log(`RPC: ${RPC}`);
   console.log(`Expected owner: ${EXPECTED_OWNER}`);
   console.log('');
 

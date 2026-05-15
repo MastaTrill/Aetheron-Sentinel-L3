@@ -9,12 +9,14 @@ permissions:
   contents: write
 
 jobs:
-  evidence:
+  evidence-sepolia:
+    name: Daily evidence (Sepolia)
     runs-on: ubuntu-latest
 
     env:
       NODE_ENV: production
       NETWORK: sepolia
+      SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
 
     steps:
       - name: Checkout repo
@@ -37,6 +39,38 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sepolia-evidence-${{ github.run_id }}
+          path: logs/verification/
+
+  evidence-mainnet:
+    name: Daily evidence (Mainnet)
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: production
+      NETWORK: mainnet
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run daily evidence (automated checks only)
+        run: |
+          npm run evidence:daily || true
+
+      - name: Upload verification logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: mainnet-evidence-${{ github.run_id }}
           path: logs/verification/
 
       - name: Commit daily notes (optional)

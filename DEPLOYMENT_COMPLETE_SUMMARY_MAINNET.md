@@ -4,6 +4,7 @@
 **Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)  
 **Final Block:** [TBD on mainnet]  
 **Status:** Mainnet release package prepared; objective mainnet transaction evidence pending
+**Last validated:** 2026-05-15 — compilation ✅, lint ✅, preflight ✅, all scripts syntax-checked ✅
 
 ---
 

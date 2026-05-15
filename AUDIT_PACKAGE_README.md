@@ -85,15 +85,15 @@ Available for kick-off calls, code walkthroughs, and Q&A
 
 | Milestone | Target Date | Notes |
 |-----------|------------|-------|
-| **Firm Selection** | May 20, 2026 | Review 2–3 proposals |
-| **Engagement & Kick-Off** | May 25, 2026 | Code freeze; team alignment |
-| **Audit Phase 1** | June 1–15 | Initial vulnerability discovery |
-| **Interim Report** | June 15, 2026 | Progress update |
-| **Audit Phase 2** | June 16–30 | Deep-dive; edge case testing |
-| **Final Report** | June 30, 2026 | All findings delivered |
-| **Remediation** | July 1–15 | Team fixes Critical/High issues |
-| **Re-Audit (if needed)** | July 16–22 | Follow-up verification |
-| **Mainnet Launch** | July 25+, 2026 | Post-audit (pending resolution) |
+| **Firm Selection** | TBD | Review 2–3 proposals |
+| **Engagement & Kick-Off** | TBD | Code freeze; team alignment |
+| **Audit Phase 1** | TBD | Initial vulnerability discovery |
+| **Interim Report** | TBD | Progress update |
+| **Audit Phase 2** | TBD | Deep-dive; edge case testing |
+| **Final Report** | TBD | All findings delivered |
+| **Remediation** | TBD | Team fixes Critical/High issues |
+| **Re-Audit (if needed)** | TBD | Follow-up verification |
+| **Mainnet Launch** | TBD | Post-audit (pending resolution) |
 
 **Audit Duration:** 4–6 weeks  
 **Budget Range:** $25,000–$75,000 USD

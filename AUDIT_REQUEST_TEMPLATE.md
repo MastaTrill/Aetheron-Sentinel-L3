@@ -200,8 +200,8 @@ Please provide:
 5. **References** (2–3 recent clients; optional follow-up calls)
 6. **Sample finding** (1–2 sample findings from a previous audit to assess writing quality)
 
-**Proposal Deadline:** June 1, 2026  
-**Expected Decision:** June 5, 2026
+**Proposal Deadline:** Rolling basis  
+**Expected Decision:** Within 2 weeks of proposal receipt
 
 ---
 
