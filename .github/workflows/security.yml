@@ -55,14 +55,14 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            let summary = '##  Slither Security Report (Foundry)\n\n';
+            let summary = '## 🛡️ Slither Security Report (Foundry)\n\n';
             if (${{ steps.slither.outputs.exit-code }} == 0) {
-              summary += ' **No high severity issues found.**\n';
+              summary += '✅ **No high severity issues found.**\n';
             } else {
-              summary += ' **Issues detected**  Check GitHub Security tab.\n';
+              summary += '⚠️ **Issues detected** — Check GitHub Security tab.\n';
             }
             summary += `\n**Exit Code:** ${{ steps.slither.outputs.exit-code }}\n`;
-            summary += `**Tests Passed:** \n`;
+            summary += `**Tests Passed:** ✅\n`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
