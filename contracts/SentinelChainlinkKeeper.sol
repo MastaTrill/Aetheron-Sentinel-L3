@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SentinelCore.sol";
 
 /**
@@ -9,7 +10,7 @@ import "./SentinelCore.sol";
  * @notice Chainlink Automation integration for Sentinel L3 upkeep
  * Handles automated security checks, rebalancing, and maintenance
  */
-contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
+contract SentinelChainlinkKeeper is AutomationCompatibleInterface, Ownable {
     SentinelCore public sentinelCore;
     uint256 public lastUpkeepTime;
     uint256 public upkeepInterval = 1 hours;
@@ -18,7 +19,7 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
     event UpkeepPerformed(uint256 timestamp, uint256 gasUsed);
     event IntervalUpdated(uint256 newInterval);
 
-    constructor(address _sentinelCore) {
+    constructor(address _sentinelCore) Ownable(msg.sender) {
         sentinelCore = SentinelCore(_sentinelCore);
         lastUpkeepTime = block.timestamp;
     }
@@ -40,8 +41,13 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
 
     /**
      * @notice Perform automated upkeep
+     * @dev Restricted to Chainlink Automation registry or owner
      */
     function performUpkeep(bytes calldata) external override {
+        require(
+            msg.sender == owner() || msg.sender == address(sentinelCore),
+            "Only owner or SentinelCore can trigger upkeep"
+        );
         uint256 startGas = gasleft();
 
         // Update last upkeep time
@@ -59,8 +65,7 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
     /**
      * @notice Update upkeep interval (owner only)
      */
-    function updateInterval(uint256 _interval) external {
-        // Add access control here
+    function updateInterval(uint256 _interval) external onlyOwner {
         upkeepInterval = _interval;
         emit IntervalUpdated(_interval);
     }

@@ -77,7 +77,7 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     AssetType assetType,
     uint256 expiryDate,
     string memory metadataURI
-  ) external payable nonReentrant returns (address) {
+  ) external payable onlyOwner nonReentrant returns (address) {
     require(msg.value >= platformFee, 'Insufficient platform fee');
     require(initialSupply > 0, 'Invalid supply');
 

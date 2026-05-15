@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title SentinelGovernance
@@ -19,7 +20,8 @@ contract SentinelGovernance is
     GovernorCountingSimple,
     GovernorVotes,
     GovernorVotesQuorumFraction,
-    GovernorTimelockControl
+    GovernorTimelockControl,
+    Ownable
 {
     // Governance parameters optimized for security
     uint256 public constant MIN_VOTING_DELAY = 1 days;
@@ -77,10 +79,11 @@ contract SentinelGovernance is
         TimelockController _timelock
     )
         Governor("SentinelGovernance")
-        GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 10000) // 10k gas limit for proposal creation
+        GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 10000)
         GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4) // 4% quorum
+        GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
+        Ownable(msg.sender)
     {}
 
     /**
@@ -234,28 +237,36 @@ contract SentinelGovernance is
      * @param proposalId Proposal ID
      */
     function canExecute(uint256 proposalId) external view returns (bool) {
-        // Check standard governor conditions
         if (state(proposalId) != IGovernor.ProposalState.Succeeded)
             return false;
 
         EnhancedProposal memory proposal = enhancedProposals[proposalId];
 
-        // Additional checks for enhanced proposals
         if (proposal.requiresQuantumValidation) {
-            // Would check quantum proof validation in production
-            require(
-                proposal.quantumProof != bytes32(0),
-                "Quantum validation required"
-            );
+            if (proposal.quantumProof == bytes32(0)) {
+                return false;
+            }
         }
 
-        // Check execution grace period
         uint256 proposalEnd = proposalDeadline(proposalId);
         if (block.timestamp > proposalEnd + EXECUTION_GRACE_PERIOD) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @notice Submit quantum proof for a proposal
+     * @param proposalId Proposal ID
+     * @param quantumProof The quantum proof hash
+     */
+    function submitQuantumProof(uint256 proposalId, bytes32 quantumProof) external onlyOwner {
+        require(quantumProof != bytes32(0), "Invalid quantum proof");
+        EnhancedProposal storage proposal = enhancedProposals[proposalId];
+        require(proposal.requiresQuantumValidation, "Proposal does not require quantum validation");
+        require(proposal.quantumProof == bytes32(0), "Quantum proof already submitted");
+        proposal.quantumProof = quantumProof;
     }
 
     /**

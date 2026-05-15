@@ -281,7 +281,7 @@ async function main() {
     : [deployerAddress];
   const timelockExecutors = config.timelockExecutors.length
     ? config.timelockExecutors
-    : [ethers.ZeroAddress]; // address(0) = anyone can execute
+    : [deployerAddress]; // Default to deployer; governance will be added after deployment
   const timelock = await deployContract('SentinelTimelock', [
     config.timelockMinDelay,
     timelockProposers,
@@ -307,7 +307,10 @@ async function main() {
     const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
     await (await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)).wait();
-    console.log('   Granted PROPOSER + CANCELLER roles to SentinelGovernance on timelock');
+    const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
+    await (await timelock.grantRole(EXECUTOR_ROLE, addresses.SentinelGovernance, ov)).wait();
+    await (await timelock.revokeRole(EXECUTOR_ROLE, deployerAddress, ov)).wait();
+    console.log('   Granted PROPOSER + CANCELLER + EXECUTOR roles to SentinelGovernance, revoked deployer EXECUTOR');
     // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
       await (await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)).wait();
@@ -316,7 +319,9 @@ async function main() {
   } else {
     pendingActions.push(
       `SentinelTimelock.grantRole(PROPOSER_ROLE, ${addresses.SentinelGovernance})`,
-      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`
+      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.grantRole(EXECUTOR_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.revokeRole(EXECUTOR_ROLE, <deployer>)`
     );
   }
 

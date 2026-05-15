@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
@@ -12,6 +13,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  * Advanced liquidity provision with AI-powered rebalancing and impermanent loss protection
  */
 contract SentinelAMM is ReentrancyGuard, Ownable {
+    using SafeERC20 for IERC20;
 
     // Pool structure with advanced features
     struct QuantumPool {
@@ -140,23 +142,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         require(minPrice < maxPrice, "Invalid price bounds");
         require(amount0 > 0 && amount1 > 0, "Invalid amounts");
 
-        // Transfer tokens
-        require(
-            IERC20(pool.token0).transferFrom(
-                msg.sender,
-                address(this),
-                amount0
-            ),
-            "Token0 transfer failed"
-        );
-        require(
-            IERC20(pool.token1).transferFrom(
-                msg.sender,
-                address(this),
-                amount1
-            ),
-            "Token1 transfer failed"
-        );
+        // Transfer tokens using SafeERC20 (handles non-standard ERC20s like USDT)
+        IERC20(pool.token0).safeTransferFrom(msg.sender, address(this), amount0);
+        IERC20(pool.token1).safeTransferFrom(msg.sender, address(this), amount1);
 
         // Calculate liquidity amount
         uint256 liquidity;
@@ -213,13 +201,11 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         QuantumPool storage pool = pools[poolId];
         require(pool.isActive, "Pool not active");
 
-        // Validate token
         require(
             tokenIn == pool.token0 || tokenIn == pool.token1,
             "Invalid token"
         );
 
-        // Calculate output amount with fee
         uint256 fee = amountIn * pool.feeTier / 10000;
         uint256 amountInAfterFee = amountIn - fee;
 
@@ -230,10 +216,6 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
                 pool.reserve1
             );
             require(amountOut >= minAmountOut, "Insufficient output amount");
-
-            // Update reserves
-            pool.reserve0 = pool.reserve0 + amountIn;
-            pool.reserve1 = pool.reserve1 - amountOut;
         } else {
             amountOut = _getAmountOut(
                 amountInAfterFee,
@@ -241,28 +223,24 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
                 pool.reserve0
             );
             require(amountOut >= minAmountOut, "Insufficient output amount");
+        }
 
-            // Update reserves
+        // CEI: Update all state BEFORE external calls
+        if (tokenIn == pool.token0) {
+            pool.reserve0 = pool.reserve0 + amountIn;
+            pool.reserve1 = pool.reserve1 - amountOut;
+        } else {
             pool.reserve1 = pool.reserve1 + amountIn;
             pool.reserve0 = pool.reserve0 - amountOut;
         }
-
-        // Transfer tokens
-        require(
-            IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn),
-            "Input transfer failed"
-        );
-
-        address tokenOut = tokenIn == pool.token0 ? pool.token1 : pool.token0;
-        require(
-            IERC20(tokenOut).transfer(msg.sender, amountOut),
-            "Output transfer failed"
-        );
-
-        // Collect fees
         totalFeesCollected = totalFeesCollected + fee;
 
-        // Update pool volatility
+        // External calls after state updates
+        IERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountIn);
+
+        address tokenOut = tokenIn == pool.token0 ? pool.token1 : pool.token0;
+        IERC20(tokenOut).safeTransfer(msg.sender, amountOut);
+
         _updatePoolVolatility(poolId, amountIn, amountOut);
 
         emit SwapExecuted(

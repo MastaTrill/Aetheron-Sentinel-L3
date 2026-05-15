@@ -279,14 +279,25 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     return (amount * liquidityPool.apy * timeWeightedShare) / (10000 * 365 days);
   }
 
-  /**
-   * @notice Validate insurance claim
-   */
-  function _validateClaim(string memory, string memory evidence) internal pure returns (bool) {
-    // Implement claim validation logic based on coverage type
-    // This would integrate with external oracles and verification systems
-    return bytes(evidence).length > 0;
-  }
+    /**
+     * @notice Validate insurance claim
+     * @dev Requires non-empty evidence and minimum evidence length to prevent trivial claims
+     */
+    function _validateClaim(string memory coverageType, string memory evidence) internal pure returns (bool) {
+        if (bytes(evidence).length == 0) return false;
+        if (bytes(evidence).length < 32) return false;
+        // Additional validation: evidence must not be a simple repeated character
+        bytes memory evidenceBytes = bytes(evidence);
+        bool allSame = true;
+        for (uint256 i = 1; i < evidenceBytes.length; i++) {
+            if (evidenceBytes[i] != evidenceBytes[0]) {
+                allSame = false;
+                break;
+            }
+        }
+        if (allSame) return false;
+        return true;
+    }
 
   /**
    * @notice Process insurance payout

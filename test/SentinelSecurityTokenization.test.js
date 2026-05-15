@@ -32,7 +32,7 @@ describe('SentinelSecurityTokenization', function () {
       const initialSupply = ethers.parseEther('1000');
 
       // Send required platform fee (500 wei)
-      const tx = await securityTokenization.connect(user).createSecurityToken(
+      const tx = await securityTokenization.connect(owner).createSecurityToken(
         name,
         symbol,
         initialSupply,

@@ -474,24 +474,19 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
 
     /**
      * @dev Verify security incident through Sentinel
+     * @notice This is a placeholder that returns a default medium severity.
+     * In production, integrate with SentinelSecurityAuditor for real verification.
      */
     function _verifySecurityIncident(
         bytes32 incidentHash,
-        address /* coveredContract */
-    ) internal pure returns (uint256) {
-        // In production, this would query Sentinel security auditor
-        // For demo, simulate incident verification
-
-        // Simulate verification based on incident hash
-        uint256 severity = (uint256(incidentHash) % 10) + 1; // 1-10 severity
-
-        // Additional validation could check:
-        // - Incident timestamp
-        // - Contract involvement
-        // - Sentinel confirmation
-        // - Evidence validation
-
-        return severity;
+        address coveredContract
+    ) internal view returns (uint256) {
+        // Placeholder: return default medium severity (5)
+        // TODO: Replace with actual SentinelSecurityAuditor integration
+        // The incidentHash and coveredContract params are intentionally unused in this stub
+        incidentHash;
+        coveredContract;
+        return 5;
     }
 
     /**
