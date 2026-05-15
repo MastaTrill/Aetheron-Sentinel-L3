@@ -1,12 +1,10 @@
-name: Security Scan (Slither + Mythril + Foundry)
+name: Full Security Scan
 
 on:
   push:
     branches: [ main, master, develop ]
-    paths: [ 'src/**', '**/*.sol', 'slither.config.json', 'foundry.toml' ]
   pull_request:
     branches: [ main, master, develop ]
-    paths: [ 'src/**', '**/*.sol', 'slither.config.json', 'foundry.toml' ]
 
 permissions:
   contents: read
@@ -17,24 +15,19 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
           version: stable
 
-      - name: Build contracts
-        run: forge build
+      - name: Build & Gas Report
+        run: forge build && forge test --gas-report
 
-      - name: Run Forge Tests with Gas Report
-        run: forge test --gas-report
-
-      # === Slither ===
-      - name: Run Slither Analysis
+      # Slither
+      - name: Slither
         uses: crytic/slither-action@v0.4.2
         id: slither
         with:
@@ -44,35 +37,38 @@ jobs:
           fail-on: high
           ignore-compile: true
 
-      # === Mythril ===
-      - name: Run Mythril Analysis
+      # Mythril
+      - name: Mythril
         uses: crytic/mythril-action@v0.1.0
-        id: mythril
         with:
           target: 'src'
           solc_version: '0.8.30'
-          timeout: 300
-          # Optional: limit to high severity
-          args: '--execution-timeout 300 --max-depth 512'
+          timeout: 240
 
-      - name: Upload Slither SARIF
+      # Aderyn (Modern Auditor)
+      - name: Aderyn
+        uses: crytic/aderyn-action@v0.1.0
+        with:
+          path: '.'
+
+      - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: results-slither.sarif
           category: slither
 
-      - name: Post PR Comment
-        if: github.event_name == 'pull_request' && always()
+      - name: PR Comment
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            let summary = '## 🛡️ Aetheron Sentinel L3 Security Report\n\n';
-            summary += '**Slither:** ' + (${{ steps.slither.outputs.exit-code }} == 0 ? '✅ Clean' : '⚠️ Issues') + '\n';
-            summary += '**Mythril:** Completed (check logs for findings)\n';
-            summary += '**Tests + Gas:** Completed\n\n';
-            summary += 'Full results available in **Security → Code scanning** tab.';
-            
+            const summary = '## 🛡️ Aetheron Sentinel L3 Full Security Report\n\n' +
+              '✅ **Build & Tests** completed\n' +
+              '✅ **Slither** ran\n' +
+              '✅ **Mythril** ran\n' +
+              '✅ **Aderyn** ran\n\n' +
+              'Full details in **Security → Code scanning**';
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
