@@ -1,4 +1,4 @@
-name: PR Validation (Fast)
+name: PR Validation
 
 on:
   pull_request:
@@ -16,13 +16,5 @@ jobs:
       - name: Build
         run: forge build
 
-      - name: Quick Tests
+      - name: Fast Tests
         run: forge test --no-match-test testFuzz
-
-      - name: Slither (Fast Check)
-        uses: crytic/slither-action@v0.4.2
-        with:
-          target: '.'
-          config: slither.config.json
-          fail-on: high
-          ignore-compile: true

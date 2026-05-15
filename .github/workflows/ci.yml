@@ -11,16 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
           version: stable
 
-      - name: Build Contracts
+      - name: Build
         run: forge build
 
-      - name: Run Tests (Fast)
+      - name: Run Tests
         run: forge test --no-match-test testFuzz
+
+      - name: Gas Snapshot Check
+        run: forge snapshot --check
