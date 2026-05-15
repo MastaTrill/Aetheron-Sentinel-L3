@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import "forge-std/Script.sol";
-import {EchoV2LiquidityModule} from "../src/EchoV2LiquidityModule.sol";
+import {EchoV2LiquidityModule} from "src/EchoV2LiquidityModule.sol";
 
 contract DeployLiquidity is Script {
     function run() external {
