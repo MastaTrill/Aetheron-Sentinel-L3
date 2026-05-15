@@ -1,0 +1,19 @@
+- name: security
+  color: B60205
+  description: Security-related changes (Slither, Mythril, audits)
+
+- name: gas-audit
+  color: 0E8A16
+  description: Changes that affect gas usage
+
+- name: deployment
+  color: 5319E7
+  description: Deployment scripts or production changes
+
+- name: breaking-change
+  color: D93F0B
+  description: Breaking changes
+
+- name: enhancement
+  color: 84B6CB
+  description: New features or improvements

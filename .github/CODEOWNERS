@@ -1,3 +1,13 @@
-# Security & Core Owners
-* @MastaTrill
-/src/ @MastaTrill
+# Aetheron Sentinel L3 Code Owners
+
+# Core Security & Architecture
+/src/                  @MastaTrill
+/script/               @MastaTrill
+/foundry.toml          @MastaTrill
+/slither.config.json   @MastaTrill
+
+# CI/CD & Workflows
+.github/workflows/     @MastaTrill
+
+# Default fallback
+*                      @MastaTrill
