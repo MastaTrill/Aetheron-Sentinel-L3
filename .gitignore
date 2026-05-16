@@ -88,3 +88,27 @@ next-env.d.ts
 coverage/
 coverage-report.txt
 .DS_Store
+
+# Foundry build artifacts
+artifacts/
+out/
+cache/
+broadcast/
+
+# Next.js
+.next/
+next.config.js
+next-env.d.ts
+
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
+
+# Coverage
+coverage/
+coverage-report.txt
+
+# Misc
+.DS_Store
