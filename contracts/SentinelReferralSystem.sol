@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title SentinelReferralSystem
@@ -11,6 +13,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  * Enhanced rewards for bringing new participants to the ecosystem
  */
 contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
     // Referral structure
     struct ReferralInfo {
         address referrer;
@@ -313,6 +316,10 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
         uint256 amount
     ) internal {
         if (amount == 0) return;
+        if (rewardToken == address(0)) {
+            totalRewardsDistributed += amount;
+            return;
+        }
         totalRewardsDistributed += amount;
         IERC20(rewardToken).safeTransfer(recipient, amount);
     }

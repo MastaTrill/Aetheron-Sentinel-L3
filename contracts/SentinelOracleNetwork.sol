@@ -318,11 +318,10 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
         require(slashAmount > 0, "Nothing to slash");
 
         uint256 remainingStake = oracles[oracle].stake - slashAmount;
-        require(
-            remainingStake >= MIN_STAKE || remainingStake == 0,
-            "Remaining stake below minimum; use 100% penalty to fully slash"
-        );
-
+        if (remainingStake > 0 && remainingStake < MIN_STAKE) {
+            remainingStake = 0;
+            slashAmount = oracles[oracle].stake;
+        }
         oracles[oracle].stake = remainingStake;
         if (remainingStake == 0) {
             oracles[oracle].active = false;

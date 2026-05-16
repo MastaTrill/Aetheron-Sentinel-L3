@@ -33,7 +33,6 @@ contract SentinelTimelock is TimelockController {
         uint256 delay
     ) external onlyRole(PROPOSER_ROLE) {
         require(delay >= getMinDelay(), "Delay too short");
-        require(target != address(0), "Invalid target");
         schedule(target, value, data, predecessor, salt, delay);
     }
 }
