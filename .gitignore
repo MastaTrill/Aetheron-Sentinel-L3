@@ -66,3 +66,25 @@ skills-lock.json
 
 # Next.js build outputs
 .next/
+
+# Foundry
+artifacts/
+out/
+cache/
+broadcast/
+
+# Env files
+.env
+.env.local
+.env.*
+!.env.example
+
+# Next.js
+.next/
+next.config.js
+next-env.d.ts
+
+# Misc
+coverage/
+coverage-report.txt
+.DS_Store
