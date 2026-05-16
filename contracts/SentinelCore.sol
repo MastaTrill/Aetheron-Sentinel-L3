@@ -84,6 +84,8 @@ contract SentinelCore is Ownable {
         return (heartbeatActive, targetYieldBps, lastSyncTimestamp);
     }
 
+    event HeartbeatLocked(uint256 previousYield, uint256 timestamp);
+
     /**
      * @notice Allows owner to lock heartbeat and reset to baseline.
      */
@@ -95,5 +97,6 @@ contract SentinelCore is Ownable {
         lastSyncTimestamp = block.timestamp;
 
         emit TelemetryReset(previousYield, BASELINE_YIELD_BPS, block.timestamp);
+        emit HeartbeatLocked(previousYield, block.timestamp);
     }
 }

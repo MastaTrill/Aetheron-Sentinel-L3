@@ -10,6 +10,3 @@ remappings = [
     "chainlink-brownie-contracts/=lib/chainlink-brownie-contracts/",
     "solidity-examples/=lib/solidity-examples/"
 ]
-
-[fmt]
-line_length = 100

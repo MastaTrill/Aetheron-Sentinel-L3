@@ -74,6 +74,7 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
 
     constructor(address _rewardToken, address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
+        require(_rewardToken != address(0), "Invalid reward token");
         rewardToken = _rewardToken;
 
         // Initialize referral tiers
