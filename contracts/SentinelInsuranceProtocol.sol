@@ -148,6 +148,16 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
     }
 
     /**
+     * @notice Fund an insurance pool with ETH to back claims
+     * @param poolType The insurance pool type to fund
+     */
+    function fundPool(InsuranceType poolType) external payable nonReentrant {
+        require(msg.value > 0, "Must send ETH");
+        uint256 poolIndex = uint256(poolType);
+        insurancePools[poolIndex].claimReserve += msg.value;
+    }
+
+    /**
      * @notice Purchase insurance policy
      * @param coveredContract Contract to insure
      * @param coverageAmount Amount of coverage desired

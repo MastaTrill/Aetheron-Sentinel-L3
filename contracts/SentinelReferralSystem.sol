@@ -309,15 +309,12 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Distribute reward tokens
      */
     function _distributeReward(
-        address /* recipient */,
+        address recipient,
         uint256 amount
     ) internal {
-        // In a real implementation, this would transfer from reward pool
-        // For demo: assume reward token has minting capability or pre-allocated pool
+        if (amount == 0) return;
         totalRewardsDistributed += amount;
-
-        // Note: Actual token transfer would be implemented here
-        // IERC20(rewardToken).transfer(recipient, amount);
+        IERC20(rewardToken).safeTransfer(recipient, amount);
     }
 
     /**

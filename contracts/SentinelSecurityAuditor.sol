@@ -116,7 +116,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
         address actor,
         uint256 severity,
         string calldata details
-    ) external returns (uint256) {
+    ) external onlyOwner returns (uint256) {
         require(severity >= 1 && severity <= 10, "Invalid severity");
 
         uint256 logId = logCount++;

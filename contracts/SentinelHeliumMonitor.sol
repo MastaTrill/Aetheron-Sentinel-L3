@@ -36,6 +36,7 @@ contract SentinelHeliumMonitor is Ownable {
 
   mapping(bytes32 => IoTDevice) public devices;
   mapping(address => bytes32[]) public ownerDevices;
+  mapping(address => bool) public authorizedReporters;
 
   NetworkHealth public networkHealth;
 

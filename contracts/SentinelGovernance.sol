@@ -79,7 +79,7 @@ contract SentinelGovernance is
         TimelockController _timelock
     )
         Governor("SentinelGovernance")
-        GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 10000)
+        GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 100)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
