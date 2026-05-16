@@ -271,6 +271,15 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             yieldOptimizationEvents: 0
         });
 
+        lastCoreLoopExecution = block.timestamp;
+        lastQuantumCalibration = block.timestamp;
+        lastSecurityAudit = block.timestamp;
+
+        emit SystemStatusChanged(
+            SystemStatus.INITIALIZING,
+            SystemStatus.INITIALIZING
+        );
+    }
 
     function _activateAutonomousBehaviors() internal {
         autonomousBehaviors[THREAT_INTERCEPTION] = true;
@@ -317,3 +326,11 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         require(startGas >= 500000, "Insufficient gas for core loop");
 
         // Update execution timestamp atomically
+        lastCoreLoopExecution = block.timestamp;
+
+        // Emergency check - abort if system is compromised
+        if (_isSystemCompromised()) {
+            _triggerEmergencyShutdown("System compromise detected");
+            return;
+        }
+
