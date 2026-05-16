@@ -48,3 +48,28 @@ apps/*/dist/
 *.log
 tools/
 tests/
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Typechain / Hardhat
+typechain-types/
+typechain/
+
+# Remix / Other apps
+apps/*/node_modules/
+apps/*/dist/
+
+# Misc
+.DS_Store
+*.log
+tools/
+tests/
