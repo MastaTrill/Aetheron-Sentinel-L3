@@ -1,104 +1,8 @@
-node_modules/
-.bun/
-cache/
-typechain-types/
-coverage/
-coverage.json
-.env
-.env.local
-.DS_Store
-*.log
-dist/
-.verify-args/
-.verify-tools/
-tools/verify/
-
-# Python
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Local AI/editor tool folders (machine-specific)
-.adal/
-.agents/
-.augment/
-.bob/
-.claude/
-.codebuddy/
-.commandcode/
-.continue/
-.cortex/
-.crush/
-.factory/
-.goose/
-.iflow/
-.junie/
-.kilocode/
-.kiro/
-.kode/
-.mcpjam/
-.mux/
-.neovate/
-.openhands/
-.pi/
-.pochi/
-.qoder/
-.qwen/
-.roo/
-.trae/
-.vibe/
-.windsurf/
-.zencoder/
-
-# Local-only artifacts
-.env.mainnet
-cast.exe
-transfer-treasury.js
-
-# Local skills workspace artifacts
-skills/
-skills-lock.json
-
-# VS Code Hardhat extension temp configs (auto-generated, machine-specific)
-.vscode_hardhat_config_*.ts
-
-# Next.js build outputs
-.next/
-
 # Foundry
 artifacts/
 out/
 cache/
 broadcast/
-
-# Env files
-.env
-.env.local
-.env.*
-!.env.example
-
-# Next.js
-.next/
-next.config.js
-next-env.d.ts
-
-# Misc
-coverage/
-coverage-report.txt
-.DS_Store
-
-# Foundry build artifacts
-artifacts/
-out/
-cache/
-broadcast/
-
-# Next.js
-.next/
-next.config.js
-next-env.d.ts
 
 # Environment
 .env
@@ -106,9 +10,16 @@ next-env.d.ts
 .env.*
 !.env.example
 
+# Next.js / Frontend
+.next/
+next.config.js
+next-env.d.ts
+
 # Coverage
 coverage/
 coverage-report.txt
 
 # Misc
 .DS_Store
+*.log
+.foundry/
