@@ -315,23 +315,21 @@ contract SentinelGovernance is
     // Override voting period based on proposal category
     function votingPeriod()
         public
-        pure
+        view
         override(Governor, GovernorSettings)
         returns (uint256)
     {
-        // This would be customized per proposal in production
-        return uint256(MIN_VOTING_PERIOD);
+        return uint256(MAX_VOTING_PERIOD);
     }
 
     // Override voting delay based on proposal category
     function votingDelay()
         public
-        pure
+        view
         override(Governor, GovernorSettings)
         returns (uint256)
     {
-        // This would be customized per proposal in production
-        return uint256(MIN_VOTING_DELAY);
+        return uint256(MAX_VOTING_DELAY);
     }
 
     // The following functions are overrides required by Solidity

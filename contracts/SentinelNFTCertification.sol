@@ -112,6 +112,8 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
         string memory auditReportURI
     ) external payable nonReentrant onlyOwner {
         require(msg.value >= CERTIFICATION_FEE * 10, "Insufficient collection certification fee");
+        require(averageSecurityScore <= 100, "Invalid security score");
+        require(bytes(auditReportURI).length > 0, "Audit report URI required");
 
         collectionAudits[collectionAddress] = CollectionAudit({
             collectionAddress: collectionAddress,

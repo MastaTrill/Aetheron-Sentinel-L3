@@ -408,13 +408,8 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         uint256 /* currentRatio */,
         uint256 targetRatio
     ) internal {
-        // Simplified rebalance logic
-        // In production, this would involve complex mathematical calculations
-        // for optimal liquidity distribution
         QuantumPool storage pool = pools[poolId];
 
-        // Adjust reserves based on target ratio
-        // This is a simplified version - real implementation would be more complex
         uint256 totalValue = pool.reserve0 + pool.reserve1;
         uint256 targetReserve0 = totalValue * targetRatio / (targetRatio + 10000);
 

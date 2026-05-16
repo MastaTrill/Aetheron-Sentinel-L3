@@ -186,7 +186,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
             bonus = 1000 ether;
         }
 
-        if (bonus > 0) {
+        if (bonus > 0 && bonus <= rewardPoolRemaining) {
             _payoutReward(msg.sender, bonus);
             emit SecurityReward(msg.sender, bonus);
         }

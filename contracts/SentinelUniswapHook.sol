@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 /**
  * @title SentinelUniswapHook
  * @notice Uniswap V4 hook for automated liquidity management
@@ -9,7 +11,9 @@ pragma solidity ^0.8.20;
  * Note: This contract requires Uniswap V4 interfaces. Due to complex
  * import requirements, the contract focuses on core security logic.
  */
-contract SentinelUniswapHook {
+contract SentinelUniswapHook is Ownable {
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
     // Security-based fee adjustments
     uint24 public constant BASE_FEE = 3000; // 0.3%
     uint24 public constant HIGH_SECURITY_FEE = 1000; // 0.1%
@@ -37,7 +41,7 @@ contract SentinelUniswapHook {
     /**
      * @notice Update pool security score
      */
-    function updateSecurityScore(bytes32 poolId, int256 amount) external {
+    function updateSecurityScore(bytes32 poolId, int256 amount) external onlyOwner {
         uint256 score = poolSecurityScore[poolId];
         if (amount > 0) {
             score = score > 0 ? score - 1 : 0;
@@ -50,7 +54,7 @@ contract SentinelUniswapHook {
     /**
      * @notice Record anomaly for a pool
      */
-    function recordAnomaly(bytes32 poolId, uint256 severity) external {
+    function recordAnomaly(bytes32 poolId, uint256 severity) external onlyOwner {
         poolAnomalyCount[poolId]++;
         emit AnomalyDetected(poolId, severity);
     }

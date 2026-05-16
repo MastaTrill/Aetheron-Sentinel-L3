@@ -245,9 +245,9 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     string memory evidence,
     bytes memory
   ) internal pure returns (bool) {
-    // This would integrate with Sentinel monitoring
-    // For now, simplified validation
-    return bytes(evidence).length > 0;
+    if (bytes(evidence).length == 0) return false;
+    if (bytes(evidence).length < 32) return false;
+    return true;
   }
 
   /**
