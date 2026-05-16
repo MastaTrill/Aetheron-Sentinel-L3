@@ -1,77 +1,10 @@
 version: 2
 updates:
-  - package-ecosystem: 'npm'
-    directory: '/'
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '08:00'
-      timezone: 'UTC'
-    open-pull-requests-limit: 5
-    labels:
-      - 'dependencies'
-    ignore:
-      # GHSA-848j-6mx2-7j84: elliptic uses risky crypto primitives
-      # No fix available. Pulled in by @chainlink/contracts-ccip (dev-only).
-      # Not in production bundle; safe to ignore.
-      - dependency-name: 'elliptic'
-        versions: ['*']
-      # tmp <=0.2.3 via solc/patch-package
-      # No newer version available. Upstream packages (@chainlink/contracts-ccip,
-      # @eth-optimism/contracts) pin old dependencies. Fixing requires breaking
-      # changes upstream. These are dev-time dependencies, not production code.
-      - dependency-name: 'tmp'
-        versions: ['<0.2.4']
-      # @ethersproject/* chain (versions <=5.8.0) - transitive via @chainlink/contracts-ccip
-      # Cannot update without upstream action. Dev-only dependencies.
-      - dependency-name: '@ethersproject/signing-key'
-        versions: ['<=5.8.0']
-      - dependency-name: '@ethersproject/abstract-signer'
-        versions: ['<=5.8.0']
-      - dependency-name: '@ethersproject/transactions'
-        versions: ['<=5.8.0']
-      - dependency-name: '@ethersproject/hdnode'
-        versions: ['*']
-      - dependency-name: '@ethersproject/json-wallets'
-        versions: ['*']
-      - dependency-name: '@ethersproject/hash'
-        versions: ['*']
-      - dependency-name: '@ethersproject/abstract-provider'
-        versions: ['*']
-      - dependency-name: '@ethersproject/contracts'
-        versions: ['*']
-      - dependency-name: '@ethersproject/providers'
-        versions: ['*']
-      - dependency-name: '@ethersproject/abi'
-        versions: ['*']
-      - dependency-name: '@ethersproject/wordlists'
-        versions: ['*']
-    groups:
-      hardhat-stack:
-        patterns:
-          - 'hardhat'
-          - '@nomicfoundation/*'
-      graph-stack:
-        patterns:
-          - '@graphprotocol/*'
-      test-stack:
-        patterns:
-          - 'chai'
-          - 'mocha'
-          - 'matchstick-as'
-      misc-dev:
-        dependency-type: 'development'
-        patterns:
-          - '*'
-
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '08:30'
-      timezone: 'UTC'
-    open-pull-requests-limit: 3
-    labels:
-      - 'dependencies'
-      - 'ci'
+      interval: "weekly"

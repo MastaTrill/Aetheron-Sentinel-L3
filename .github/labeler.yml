@@ -1,0 +1,20 @@
+security:
+  - changed-files:
+    - 'src/**/*.sol'
+    - 'script/**/*.s.sol'
+    - 'slither.config.json'
+    - '.github/workflows/security.yml'
+
+gas-audit:
+  - changed-files:
+    - 'src/**/*.sol'
+    - 'test/**/*.t.sol'
+
+deployment:
+  - changed-files:
+    - 'script/**/*.s.sol'
+    - 'foundry.toml'
+
+breaking-change:
+  - changed-files:
+    - 'src/**/*.sol'

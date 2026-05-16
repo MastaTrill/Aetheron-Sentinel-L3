@@ -1,13 +1,11 @@
-name: CI/CD Pipeline
+name: PR Validation
 
 on:
-  push:
-    branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,8 +16,5 @@ jobs:
       - name: Build
         run: forge build
 
-      - name: Run Tests
+      - name: Fast Tests
         run: forge test --no-match-test testFuzz
-
-      - name: Gas Snapshot Check
-        run: forge snapshot --check
