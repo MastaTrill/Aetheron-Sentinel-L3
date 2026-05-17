@@ -306,31 +306,13 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         });
     }
 
-    // ════════════════════════════════════════════════════════════════
-    //                    CORE LOOP EXECUTION
-    // ════════════════════════════════════════════════════════════════
 
-    /**
-     * @notice Execute the Sentinel Core Loop
-     * The main orchestration function that maintains system harmony
-     * @dev Gas-optimized with fail-safe mechanisms and comprehensive validation
-     */
-    function executeCoreLoop() external whenNotPaused nonReentrant {
-        // Comprehensive pre-execution validation
-        _validateCoreLoopPrerequisites();
-
-        uint256 startGas = gasleft();
-        uint256 cycleNumber = block.timestamp / CORE_LOOP_INTERVAL;
-
-        // Gas limit check to prevent DoS
-        require(startGas >= 500000, "Insufficient gas for core loop");
-
-        // Update execution timestamp atomically
-        lastCoreLoopExecution = block.timestamp;
-
-        // Emergency check - abort if system is compromised
-        if (_isSystemCompromised()) {
-            _triggerEmergencyShutdown("System compromise detected");
-            return;
-        }
-
+    function _generateQuantumSignature() internal view returns (bytes32) {
+        return keccak256(abi.encodePacked(
+            block.timestamp,
+            block.prevrandao,
+            msg.sender,
+            address(this)
+        ));
+    }
+}
