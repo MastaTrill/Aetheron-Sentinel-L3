@@ -42,20 +42,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Run Slither
-        uses: crytic/slither-action@v0.4.0
+      - name: Install Python
+        uses: actions/setup-python@v5
         with:
-          target: contracts/
-          slither-args: --config-file slither.config.json
-          sarif: results.sarif
-          fail-on: none
-          foundry: true
+          python-version: "3.11"
 
-      - name: Upload SARIF to GitHub Security
+      - name: Install Slither
+        run: pip install slither-analyzer
+
+      - name: Build contracts for Slither
+        run: forge build
+
+      - name: Run Slither
+        run: slither contracts/ --config-file slither.config.json --sarif results.sarif || true
+
+      - name: Upload SARIF
+        if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
