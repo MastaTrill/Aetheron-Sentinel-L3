@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelInterceptor
@@ -37,9 +37,12 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
     event EmergencyPaused(address indexed pauser);
     event EmergencyUnpaused(address indexed unpauser);
 
-    constructor(uint256 _anomalyThreshold, uint256 _tvlThreshold, bool _autonomousMode, address initialOwner)
-        Ownable(initialOwner)
-    {
+    constructor(
+        uint256 _anomalyThreshold,
+        uint256 _tvlThreshold,
+        bool _autonomousMode,
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         anomalyThreshold = _anomalyThreshold;
         tvlThreshold = _tvlThreshold;
@@ -55,7 +58,10 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @param anomalyType Type of anomaly detected
      * @param severity Severity level (0-100)
      */
-    function detectAnomaly(uint256 anomalyType, uint256 severity) external whenNotPaused onlyRole(MONITOR_ROLE) {
+    function detectAnomaly(
+        uint256 anomalyType,
+        uint256 severity
+    ) external whenNotPaused onlyRole(MONITOR_ROLE) {
         require(severity <= 100, "Invalid severity");
         require(anomalyType > 0 && anomalyType <= 10, "Invalid anomaly type");
         require(authorizedReporters[msg.sender], "Unauthorized reporter");
@@ -96,7 +102,9 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @notice Updates TVL monitoring
      * @param newTVL New total value locked
      */
-    function updateTVL(uint256 newTVL) external whenNotPaused onlyRole(OPERATOR_ROLE) {
+    function updateTVL(
+        uint256 newTVL
+    ) external whenNotPaused onlyRole(OPERATOR_ROLE) {
         uint256 oldTVL = currentTVL;
         currentTVL = newTVL;
 
@@ -107,7 +115,9 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @notice Toggles autonomous mode
      * @param enabled Whether autonomous mode should be enabled
      */
-    function toggleAutonomousMode(bool enabled) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function toggleAutonomousMode(
+        bool enabled
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         autonomousMode = enabled;
         emit AutonomousModeToggled(enabled);
     }
@@ -117,7 +127,10 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @param thresholdType Type of threshold to update
      * @param newValue New threshold value
      */
-    function updateThreshold(uint256 thresholdType, uint256 newValue) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function updateThreshold(
+        uint256 thresholdType,
+        uint256 newValue
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(thresholdType > 0, "Invalid threshold type");
         uint256 oldValue = thresholds[thresholdType];
         thresholds[thresholdType] = newValue;
@@ -145,7 +158,9 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @notice Add authorized anomaly reporter
      * @param reporter Address to authorize
      */
-    function addReporter(address reporter) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addReporter(
+        address reporter
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(reporter != address(0), "Invalid reporter");
         authorizedReporters[reporter] = true;
     }
@@ -154,7 +169,9 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @notice Remove authorized anomaly reporter
      * @param reporter Address to remove
      */
-    function removeReporter(address reporter) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeReporter(
+        address reporter
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         authorizedReporters[reporter] = false;
     }
 
@@ -162,7 +179,9 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @notice Check if reporter is authorized
      * @param reporter Address to check
      */
-    function isAuthorizedReporter(address reporter) external view returns (bool) {
+    function isAuthorizedReporter(
+        address reporter
+    ) external view returns (bool) {
         return authorizedReporters[reporter];
     }
 
@@ -181,7 +200,9 @@ contract SentinelInterceptor is Ownable, AccessControl, ReentrancyGuard, Pausabl
      * @notice Transfer ownership and migrate privileged roles to the new owner
      * @param newOwner New owner address
      */
-    function transferOwnership(address newOwner) public override onlyOwner {
+    function transferOwnership(
+        address newOwner
+    ) public override onlyOwner {
         require(newOwner != address(0), "Invalid owner");
         address previousOwner = owner();
         super.transferOwnership(newOwner);

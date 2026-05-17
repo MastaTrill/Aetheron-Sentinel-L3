@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -67,7 +67,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     event SecurityReward(address indexed user, uint256 amount);
     event SecurityReporterUpdated(address indexed reporter, bool status);
 
-    constructor(address initialOwner) ERC20("Aetheron Sentinel", "SENT") Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) ERC20("Aetheron Sentinel", "SENT") Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _mint(address(this), TOTAL_SUPPLY);
 
@@ -80,7 +82,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Stake tokens to earn enhanced APY
      * @param amount Amount to stake
      */
-    function stake(uint256 amount) external whenNotPaused nonReentrant {
+    function stake(
+        uint256 amount
+    ) external whenNotPaused nonReentrant {
         require(amount > 0, "Cannot stake 0");
         require(balanceOf(msg.sender) >= amount, "Insufficient balance");
 
@@ -97,7 +101,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Unstake tokens
      * @param amount Amount to unstake
      */
-    function unstake(uint256 amount) external whenNotPaused nonReentrant {
+    function unstake(
+        uint256 amount
+    ) external whenNotPaused nonReentrant {
         require(stakedBalances[msg.sender] >= amount, "Insufficient staked balance");
 
         _updateReward(msg.sender);
@@ -124,9 +130,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      */
     function participateInGovernance(
         uint256 /* proposalId */
-    )
-        external
-    {
+    ) external {
         require(stakedBalances[msg.sender] > 0, "Must be staking to participate");
         require(block.timestamp >= lastGovernanceReward[msg.sender] + REWARD_COOLDOWN, "Cooldown active");
 
@@ -145,7 +149,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Report security contribution to earn bonus rewards
      * @param contributionType Type of security contribution
      */
-    function reportSecurityContribution(uint256 contributionType) external {
+    function reportSecurityContribution(
+        uint256 contributionType
+    ) external {
         require(securityReporters[msg.sender] || msg.sender == owner(), "Not authorized");
         require(block.timestamp >= lastSecurityReward[msg.sender] + REWARD_COOLDOWN, "Cooldown active");
 
@@ -172,7 +178,10 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param reporter Address to grant/revoke
      * @param status true to grant, false to revoke
      */
-    function setSecurityReporter(address reporter, bool status) external onlyOwner {
+    function setSecurityReporter(
+        address reporter,
+        bool status
+    ) external onlyOwner {
         require(reporter != address(0), "Invalid address");
         securityReporters[reporter] = status;
         emit SecurityReporterUpdated(reporter, status);
@@ -182,7 +191,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Get user's current enhanced APY
      * @param user User address
      */
-    function getUserAPY(address user) external view returns (uint256) {
+    function getUserAPY(
+        address user
+    ) external view returns (uint256) {
         uint256 baseAPY = BASE_STAKING_APY;
         uint256 governanceBonus = (governanceParticipation[user] * GOVERNANCE_APY_BONUS) / 100;
         uint256 securityBonus = (securityContributions[user] * SECURITY_APY_BONUS) / 10;
@@ -196,7 +207,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Get pending rewards for user
      * @param user User address
      */
-    function getPendingRewards(address user) external view returns (uint256) {
+    function getPendingRewards(
+        address user
+    ) external view returns (uint256) {
         uint256 rewardPerToken = rewardPerTokenStored;
         if (block.timestamp > lastUpdateTime && totalStaked > 0) {
             uint256 timeElapsed = block.timestamp - lastUpdateTime;
@@ -214,14 +227,21 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param duration Total vesting duration
      * @param cliff Cliff period
      */
-    function createVestingSchedule(address beneficiary, uint256 amount, uint256 duration, uint256 cliff)
-        external
-        onlyOwner
-    {
+    function createVestingSchedule(
+        address beneficiary,
+        uint256 amount,
+        uint256 duration,
+        uint256 cliff
+    ) external onlyOwner {
         _createVestingSchedule(beneficiary, amount, duration, cliff);
     }
 
-    function _createVestingSchedule(address beneficiary, uint256 amount, uint256 duration, uint256 cliff) internal {
+    function _createVestingSchedule(
+        address beneficiary,
+        uint256 amount,
+        uint256 duration,
+        uint256 cliff
+    ) internal {
         require(beneficiary != address(0), "Invalid beneficiary");
         require(amount > 0, "Invalid amount");
         require(vestingSchedules[beneficiary].totalAmount == 0, "Schedule already exists");
@@ -242,7 +262,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Release vested tokens
      * @param beneficiary Address to release tokens for
      */
-    function releaseVestedTokens(address beneficiary) external {
+    function releaseVestedTokens(
+        address beneficiary
+    ) external {
         VestingSchedule storage schedule = vestingSchedules[beneficiary];
         require(schedule.totalAmount > 0, "No vesting schedule");
 
@@ -257,7 +279,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Get vesting schedule details
      * @param beneficiary Address to check
      */
-    function getVestingSchedule(address beneficiary)
+    function getVestingSchedule(
+        address beneficiary
+    )
         external
         view
         returns (
@@ -285,7 +309,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Calculate releasable vested amount
      */
-    function _calculateReleasableAmount(VestingSchedule memory schedule) internal view returns (uint256) {
+    function _calculateReleasableAmount(
+        VestingSchedule memory schedule
+    ) internal view returns (uint256) {
         if (block.timestamp < schedule.startTime + schedule.cliff) {
             return 0; // Before cliff
         }
@@ -304,7 +330,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Update reward for user
      */
-    function _updateReward(address user) internal {
+    function _updateReward(
+        address user
+    ) internal {
         uint256 updatedRewardPerToken = _rewardPerToken();
         rewardPerTokenStored = updatedRewardPerToken;
         lastUpdateTime = block.timestamp;
@@ -331,7 +359,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Claim rewards for user
      */
-    function _claimRewards(address user) internal {
+    function _claimRewards(
+        address user
+    ) internal {
         uint256 rewards = accruedRewards[user];
 
         if (rewards > 0) {
@@ -342,7 +372,10 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         }
     }
 
-    function _payoutReward(address recipient, uint256 amount) internal {
+    function _payoutReward(
+        address recipient,
+        uint256 amount
+    ) internal {
         require(recipient != address(0), "Invalid recipient");
         require(amount <= rewardPoolRemaining, "Reward pool exhausted");
         require(balanceOf(address(this)) >= amount, "Insufficient reward balance");
@@ -355,7 +388,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param user Address to check
      * @return True if user has premium access (holds minimum tokens)
      */
-    function hasPremiumAccess(address user) external view returns (bool) {
+    function hasPremiumAccess(
+        address user
+    ) external view returns (bool) {
         return balanceOf(user) >= 1000 ether; // Require 1000 AETH for premium access
     }
 
@@ -364,7 +399,9 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param user Address to check
      * @return APY in basis points (e.g., 300 = 3.00%)
      */
-    function getUserStakingAPY(address user) external view returns (uint256) {
+    function getUserStakingAPY(
+        address user
+    ) external view returns (uint256) {
         uint256 baseAPY = BASE_STAKING_APY;
 
         // Governance bonus

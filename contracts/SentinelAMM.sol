@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
@@ -89,7 +89,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     event PoolRebalanced(uint256 indexed poolId, uint256 newRatio, string reason);
     event ImpermanentLossProtected(uint256 indexed poolId, address indexed provider, uint256 protectionAmount);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Create initial pools — pass feeTiers array indices (not raw fee values)
         _createPool(address(0x1), address(0x2), 1); // feeTiers[1] = 5 → 0.05% fee
@@ -169,11 +171,12 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
      * @param amountIn Input amount
      * @param minAmountOut Minimum output amount
      */
-    function executeQuantumSwap(uint256 poolId, address tokenIn, uint256 amountIn, uint256 minAmountOut)
-        external
-        nonReentrant
-        returns (uint256 amountOut)
-    {
+    function executeQuantumSwap(
+        uint256 poolId,
+        address tokenIn,
+        uint256 amountIn,
+        uint256 minAmountOut
+    ) external nonReentrant returns (uint256 amountOut) {
         require(poolId < poolCount, "Invalid pool");
         QuantumPool storage pool = pools[poolId];
         require(pool.isActive, "Pool not active");
@@ -216,7 +219,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
      * @notice AI-powered liquidity rebalancing
      * @param poolId Pool ID to rebalance
      */
-    function rebalanceQuantumPool(uint256 poolId) external {
+    function rebalanceQuantumPool(
+        uint256 poolId
+    ) external {
         require(poolId < poolCount, "Invalid pool");
         QuantumPool storage pool = pools[poolId];
         RebalanceStrategy storage strategy = rebalanceStrategies[poolId];
@@ -245,7 +250,10 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
      * @param user User address
      * @param positionIndex Position index
      */
-    function claimImpermanentLossProtection(address user, uint256 positionIndex) external {
+    function claimImpermanentLossProtection(
+        address user,
+        uint256 positionIndex
+    ) external {
         require(positionIndex < userPositions[user].length, "Invalid position");
 
         LiquidityPosition storage position = userPositions[user][positionIndex];
@@ -269,7 +277,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
      * @notice Get pool statistics with AI insights
      * @param poolId Pool ID
      */
-    function getQuantumPoolStats(uint256 poolId)
+    function getQuantumPoolStats(
+        uint256 poolId
+    )
         external
         view
         returns (
@@ -287,22 +297,19 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         uint256 predictedAPY_ = _predictPoolAPY(poolId);
         uint256 ilRisk = _calculateILRisk(poolId);
 
-        return
-            (
-                pool.reserve0,
-                pool.reserve1,
-                pool.totalLiquidity,
-                pool.feeTier,
-                pool.volatilityIndex,
-                predictedAPY_,
-                ilRisk
-            );
+        return (
+            pool.reserve0, pool.reserve1, pool.totalLiquidity, pool.feeTier, pool.volatilityIndex, predictedAPY_, ilRisk
+        );
     }
 
     /**
      * @dev Calculate output amount for swap
      */
-    function _getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut) internal pure returns (uint256) {
+    function _getAmountOut(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) internal pure returns (uint256) {
         require(amountIn > 0, "Insufficient input amount");
         require(reserveIn > 0 && reserveOut > 0, "Insufficient liquidity");
 
@@ -316,7 +323,11 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     /**
      * @dev Update pool volatility based on trade size
      */
-    function _updatePoolVolatility(uint256 poolId, uint256 amountIn, uint256 amountOut) internal {
+    function _updatePoolVolatility(
+        uint256 poolId,
+        uint256 amountIn,
+        uint256 amountOut
+    ) internal {
         QuantumPool storage pool = pools[poolId];
 
         // Calculate trade impact
@@ -336,9 +347,7 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
         uint256,
         /* currentRatio */
         uint256 targetRatio
-    )
-        internal
-    {
+    ) internal {
         QuantumPool storage pool = pools[poolId];
 
         uint256 totalValue = pool.reserve0 + pool.reserve1;
@@ -351,7 +360,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     /**
      * @dev Predict pool APY using AI algorithms
      */
-    function _predictPoolAPY(uint256 poolId) internal view returns (uint256) {
+    function _predictPoolAPY(
+        uint256 poolId
+    ) internal view returns (uint256) {
         QuantumPool storage pool = pools[poolId];
 
         // Simplified APY prediction based on fees and volatility
@@ -364,7 +375,9 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     /**
      * @dev Calculate impermanent loss risk
      */
-    function _calculateILRisk(uint256 poolId) internal view returns (uint256) {
+    function _calculateILRisk(
+        uint256 poolId
+    ) internal view returns (uint256) {
         QuantumPool storage pool = pools[poolId];
 
         // Simplified IL risk calculation
@@ -375,11 +388,10 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     /**
      * @dev Calculate current position value
      */
-    function _calculatePositionValue(LiquidityPosition memory position, QuantumPool storage pool)
-        internal
-        view
-        returns (uint256)
-    {
+    function _calculatePositionValue(
+        LiquidityPosition memory position,
+        QuantumPool storage pool
+    ) internal view returns (uint256) {
         // Calculate current value based on liquidity share
         uint256 poolValue = pool.reserve0 + pool.reserve1;
         uint256 positionValue = poolValue * position.liquidityAmount / pool.totalLiquidity;
@@ -390,7 +402,11 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     /**
      * @dev Create new quantum pool
      */
-    function _createPool(address token0, address token1, uint256 feeTier) internal returns (uint256) {
+    function _createPool(
+        address token0,
+        address token1,
+        uint256 feeTier
+    ) internal returns (uint256) {
         require(token0 != token1, "Same tokens");
         require(feeTiers[feeTier] > 0, "Invalid fee tier");
 

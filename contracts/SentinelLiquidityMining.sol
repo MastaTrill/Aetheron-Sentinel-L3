@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelLiquidityMining
@@ -71,7 +71,12 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     event FeeShared(address indexed user, uint256 amount);
     event PoolCreated(uint256 poolId, uint256 allocPoint, uint256 baseAPY);
 
-    constructor(address _lpToken, address _rewardToken, uint256 _rewardPerSecond, address initialOwner) {
+    constructor(
+        address _lpToken,
+        address _rewardToken,
+        uint256 _rewardPerSecond,
+        address initialOwner
+    ) {
         require(_lpToken != address(0), "Invalid LP token");
         require(_rewardToken != address(0), "Invalid reward token");
         require(initialOwner != address(0), "Invalid owner");
@@ -93,7 +98,10 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Create a new mining pool
      */
-    function _createPool(uint256 allocPoint, uint256 baseAPY) internal {
+    function _createPool(
+        uint256 allocPoint,
+        uint256 baseAPY
+    ) internal {
         totalAllocPoint += allocPoint;
         pools.push(
             Pool({
@@ -114,7 +122,10 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID to deposit into
      * @param amount Amount of LP tokens to deposit
      */
-    function deposit(uint256 poolId, uint256 amount) external nonReentrant whenNotPaused {
+    function deposit(
+        uint256 poolId,
+        uint256 amount
+    ) external nonReentrant whenNotPaused {
         require(poolId < pools.length, "Invalid pool");
         require(amount > 0, "Cannot deposit 0");
 
@@ -148,7 +159,10 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID to withdraw from
      * @param amount Amount to withdraw
      */
-    function withdraw(uint256 poolId, uint256 amount) external nonReentrant {
+    function withdraw(
+        uint256 poolId,
+        uint256 amount
+    ) external nonReentrant {
         require(poolId < pools.length, "Invalid pool");
         MiningPosition storage position = positions[poolId][msg.sender];
         require(position.amount >= amount, "Insufficient balance");
@@ -190,7 +204,9 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @notice Harvest rewards without withdrawing LP tokens
      * @param poolId Pool ID to harvest from
      */
-    function harvest(uint256 poolId) external nonReentrant {
+    function harvest(
+        uint256 poolId
+    ) external nonReentrant {
         require(poolId < pools.length, "Invalid pool");
         _updatePool(poolId);
 
@@ -214,7 +230,9 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @notice Emergency withdraw without rewards (penalty)
      * @param poolId Pool ID to emergency withdraw from
      */
-    function emergencyWithdraw(uint256 poolId) external nonReentrant {
+    function emergencyWithdraw(
+        uint256 poolId
+    ) external nonReentrant {
         require(poolId < pools.length, "Invalid pool");
         Pool storage pool = pools[poolId];
         require(pool.emergencyWithdrawEnabled, "Emergency withdraw not enabled");
@@ -236,7 +254,9 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @notice Distribute bridge fees to liquidity providers
      * @param feeAmount Amount of fees to distribute
      */
-    function distributeBridgeFees(uint256 feeAmount) external onlyRole(REWARD_DISTRIBUTOR_ROLE) {
+    function distributeBridgeFees(
+        uint256 feeAmount
+    ) external onlyRole(REWARD_DISTRIBUTOR_ROLE) {
         require(feeAmount > 0, "Cannot distribute 0 fees");
 
         // Distribute fees proportionally to all pools
@@ -254,7 +274,10 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID
      * @param user User address
      */
-    function getUserAPY(uint256 poolId, address user) external view returns (uint256) {
+    function getUserAPY(
+        uint256 poolId,
+        address user
+    ) external view returns (uint256) {
         if (poolId >= pools.length) return 0;
 
         MiningPosition memory position = positions[poolId][user];
@@ -274,7 +297,10 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID
      * @param user User address
      */
-    function pendingRewards(uint256 poolId, address user) external view returns (uint256) {
+    function pendingRewards(
+        uint256 poolId,
+        address user
+    ) external view returns (uint256) {
         if (poolId >= pools.length) return 0;
 
         MiningPosition memory position = positions[poolId][user];
@@ -295,7 +321,9 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Calculate boost multiplier based on stake amount
      */
-    function _calculateMultiplier(uint256 amount) internal pure returns (uint256) {
+    function _calculateMultiplier(
+        uint256 amount
+    ) internal pure returns (uint256) {
         if (amount >= 100000 ether) return PLATINUM_MULTIPLIER;
         if (amount >= 50000 ether) return GOLD_MULTIPLIER;
         if (amount >= 10000 ether) return SILVER_MULTIPLIER;
@@ -306,7 +334,10 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Calculate pending rewards for user
      */
-    function _calculatePendingRewards(uint256 poolId, address user) internal view returns (uint256) {
+    function _calculatePendingRewards(
+        uint256 poolId,
+        address user
+    ) internal view returns (uint256) {
         MiningPosition memory position = positions[poolId][user];
         Pool memory pool = pools[poolId];
 
@@ -323,7 +354,9 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Update pool rewards
      */
-    function _updatePool(uint256 poolId) internal {
+    function _updatePool(
+        uint256 poolId
+    ) internal {
         Pool storage pool = pools[poolId];
         if (block.timestamp <= pool.lastRewardTime) return;
 

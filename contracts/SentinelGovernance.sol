@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title SentinelGovernance
@@ -68,7 +68,10 @@ contract SentinelGovernance is
     event EmergencyProtocolActivated(uint256 indexed proposalId, string reason);
     event GovernanceReputationUpdated(address indexed voter, uint256 newReputation);
 
-    constructor(IVotes _token, TimelockController _timelock)
+    constructor(
+        IVotes _token,
+        TimelockController _timelock
+    )
         Governor("SentinelGovernance")
         GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 100)
         GovernorVotes(_token)
@@ -162,11 +165,12 @@ contract SentinelGovernance is
      * @param reason Vote reason
      * @param params Additional vote parameters
      */
-    function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string calldata reason, bytes memory params)
-        public
-        override(Governor)
-        returns (uint256)
-    {
+    function castVoteWithReasonAndParams(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params
+    ) public override(Governor) returns (uint256) {
         uint256 weight = super.castVoteWithReasonAndParams(proposalId, support, reason, params);
 
         // Update governance reputation based on participation
@@ -179,11 +183,9 @@ contract SentinelGovernance is
      * @notice Get voting parameters based on proposal category
      * @param proposalId Proposal ID
      */
-    function getVotingParameters(uint256 proposalId)
-        external
-        view
-        returns (uint256 delay, uint256 period, uint256 quorumPercentage)
-    {
+    function getVotingParameters(
+        uint256 proposalId
+    ) external view returns (uint256 delay, uint256 period, uint256 quorumPercentage) {
         EnhancedProposal memory proposal = enhancedProposals[proposalId];
 
         if (proposal.category == ProposalCategory.EMERGENCY) {
@@ -199,7 +201,9 @@ contract SentinelGovernance is
      * @notice Check if proposal can be executed
      * @param proposalId Proposal ID
      */
-    function canExecute(uint256 proposalId) external view returns (bool) {
+    function canExecute(
+        uint256 proposalId
+    ) external view returns (bool) {
         if (state(proposalId) != IGovernor.ProposalState.Succeeded) {
             return false;
         }
@@ -225,7 +229,10 @@ contract SentinelGovernance is
      * @param proposalId Proposal ID
      * @param quantumProof The quantum proof hash
      */
-    function submitQuantumProof(uint256 proposalId, bytes32 quantumProof) external onlyOwner {
+    function submitQuantumProof(
+        uint256 proposalId,
+        bytes32 quantumProof
+    ) external onlyOwner {
         require(quantumProof != bytes32(0), "Invalid quantum proof");
         EnhancedProposal storage proposal = enhancedProposals[proposalId];
         require(proposal.requiresQuantumValidation, "Proposal does not require quantum validation");
@@ -263,7 +270,10 @@ contract SentinelGovernance is
     /**
      * @notice Update governance reputation
      */
-    function _updateGovernanceReputation(address voter, uint256 votingWeight) internal {
+    function _updateGovernanceReputation(
+        address voter,
+        uint256 votingWeight
+    ) internal {
         // Reputation increases with consistent voting
         uint256 reputationIncrease = votingWeight / 1000; // 0.1% of voting weight
         governanceReputation[voter] = governanceReputation[voter] + reputationIncrease;
@@ -282,16 +292,15 @@ contract SentinelGovernance is
     }
 
     // The following functions are overrides required by Solidity
-    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
+    function state(
+        uint256 proposalId
+    ) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 
-    function proposalNeedsQueuing(uint256 proposalId)
-        public
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (bool)
-    {
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
         return super.proposalNeedsQueuing(proposalId);
     }
 
@@ -329,7 +338,9 @@ contract SentinelGovernance is
         return super._executor();
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(Governor) returns (bool) {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(Governor) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 

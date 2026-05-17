@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title AetheronBridge
@@ -60,7 +60,9 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
     event EmergencyUnpaused(address indexed unpauser);
     event RelayerUpdated(address indexed relayer, bool authorized);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
@@ -73,12 +75,12 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param chainId Destination chain ID
      * @param tokenAddress Token contract address
      */
-    function bridgeTokens(address recipient, uint256 amount, uint256 chainId, address tokenAddress)
-        external
-        payable
-        nonReentrant
-        whenNotPaused
-    {
+    function bridgeTokens(
+        address recipient,
+        uint256 amount,
+        uint256 chainId,
+        address tokenAddress
+    ) external payable nonReentrant whenNotPaused {
         require(amount > 0, "Amount must be positive");
         require(recipient != address(0), "Invalid recipient");
         require(chainId != block.chainid, "Cannot bridge to same chain");
@@ -121,7 +123,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         // Refund excess fee — use call() to support smart contract wallets
         if (msg.value > bridgeFee) {
-            (bool refundOk,) = payable(msg.sender).call{value: msg.value - bridgeFee}("");
+            (bool refundOk,) = payable(msg.sender).call{ value: msg.value - bridgeFee }("");
             require(refundOk, "Fee refund failed");
         }
 
@@ -133,7 +135,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param transferId Original transfer ID
      * @param signature Oracle/relayer signature for validation
      */
-    function unbridgeTokens(bytes32 transferId, bytes calldata signature) external nonReentrant {
+    function unbridgeTokens(
+        bytes32 transferId,
+        bytes calldata signature
+    ) external nonReentrant {
         Transfer storage transfer = transfers[transferId];
         require(!transfer.completed, "Transfer already completed");
         require(transfer.amount > 0, "Invalid transfer");
@@ -162,7 +167,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param signature Signature to recover from
      * @return signer The recovered signer address
      */
-    function recoverSigner(bytes32 messageHash, bytes memory signature) internal pure returns (address) {
+    function recoverSigner(
+        bytes32 messageHash,
+        bytes memory signature
+    ) internal pure returns (address) {
         require(signature.length == 65, "Invalid signature length");
 
         bytes32 r;
@@ -185,7 +193,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param relayer Relayer address
      * @param authorized Whether the relayer should be authorized
      */
-    function setRelayer(address relayer, bool authorized) external onlyOwner {
+    function setRelayer(
+        address relayer,
+        bool authorized
+    ) external onlyOwner {
         require(relayer != address(0), "Invalid relayer");
         if (authorized) {
             _grantRole(RELAYER_ROLE, relayer);
@@ -200,7 +211,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param tokenAddress Token contract address
      * @param supported Whether to support this token
      */
-    function setTokenSupport(address tokenAddress, bool supported) external onlyRole(OPERATOR_ROLE) {
+    function setTokenSupport(
+        address tokenAddress,
+        bool supported
+    ) external onlyRole(OPERATOR_ROLE) {
         require(tokenAddress != address(0), "Invalid token address");
         if (supported && !supportedTokens[tokenAddress]) {
             supportedTokenCount++;
@@ -216,7 +230,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param chainId Chain ID
      * @param limit Maximum transfer amount
      */
-    function setChainLimit(uint256 chainId, uint256 limit) external onlyRole(OPERATOR_ROLE) {
+    function setChainLimit(
+        uint256 chainId,
+        uint256 limit
+    ) external onlyRole(OPERATOR_ROLE) {
         require(chainId != 0, "Invalid chain ID");
         require(chainId != block.chainid, "Cannot set local chain limit");
         require(limit > 0, "Limit must be positive");
@@ -228,7 +245,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param tokenAddress Token contract address
      * @param initialSupply Initial supply to bridge
      */
-    function initializeBridge(address tokenAddress, uint256 initialSupply) external onlyRole(OPERATOR_ROLE) {
+    function initializeBridge(
+        address tokenAddress,
+        uint256 initialSupply
+    ) external onlyRole(OPERATOR_ROLE) {
         require(tokenAddress != address(0), "Invalid token address");
         require(initialSupply > 0, "Initial supply must be positive");
 
@@ -260,7 +280,9 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @notice Set bridge fee
      * @param newFee New fee amount in wei
      */
-    function setBridgeFee(uint256 newFee) external onlyRole(OPERATOR_ROLE) {
+    function setBridgeFee(
+        uint256 newFee
+    ) external onlyRole(OPERATOR_ROLE) {
         require(newFee <= 0.01 ether, "Fee too high"); // Max 1%
         bridgeFee = newFee;
     }
@@ -272,7 +294,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
         address payable recipient = payable(owner());
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
-        (bool ok,) = recipient.call{value: balance}("");
+        (bool ok,) = recipient.call{ value: balance }("");
         require(ok, "Fee withdrawal failed");
     }
 
@@ -280,7 +302,9 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @notice Transfer ownership and migrate privileged bridge roles to the new owner
      * @param newOwner New owner address
      */
-    function transferOwnership(address newOwner) public override onlyOwner {
+    function transferOwnership(
+        address newOwner
+    ) public override onlyOwner {
         require(newOwner != address(0), "Invalid owner");
         address previousOwner = owner();
         super.transferOwnership(newOwner);
@@ -302,7 +326,9 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @notice Check if transfer can be processed
      * @param transferId Transfer ID to check
      */
-    function canProcessTransfer(bytes32 transferId) external view returns (bool) {
+    function canProcessTransfer(
+        bytes32 transferId
+    ) external view returns (bool) {
         Transfer memory transfer = transfers[transferId];
         return !transfer.completed && transfer.amount > 0;
     }

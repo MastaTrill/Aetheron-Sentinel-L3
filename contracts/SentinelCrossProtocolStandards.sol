@@ -144,7 +144,10 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Revoke protocol certification
      */
-    function revokeCertification(address protocolAddress, bytes32 standardId) external {
+    function revokeCertification(
+        address protocolAddress,
+        bytes32 standardId
+    ) external {
         require(isCertifyingAuthority(msg.sender), "Not authorized");
 
         ProtocolCertification[] storage certs = protocolCertifications[protocolAddress];
@@ -175,11 +178,10 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Check protocol certification status
      */
-    function isProtocolCertified(address protocolAddress, bytes32 standardId)
-        external
-        view
-        returns (bool, ComplianceLevel)
-    {
+    function isProtocolCertified(
+        address protocolAddress,
+        bytes32 standardId
+    ) external view returns (bool, ComplianceLevel) {
         ProtocolCertification[] memory certs = protocolCertifications[protocolAddress];
 
         for (uint256 i = 0; i < certs.length; i++) {
@@ -194,14 +196,18 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Get protocol certifications
      */
-    function getProtocolCertifications(address protocolAddress) external view returns (ProtocolCertification[] memory) {
+    function getProtocolCertifications(
+        address protocolAddress
+    ) external view returns (ProtocolCertification[] memory) {
         return protocolCertifications[protocolAddress];
     }
 
     /**
      * @notice Get standard details
      */
-    function getStandard(bytes32 standardId) external view returns (SecurityStandard memory) {
+    function getStandard(
+        bytes32 standardId
+    ) external view returns (SecurityStandard memory) {
         return standards[standardId];
     }
 
@@ -215,7 +221,9 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Add certifying authority
      */
-    function addCertifyingAuthority(address authority) external onlyOwner {
+    function addCertifyingAuthority(
+        address authority
+    ) external onlyOwner {
         require(!isCertifyingAuthority(authority), "Already a certifying authority");
         certifyingAuthorities.push(authority);
     }
@@ -223,7 +231,9 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Remove certifying authority
      */
-    function removeCertifyingAuthority(address authority) external onlyOwner {
+    function removeCertifyingAuthority(
+        address authority
+    ) external onlyOwner {
         for (uint256 i = 0; i < certifyingAuthorities.length; i++) {
             if (certifyingAuthorities[i] == authority) {
                 certifyingAuthorities[i] = certifyingAuthorities[certifyingAuthorities.length - 1];
@@ -236,7 +246,9 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Check if address is certifying authority
      */
-    function isCertifyingAuthority(address authority) public view returns (bool) {
+    function isCertifyingAuthority(
+        address authority
+    ) public view returns (bool) {
         for (uint256 i = 0; i < certifyingAuthorities.length; i++) {
             if (certifyingAuthorities[i] == authority) {
                 return true;
@@ -248,7 +260,10 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Update standard version
      */
-    function updateStandardVersion(bytes32 standardId, string[] memory newRequirements) external onlyOwner {
+    function updateStandardVersion(
+        bytes32 standardId,
+        string[] memory newRequirements
+    ) external onlyOwner {
         SecurityStandard storage standard = standards[standardId];
         require(standard.isActive, "Standard not active");
 
@@ -259,7 +274,9 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Deactivate standard
      */
-    function deactivateStandard(bytes32 standardId) external onlyOwner {
+    function deactivateStandard(
+        bytes32 standardId
+    ) external onlyOwner {
         standards[standardId].isActive = false;
 
         // Remove from active standards
@@ -275,7 +292,9 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Get standards by category
      */
-    function getStandardsByCategory(StandardCategory category) external view returns (bytes32[] memory) {
+    function getStandardsByCategory(
+        StandardCategory category
+    ) external view returns (bytes32[] memory) {
         bytes32[] memory categoryStandards = new bytes32[](activeStandards.length);
         uint256 count = 0;
 

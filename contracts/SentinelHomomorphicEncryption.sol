@@ -49,7 +49,9 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
     event HomomorphicOperationPerformed(bytes32 indexed resultId, uint256 operationType);
     event CiphertextDecrypted(bytes32 indexed ciphertextId, uint256 plaintext);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializeHomomorphicSystem();
     }
@@ -60,7 +62,10 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param randomness Randomness for encryption
      * @return ciphertextId Unique identifier for the encrypted data
      */
-    function encryptValue(uint256 value, uint256 randomness) external returns (bytes32) {
+    function encryptValue(
+        uint256 value,
+        uint256 randomness
+    ) external returns (bytes32) {
         require(value < 2 ** 32, "Value too large for demonstration");
         require(randomness != 0, "Randomness cannot be zero");
 
@@ -95,7 +100,10 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param ciphertextId2 Second ciphertext ID
      * @return resultId ID of the homomorphic operation result
      */
-    function homomorphicAdd(bytes32 ciphertextId1, bytes32 ciphertextId2) external returns (bytes32) {
+    function homomorphicAdd(
+        bytes32 ciphertextId1,
+        bytes32 ciphertextId2
+    ) external returns (bytes32) {
         require(_ciphertextExists(ciphertextId1), "Ciphertext 1 does not exist");
         require(_ciphertextExists(ciphertextId2), "Ciphertext 2 does not exist");
 
@@ -131,7 +139,10 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param multiplier Constant to multiply by
      * @return resultId ID of the homomorphic operation result
      */
-    function homomorphicMultiplyConstant(bytes32 ciphertextId, uint256 multiplier) external returns (bytes32) {
+    function homomorphicMultiplyConstant(
+        bytes32 ciphertextId,
+        uint256 multiplier
+    ) external returns (bytes32) {
         require(_ciphertextExists(ciphertextId), "Ciphertext does not exist");
         require(multiplier > 0 && multiplier < 1000, "Invalid constant");
 
@@ -165,7 +176,10 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param threshold Threshold value
      * @return resultId ID of the comparison result
      */
-    function homomorphicCompare(bytes32 ciphertextId, uint256 threshold) external returns (bytes32) {
+    function homomorphicCompare(
+        bytes32 ciphertextId,
+        uint256 threshold
+    ) external returns (bytes32) {
         require(_ciphertextExists(ciphertextId), "Ciphertext does not exist");
 
         Ciphertext memory ct = ciphertexts[ciphertextId];
@@ -198,7 +212,10 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param decryptionKey Decryption key (simplified)
      * @return plaintext Decrypted value
      */
-    function decryptCiphertext(bytes32 ciphertextId, bytes32 decryptionKey) external returns (uint256) {
+    function decryptCiphertext(
+        bytes32 ciphertextId,
+        bytes32 decryptionKey
+    ) external returns (uint256) {
         require(_ciphertextExists(ciphertextId), "Ciphertext does not exist");
 
         Ciphertext memory ct = ciphertexts[ciphertextId];
@@ -225,7 +242,9 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param resultId Result to verify
      * @return isValid Whether the result is valid
      */
-    function verifyHomomorphicResult(bytes32 resultId) external view returns (bool) {
+    function verifyHomomorphicResult(
+        bytes32 resultId
+    ) external view returns (bool) {
         HomomorphicResult memory result = homomorphicResults[resultId];
         require(result.computationTime > 0, "Result does not exist");
 
@@ -238,11 +257,9 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @notice Get ciphertext information
      * @param ciphertextId Ciphertext to query
      */
-    function getCiphertext(bytes32 ciphertextId)
-        external
-        view
-        returns (bytes32 c1, bytes32 c2, address encryptor, uint256 timestamp, bool isExpired)
-    {
+    function getCiphertext(
+        bytes32 ciphertextId
+    ) external view returns (bytes32 c1, bytes32 c2, address encryptor, uint256 timestamp, bool isExpired) {
         Ciphertext memory ct = ciphertexts[ciphertextId];
         bool expired = block.timestamp > ct.timestamp + CIPHERTEXT_EXPIRY;
 
@@ -253,7 +270,9 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @notice Get homomorphic operation result
      * @param resultId Result to query
      */
-    function getHomomorphicResult(bytes32 resultId)
+    function getHomomorphicResult(
+        bytes32 resultId
+    )
         external
         view
         returns (
@@ -316,14 +335,18 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
     /**
      * @dev Check if ciphertext exists
      */
-    function _ciphertextExists(bytes32 ciphertextId) internal view returns (bool) {
+    function _ciphertextExists(
+        bytes32 ciphertextId
+    ) internal view returns (bool) {
         return ciphertexts[ciphertextId].timestamp > 0;
     }
 
     /**
      * @dev Check if ciphertext is expired
      */
-    function _isCiphertextExpired(bytes32 ciphertextId) internal view returns (bool) {
+    function _isCiphertextExpired(
+        bytes32 ciphertextId
+    ) internal view returns (bool) {
         Ciphertext memory ct = ciphertexts[ciphertextId];
         return block.timestamp > ct.timestamp + CIPHERTEXT_EXPIRY;
     }

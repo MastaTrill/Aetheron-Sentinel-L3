@@ -8,9 +8,12 @@ import "@openzeppelin/contracts/governance/TimelockController.sol";
  * @notice Time-locked governance for critical Sentinel operations
  */
 contract SentinelTimelock is TimelockController {
-    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin)
-        TimelockController(minDelay, proposers, executors, admin)
-    {}
+    constructor(
+        uint256 minDelay,
+        address[] memory proposers,
+        address[] memory executors,
+        address admin
+    ) TimelockController(minDelay, proposers, executors, admin) { }
 
     /**
      * @notice Schedule a critical operation with time delay

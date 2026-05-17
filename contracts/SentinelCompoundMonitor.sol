@@ -46,7 +46,11 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
 
     event LiquidationAlert(address indexed borrower, uint256 collateralValue, uint256 debtValue, uint256 healthFactor);
 
-    constructor(address _comptroller, address _cEther, address _priceOracle) Ownable(msg.sender) {
+    constructor(
+        address _comptroller,
+        address _cEther,
+        address _priceOracle
+    ) Ownable(msg.sender) {
         comptroller = IComptroller(_comptroller);
         cEther = ICEther(_cEther);
         priceOracle = IPriceOracle(_priceOracle);
@@ -55,7 +59,12 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Monitor lending activity
      */
-    function monitorLendingActivity(address user, address cToken, uint256 amount, bool isBorrow) external {
+    function monitorLendingActivity(
+        address user,
+        address cToken,
+        uint256 amount,
+        bool isBorrow
+    ) external {
         // Check for large borrows
         if (isBorrow && amount > LARGE_BORROW_THRESHOLD) {
             _recordAnomaly(user, cToken, amount, AnomalyType.LARGE_BORROW);
@@ -73,7 +82,9 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Check user's liquidation risk
      */
-    function _checkLiquidationRisk(address user) internal {
+    function _checkLiquidationRisk(
+        address user
+    ) internal {
         (uint256 collateralValue, uint256 debtValue, uint256 healthFactor) = _calculateHealthFactor(user);
 
         if (healthFactor < LIQUIDATION_THRESHOLD) {
@@ -84,11 +95,9 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Calculate health factor for user
      */
-    function _calculateHealthFactor(address user)
-        internal
-        view
-        returns (uint256 collateralValue, uint256 debtValue, uint256 healthFactor)
-    {
+    function _calculateHealthFactor(
+        address user
+    ) internal view returns (uint256 collateralValue, uint256 debtValue, uint256 healthFactor) {
         // Get user's account liquidity
         (uint256 error, uint256 liquidity, uint256 shortfall) = comptroller.getAccountLiquidity(user);
 
@@ -107,7 +116,10 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Detect flash loan patterns
      */
-    function _isFlashLoanPattern(address, uint256 amount) internal pure returns (bool) {
+    function _isFlashLoanPattern(
+        address,
+        uint256 amount
+    ) internal pure returns (bool) {
         // Check for rapid borrow-repay patterns
         // This would require transaction history analysis
         return amount > FLASH_LOAN_THRESHOLD;
@@ -116,7 +128,12 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Record security anomaly
      */
-    function _recordAnomaly(address user, address cToken, uint256 amount, AnomalyType anomalyType) internal {
+    function _recordAnomaly(
+        address user,
+        address cToken,
+        uint256 amount,
+        AnomalyType anomalyType
+    ) internal {
         anomalies.push(
             LendingAnomaly({
                 user: user, cToken: cToken, amount: amount, timestamp: block.timestamp, anomalyType: anomalyType
@@ -133,7 +150,10 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Calculate anomaly severity
      */
-    function _calculateSeverity(AnomalyType anomalyType, uint256 amount) internal pure returns (uint256) {
+    function _calculateSeverity(
+        AnomalyType anomalyType,
+        uint256 amount
+    ) internal pure returns (uint256) {
         if (anomalyType == AnomalyType.FLASH_LOAN_ATTACK) return 9;
         if (anomalyType == AnomalyType.LARGE_BORROW && amount > 5000000 ether) return 8;
         if (anomalyType == AnomalyType.LIQUIDATION_RISK) return 7;
@@ -143,7 +163,9 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Get anomalies for user
      */
-    function getUserAnomalies(address user) external view returns (LendingAnomaly[] memory) {
+    function getUserAnomalies(
+        address user
+    ) external view returns (LendingAnomaly[] memory) {
         uint256 count = userAnomalyCount[user];
         LendingAnomaly[] memory userAnomalies = new LendingAnomaly[](count);
 
@@ -161,7 +183,9 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     /**
      * @notice Emergency pause for high-severity anomalies
      */
-    function emergencyPause(address cToken) external onlyOwner {
+    function emergencyPause(
+        address cToken
+    ) external onlyOwner {
         // Implementation would pause the cToken contract
         // This is a simplified version
     }
@@ -169,15 +193,21 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
 
 // Compound interface definitions
 interface IComptroller {
-    function getAccountLiquidity(address account) external view returns (uint256, uint256, uint256);
+    function getAccountLiquidity(
+        address account
+    ) external view returns (uint256, uint256, uint256);
 }
 
 interface ICEther {
-    function borrow(uint256 borrowAmount) external returns (uint256);
+    function borrow(
+        uint256 borrowAmount
+    ) external returns (uint256);
 
     function repayBorrow() external payable;
 }
 
 interface IPriceOracle {
-    function getUnderlyingPrice(address cToken) external view returns (uint256);
+    function getUnderlyingPrice(
+        address cToken
+    ) external view returns (uint256);
 }

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelReferralSystem
@@ -65,7 +65,10 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
     event TierUpgraded(address indexed user, uint256 newTier);
     event ActivityBonus(address indexed user, uint256 amount, string activityType);
 
-    constructor(address _rewardToken, address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address _rewardToken,
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         require(_rewardToken != address(0), "Invalid reward token");
         rewardToken = _rewardToken;
@@ -123,7 +126,9 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Register as a referrer or join with referral code
      * @param referrerAddress Address of the referrer (0x0 for no referrer)
      */
-    function register(address referrerAddress) external whenNotPaused {
+    function register(
+        address referrerAddress
+    ) external whenNotPaused {
         require(!isRegistered[msg.sender], "Already registered");
 
         isRegistered[msg.sender] = true;
@@ -148,7 +153,9 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Record user activity for bonus rewards
      * @param activityType Type of activity performed
      */
-    function recordActivity(string calldata activityType) external {
+    function recordActivity(
+        string calldata activityType
+    ) external {
         require(isRegistered[msg.sender], "Not registered");
 
         // Reset monthly activity if needed
@@ -172,7 +179,9 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Get user's referral APY bonus
      * @param user User address
      */
-    function getReferralAPY(address user) external view returns (uint256) {
+    function getReferralAPY(
+        address user
+    ) external view returns (uint256) {
         if (!isRegistered[user]) return 0;
 
         ReferralInfo memory userReferral = referrals[user];
@@ -194,7 +203,9 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Get user's referral statistics
      * @param user User address
      */
-    function getReferralStats(address user)
+    function getReferralStats(
+        address user
+    )
         external
         view
         returns (
@@ -216,14 +227,19 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Get user's referred addresses
      * @param user User address
      */
-    function getReferredUsers(address user) external view returns (address[] memory) {
+    function getReferredUsers(
+        address user
+    ) external view returns (address[] memory) {
         return referredUsers[user];
     }
 
     /**
      * @notice Award referral reward to referrer
      */
-    function _awardReferralReward(address referrer, address referee) internal {
+    function _awardReferralReward(
+        address referrer,
+        address referee
+    ) internal {
         ReferralInfo storage referrerInfo = referrals[referrer];
         ReferralTier memory referrerTier = tiers[referrerInfo.tier];
 
@@ -243,7 +259,9 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Check if user qualifies for tier upgrade
      */
-    function _checkTierUpgrade(address user) internal {
+    function _checkTierUpgrade(
+        address user
+    ) internal {
         ReferralInfo storage userReferral = referrals[user];
         uint256 currentTier = userReferral.tier;
 
@@ -261,7 +279,9 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Calculate activity bonus based on type
      */
-    function _calculateActivityBonus(string memory activityType) internal pure returns (uint256) {
+    function _calculateActivityBonus(
+        string memory activityType
+    ) internal pure returns (uint256) {
         bytes32 activityHash = keccak256(abi.encodePacked(activityType));
 
         if (activityHash == keccak256(abi.encodePacked("stake"))) {
@@ -280,7 +300,10 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Distribute reward tokens
      */
-    function _distributeReward(address recipient, uint256 amount) internal {
+    function _distributeReward(
+        address recipient,
+        uint256 amount
+    ) internal {
         if (amount == 0) return;
         if (rewardToken == address(0)) {
             totalRewardsDistributed += amount;
@@ -295,7 +318,10 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @param referrer Referrer address
      * @param activeCount New active count
      */
-    function updateActiveReferrals(address referrer, uint256 activeCount) external onlyOwner {
+    function updateActiveReferrals(
+        address referrer,
+        uint256 activeCount
+    ) external onlyOwner {
         referrals[referrer].activeReferrals = activeCount;
     }
 

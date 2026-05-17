@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
@@ -60,7 +60,7 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     event SecurityNFTMinted(uint256 indexed tokenId, address indexed creator, AssetType assetType);
     event TokenTransferred(address indexed token, address indexed from, address indexed to, uint256 amount);
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) { }
 
     /**
      * @notice Create ERC20 Security Token
@@ -136,7 +136,11 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Transfer security token
      */
-    function transferSecurityToken(address tokenAddress, address to, uint256 amount) external nonReentrant {
+    function transferSecurityToken(
+        address tokenAddress,
+        address to,
+        uint256 amount
+    ) external nonReentrant {
         SecurityToken memory token = securityTokens[tokenAddress];
         require(token.isActive, "Token not active");
         require(token.expiryDate > block.timestamp, "Token expired");
@@ -150,7 +154,10 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Transfer security NFT (if transferable)
      */
-    function transferSecurityNFT(uint256 tokenId, address) external nonReentrant {
+    function transferSecurityNFT(
+        uint256 tokenId,
+        address
+    ) external nonReentrant {
         SecurityNFT storage nft = securityNFTs[tokenId];
         require(nft.creator == msg.sender, "Not NFT owner");
         require(nft.isTransferable, "NFT not transferable");
@@ -159,7 +166,11 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Authorize NFT holder
      */
-    function authorizeNFTHolder(uint256 tokenId, address holder, bool authorized) external {
+    function authorizeNFTHolder(
+        uint256 tokenId,
+        address holder,
+        bool authorized
+    ) external {
         SecurityNFT storage nft = securityNFTs[tokenId];
         require(nft.creator == msg.sender, "Not NFT creator");
 
@@ -169,14 +180,20 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Check NFT authorization
      */
-    function isAuthorizedHolder(uint256 tokenId, address holder) external view returns (bool) {
+    function isAuthorizedHolder(
+        uint256 tokenId,
+        address holder
+    ) external view returns (bool) {
         return nftAuthorizedHolders[tokenId][holder];
     }
 
     /**
      * @notice Redeem security asset value
      */
-    function redeemSecurityAsset(address tokenAddress, uint256 amount) external nonReentrant {
+    function redeemSecurityAsset(
+        address tokenAddress,
+        uint256 amount
+    ) external nonReentrant {
         SecurityToken memory token = securityTokens[tokenAddress];
         require(token.isActive, "Token not active");
         require(token.creator == msg.sender, "Not token creator");
@@ -188,14 +205,18 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Get token details
      */
-    function getTokenDetails(address tokenAddress) external view returns (SecurityToken memory) {
+    function getTokenDetails(
+        address tokenAddress
+    ) external view returns (SecurityToken memory) {
         return securityTokens[tokenAddress];
     }
 
     /**
      * @notice Get NFT details
      */
-    function getNFTDetails(uint256 tokenId)
+    function getNFTDetails(
+        uint256 tokenId
+    )
         external
         view
         returns (address creator, AssetType assetType, string memory title, uint256 value, bool isTransferable)
@@ -214,7 +235,9 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Update platform fee
      */
-    function setPlatformFee(uint256 newFee) external onlyOwner {
+    function setPlatformFee(
+        uint256 newFee
+    ) external onlyOwner {
         require(newFee <= 1000, "Fee cannot exceed 10%");
         platformFee = newFee;
     }
@@ -222,7 +245,9 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     /**
      * @notice Deactivate security token
      */
-    function deactivateToken(address tokenAddress) external onlyOwner {
+    function deactivateToken(
+        address tokenAddress
+    ) external onlyOwner {
         securityTokens[tokenAddress].isActive = false;
     }
 
@@ -239,14 +264,19 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
  * @notice ERC20 token for security assets
  */
 contract SecurityERC20 is ERC20, Ownable {
-    constructor(string memory name, string memory symbol, uint256 initialSupply, address creator)
-        ERC20(name, symbol)
-        Ownable(creator)
-    {
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address creator
+    ) ERC20(name, symbol) Ownable(creator) {
         _mint(creator, initialSupply);
     }
 
-    function burnFrom(address account, uint256 amount) external onlyOwner {
+    function burnFrom(
+        address account,
+        uint256 amount
+    ) external onlyOwner {
         _burn(account, amount);
     }
 }

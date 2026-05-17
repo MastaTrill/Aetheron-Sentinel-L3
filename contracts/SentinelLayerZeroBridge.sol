@@ -28,7 +28,9 @@ contract SentinelLayerZeroBridge is LzApp {
     event SecurityEventReceived(uint256 eventId, uint16 srcChainId, address reporter, uint256 severity);
     event SecurityEventSent(uint256 eventId, uint16 dstChainId, address dstAddress);
 
-    constructor(address _lzEndpoint) LzApp(_lzEndpoint) {
+    constructor(
+        address _lzEndpoint
+    ) LzApp(_lzEndpoint) {
         // lzEndpoint is already set by LzApp constructor
     }
 
@@ -68,7 +70,12 @@ contract SentinelLayerZeroBridge is LzApp {
     /**
      * @notice Receive security event from another chain
      */
-    function _blockingLzReceive(uint16 _srcChainId, bytes memory, uint64, bytes memory _payload) internal override {
+    function _blockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory,
+        uint64,
+        bytes memory _payload
+    ) internal override {
         (uint256 eventId, uint256 severity, bytes memory data, address reporter) =
             abi.decode(_payload, (uint256, uint256, bytes, address));
 
@@ -92,14 +99,20 @@ contract SentinelLayerZeroBridge is LzApp {
     /**
      * @notice Configure destination chain addresses
      */
-    function setChainAddress(uint16 _chainId, bytes calldata _address) external onlyOwner {
+    function setChainAddress(
+        uint16 _chainId,
+        bytes calldata _address
+    ) external onlyOwner {
         chainIdToAddress[_chainId] = _address;
     }
 
     /**
      * @notice Handle incoming security events
      */
-    function _handleSecurityEvent(uint256 _severity, bytes memory _data) internal {
+    function _handleSecurityEvent(
+        uint256 _severity,
+        bytes memory _data
+    ) internal {
         // Implement Sentinel response logic
         // - Update local security metrics
         // - Trigger automated responses
@@ -109,11 +122,11 @@ contract SentinelLayerZeroBridge is LzApp {
     /**
      * @notice Estimate fees for cross-chain message
      */
-    function estimateFees(uint16 _dstChainId, bytes calldata _payload, bytes calldata _adapterParams)
-        external
-        view
-        returns (uint256, uint256)
-    {
+    function estimateFees(
+        uint16 _dstChainId,
+        bytes calldata _payload,
+        bytes calldata _adapterParams
+    ) external view returns (uint256, uint256) {
         return lzEndpoint.estimateFees(_dstChainId, address(this), _payload, false, _adapterParams);
     }
 }

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelInsurancePool
@@ -75,7 +75,10 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
 
     event PoolUpdated(PolicyType indexed policyType, uint256 totalCoverage, uint256 utilizationRate);
 
-    constructor(address _premiumToken, address _payoutToken) Ownable(msg.sender) {
+    constructor(
+        address _premiumToken,
+        address _payoutToken
+    ) Ownable(msg.sender) {
         premiumToken = IERC20(_premiumToken);
         payoutToken = IERC20(_payoutToken);
 
@@ -134,10 +137,12 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @notice File insurance claim
      */
-    function fileClaim(uint256 policyId, uint256 claimAmount, string memory evidence, bytes memory proof)
-        external
-        nonReentrant
-    {
+    function fileClaim(
+        uint256 policyId,
+        uint256 claimAmount,
+        string memory evidence,
+        bytes memory proof
+    ) external nonReentrant {
         InsurancePolicy storage policy = policies[policyId];
         require(policy.policyHolder == msg.sender, "Not policy holder");
         require(policy.isActive, "Policy not active");
@@ -161,25 +166,27 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @notice Get policy details
      */
-    function getPolicy(uint256 policyId) external view returns (InsurancePolicy memory) {
+    function getPolicy(
+        uint256 policyId
+    ) external view returns (InsurancePolicy memory) {
         return policies[policyId];
     }
 
     /**
      * @notice Get user's policies
      */
-    function getUserPolicies(address user) external view returns (uint256[] memory) {
+    function getUserPolicies(
+        address user
+    ) external view returns (uint256[] memory) {
         return userPolicies[user];
     }
 
     /**
      * @notice Get pool statistics
      */
-    function getPoolStats(PolicyType policyType)
-        external
-        view
-        returns (uint256 totalCoverage, uint256 totalPremiums, uint256 utilizationRate, bool isActive)
-    {
+    function getPoolStats(
+        PolicyType policyType
+    ) external view returns (uint256 totalCoverage, uint256 totalPremiums, uint256 utilizationRate, bool isActive) {
         InsurancePool memory pool = insurancePools[policyType];
         return (pool.totalCoverage, pool.totalPremiums, pool.utilizationRate, pool.isActive);
     }
@@ -187,22 +194,22 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @notice Calculate premium amount
      */
-    function calculatePremium(PolicyType policyType, uint256 coverageAmount, uint256 coveragePeriod)
-        external
-        pure
-        returns (uint256)
-    {
+    function calculatePremium(
+        PolicyType policyType,
+        uint256 coverageAmount,
+        uint256 coveragePeriod
+    ) external pure returns (uint256) {
         return _calculatePremium(policyType, coverageAmount, coveragePeriod);
     }
 
     /**
      * @dev Calculate premium internally
      */
-    function _calculatePremium(PolicyType policyType, uint256 coverageAmount, uint256 coveragePeriod)
-        internal
-        pure
-        returns (uint256)
-    {
+    function _calculatePremium(
+        PolicyType policyType,
+        uint256 coverageAmount,
+        uint256 coveragePeriod
+    ) internal pure returns (uint256) {
         uint256 baseRate;
         if (policyType == PolicyType.SMART_CONTRACT_EXPLOIT) baseRate = EXPLOIT_PREMIUM_RATE;
         else if (policyType == PolicyType.IMPERMANENT_LOSS) baseRate = IL_PREMIUM_RATE;
@@ -224,7 +231,12 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @dev Validate insurance claim
      */
-    function _validateClaim(PolicyType, address, string memory evidence, bytes memory) internal pure returns (bool) {
+    function _validateClaim(
+        PolicyType,
+        address,
+        string memory evidence,
+        bytes memory
+    ) internal pure returns (bool) {
         if (bytes(evidence).length == 0) return false;
         if (bytes(evidence).length < 32) return false;
         return true;
@@ -233,7 +245,10 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @dev Process insurance payout
      */
-    function _processPayout(uint256 policyId, uint256 payoutAmount) internal {
+    function _processPayout(
+        uint256 policyId,
+        uint256 payoutAmount
+    ) internal {
         // Transfer payout from reserve
         require(payoutToken.balanceOf(address(this)) >= payoutAmount, "Insufficient payout reserve");
 
@@ -248,7 +263,9 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @dev Calculate utilization rate
      */
-    function _calculateUtilizationRate(PolicyType policyType) internal view returns (uint256) {
+    function _calculateUtilizationRate(
+        PolicyType policyType
+    ) internal view returns (uint256) {
         InsurancePool memory pool = insurancePools[policyType];
         if (pool.totalPremiums == 0) return 0;
 
@@ -284,14 +301,18 @@ contract SentinelInsurancePool is Ownable, ReentrancyGuard {
     /**
      * @notice Emergency pause pool
      */
-    function emergencyPause(PolicyType policyType) external onlyOwner {
+    function emergencyPause(
+        PolicyType policyType
+    ) external onlyOwner {
         insurancePools[policyType].isActive = false;
     }
 
     /**
      * @notice Withdraw excess premiums (owner only)
      */
-    function withdrawExcessPremiums(uint256 amount) external onlyOwner {
+    function withdrawExcessPremiums(
+        uint256 amount
+    ) external onlyOwner {
         require(premiumToken.balanceOf(address(this)) >= amount, "Insufficient balance");
         require(premiumToken.transfer(owner(), amount), "Transfer failed");
     }

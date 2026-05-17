@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "./lzApp/LzApp.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import "./lzApp/LzApp.sol";
 
 /**
  * @title SentinelCrossChainSecurityOracle
@@ -55,7 +55,9 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     event MetricsAggregated(uint256 globalThreatLevel, uint256 activeChains);
     event AlertTriggered(uint16 indexed chainId, string alertType, uint256 severity);
 
-    constructor(address _lzEndpoint) LzApp(_lzEndpoint) {
+    constructor(
+        address _lzEndpoint
+    ) LzApp(_lzEndpoint) {
         aggregatedMetrics.totalChains = 0;
         aggregatedMetrics.activeChains = 0;
     }
@@ -63,7 +65,11 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     /**
      * @notice Configure chain oracle
      */
-    function configureChainOracle(uint16 chainId, address oracleAddress, uint256 initialTrustScore) external onlyOwner {
+    function configureChainOracle(
+        uint16 chainId,
+        address oracleAddress,
+        uint256 initialTrustScore
+    ) external onlyOwner {
         require(initialTrustScore <= 100, "Invalid trust score");
 
         chainConfigs[chainId] = ChainConfig({
@@ -195,7 +201,12 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     /**
      * @notice Receive cross-chain security data
      */
-    function _blockingLzReceive(uint16, bytes memory, uint64, bytes memory _payload) internal override {
+    function _blockingLzReceive(
+        uint16,
+        bytes memory,
+        uint64,
+        bytes memory _payload
+    ) internal override {
         (
             uint16 sourceChain,
             uint256 threatLevel,
@@ -249,28 +260,37 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     /**
      * @notice Get chain-specific security data
      */
-    function getChainSecurityData(uint16 chainId) external view returns (SecurityData memory) {
+    function getChainSecurityData(
+        uint16 chainId
+    ) external view returns (SecurityData memory) {
         return aggregatedMetrics.chainData[chainId];
     }
 
     /**
      * @notice Add authorized reporter
      */
-    function addAuthorizedReporter(address reporter) external onlyOwner {
+    function addAuthorizedReporter(
+        address reporter
+    ) external onlyOwner {
         authorizedReporters[reporter] = true;
     }
 
     /**
      * @notice Remove authorized reporter
      */
-    function removeAuthorizedReporter(address reporter) external onlyOwner {
+    function removeAuthorizedReporter(
+        address reporter
+    ) external onlyOwner {
         authorizedReporters[reporter] = false;
     }
 
     /**
      * @notice Update chain trust score
      */
-    function updateChainTrustScore(uint16 chainId, uint256 newScore) external onlyOwner {
+    function updateChainTrustScore(
+        uint16 chainId,
+        uint256 newScore
+    ) external onlyOwner {
         require(newScore <= 100, "Invalid trust score");
         chainConfigs[chainId].trustScore = newScore;
     }
@@ -278,7 +298,9 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     /**
      * @notice Deactivate chain oracle
      */
-    function deactivateChainOracle(uint16 chainId) external onlyOwner {
+    function deactivateChainOracle(
+        uint16 chainId
+    ) external onlyOwner {
         chainConfigs[chainId].isActive = false;
         aggregatedMetrics.totalChains--;
     }
@@ -286,7 +308,10 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     /**
      * @dev Check for security alerts
      */
-    function _checkSecurityAlerts(uint16 chainId, SecurityData memory data) internal {
+    function _checkSecurityAlerts(
+        uint16 chainId,
+        SecurityData memory data
+    ) internal {
         if (data.threatLevel >= 80) {
             emit AlertTriggered(chainId, "HIGH_THREAT_LEVEL", data.threatLevel);
         }
@@ -303,7 +328,9 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     /**
      * @dev Get latest security data for chain
      */
-    function _getLatestChainData(uint16) internal pure returns (SecurityData memory) {
+    function _getLatestChainData(
+        uint16
+    ) internal pure returns (SecurityData memory) {
         // This would need a more sophisticated data structure to track latest data per chain
         // For now, return empty data
         return SecurityData(0, 0, 0, 0, bytes32(0), address(0), 0);
@@ -320,9 +347,8 @@ contract SentinelCrossChainSecurityOracle is LzApp {
         bytes32 dataHash,
         bytes memory signature
     ) internal view {
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(sourceChain, threatLevel, anomalyCount, activeAlerts, dataHash)
-        );
+        bytes32 messageHash =
+            keccak256(abi.encodePacked(sourceChain, threatLevel, anomalyCount, activeAlerts, dataHash));
 
         address signer = ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(messageHash), signature);
         require(signer == chainConfigs[sourceChain].oracleAddress, "Invalid signature");

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
@@ -116,7 +116,11 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
     event PremiumCollected(uint256 indexed policyId, uint256 amount);
     event CoverageActivated(uint256 indexed policyId);
 
-    constructor(address _sentinelCore, address _sentinelAuditor, address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address _sentinelCore,
+        address _sentinelAuditor,
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         sentinelCore = _sentinelCore;
         sentinelAuditor = _sentinelAuditor;
@@ -134,7 +138,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @notice Fund an insurance pool with ETH to back claims
      * @param poolType The insurance pool type to fund
      */
-    function fundPool(InsuranceType poolType) external payable nonReentrant {
+    function fundPool(
+        InsuranceType poolType
+    ) external payable nonReentrant {
         require(msg.value > 0, "Must send ETH");
         uint256 poolIndex = uint256(poolType);
         insurancePools[poolIndex].claimReserve += msg.value;
@@ -199,7 +205,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         emit PremiumCollected(policyId, premiumAmount);
 
         if (excess > 0) {
-            (bool refundOk,) = payable(msg.sender).call{value: excess}("");
+            (bool refundOk,) = payable(msg.sender).call{ value: excess }("");
             require(refundOk, "Refund failed");
         }
 
@@ -212,7 +218,11 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @param incidentHash Hash of the security incident
      * @param evidence Supporting evidence
      */
-    function submitClaim(uint256 policyId, bytes32 incidentHash, bytes calldata evidence) external returns (uint256) {
+    function submitClaim(
+        uint256 policyId,
+        bytes32 incidentHash,
+        bytes calldata evidence
+    ) external returns (uint256) {
         InsurancePolicy storage policy = policies[policyId];
         require(policy.policyHolder == msg.sender, "Not policy holder");
         require(policy.status == PolicyStatus.ACTIVE, "Policy not active");
@@ -250,7 +260,10 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @param claimId Claim to process
      * @param approve Whether to approve the claim
      */
-    function processClaim(uint256 claimId, bool approve) external onlyOwner {
+    function processClaim(
+        uint256 claimId,
+        bool approve
+    ) external onlyOwner {
         InsuranceClaim storage claim = claims[claimId];
         require(claim.status == ClaimStatus.SUBMITTED, "Claim not in submitted state");
 
@@ -262,7 +275,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
             require(address(this).balance >= claim.claimAmount, "Insufficient contract balance");
 
             // Pay out claim
-            (bool payOk,) = payable(claim.claimant).call{value: claim.claimAmount}("");
+            (bool payOk,) = payable(claim.claimant).call{ value: claim.claimAmount }("");
             require(payOk, "Claim payout failed");
 
             // Update policy and pool
@@ -289,7 +302,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @notice Get policy information
      * @param policyId Policy to query
      */
-    function getPolicyInfo(uint256 policyId)
+    function getPolicyInfo(
+        uint256 policyId
+    )
         external
         view
         returns (
@@ -312,7 +327,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @notice Get insurance pool statistics
      * @param poolType Type of insurance pool
      */
-    function getPoolStatistics(uint256 poolType)
+    function getPoolStatistics(
+        uint256 poolType
+    )
         external
         view
         returns (
@@ -370,7 +387,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
     /**
      * @dev Get base premium rate for insurance type
      */
-    function _getBasePremiumRate(InsuranceType insuranceType) internal pure returns (uint256) {
+    function _getBasePremiumRate(
+        InsuranceType insuranceType
+    ) internal pure returns (uint256) {
         if (insuranceType == InsuranceType.HACK_COVERAGE) return 25; // 0.25%
         if (insuranceType == InsuranceType.ORACLE_FAILURE) return 15; // 0.15%
         if (insuranceType == InsuranceType.GOVERNANCE_ATTACK) return 30; // 0.30%
@@ -388,11 +407,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         address,
         /* contractAddress */
         InsuranceType insuranceType
-    )
-        internal
-        pure
-        returns (uint256)
-    {
+    ) internal pure returns (uint256) {
         // Simplified risk assessment
         // In production, this would query Sentinel security metrics
 
@@ -411,7 +426,10 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @notice This is a placeholder that returns a default medium severity.
      * In production, integrate with SentinelSecurityAuditor for real verification.
      */
-    function _verifySecurityIncident(bytes32 incidentHash, address coveredContract) internal view returns (uint256) {
+    function _verifySecurityIncident(
+        bytes32 incidentHash,
+        address coveredContract
+    ) internal view returns (uint256) {
         // Placeholder: return default medium severity (5)
         // TODO: Replace with actual SentinelSecurityAuditor integration
         // The incidentHash and coveredContract params are intentionally unused in this stub
@@ -423,11 +441,10 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
     /**
      * @dev Calculate claim amount based on policy and incident
      */
-    function _calculateClaimAmount(InsurancePolicy memory policy, uint256 incidentSeverity)
-        internal
-        pure
-        returns (uint256)
-    {
+    function _calculateClaimAmount(
+        InsurancePolicy memory policy,
+        uint256 incidentSeverity
+    ) internal pure returns (uint256) {
         // Base claim calculation
         uint256 baseClaim = policy.coverageAmount * incidentSeverity / 10;
 

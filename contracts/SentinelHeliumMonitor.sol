@@ -45,12 +45,16 @@ contract SentinelHeliumMonitor is Ownable {
     event SecurityAlert(bytes32 indexed deviceId, string alertType, uint256 severity);
     event NetworkHealthUpdate(uint256 totalDevices, uint256 activeDevices, uint256 uptime);
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) { }
 
     /**
      * @notice Register IoT device with Helium network
      */
-    function registerDevice(bytes32 deviceId, bytes memory heliumProof, bytes memory) external {
+    function registerDevice(
+        bytes32 deviceId,
+        bytes memory heliumProof,
+        bytes memory
+    ) external {
         require(devices[deviceId].deviceId == bytes32(0), "Device already registered");
 
         // Verify Helium proof (simplified)
@@ -114,7 +118,12 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @notice Report device anomaly
      */
-    function reportAnomaly(bytes32 deviceId, string calldata anomalyType, uint256 severity, bytes memory) external {
+    function reportAnomaly(
+        bytes32 deviceId,
+        string calldata anomalyType,
+        uint256 severity,
+        bytes memory
+    ) external {
         IoTDevice storage device = devices[deviceId];
         require(device.isActive, "Device not active");
 
@@ -134,7 +143,9 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @notice Deactivate compromised device
      */
-    function deactivateDevice(bytes32 deviceId) external {
+    function deactivateDevice(
+        bytes32 deviceId
+    ) external {
         IoTDevice storage device = devices[deviceId];
         require(device.owner == msg.sender || msg.sender == owner(), "Not authorized");
 
@@ -147,11 +158,9 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @notice Get device security status
      */
-    function getDeviceStatus(bytes32 deviceId)
-        external
-        view
-        returns (bool isActive, uint256 securityScore, uint256 uptime, uint256 lastSeen)
-    {
+    function getDeviceStatus(
+        bytes32 deviceId
+    ) external view returns (bool isActive, uint256 securityScore, uint256 uptime, uint256 lastSeen) {
         IoTDevice memory device = devices[deviceId];
         return (device.isActive, device.securityScore, _calculateUptime(deviceId), device.lastSeen);
     }
@@ -175,7 +184,10 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @dev Verify Helium network proof
      */
-    function _verifyHeliumProof(bytes32, bytes memory proof) internal pure returns (bool) {
+    function _verifyHeliumProof(
+        bytes32,
+        bytes memory proof
+    ) internal pure returns (bool) {
         // Simplified verification - would check against Helium API
         return proof.length > 0;
     }
@@ -183,7 +195,10 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @dev Verify telemetry proof
      */
-    function _verifyTelemetryProof(bytes32, bytes memory proof) internal pure returns (bool) {
+    function _verifyTelemetryProof(
+        bytes32,
+        bytes memory proof
+    ) internal pure returns (bool) {
         // Simplified verification - would check cryptographic proof
         return proof.length > 0;
     }
@@ -191,14 +206,19 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @dev Validate anomaly reporter
      */
-    function _validateReporter(address reporter) internal view returns (bool) {
+    function _validateReporter(
+        address reporter
+    ) internal view returns (bool) {
         return authorizedReporters[reporter] || msg.sender == owner();
     }
 
     /**
      * @dev Calculate device security score
      */
-    function _calculateSecurityScore(uint256 signalStrength, uint256 latency) internal pure returns (uint256) {
+    function _calculateSecurityScore(
+        uint256 signalStrength,
+        uint256 latency
+    ) internal pure returns (uint256) {
         uint256 score = 50; // Base score
 
         // Signal strength bonus/penalty
@@ -218,7 +238,9 @@ contract SentinelHeliumMonitor is Ownable {
     /**
      * @dev Calculate device uptime
      */
-    function _calculateUptime(bytes32 deviceId) internal view returns (uint256) {
+    function _calculateUptime(
+        bytes32 deviceId
+    ) internal view returns (uint256) {
         IoTDevice memory device = devices[deviceId];
         if (!device.isActive) return 0;
 

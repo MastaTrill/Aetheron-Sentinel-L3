@@ -84,7 +84,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     event PredictiveAlertGenerated(bytes32 indexed patternId, uint256 confidence, uint256 predictedSeverity);
     event BehavioralProfileUpdated(address indexed entity, uint256 newTrustScore, BehavioralState newState);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializePredictiveModel();
     }
@@ -96,10 +98,11 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
      * @param activityType Type of activity being analyzed
      * @return anomalyScore Score indicating anomalous behavior (0-1000)
      */
-    function analyzeBehavior(address entity, uint256[] calldata behavioralData, string calldata activityType)
-        external
-        returns (uint256 anomalyScore)
-    {
+    function analyzeBehavior(
+        address entity,
+        uint256[] calldata behavioralData,
+        string calldata activityType
+    ) external returns (uint256 anomalyScore) {
         require(entity != address(0), "Invalid entity address");
         require(behavioralData.length > 0, "Empty behavioral data");
 
@@ -138,10 +141,10 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
      * @param predictionWindow Hours to predict ahead
      * @return predictedThreats Array of predicted threat patterns
      */
-    function predictThreatPatterns(uint256[] calldata patternData, uint256 predictionWindow)
-        external
-        returns (bytes32[] memory predictedThreats)
-    {
+    function predictThreatPatterns(
+        uint256[] calldata patternData,
+        uint256 predictionWindow
+    ) external returns (bytes32[] memory predictedThreats) {
         require(patternData.length >= 24, "Insufficient historical data"); // Need at least 24 hours
         require(predictionWindow > 0 && predictionWindow <= predictionHorizon, "Invalid prediction window");
 
@@ -231,7 +234,11 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
      * @param newHorizon New prediction horizon (hours)
      * @param newLearningRate New learning rate (basis points)
      */
-    function updateAIModel(uint256 newThreshold, uint256 newHorizon, uint256 newLearningRate) external onlyOwner {
+    function updateAIModel(
+        uint256 newThreshold,
+        uint256 newHorizon,
+        uint256 newLearningRate
+    ) external onlyOwner {
         require(newThreshold >= 100 && newThreshold <= 900, "Invalid threshold");
         require(newHorizon >= 1 && newHorizon <= 168, "Invalid horizon"); // Max 1 week
         require(newLearningRate >= 1 && newLearningRate <= 1000, "Invalid learning rate");
@@ -248,7 +255,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
      * @notice Get behavioral profile for entity
      * @param entity Address to query
      */
-    function getBehavioralProfile(address entity)
+    function getBehavioralProfile(
+        address entity
+    )
         external
         view
         returns (
@@ -274,7 +283,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
      * @notice Get threat pattern information
      * @param patternId Pattern to query
      */
-    function getThreatPattern(bytes32 patternId)
+    function getThreatPattern(
+        bytes32 patternId
+    )
         external
         view
         returns (
@@ -303,7 +314,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Create new behavioral profile for entity
      */
-    function _createBehavioralProfile(address entity) internal {
+    function _createBehavioralProfile(
+        address entity
+    ) internal {
         require(behavioralProfiles[entity].profileCreationTime == 0, "Profile already exists");
 
         behavioralProfiles[entity] = BehavioralProfile({
@@ -389,7 +402,10 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Update behavioral state based on anomaly score
      */
-    function _updateBehavioralState(BehavioralProfile storage profile, uint256 anomalyScore) internal {
+    function _updateBehavioralState(
+        BehavioralProfile storage profile,
+        uint256 anomalyScore
+    ) internal {
         BehavioralState newState;
 
         if (anomalyScore > 800) {
@@ -411,7 +427,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Calculate statistical mean
      */
-    function _calculateMean(uint256[] memory data) internal pure returns (uint256) {
+    function _calculateMean(
+        uint256[] memory data
+    ) internal pure returns (uint256) {
         if (data.length == 0) return 0;
 
         uint256 sum = 0;
@@ -424,7 +442,10 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Calculate standard deviation
      */
-    function _calculateStdDev(uint256[] memory data, uint256 mean) internal pure returns (uint256) {
+    function _calculateStdDev(
+        uint256[] memory data,
+        uint256 mean
+    ) internal pure returns (uint256) {
         if (data.length <= 1) return 0;
 
         uint256 sumSquaredDiffs = 0;
@@ -440,7 +461,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Simple square root calculation
      */
-    function _sqrt(uint256 x) internal pure returns (uint256) {
+    function _sqrt(
+        uint256 x
+    ) internal pure returns (uint256) {
         if (x == 0) return 0;
         uint256 z = (x + 1) / 2;
         uint256 y = x;
@@ -454,7 +477,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Calculate trend from time series data
      */
-    function _calculateTrend(uint256[] memory data) internal pure returns (uint256) {
+    function _calculateTrend(
+        uint256[] memory data
+    ) internal pure returns (uint256) {
         if (data.length < 2) return 100; // Neutral trend
 
         uint256 halfLen = data.length / 2;
@@ -483,7 +508,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Calculate volatility from time series data
      */
-    function _calculateVolatility(uint256[] memory data) internal pure returns (uint256) {
+    function _calculateVolatility(
+        uint256[] memory data
+    ) internal pure returns (uint256) {
         uint256 mean = _calculateMean(data);
         uint256 stdDev = _calculateStdDev(data, mean);
 
@@ -493,7 +520,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Detect cyclical patterns in data
      */
-    function _detectCyclicalPattern(uint256[] memory data) internal pure returns (bool) {
+    function _detectCyclicalPattern(
+        uint256[] memory data
+    ) internal pure returns (bool) {
         if (data.length < 12) return false; // Need minimum data points
 
         // Simple autocorrelation check (simplified)
@@ -512,10 +541,11 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Generate predicted threat pattern
      */
-    function _generatePredictedPattern(string memory patternType, uint256 confidence, uint256 intensity)
-        internal
-        returns (bytes32)
-    {
+    function _generatePredictedPattern(
+        string memory patternType,
+        uint256 confidence,
+        uint256 intensity
+    ) internal returns (bytes32) {
         bytes32 patternId = keccak256(abi.encodePacked("predicted_", patternType, block.timestamp, intensity));
 
         threatPatterns[patternId] = ThreatPattern({
@@ -536,7 +566,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Analyze behavioral data for anomaly indicators
      */
-    function _analyzeBehavioralData(uint256[] memory data) internal pure returns (uint256) {
+    function _analyzeBehavioralData(
+        uint256[] memory data
+    ) internal pure returns (uint256) {
         uint256 indicators = 0;
 
         // Check for extreme values
@@ -561,7 +593,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Find maximum value in array
      */
-    function _findMax(uint256[] memory data) internal pure returns (uint256) {
+    function _findMax(
+        uint256[] memory data
+    ) internal pure returns (uint256) {
         uint256 max = 0;
         for (uint256 i = 0; i < data.length; i++) {
             if (data[i] > max) max = data[i];
@@ -572,7 +606,9 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Find minimum value in array
      */
-    function _findMin(uint256[] memory data) internal pure returns (uint256) {
+    function _findMin(
+        uint256[] memory data
+    ) internal pure returns (uint256) {
         if (data.length == 0) return 0;
         uint256 min = data[0];
         for (uint256 i = 1; i < data.length; i++) {
@@ -584,7 +620,10 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Update trust score based on behavior
      */
-    function _updateTrustScore(BehavioralProfile storage profile, uint256 anomalyIndicators) internal {
+    function _updateTrustScore(
+        BehavioralProfile storage profile,
+        uint256 anomalyIndicators
+    ) internal {
         if (anomalyIndicators == 0) {
             profile.trustScore = Math.min(profile.trustScore + 5, 1000);
         } else {
@@ -596,7 +635,10 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     /**
      * @dev Update global threat metrics
      */
-    function _updateThreatMetrics(string memory activityType, uint256 anomalyScore) internal {
+    function _updateThreatMetrics(
+        string memory activityType,
+        uint256 anomalyScore
+    ) internal {
         threatMetrics[activityType] = threatMetrics[activityType] + anomalyScore;
     }
 

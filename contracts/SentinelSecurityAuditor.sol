@@ -79,7 +79,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     event AlertSent(address indexed recipient, uint256 severity, string message);
     event SecurityScoreUpdated(uint256 newScore, string reason);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializeSecurityAuditor();
     }
@@ -91,11 +93,12 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param severity Severity level (1-10)
      * @param details Additional details about the event
      */
-    function createAuditLog(string calldata eventType, address actor, uint256 severity, string calldata details)
-        external
-        onlyOwner
-        returns (uint256)
-    {
+    function createAuditLog(
+        string calldata eventType,
+        address actor,
+        uint256 severity,
+        string calldata details
+    ) external onlyOwner returns (uint256) {
         require(severity >= 1 && severity <= 10, "Invalid severity");
 
         uint256 logId = logCount++;
@@ -181,18 +184,21 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param threshold Threshold value for triggering
      * @param ruleLogic Encoded rule conditions
      */
-    function addThreatRule(string calldata ruleName, uint256 severity, uint256 threshold, bytes calldata ruleLogic)
-        external
-        onlyOwner
-        returns (uint256)
-    {
+    function addThreatRule(
+        string calldata ruleName,
+        uint256 severity,
+        uint256 threshold,
+        bytes calldata ruleLogic
+    ) external onlyOwner returns (uint256) {
         return _addThreatRule(ruleName, severity, threshold, ruleLogic);
     }
 
-    function _addThreatRule(string memory ruleName, uint256 severity, uint256 threshold, bytes memory ruleLogic)
-        internal
-        returns (uint256)
-    {
+    function _addThreatRule(
+        string memory ruleName,
+        uint256 severity,
+        uint256 threshold,
+        bytes memory ruleLogic
+    ) internal returns (uint256) {
         uint256 ruleId = ruleCount++;
 
         threatRules[ruleId] = ThreatRule({
@@ -213,7 +219,10 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param ruleName Name of the threat rule
      * @param responseContract Address of contract to call for response
      */
-    function setAutomatedResponse(string calldata ruleName, address responseContract) external onlyOwner {
+    function setAutomatedResponse(
+        string calldata ruleName,
+        address responseContract
+    ) external onlyOwner {
         responseContracts[ruleName] = responseContract;
     }
 
@@ -221,7 +230,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @notice Add alert recipient
      * @param recipient Address to receive alerts
      */
-    function addAlertRecipient(address recipient) external onlyOwner {
+    function addAlertRecipient(
+        address recipient
+    ) external onlyOwner {
         if (!isAlertRecipient[recipient]) {
             alertRecipients.push(recipient);
             isAlertRecipient[recipient] = true;
@@ -232,7 +243,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @notice Set alert threshold
      * @param threshold Minimum severity to trigger alerts
      */
-    function setAlertThreshold(uint256 threshold) external onlyOwner {
+    function setAlertThreshold(
+        uint256 threshold
+    ) external onlyOwner {
         alertThreshold = threshold;
     }
 
@@ -240,7 +253,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @notice Confirm security incident
      * @param incidentId ID of incident to confirm
      */
-    function confirmIncident(uint256 incidentId) external onlyOwner {
+    function confirmIncident(
+        uint256 incidentId
+    ) external onlyOwner {
         require(incidentId < incidentCount, "Invalid incident ID");
         require(!securityIncidents[incidentId].confirmed, "Already confirmed");
 
@@ -254,7 +269,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @notice Resolve security incident
      * @param incidentId ID of incident to resolve
      */
-    function resolveIncident(uint256 incidentId) external onlyOwner {
+    function resolveIncident(
+        uint256 incidentId
+    ) external onlyOwner {
         require(incidentId < incidentCount, "Invalid incident ID");
         require(securityIncidents[incidentId].confirmed, "Not confirmed");
         require(!securityIncidents[incidentId].resolved, "Already resolved");
@@ -300,7 +317,10 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param offset Starting index
      * @param limit Maximum number of logs to return
      */
-    function getAuditLogs(uint256 offset, uint256 limit) external view returns (AuditLog[] memory) {
+    function getAuditLogs(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (AuditLog[] memory) {
         require(offset < logCount, "Invalid offset");
 
         uint256 actualLimit = limit > logCount - offset ? logCount - offset : limit;
@@ -316,7 +336,10 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     /**
      * @notice Evaluate threat rules against audit events
      */
-    function _evaluateThreatRules(string memory eventType, uint256 severity) internal {
+    function _evaluateThreatRules(
+        string memory eventType,
+        uint256 severity
+    ) internal {
         for (uint256 i = 0; i < ruleCount; i++) {
             ThreatRule storage rule = threatRules[i];
             if (!rule.active) continue;
@@ -346,11 +369,11 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     /**
      * @notice Check if event matches threat rule
      */
-    function _matchesRule(string memory ruleName, string memory eventType, uint256 severity)
-        internal
-        pure
-        returns (bool)
-    {
+    function _matchesRule(
+        string memory ruleName,
+        string memory eventType,
+        uint256 severity
+    ) internal pure returns (bool) {
         // Simplified rule matching (would be more sophisticated in production)
         bytes32 ruleHash = keccak256(abi.encodePacked(ruleName));
         bytes32 eventHash = keccak256(abi.encodePacked(eventType));
@@ -382,7 +405,10 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     /**
      * @notice Update overall security score
      */
-    function _updateSecurityScore(uint256 impact, bool positive) internal {
+    function _updateSecurityScore(
+        uint256 impact,
+        bool positive
+    ) internal {
         if (positive) {
             securityScore = securityScore + impact;
             if (securityScore > 1000) securityScore = 1000;
@@ -403,9 +429,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
         /* eventId */
         uint256 severity,
         string memory message
-    )
-        internal
-    {
+    ) internal {
         for (uint256 i = 0; i < alertRecipients.length; i++) {
             // In production, this would integrate with notification systems
             emit AlertSent(alertRecipients[i], severity, message);
@@ -418,10 +442,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     function _triggerAutomatedResponse(
         string memory incidentType,
         uint256 /* severity */
-    )
-        internal
-        view
-    {
+    ) internal view {
         address responseContract = responseContracts[incidentType];
         if (responseContract != address(0)) {
             // Call response contract (simplified)
@@ -432,7 +453,9 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     /**
      * @notice Trigger automated response for threat rule
      */
-    function _triggerAutomatedResponseForRule(uint256 ruleId) internal {
+    function _triggerAutomatedResponseForRule(
+        uint256 ruleId
+    ) internal {
         ThreatRule memory rule = threatRules[ruleId];
         address responseContract = responseContracts[rule.ruleName];
 

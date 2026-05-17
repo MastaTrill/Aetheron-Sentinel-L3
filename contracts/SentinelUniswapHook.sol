@@ -12,7 +12,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * import requirements, the contract focuses on core security logic.
  */
 contract SentinelUniswapHook is Ownable {
-    constructor(address initialOwner) Ownable(initialOwner) {}
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) { }
 
     // Security-based fee adjustments
     uint24 public constant BASE_FEE = 3000; // 0.3%
@@ -29,7 +31,9 @@ contract SentinelUniswapHook is Ownable {
     /**
      * @notice Get current fee for pool based on security metrics
      */
-    function getPoolFee(bytes32 poolId) external view returns (uint24) {
+    function getPoolFee(
+        bytes32 poolId
+    ) external view returns (uint24) {
         uint256 score = poolSecurityScore[poolId];
         uint256 anomalies = poolAnomalyCount[poolId];
 
@@ -41,7 +45,10 @@ contract SentinelUniswapHook is Ownable {
     /**
      * @notice Update pool security score
      */
-    function updateSecurityScore(bytes32 poolId, int256 amount) external onlyOwner {
+    function updateSecurityScore(
+        bytes32 poolId,
+        int256 amount
+    ) external onlyOwner {
         uint256 score = poolSecurityScore[poolId];
         if (amount > 0) {
             score = score > 0 ? score - 1 : 0;
@@ -54,7 +61,10 @@ contract SentinelUniswapHook is Ownable {
     /**
      * @notice Record anomaly for a pool
      */
-    function recordAnomaly(bytes32 poolId, uint256 severity) external onlyOwner {
+    function recordAnomaly(
+        bytes32 poolId,
+        uint256 severity
+    ) external onlyOwner {
         poolAnomalyCount[poolId]++;
         emit AnomalyDetected(poolId, severity);
     }

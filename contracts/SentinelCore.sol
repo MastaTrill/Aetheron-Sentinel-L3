@@ -20,7 +20,9 @@ contract SentinelCore is Ownable {
     event TelemetryReset(uint256 previousYield, uint256 newYield, uint256 timestamp);
     event RebalanceHookFired(uint256 currentBlock, string status);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "SentinelCore: invalid owner");
 
         heartbeatActive = false; // Starts locked pending settlement/authorization
@@ -33,7 +35,9 @@ contract SentinelCore is Ownable {
      * @dev This is the exact function called by scripts/telemetry_reset.py.
      * @param _targetYieldBps The new yield target in basis points (e.g., 500).
      */
-    function releaseHeartbeat(uint256 _targetYieldBps) external onlyOwner {
+    function releaseHeartbeat(
+        uint256 _targetYieldBps
+    ) external onlyOwner {
         require(!heartbeatActive, "SentinelCore: Heartbeat is already active");
         require(_targetYieldBps > BASELINE_YIELD_BPS, "SentinelCore: Target must exceed baseline");
 

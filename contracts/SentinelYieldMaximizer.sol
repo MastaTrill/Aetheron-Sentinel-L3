@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelYieldMaximizer
@@ -75,7 +75,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     event AutoCompounded(address indexed user, uint256 compoundedAmount);
     event Rebalanced(uint256 indexed strategyId, uint256 oldAllocation, uint256 newAllocation);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         riskTolerance = 5; // Medium risk tolerance
         yieldPredictionHorizon = 24; // 24 hour predictions
@@ -89,7 +91,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @notice Set the ERC-20 token used for deposits and withdrawals
      * @param tokenAddress Address of the yield token contract
      */
-    function setYieldToken(address tokenAddress) external onlyOwner {
+    function setYieldToken(
+        address tokenAddress
+    ) external onlyOwner {
         require(tokenAddress != address(0), "Invalid token address");
         yieldToken = IERC20(tokenAddress);
     }
@@ -98,7 +102,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @notice Deposit funds for optimized yield generation
      * @param amount Amount to deposit
      */
-    function deposit(uint256 amount) external nonReentrant whenNotPaused {
+    function deposit(
+        uint256 amount
+    ) external nonReentrant whenNotPaused {
         require(amount > 0, "Cannot deposit 0");
         require(address(yieldToken) != address(0), "Yield token not configured");
 
@@ -123,7 +129,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @notice Withdraw funds from yield optimization
      * @param amount Amount to withdraw
      */
-    function withdraw(uint256 amount) external nonReentrant {
+    function withdraw(
+        uint256 amount
+    ) external nonReentrant {
         require(address(yieldToken) != address(0), "Yield token not configured");
         UserPosition storage position = userPositions[msg.sender];
         require(position.totalDeposited >= amount, "Insufficient balance");
@@ -171,7 +179,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @notice AI-powered strategy rebalancing
      * @param strategyId Strategy to rebalance
      */
-    function rebalanceStrategy(uint256 strategyId) external onlyOwner {
+    function rebalanceStrategy(
+        uint256 strategyId
+    ) external onlyOwner {
         require(strategyId < strategyCount, "Invalid strategy");
 
         YieldStrategy storage strategy = yieldStrategies[strategyId];
@@ -231,7 +241,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @notice Update market volatility index for strategy optimization
      * @param newVolatility New volatility measure (0-100)
      */
-    function updateVolatilityIndex(uint256 newVolatility) external onlyOwner {
+    function updateVolatilityIndex(
+        uint256 newVolatility
+    ) external onlyOwner {
         require(newVolatility <= 100, "Invalid volatility");
         volatilityIndex = newVolatility;
 
@@ -247,7 +259,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @notice Get user's optimized APY
      * @param user User address
      */
-    function getUserOptimizedAPY(address user) external view returns (uint256) {
+    function getUserOptimizedAPY(
+        address user
+    ) external view returns (uint256) {
         UserPosition storage position = userPositions[user];
         if (position.totalDeposited == 0) return 0;
 
@@ -278,7 +292,10 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Calculate optimal allocation for strategy using predictive algorithm
      */
-    function _calculateOptimalAllocation(uint256 strategyId, uint256 predictedAPY) internal view returns (uint256) {
+    function _calculateOptimalAllocation(
+        uint256 strategyId,
+        uint256 predictedAPY
+    ) internal view returns (uint256) {
         YieldStrategy memory strategy = yieldStrategies[strategyId];
 
         // Risk-adjusted allocation algorithm
@@ -300,7 +317,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Predict APY for strategy using historical data and market conditions
      */
-    function _predictStrategyAPY(uint256 strategyId) internal view returns (uint256) {
+    function _predictStrategyAPY(
+        uint256 strategyId
+    ) internal view returns (uint256) {
         YieldStrategy memory strategy = yieldStrategies[strategyId];
 
         // Simplified prediction algorithm
@@ -323,7 +342,10 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Allocate deposited amount to optimal strategies
      */
-    function _allocateToStrategies(address user, uint256 amount) internal {
+    function _allocateToStrategies(
+        address user,
+        uint256 amount
+    ) internal {
         UserPosition storage position = userPositions[user];
 
         for (uint256 i = 0; i < strategyCount; i++) {
@@ -337,7 +359,9 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Rebalance user's strategy allocations
      */
-    function _rebalanceUserStrategies(address user) internal {
+    function _rebalanceUserStrategies(
+        address user
+    ) internal {
         UserPosition storage position = userPositions[user];
 
         for (uint256 i = 0; i < strategyCount; i++) {
@@ -353,7 +377,11 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Rebalance all users for a strategy change
      */
-    function _rebalanceAllUsers(uint256 strategyId, uint256 oldAllocation, uint256 newAllocation) internal {
+    function _rebalanceAllUsers(
+        uint256 strategyId,
+        uint256 oldAllocation,
+        uint256 newAllocation
+    ) internal {
         if (oldAllocation == 0) return;
         uint256 allocationRatio = newAllocation * 1e18 / oldAllocation;
         for (uint256 i = 0; i < _userList.length; i++) {
@@ -369,12 +397,15 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Calculate user's current yield
      */
-    function _calculateUserYield(address user) internal view returns (uint256) {
+    function _calculateUserYield(
+        address user
+    ) internal view returns (uint256) {
         UserPosition storage position = userPositions[user];
 
         // Simplified yield calculation
         uint256 timeStaked = block.timestamp - position.lastDeposit;
-        uint256 baseYield = position.totalDeposited * averageAPY * timeStaked / 365 days / 10000; // Convert to actual yield
+        uint256 baseYield = position.totalDeposited * averageAPY * timeStaked / 365 days / 10000; // Convert to actual
+        // yield
 
         return baseYield + position.netYield;
     }

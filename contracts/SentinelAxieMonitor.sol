@@ -53,12 +53,17 @@ contract SentinelAxieMonitor is Ownable {
 
     event MarketplaceAlert(address indexed user, uint256 activityCount, string alertType);
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) { }
 
     /**
      * @notice Monitor marketplace transaction
      */
-    function monitorTransaction(address seller, address buyer, uint256 axieId, uint256 price) external {
+    function monitorTransaction(
+        address seller,
+        address buyer,
+        uint256 axieId,
+        uint256 price
+    ) external {
         AxieTransaction memory axieTx = AxieTransaction({
             seller: seller,
             buyer: buyer,
@@ -93,9 +98,7 @@ contract SentinelAxieMonitor is Ownable {
         uint256 axieId,
         address breeder,
         uint256 /*fee*/
-    )
-        external
-    {
+    ) external {
         BreedingRecord storage record = breedingRecords[axieId];
         record.axieId = axieId;
         record.breedingCount++;
@@ -119,9 +122,7 @@ contract SentinelAxieMonitor is Ownable {
     function reportStolenAxie(
         uint256 axieId,
         bytes memory /*evidence*/
-    )
-        external
-    {
+    ) external {
         // Mark Axie as flagged
         bytes32 txHash = keccak256(abi.encodePacked(axieId, block.timestamp));
         flaggedTransactions[txHash] = true;
@@ -135,25 +136,27 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @notice Check if transaction is flagged
      */
-    function isTransactionFlagged(bytes32 txHash) external view returns (bool) {
+    function isTransactionFlagged(
+        bytes32 txHash
+    ) external view returns (bool) {
         return flaggedTransactions[txHash];
     }
 
     /**
      * @notice Get Axie transaction history
      */
-    function getAxieHistory(uint256 axieId) external view returns (AxieTransaction[] memory) {
+    function getAxieHistory(
+        uint256 axieId
+    ) external view returns (AxieTransaction[] memory) {
         return axieTransactions[axieId];
     }
 
     /**
      * @notice Get breeding record
      */
-    function getBreedingRecord(uint256 axieId)
-        external
-        view
-        returns (uint256 breedingCount, uint256 lastBreedingTime, address breeder)
-    {
+    function getBreedingRecord(
+        uint256 axieId
+    ) external view returns (uint256 breedingCount, uint256 lastBreedingTime, address breeder) {
         BreedingRecord memory record = breedingRecords[axieId];
         return (record.breedingCount, record.lastBreedingTime, record.breeder);
     }
@@ -168,7 +171,9 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @dev Analyze transaction for suspicious patterns
      */
-    function _analyzeTransaction(AxieTransaction memory axieTx) internal {
+    function _analyzeTransaction(
+        AxieTransaction memory axieTx
+    ) internal {
         // Check for high-value transactions
         if (axieTx.price > HIGH_VALUE_THRESHOLD) {
             emit SuspiciousTransaction(axieTx.axieId, axieTx.seller, axieTx.price, "HighValueTransaction");

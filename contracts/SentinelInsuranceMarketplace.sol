@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
@@ -71,7 +71,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     event LiquidityRemoved(address indexed provider, uint256 amount);
     event ClaimProcessed(uint256 indexed policyId, uint256 payoutAmount);
 
-    constructor(address _paymentToken, address _insurancePool) Ownable(msg.sender) {
+    constructor(
+        address _paymentToken,
+        address _insurancePool
+    ) Ownable(msg.sender) {
         paymentToken = IERC20(_paymentToken);
         insurancePool = _insurancePool;
     }
@@ -117,7 +120,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Purchase insurance policy
      */
-    function purchasePolicy(uint256 offeringId, uint256 coverageAmount) external nonReentrant {
+    function purchasePolicy(
+        uint256 offeringId,
+        uint256 coverageAmount
+    ) external nonReentrant {
         InsuranceOffering storage offering = offerings[offeringId];
         require(offering.isActive, "Offering not active");
         require(offering.currentCapacity + coverageAmount <= offering.maxCapacity, "Exceeds capacity");
@@ -161,7 +167,9 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Add liquidity to backing pool
      */
-    function addLiquidity(uint256 amount) external nonReentrant {
+    function addLiquidity(
+        uint256 amount
+    ) external nonReentrant {
         require(amount > 0, "Invalid amount");
         require(paymentToken.transferFrom(msg.sender, address(this), amount), "Liquidity transfer failed");
 
@@ -174,7 +182,9 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Remove liquidity from pool
      */
-    function removeLiquidity(uint256 amount) external nonReentrant {
+    function removeLiquidity(
+        uint256 amount
+    ) external nonReentrant {
         require(amount > 0, "Invalid amount");
         require(liquidityPool.providerBalances[msg.sender] >= amount, "Insufficient balance");
         require(
@@ -198,7 +208,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice File insurance claim
      */
-    function fileClaim(uint256 policyId, string memory evidence) external nonReentrant {
+    function fileClaim(
+        uint256 policyId,
+        string memory evidence
+    ) external nonReentrant {
         MarketPolicy storage policy = policies[policyId];
         require(policy.buyer == msg.sender, "Not policy owner");
         require(policy.isActive, "Policy not active");
@@ -222,7 +235,9 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Get offerings by type
      */
-    function getOfferingsByType(string memory coverageType) external view returns (uint256[] memory) {
+    function getOfferingsByType(
+        string memory coverageType
+    ) external view returns (uint256[] memory) {
         return offeringsByType[coverageType];
     }
 
@@ -243,7 +258,9 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Calculate provider rating
      */
-    function _calculateProviderRating(address) internal pure returns (uint256) {
+    function _calculateProviderRating(
+        address
+    ) internal pure returns (uint256) {
         // Simplified rating calculation
         // In production, this would be based on past performance
         return 85; // Default good rating
@@ -252,7 +269,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Calculate liquidity provider rewards
      */
-    function _calculateRewards(address provider, uint256 amount) internal view returns (uint256) {
+    function _calculateRewards(
+        address provider,
+        uint256 amount
+    ) internal view returns (uint256) {
         uint256 providerShare = (liquidityPool.providerBalances[provider] * 10000) / liquidityPool.totalLiquidity;
         uint256 timeWeightedShare = providerShare * 365 days; // Simplified
 
@@ -263,7 +283,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
      * @notice Validate insurance claim
      * @dev Requires non-empty evidence and minimum evidence length to prevent trivial claims
      */
-    function _validateClaim(string memory coverageType, string memory evidence) internal pure returns (bool) {
+    function _validateClaim(
+        string memory coverageType,
+        string memory evidence
+    ) internal pure returns (bool) {
         if (bytes(evidence).length == 0) return false;
         if (bytes(evidence).length < 32) return false;
         // Additional validation: evidence must not be a simple repeated character
@@ -282,7 +305,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Process insurance payout
      */
-    function _processPayout(uint256, uint256 payoutAmount) internal {
+    function _processPayout(
+        uint256,
+        uint256 payoutAmount
+    ) internal {
         // Ensure sufficient liquidity
         require(liquidityPool.totalLiquidity >= payoutAmount, "Insufficient liquidity");
 
@@ -295,7 +321,9 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Set marketplace fee
      */
-    function setMarketplaceFee(uint256 newFee) external onlyOwner {
+    function setMarketplaceFee(
+        uint256 newFee
+    ) external onlyOwner {
         require(newFee <= 1000, "Fee cannot exceed 10%");
         marketplaceFee = newFee;
     }
@@ -303,7 +331,9 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Update liquidity pool APY
      */
-    function updatePoolAPY(uint256 newAPY) external onlyOwner {
+    function updatePoolAPY(
+        uint256 newAPY
+    ) external onlyOwner {
         liquidityPool.apy = newAPY;
     }
 }

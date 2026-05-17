@@ -61,7 +61,9 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     event OracleSlashed(address indexed oracle, uint256 amount, string reason);
     event DataFeedCreated(string feedName, address creator);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Initialize with some default feeds
         _createDataFeed("ETH/USD");
@@ -77,10 +79,12 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @param value The actual data value (revealed after verification)
      * @param proof ZK-SNARK proof
      */
-    function submitZKProof(string calldata feedName, bytes32 dataHash, uint256 value, ZKProof calldata proof)
-        external
-        payable
-    {
+    function submitZKProof(
+        string calldata feedName,
+        bytes32 dataHash,
+        uint256 value,
+        ZKProof calldata proof
+    ) external payable {
         require(oracleStakes[msg.sender] >= MIN_STAKE, "Insufficient stake");
         require(dataFeeds[feedName].isActive, "Feed not active");
 
@@ -111,7 +115,9 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @notice Register as a ZK oracle
      * @param publicKey Oracle's public key for verification
      */
-    function registerZKOracle(bytes32 publicKey) external payable {
+    function registerZKOracle(
+        bytes32 publicKey
+    ) external payable {
         require(msg.value >= MIN_STAKE, "Insufficient stake");
         require(oracleStakes[msg.sender] == 0, "Already registered");
 
@@ -123,11 +129,9 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @notice Get latest verified data from feed
      * @param feedName Name of the data feed
      */
-    function getZKData(string calldata feedName)
-        external
-        view
-        returns (uint256 value, uint256 timestamp, uint256 confidence, bool isValid)
-    {
+    function getZKData(
+        string calldata feedName
+    ) external view returns (uint256 value, uint256 timestamp, uint256 confidence, bool isValid) {
         ZKDataFeed storage feed = dataFeeds[feedName];
         require(feed.isActive, "Feed not active");
 
@@ -141,14 +145,18 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @param oracle Address of oracle to slash
      * @param amount Amount to slash
      */
-    function slashOracle(address oracle, uint256 amount, string calldata reason) external onlyOwner {
+    function slashOracle(
+        address oracle,
+        uint256 amount,
+        string calldata reason
+    ) external onlyOwner {
         require(oracleStakes[oracle] >= amount, "Insufficient stake to slash");
 
         uint256 slashAmount = (oracleStakes[oracle] * SLASH_PERCENTAGE) / 100;
         oracleStakes[oracle] -= slashAmount;
 
         // Transfer slashed amount to treasury
-        (bool ok,) = payable(owner()).call{value: slashAmount}("");
+        (bool ok,) = payable(owner()).call{ value: slashAmount }("");
         require(ok, "ETH transfer failed");
 
         emit OracleSlashed(oracle, slashAmount, reason);
@@ -158,7 +166,9 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @notice Create new data feed
      * @param feedName Name of the new feed
      */
-    function createDataFeed(string calldata feedName) external onlyOwner {
+    function createDataFeed(
+        string calldata feedName
+    ) external onlyOwner {
         _createDataFeed(feedName);
     }
 
@@ -168,11 +178,7 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     function _verifyZKProof(
         ZKProof memory proof,
         bytes32 /* dataHash */
-    )
-        internal
-        pure
-        returns (bool)
-    {
+    ) internal pure returns (bool) {
         // In production, this would verify the actual ZK-SNARK proof
         // For demo, we do basic validation
 
@@ -189,7 +195,11 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     /**
      * @dev Update feed data when consensus is reached
      */
-    function _updateFeedWithConsensus(string memory feedName, bytes32 dataHash, uint256 value) internal {
+    function _updateFeedWithConsensus(
+        string memory feedName,
+        bytes32 dataHash,
+        uint256 value
+    ) internal {
         ZKDataFeed storage feed = dataFeeds[feedName];
 
         // Simplified consensus: require at least 3 submissions with same hash
@@ -213,7 +223,9 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     /**
      * @dev Create new data feed
      */
-    function _createDataFeed(string memory feedName) internal {
+    function _createDataFeed(
+        string memory feedName
+    ) internal {
         require(!dataFeeds[feedName].isActive, "Feed already exists");
 
         dataFeeds[feedName].feedName = feedName;

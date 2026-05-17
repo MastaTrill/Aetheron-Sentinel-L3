@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
@@ -61,7 +61,7 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     event CertificateRenewed(uint256 indexed certificateId);
     event CertificateRevoked(uint256 indexed certificateId, string reason);
 
-    constructor() ERC721("Sentinel NFT Security Certificate", "SNSC") Ownable(msg.sender) {}
+    constructor() ERC721("Sentinel NFT Security Certificate", "SNSC") Ownable(msg.sender) { }
 
     /**
      * @notice Certify individual NFT
@@ -126,7 +126,9 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Renew certificate
      */
-    function renewCertificate(uint256 certificateId) external payable nonReentrant {
+    function renewCertificate(
+        uint256 certificateId
+    ) external payable nonReentrant {
         require(ownerOf(certificateId) == msg.sender, "Not certificate owner");
         require(msg.value >= CERTIFICATION_FEE / 2, "Insufficient renewal fee");
 
@@ -141,7 +143,10 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Revoke certificate (admin only)
      */
-    function revokeCertificate(uint256 certificateId, string memory reason) external onlyOwner {
+    function revokeCertificate(
+        uint256 certificateId,
+        string memory reason
+    ) external onlyOwner {
         certificates[certificateId].isActive = false;
         emit CertificateRevoked(certificateId, reason);
     }
@@ -149,7 +154,10 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Check NFT certification status
      */
-    function isNFTCertified(address nftContract, uint256 nftTokenId) external view returns (bool) {
+    function isNFTCertified(
+        address nftContract,
+        uint256 nftTokenId
+    ) external view returns (bool) {
         uint256 certId = nftCertificates[nftContract][nftTokenId];
         if (certId == 0) return false;
 
@@ -160,7 +168,10 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Get NFT security score
      */
-    function getNFTSecurityScore(address nftContract, uint256 nftTokenId) external view returns (uint256) {
+    function getNFTSecurityScore(
+        address nftContract,
+        uint256 nftTokenId
+    ) external view returns (uint256) {
         uint256 certId = nftCertificates[nftContract][nftTokenId];
         if (certId == 0) return 0;
 
@@ -170,18 +181,18 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Check collection certification
      */
-    function isCollectionCertified(address collectionAddress) external view returns (bool) {
+    function isCollectionCertified(
+        address collectionAddress
+    ) external view returns (bool) {
         return collectionAudits[collectionAddress].isCertified;
     }
 
     /**
      * @notice Get collection security metrics
      */
-    function getCollectionMetrics(address collectionAddress)
-        external
-        view
-        returns (uint256 averageScore, uint256 lastAuditDate, bool isCertified)
-    {
+    function getCollectionMetrics(
+        address collectionAddress
+    ) external view returns (uint256 averageScore, uint256 lastAuditDate, bool isCertified) {
         CollectionAudit memory audit = collectionAudits[collectionAddress];
         return (audit.averageSecurityScore, audit.lastAuditDate, audit.isCertified);
     }
@@ -196,7 +207,9 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Update certification fee
      */
-    function setCertificationFee(uint256 newFee) external onlyOwner {
+    function setCertificationFee(
+        uint256 newFee
+    ) external onlyOwner {
         uint256 oldFee = CERTIFICATION_FEE;
         CERTIFICATION_FEE = newFee;
         emit CertificationFeeUpdated(oldFee, newFee);

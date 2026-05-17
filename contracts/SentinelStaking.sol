@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelStaking
@@ -64,7 +64,11 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     event TierUpgraded(address indexed user, uint256 newTier);
     event SecurityBonusAwarded(address indexed user, uint256 amount, string reason);
 
-    constructor(address _stakingToken, address _rewardToken, address initialOwner) {
+    constructor(
+        address _stakingToken,
+        address _rewardToken,
+        address initialOwner
+    ) {
         require(_stakingToken != address(0), "Invalid staking token");
         require(_rewardToken != address(0), "Invalid reward token");
         require(initialOwner != address(0), "Invalid owner");
@@ -132,7 +136,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @notice Stake tokens with automatic tier assignment
      * @param amount Amount to stake
      */
-    function stake(uint256 amount) external nonReentrant whenNotPaused {
+    function stake(
+        uint256 amount
+    ) external nonReentrant whenNotPaused {
         require(amount > 0, "Cannot stake 0");
 
         _updateRewards(msg.sender);
@@ -167,7 +173,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @notice Unstake tokens with rewards
      * @param amount Amount to unstake
      */
-    function unstake(uint256 amount) external nonReentrant whenNotPaused {
+    function unstake(
+        uint256 amount
+    ) external nonReentrant whenNotPaused {
         StakeInfo storage userStake = stakes[msg.sender];
         require(userStake.amount >= amount, "Insufficient stake");
         require(block.timestamp >= userStake.stakedAt + tiers[userStake.tier].lockPeriod, "Still locked");
@@ -206,7 +214,10 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @param user User to reward
      * @param reason Reason for bonus
      */
-    function awardSecurityBonus(address user, string calldata reason) external onlyRole(REWARD_MANAGER_ROLE) {
+    function awardSecurityBonus(
+        address user,
+        string calldata reason
+    ) external onlyRole(REWARD_MANAGER_ROLE) {
         uint256 bonusAmount;
 
         if (keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("anomaly_report"))) {
@@ -233,7 +244,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @notice Get user's current APY including bonuses
      * @param user User address
      */
-    function getUserAPY(address user) external view returns (uint256) {
+    function getUserAPY(
+        address user
+    ) external view returns (uint256) {
         StakeInfo memory userStake = stakes[user];
         if (userStake.amount == 0) return 0;
 
@@ -251,7 +264,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @notice Get user's stake information
      * @param user User address
      */
-    function getStakeInfo(address user)
+    function getStakeInfo(
+        address user
+    )
         external
         view
         returns (uint256 amount, uint256 stakedAt, uint256 tier, uint256 pendingRewards, uint256 currentAPY)
@@ -265,7 +280,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Calculate tier based on stake amount
      */
-    function _calculateTier(uint256 amount) internal view returns (uint256) {
+    function _calculateTier(
+        uint256 amount
+    ) internal view returns (uint256) {
         for (uint256 i = tiers.length; i > 0; i--) {
             if (amount >= tiers[i - 1].minStake) {
                 return i - 1;
@@ -277,7 +294,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Calculate pending rewards for user
      */
-    function _calculatePendingRewards(address user) internal view returns (uint256) {
+    function _calculatePendingRewards(
+        address user
+    ) internal view returns (uint256) {
         StakeInfo memory userStake = stakes[user];
         if (userStake.amount == 0) return 0;
 
@@ -292,7 +311,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Update rewards for user
      */
-    function _updateRewards(address user) internal {
+    function _updateRewards(
+        address user
+    ) internal {
         // Advance global rewardPerToken accumulator
         if (totalStaked > 0) {
             uint256 timeElapsed = block.timestamp - lastUpdateTime;
@@ -308,7 +329,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Claim rewards for user
      */
-    function _claimRewards(address user) internal {
+    function _claimRewards(
+        address user
+    ) internal {
         uint256 amount = stakes[user].accumulatedRewards;
         if (amount > 0) {
             stakes[user].accumulatedRewards = 0;

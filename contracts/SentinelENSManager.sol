@@ -26,32 +26,43 @@ contract SentinelENSManager {
      * @dev ENS integration is currently disabled due to security vulnerability in ENS contracts
      * This contract requires ENS contracts upgrade to safe version
      */
-    constructor() {}
+    constructor() { }
 
     /**
      * @notice Placeholder - ENS integration disabled
      * @dev This function will be enabled once ENS contracts vulnerability is resolved
      */
-    function registerContract(address, string calldata, address) external pure returns (bool, string memory) {
+    function registerContract(
+        address,
+        string calldata,
+        address
+    ) external pure returns (bool, string memory) {
         return (false, "ENS integration disabled - vulnerability in ENS contracts");
     }
 
     /**
      * @notice Placeholder - ENS integration disabled
      */
-    function resolveContract(string calldata) external pure returns (address) {
+    function resolveContract(
+        string calldata
+    ) external pure returns (address) {
         return address(0);
     }
 
     /**
      * @notice Placeholder - ENS integration disabled
      */
-    function updateContractAddress(bytes32, address) external pure {}
+    function updateContractAddress(
+        bytes32,
+        address
+    ) external pure { }
 
     /**
      * @notice Placeholder - ENS integration disabled
      */
-    function getContractENS(address) external pure returns (string memory) {
+    function getContractENS(
+        address
+    ) external pure returns (string memory) {
         return "";
     }
 }

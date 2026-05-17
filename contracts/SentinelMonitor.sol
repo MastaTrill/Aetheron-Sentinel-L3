@@ -21,10 +21,9 @@ interface IAetheronBridge {
 
 /// @dev Minimal interface for CircuitBreaker
 interface ICircuitBreaker {
-    function getCircuitStats(uint256 chainId)
-        external
-        view
-        returns (uint8 state, uint256 failures, uint256 lastFailure, uint256 successCount, bool isShutdown);
+    function getCircuitStats(
+        uint256 chainId
+    ) external view returns (uint8 state, uint256 failures, uint256 lastFailure, uint256 successCount, bool isShutdown);
 }
 
 /**
@@ -60,7 +59,9 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
     event ContractAuthorized(address contractAddress);
     event AlertConditionSet(string conditionId, uint256 threshold, uint256 severity);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Set default alert conditions
         _setAlertCondition("high_anomalies", 10, 8, "High anomaly count detected");
@@ -72,7 +73,9 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      * @notice Add a chain ID to track in circuit breaker aggregation
      * @param chainId Chain ID to track
      */
-    function addTrackedChain(uint256 chainId) external onlyOwner {
+    function addTrackedChain(
+        uint256 chainId
+    ) external onlyOwner {
         require(chainId > 0, "Invalid chain ID");
         trackedChainIds.push(chainId);
     }
@@ -83,10 +86,11 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      * @param bridgeContract Address of bridge contract
      * @param circuitBreakerContract Address of circuit breaker contract
      */
-    function updateHealth(address sentinelContract, address bridgeContract, address circuitBreakerContract)
-        external
-        onlyOwner
-    {
+    function updateHealth(
+        address sentinelContract,
+        address bridgeContract,
+        address circuitBreakerContract
+    ) external onlyOwner {
         require(authorizedContracts[sentinelContract], "Sentinel not authorized");
         require(authorizedContracts[bridgeContract], "Bridge not authorized");
         require(authorizedContracts[circuitBreakerContract], "CircuitBreaker not authorized");
@@ -125,7 +129,9 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      * @notice Authorize a contract for health monitoring
      * @param contractAddress Contract to authorize
      */
-    function authorizeContract(address contractAddress) external onlyOwner {
+    function authorizeContract(
+        address contractAddress
+    ) external onlyOwner {
         require(contractAddress != address(0), "Invalid contract address");
         authorizedContracts[contractAddress] = true;
         emit ContractAuthorized(contractAddress);
@@ -172,9 +178,8 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
         uint256 severity,
         string memory description
     ) internal {
-        alertConditions[conditionId] = AlertCondition({
-            description: description, threshold: threshold, active: true, severity: severity
-        });
+        alertConditions[conditionId] =
+            AlertCondition({ description: description, threshold: threshold, active: true, severity: severity });
         emit AlertConditionSet(conditionId, threshold, severity);
     }
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
@@ -42,7 +42,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
     event EmergencyPaused(address indexed pauser);
     event EmergencyUnpaused(address indexed unpauser);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address initialOwner
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
@@ -54,7 +56,10 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @param chainId Chain ID
      * @param failureSeverity Severity level (1-10)
      */
-    function recordFailure(uint256 chainId, uint256 failureSeverity) external whenNotPaused onlyRole(MONITOR_ROLE) {
+    function recordFailure(
+        uint256 chainId,
+        uint256 failureSeverity
+    ) external whenNotPaused onlyRole(MONITOR_ROLE) {
         require(chainId > 0, "Invalid chain ID");
         require(failureSeverity >= 1 && failureSeverity <= 10, "Invalid severity");
         require(!permanentShutdown[chainId], "Chain permanently shutdown");
@@ -97,7 +102,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Records a success for a chain
      * @param chainId Chain ID
      */
-    function recordSuccess(uint256 chainId) external whenNotPaused onlyRole(MONITOR_ROLE) {
+    function recordSuccess(
+        uint256 chainId
+    ) external whenNotPaused onlyRole(MONITOR_ROLE) {
         require(chainId > 0, "Invalid chain ID");
 
         lastSuccessTime[chainId] = block.timestamp;
@@ -125,7 +132,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Manually opens circuit for a chain
      * @param chainId Chain ID
      */
-    function openCircuit(uint256 chainId) external onlyRole(OPERATOR_ROLE) {
+    function openCircuit(
+        uint256 chainId
+    ) external onlyRole(OPERATOR_ROLE) {
         require(chainId > 0, "Invalid chain ID");
         circuitStates[chainId] = State.OPEN;
         halfOpenSuccessCount[chainId] = 0;
@@ -136,7 +145,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Manually closes circuit for a chain
      * @param chainId Chain ID
      */
-    function closeCircuit(uint256 chainId) external onlyRole(OPERATOR_ROLE) {
+    function closeCircuit(
+        uint256 chainId
+    ) external onlyRole(OPERATOR_ROLE) {
         require(chainId > 0, "Invalid chain ID");
         circuitStates[chainId] = State.CLOSED;
         failureCounts[chainId] = 0;
@@ -150,7 +161,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @param chainId Chain ID
      * @return True if circuit is closed or can be tried
      */
-    function isCircuitClosed(uint256 chainId) external returns (bool) {
+    function isCircuitClosed(
+        uint256 chainId
+    ) external returns (bool) {
         require(chainId > 0, "Invalid chain ID");
 
         if (circuitStates[chainId] == State.OPEN) {
@@ -186,7 +199,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Permanently shutdown a chain (emergency measure)
      * @param chainId Chain ID to shutdown
      */
-    function triggerPermanentShutdown(uint256 chainId) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function triggerPermanentShutdown(
+        uint256 chainId
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         permanentShutdown[chainId] = true;
         circuitStates[chainId] = State.OPEN; // Ensure it's open
     }
@@ -195,7 +210,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Check for rapid failure pattern
      * @param chainId Chain ID to check
      */
-    function checkRapidFailures(uint256 chainId) internal view returns (bool) {
+    function checkRapidFailures(
+        uint256 chainId
+    ) internal view returns (bool) {
         uint256[] memory history = failureHistory[chainId];
         if (history.length < 3) return false;
 
@@ -215,7 +232,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Get circuit breaker statistics
      * @param chainId Chain ID
      */
-    function getCircuitStats(uint256 chainId)
+    function getCircuitStats(
+        uint256 chainId
+    )
         external
         view
         returns (State state, uint256 failures, uint256 lastFailure, uint256 successCount, bool isShutdown)
@@ -233,7 +252,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Get failure history for analysis
      * @param chainId Chain ID
      */
-    function getFailureHistory(uint256 chainId) external view returns (uint256[] memory) {
+    function getFailureHistory(
+        uint256 chainId
+    ) external view returns (uint256[] memory) {
         return failureHistory[chainId];
     }
 }

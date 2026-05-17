@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
@@ -64,7 +64,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     event ReviewSubmitted(uint256 indexed listingId, address indexed reviewer, uint256 rating);
     event ListingUpdated(uint256 indexed listingId, uint256 newPrice);
 
-    constructor(address _paymentToken) Ownable(msg.sender) {
+    constructor(
+        address _paymentToken
+    ) Ownable(msg.sender) {
         paymentToken = IERC20(_paymentToken);
     }
 
@@ -107,7 +109,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Purchase data access
      */
-    function purchaseData(uint256 listingId) external nonReentrant returns (uint256) {
+    function purchaseData(
+        uint256 listingId
+    ) external nonReentrant returns (uint256) {
         DataListing storage listing = listings[listingId];
         require(listing.isActive, "Listing is not active");
         require(listing.provider != msg.sender, "Cannot purchase own listing");
@@ -153,7 +157,11 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Submit review for purchased data
      */
-    function submitReview(uint256 listingId, uint256 rating, string memory comment) external {
+    function submitReview(
+        uint256 listingId,
+        uint256 rating,
+        string memory comment
+    ) external {
         require(rating >= 1 && rating <= 5, "Rating must be between 1 and 5");
 
         // Verify buyer purchased this listing
@@ -168,7 +176,7 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
         require(hasPurchased, "Must have purchased this listing to review");
 
         Review memory review =
-            Review({reviewer: msg.sender, rating: rating, comment: comment, timestamp: block.timestamp});
+            Review({ reviewer: msg.sender, rating: rating, comment: comment, timestamp: block.timestamp });
 
         listingReviews[listingId].push(review);
 
@@ -181,7 +189,10 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Update listing price
      */
-    function updateListingPrice(uint256 listingId, uint256 newPrice) external {
+    function updateListingPrice(
+        uint256 listingId,
+        uint256 newPrice
+    ) external {
         DataListing storage listing = listings[listingId];
         require(listing.provider == msg.sender, "Not the listing provider");
         require(newPrice > 0, "Price must be greater than 0");
@@ -194,7 +205,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Deactivate listing
      */
-    function deactivateListing(uint256 listingId) external {
+    function deactivateListing(
+        uint256 listingId
+    ) external {
         DataListing storage listing = listings[listingId];
         require(listing.provider == msg.sender, "Not the listing provider");
 
@@ -204,14 +217,18 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Get listing details
      */
-    function getListing(uint256 listingId) external view returns (DataListing memory) {
+    function getListing(
+        uint256 listingId
+    ) external view returns (DataListing memory) {
         return listings[listingId];
     }
 
     /**
      * @notice Get user's purchases
      */
-    function getUserPurchases(address user) external view returns (DataPurchase[] memory) {
+    function getUserPurchases(
+        address user
+    ) external view returns (DataPurchase[] memory) {
         uint256[] memory purchaseIds = buyerPurchases[user];
         DataPurchase[] memory purchases = new DataPurchase[](purchaseIds.length);
 
@@ -235,7 +252,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Verify access token
      */
-    function verifyAccessToken(string memory token) external view returns (bool) {
+    function verifyAccessToken(
+        string memory token
+    ) external view returns (bool) {
         return validAccessTokens[token];
     }
 
@@ -261,7 +280,10 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @dev Generate access token
      */
-    function _generateAccessToken(uint256 listingId, address buyer) internal returns (string memory) {
+    function _generateAccessToken(
+        uint256 listingId,
+        address buyer
+    ) internal returns (string memory) {
         string memory token = string(
             abi.encodePacked(
                 "access-",
@@ -280,7 +302,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @dev Update listing rating
      */
-    function _updateListingRating(uint256 listingId) internal {
+    function _updateListingRating(
+        uint256 listingId
+    ) internal {
         Review[] memory reviews = listingReviews[listingId];
         if (reviews.length == 0) return;
 
@@ -296,7 +320,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Set platform fee
      */
-    function setPlatformFee(uint256 newFee) external onlyOwner {
+    function setPlatformFee(
+        uint256 newFee
+    ) external onlyOwner {
         require(newFee <= 1000, "Fee cannot exceed 10%");
         platformFee = newFee;
     }
@@ -312,7 +338,9 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
 
 // Helper for string conversion
 library Strings {
-    function toString(uint256 value) internal pure returns (string memory) {
+    function toString(
+        uint256 value
+    ) internal pure returns (string memory) {
         if (value == 0) {
             return "0";
         }
@@ -331,7 +359,9 @@ library Strings {
         return string(buffer);
     }
 
-    function toHexString(uint160 value) internal pure returns (string memory) {
+    function toHexString(
+        uint160 value
+    ) internal pure returns (string memory) {
         if (value == 0) {
             return "0x00";
         }
