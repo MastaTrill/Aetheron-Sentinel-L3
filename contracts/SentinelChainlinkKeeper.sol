@@ -10,7 +10,7 @@ import "./SentinelCore.sol";
  * @notice Chainlink Automation integration for Sentinel L3 upkeep
  * Handles automated security checks, rebalancing, and maintenance
  */
-contract SentinelChainlinkKeeper is  Ownable {
+contract SentinelChainlinkKeeper is Ownable {
     SentinelCore public sentinelCore;
     uint256 public lastUpkeepTime;
     uint256 public upkeepInterval = 1 hours;
@@ -24,11 +24,7 @@ contract SentinelChainlinkKeeper is  Ownable {
         lastUpkeepTime = block.timestamp;
     }
 
-    function checkUpkeep(bytes calldata)
-        external
-        view
-        returns (bool upkeepNeeded, bytes memory performData)
-    {
+    function checkUpkeep(bytes calldata) external view returns (bool upkeepNeeded, bytes memory performData) {
         // Check if enough time has passed
         bool timeCheck = (block.timestamp - lastUpkeepTime) >= upkeepInterval;
 

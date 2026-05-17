@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * Provides comprehensive threat detection and automated response
  */
 contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
-
     // Audit log structure
     struct AuditLog {
         uint256 id;
@@ -73,30 +72,11 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     mapping(address => bool) public isAlertRecipient;
     uint256 public alertThreshold; // Minimum severity to trigger alerts
 
-    event AuditLogCreated(
-        uint256 indexed logId,
-        string eventType,
-        uint256 severity
-    );
-    event ThreatDetected(
-        uint256 indexed ruleId,
-        string ruleName,
-        uint256 severity
-    );
-    event SecurityIncidentReported(
-        uint256 indexed incidentId,
-        string incidentType,
-        uint256 severity
-    );
-    event AutomatedResponseTriggered(
-        uint256 indexed ruleId,
-        address responseContract
-    );
-    event AlertSent(
-        address indexed recipient,
-        uint256 severity,
-        string message
-    );
+    event AuditLogCreated(uint256 indexed logId, string eventType, uint256 severity);
+    event ThreatDetected(uint256 indexed ruleId, string ruleName, uint256 severity);
+    event SecurityIncidentReported(uint256 indexed incidentId, string incidentType, uint256 severity);
+    event AutomatedResponseTriggered(uint256 indexed ruleId, address responseContract);
+    event AlertSent(address indexed recipient, uint256 severity, string message);
     event SecurityScoreUpdated(uint256 newScore, string reason);
 
     constructor(address initialOwner) Ownable(initialOwner) {
@@ -111,12 +91,11 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param severity Severity level (1-10)
      * @param details Additional details about the event
      */
-    function createAuditLog(
-        string calldata eventType,
-        address actor,
-        uint256 severity,
-        string calldata details
-    ) external onlyOwner returns (uint256) {
+    function createAuditLog(string calldata eventType, address actor, uint256 severity, string calldata details)
+        external
+        onlyOwner
+        returns (uint256)
+    {
         require(severity >= 1 && severity <= 10, "Invalid severity");
 
         uint256 logId = logCount++;
@@ -143,11 +122,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
 
         // Send alert if severity meets threshold
         if (severity >= alertThreshold) {
-            _sendAlerts(
-                logId,
-                severity,
-                string(abi.encodePacked("Audit Log: ", eventType))
-            );
+            _sendAlerts(logId, severity, string(abi.encodePacked("Audit Log: ", eventType)));
         }
 
         return logId;
@@ -187,11 +162,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
         _updateSecurityScore(severity * 10, false); // Higher impact for incidents
 
         // Trigger alerts for all incidents
-        _sendAlerts(
-            incidentId,
-            severity,
-            string(abi.encodePacked("Security Incident: ", incidentType))
-        );
+        _sendAlerts(incidentId, severity, string(abi.encodePacked("Security Incident: ", incidentType)));
 
         // Check for automated response
         if (autoResponseEnabled && severity >= 7) {
@@ -210,21 +181,18 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param threshold Threshold value for triggering
      * @param ruleLogic Encoded rule conditions
      */
-    function addThreatRule(
-        string calldata ruleName,
-        uint256 severity,
-        uint256 threshold,
-        bytes calldata ruleLogic
-    ) external onlyOwner returns (uint256) {
+    function addThreatRule(string calldata ruleName, uint256 severity, uint256 threshold, bytes calldata ruleLogic)
+        external
+        onlyOwner
+        returns (uint256)
+    {
         return _addThreatRule(ruleName, severity, threshold, ruleLogic);
     }
 
-    function _addThreatRule(
-        string memory ruleName,
-        uint256 severity,
-        uint256 threshold,
-        bytes memory ruleLogic
-    ) internal returns (uint256) {
+    function _addThreatRule(string memory ruleName, uint256 severity, uint256 threshold, bytes memory ruleLogic)
+        internal
+        returns (uint256)
+    {
         uint256 ruleId = ruleCount++;
 
         threatRules[ruleId] = ThreatRule({
@@ -245,10 +213,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param ruleName Name of the threat rule
      * @param responseContract Address of contract to call for response
      */
-    function setAutomatedResponse(
-        string calldata ruleName,
-        address responseContract
-    ) external onlyOwner {
+    function setAutomatedResponse(string calldata ruleName, address responseContract) external onlyOwner {
         responseContracts[ruleName] = responseContract;
     }
 
@@ -327,13 +292,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
             }
         }
 
-        return (
-            threatLevel,
-            securityScore,
-            activeIncidentsCount,
-            unresolvedCount,
-            logCount
-        );
+        return (threatLevel, securityScore, activeIncidentsCount, unresolvedCount, logCount);
     }
 
     /**
@@ -341,15 +300,10 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
      * @param offset Starting index
      * @param limit Maximum number of logs to return
      */
-    function getAuditLogs(
-        uint256 offset,
-        uint256 limit
-    ) external view returns (AuditLog[] memory) {
+    function getAuditLogs(uint256 offset, uint256 limit) external view returns (AuditLog[] memory) {
         require(offset < logCount, "Invalid offset");
 
-        uint256 actualLimit = limit > logCount - offset
-            ? logCount - offset
-            : limit;
+        uint256 actualLimit = limit > logCount - offset ? logCount - offset : limit;
         AuditLog[] memory logs = new AuditLog[](actualLimit);
 
         for (uint256 i = 0; i < actualLimit; i++) {
@@ -362,10 +316,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     /**
      * @notice Evaluate threat rules against audit events
      */
-    function _evaluateThreatRules(
-        string memory eventType,
-        uint256 severity
-    ) internal {
+    function _evaluateThreatRules(string memory eventType, uint256 severity) internal {
         for (uint256 i = 0; i < ruleCount; i++) {
             ThreatRule storage rule = threatRules[i];
             if (!rule.active) continue;
@@ -385,10 +336,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
                 emit ThreatDetected(i, rule.ruleName, rule.severity);
 
                 // Trigger automated response if configured
-                if (
-                    autoResponseEnabled &&
-                    responseContracts[rule.ruleName] != address(0)
-                ) {
+                if (autoResponseEnabled && responseContracts[rule.ruleName] != address(0)) {
                     _triggerAutomatedResponseForRule(i);
                 }
             }
@@ -398,32 +346,32 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     /**
      * @notice Check if event matches threat rule
      */
-    function _matchesRule(
-        string memory ruleName,
-        string memory eventType,
-        uint256 severity
-    ) internal pure returns (bool) {
+    function _matchesRule(string memory ruleName, string memory eventType, uint256 severity)
+        internal
+        pure
+        returns (bool)
+    {
         // Simplified rule matching (would be more sophisticated in production)
         bytes32 ruleHash = keccak256(abi.encodePacked(ruleName));
         bytes32 eventHash = keccak256(abi.encodePacked(eventType));
 
         if (
-            ruleHash == keccak256(abi.encodePacked("high_frequency_trades")) &&
-            eventHash == keccak256(abi.encodePacked("token_transfer"))
+            ruleHash == keccak256(abi.encodePacked("high_frequency_trades"))
+                && eventHash == keccak256(abi.encodePacked("token_transfer"))
         ) {
             return severity >= 5;
         }
 
         if (
-            ruleHash == keccak256(abi.encodePacked("large_value_transfer")) &&
-            eventHash == keccak256(abi.encodePacked("bridge_transfer"))
+            ruleHash == keccak256(abi.encodePacked("large_value_transfer"))
+                && eventHash == keccak256(abi.encodePacked("bridge_transfer"))
         ) {
             return severity >= 7;
         }
 
         if (
-            ruleHash == keccak256(abi.encodePacked("unauthorized_access")) &&
-            eventHash == keccak256(abi.encodePacked("access_attempt"))
+            ruleHash == keccak256(abi.encodePacked("unauthorized_access"))
+                && eventHash == keccak256(abi.encodePacked("access_attempt"))
         ) {
             return severity >= 8;
         }
@@ -439,27 +387,25 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
             securityScore = securityScore + impact;
             if (securityScore > 1000) securityScore = 1000;
         } else {
-            securityScore = securityScore > impact
-                ? securityScore - impact
-                : 0;
+            securityScore = securityScore > impact ? securityScore - impact : 0;
         }
 
         lastSecurityUpdate = block.timestamp;
 
-        emit SecurityScoreUpdated(
-            securityScore,
-            positive ? "Positive event" : "Security incident"
-        );
+        emit SecurityScoreUpdated(securityScore, positive ? "Positive event" : "Security incident");
     }
 
     /**
      * @notice Send alerts to all recipients
      */
     function _sendAlerts(
-        uint256 /* eventId */,
+        uint256,
+        /* eventId */
         uint256 severity,
         string memory message
-    ) internal {
+    )
+        internal
+    {
         for (uint256 i = 0; i < alertRecipients.length; i++) {
             // In production, this would integrate with notification systems
             emit AlertSent(alertRecipients[i], severity, message);
@@ -472,7 +418,10 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
     function _triggerAutomatedResponse(
         string memory incidentType,
         uint256 /* severity */
-    ) internal view {
+    )
+        internal
+        view
+    {
         address responseContract = responseContracts[incidentType];
         if (responseContract != address(0)) {
             // Call response contract (simplified)

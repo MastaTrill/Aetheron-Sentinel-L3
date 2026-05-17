@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  * Parametric insurance triggered by Sentinel security events
  */
 contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
-
     // Insurance policy structure
     struct InsurancePolicy {
         uint256 policyId;
@@ -111,29 +110,13 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
     address public sentinelCore;
     address public sentinelAuditor;
 
-    event PolicyCreated(
-        uint256 indexed policyId,
-        address indexed policyHolder,
-        InsuranceType insuranceType
-    );
-    event ClaimSubmitted(
-        uint256 indexed claimId,
-        uint256 indexed policyId,
-        uint256 claimAmount
-    );
-    event ClaimProcessed(
-        uint256 indexed claimId,
-        ClaimStatus status,
-        uint256 payoutAmount
-    );
+    event PolicyCreated(uint256 indexed policyId, address indexed policyHolder, InsuranceType insuranceType);
+    event ClaimSubmitted(uint256 indexed claimId, uint256 indexed policyId, uint256 claimAmount);
+    event ClaimProcessed(uint256 indexed claimId, ClaimStatus status, uint256 payoutAmount);
     event PremiumCollected(uint256 indexed policyId, uint256 amount);
     event CoverageActivated(uint256 indexed policyId);
 
-    constructor(
-        address _sentinelCore,
-        address _sentinelAuditor,
-        address initialOwner
-    ) Ownable(initialOwner) {
+    constructor(address _sentinelCore, address _sentinelAuditor, address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         sentinelCore = _sentinelCore;
         sentinelAuditor = _sentinelAuditor;
@@ -170,27 +153,14 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         InsuranceType insuranceType,
         uint256 coveragePeriod
     ) external payable nonReentrant returns (uint256) {
+        require(coverageAmount >= MIN_COVERAGE && coverageAmount <= MAX_COVERAGE, "Invalid coverage amount");
         require(
-            coverageAmount >= MIN_COVERAGE && coverageAmount <= MAX_COVERAGE,
-            "Invalid coverage amount"
+            coveragePeriod >= COVERAGE_PERIOD_MIN && coveragePeriod <= COVERAGE_PERIOD_MAX, "Invalid coverage period"
         );
-        require(
-            coveragePeriod >= COVERAGE_PERIOD_MIN &&
-                coveragePeriod <= COVERAGE_PERIOD_MAX,
-            "Invalid coverage period"
-        );
-        require(
-            insurancePools[uint256(insuranceType)].isActive,
-            "Insurance type not available"
-        );
+        require(insurancePools[uint256(insuranceType)].isActive, "Insurance type not available");
 
         // Calculate premium based on risk assessment
-        uint256 premiumAmount = _calculatePremium(
-            coveredContract,
-            coverageAmount,
-            insuranceType,
-            coveragePeriod
-        );
+        uint256 premiumAmount = _calculatePremium(coveredContract, coverageAmount, insuranceType, coveragePeriod);
         require(msg.value >= premiumAmount, "Insufficient premium payment");
 
         uint256 excess = 0;
@@ -229,7 +199,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         emit PremiumCollected(policyId, premiumAmount);
 
         if (excess > 0) {
-            (bool refundOk, ) = payable(msg.sender).call{value: excess}("");
+            (bool refundOk,) = payable(msg.sender).call{value: excess}("");
             require(refundOk, "Refund failed");
         }
 
@@ -242,11 +212,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      * @param incidentHash Hash of the security incident
      * @param evidence Supporting evidence
      */
-    function submitClaim(
-        uint256 policyId,
-        bytes32 incidentHash,
-        bytes calldata evidence
-    ) external returns (uint256) {
+    function submitClaim(uint256 policyId, bytes32 incidentHash, bytes calldata evidence) external returns (uint256) {
         InsurancePolicy storage policy = policies[policyId];
         require(policy.policyHolder == msg.sender, "Not policy holder");
         require(policy.status == PolicyStatus.ACTIVE, "Policy not active");
@@ -254,10 +220,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         require(block.timestamp >= policy.startTime, "Policy not yet active");
 
         // Verify incident through Sentinel
-        uint256 incidentSeverity = _verifySecurityIncident(
-            incidentHash,
-            policy.coveredContract
-        );
+        uint256 incidentSeverity = _verifySecurityIncident(incidentHash, policy.coveredContract);
         require(incidentSeverity > 0, "Incident not verified by Sentinel");
 
         uint256 claimAmount = _calculateClaimAmount(policy, incidentSeverity);
@@ -289,36 +252,23 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
      */
     function processClaim(uint256 claimId, bool approve) external onlyOwner {
         InsuranceClaim storage claim = claims[claimId];
-        require(
-            claim.status == ClaimStatus.SUBMITTED,
-            "Claim not in submitted state"
-        );
+        require(claim.status == ClaimStatus.SUBMITTED, "Claim not in submitted state");
 
         InsurancePolicy storage policy = policies[claim.policyId];
-        InsurancePool storage pool = insurancePools[
-            uint256(policy.insuranceType)
-        ];
+        InsurancePool storage pool = insurancePools[uint256(policy.insuranceType)];
 
         if (approve) {
-            require(
-                pool.claimReserve >= claim.claimAmount,
-                "Insufficient claim reserve"
-            );
-            require(
-                address(this).balance >= claim.claimAmount,
-                "Insufficient contract balance"
-            );
+            require(pool.claimReserve >= claim.claimAmount, "Insufficient claim reserve");
+            require(address(this).balance >= claim.claimAmount, "Insufficient contract balance");
 
             // Pay out claim
-            (bool payOk, ) = payable(claim.claimant).call{
-                value: claim.claimAmount
-            }("");
+            (bool payOk,) = payable(claim.claimant).call{value: claim.claimAmount}("");
             require(payOk, "Claim payout failed");
 
             // Update policy and pool
-policy.totalPaid = policy.totalPaid + claim.claimAmount;
-        pool.claimReserve = pool.claimReserve - claim.claimAmount;
-        pool.lockedFunds = pool.lockedFunds - claim.claimAmount;
+            policy.totalPaid = policy.totalPaid + claim.claimAmount;
+            pool.claimReserve = pool.claimReserve - claim.claimAmount;
+            pool.lockedFunds = pool.lockedFunds - claim.claimAmount;
 
             claim.status = ClaimStatus.PAID;
             claim.processingTime = block.timestamp;
@@ -332,20 +282,14 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
             claim.processingTime = block.timestamp;
         }
 
-        emit ClaimProcessed(
-            claimId,
-            claim.status,
-            approve ? claim.claimAmount : 0
-        );
+        emit ClaimProcessed(claimId, claim.status, approve ? claim.claimAmount : 0);
     }
 
     /**
      * @notice Get policy information
      * @param policyId Policy to query
      */
-    function getPolicyInfo(
-        uint256 policyId
-    )
+    function getPolicyInfo(uint256 policyId)
         external
         view
         returns (
@@ -360,23 +304,15 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
         InsurancePolicy memory policy = policies[policyId];
         uint256 remaining = policy.coverageAmount - policy.totalPaid;
 
-        return (
-            policy.policyHolder,
-            policy.coverageAmount,
-            remaining,
-            policy.insuranceType,
-            policy.status,
-            policy.endTime
-        );
+        return
+            (policy.policyHolder, policy.coverageAmount, remaining, policy.insuranceType, policy.status, policy.endTime);
     }
 
     /**
      * @notice Get insurance pool statistics
      * @param poolType Type of insurance pool
      */
-    function getPoolStatistics(
-        uint256 poolType
-    )
+    function getPoolStatistics(uint256 poolType)
         external
         view
         returns (
@@ -389,13 +325,7 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
     {
         InsurancePool memory pool = insurancePools[poolType];
 
-        return (
-            pool.totalCoverage,
-            pool.totalPremiums,
-            pool.utilizationRate,
-            pool.claimReserve,
-            pool.policies.length
-        );
+        return (pool.totalCoverage, pool.totalPremiums, pool.utilizationRate, pool.claimReserve, pool.policies.length);
     }
 
     /**
@@ -407,13 +337,7 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
         InsuranceType insuranceType,
         uint256 coveragePeriod
     ) external pure returns (uint256) {
-        return
-            _calculatePremium(
-                coveredContract,
-                coverageAmount,
-                insuranceType,
-                coveragePeriod
-            );
+        return _calculatePremium(coveredContract, coverageAmount, insuranceType, coveragePeriod);
     }
 
     /**
@@ -426,15 +350,10 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
         uint256 coveragePeriod
     ) internal pure returns (uint256) {
         // Base premium calculation
-        uint256 basePremium = coverageAmount
-            * _getBasePremiumRate(insuranceType)
-            / 10000;
+        uint256 basePremium = coverageAmount * _getBasePremiumRate(insuranceType) / 10000;
 
         // Risk adjustment
-        uint256 riskMultiplier = _assessContractRisk(
-            coveredContract,
-            insuranceType
-        );
+        uint256 riskMultiplier = _assessContractRisk(coveredContract, insuranceType);
         uint256 riskAdjustedPremium = basePremium * riskMultiplier / 100;
 
         // Time adjustment
@@ -451,9 +370,7 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
     /**
      * @dev Get base premium rate for insurance type
      */
-    function _getBasePremiumRate(
-        InsuranceType insuranceType
-    ) internal pure returns (uint256) {
+    function _getBasePremiumRate(InsuranceType insuranceType) internal pure returns (uint256) {
         if (insuranceType == InsuranceType.HACK_COVERAGE) return 25; // 0.25%
         if (insuranceType == InsuranceType.ORACLE_FAILURE) return 15; // 0.15%
         if (insuranceType == InsuranceType.GOVERNANCE_ATTACK) return 30; // 0.30%
@@ -468,9 +385,14 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
      * @dev Assess contract risk for premium calculation
      */
     function _assessContractRisk(
-        address /* contractAddress */,
+        address,
+        /* contractAddress */
         InsuranceType insuranceType
-    ) internal pure returns (uint256) {
+    )
+        internal
+        pure
+        returns (uint256)
+    {
         // Simplified risk assessment
         // In production, this would query Sentinel security metrics
 
@@ -489,10 +411,7 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
      * @notice This is a placeholder that returns a default medium severity.
      * In production, integrate with SentinelSecurityAuditor for real verification.
      */
-    function _verifySecurityIncident(
-        bytes32 incidentHash,
-        address coveredContract
-    ) internal view returns (uint256) {
+    function _verifySecurityIncident(bytes32 incidentHash, address coveredContract) internal view returns (uint256) {
         // Placeholder: return default medium severity (5)
         // TODO: Replace with actual SentinelSecurityAuditor integration
         // The incidentHash and coveredContract params are intentionally unused in this stub
@@ -504,10 +423,11 @@ policy.totalPaid = policy.totalPaid + claim.claimAmount;
     /**
      * @dev Calculate claim amount based on policy and incident
      */
-    function _calculateClaimAmount(
-        InsurancePolicy memory policy,
-        uint256 incidentSeverity
-    ) internal pure returns (uint256) {
+    function _calculateClaimAmount(InsurancePolicy memory policy, uint256 incidentSeverity)
+        internal
+        pure
+        returns (uint256)
+    {
         // Base claim calculation
         uint256 baseClaim = policy.coverageAmount * incidentSeverity / 10;
 

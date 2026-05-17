@@ -76,20 +76,13 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
     mapping(address => bool) private _emergencyVotes; // tracks who voted for emergency
     uint256 public emergencyVoteCount;
 
-    event TransactionSubmitted(
-        uint256 indexed txId,
-        address indexed initiator,
-        SecurityLevel level
-    );
+    event TransactionSubmitted(uint256 indexed txId, address indexed initiator, SecurityLevel level);
     event TransactionConfirmed(uint256 indexed txId, address indexed guardian);
     event TransactionExecuted(uint256 indexed txId);
     event GuardianAdded(address indexed guardian, SecurityClearance clearance);
     event GuardianRemoved(address indexed guardian);
     event EmergencyModeActivated(address indexed activator);
-    event SecurityLevelChanged(
-        SecurityLevel indexed level,
-        uint256 requiredConfirmations
-    );
+    event SecurityLevelChanged(SecurityLevel indexed level, uint256 requiredConfirmations);
 
     constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
@@ -104,16 +97,12 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      * @param data Transaction data
      * @param securityLevel Security classification
      */
-    function submitTransaction(
-        address to,
-        uint256 value,
-        bytes calldata data,
-        SecurityLevel securityLevel
-    ) external onlyGuardian returns (uint256) {
-        require(
-            !emergencyMode || _isEmergencyGuardian(msg.sender),
-            "Emergency mode restrictions"
-        );
+    function submitTransaction(address to, uint256 value, bytes calldata data, SecurityLevel securityLevel)
+        external
+        onlyGuardian
+        returns (uint256)
+    {
+        require(!emergencyMode || _isEmergencyGuardian(msg.sender), "Emergency mode restrictions");
         require(to != address(0), "Invalid target address");
 
         uint256 txId = transactionCount++;
@@ -142,17 +131,11 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      * @param txId Transaction ID
      * @param signature Guardian signature
      */
-    function confirmTransaction(
-        uint256 txId,
-        bytes calldata signature
-    ) external {
+    function confirmTransaction(uint256 txId, bytes calldata signature) external {
         require(_isValidGuardian(msg.sender), "Not an active guardian");
         require(!confirmations[txId][msg.sender], "Already confirmed");
         require(!transactions[txId].executed, "Already executed");
-        require(
-            block.timestamp <= transactions[txId].expiry,
-            "Transaction expired"
-        );
+        require(block.timestamp <= transactions[txId].expiry, "Transaction expired");
 
         // Verify quantum-resistant signature
         bytes32 txHash = _getTransactionHash(txId);
@@ -160,10 +143,7 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
         require(signer == msg.sender, "Invalid signature");
 
         // Check security clearance
-        require(
-            _hasRequiredClearance(msg.sender, transactions[txId].securityLevel),
-            "Insufficient clearance"
-        );
+        require(_hasRequiredClearance(msg.sender, transactions[txId].securityLevel), "Insufficient clearance");
 
         _confirmTransaction(txId, msg.sender);
     }
@@ -178,17 +158,12 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
         require(block.timestamp <= transaction.expiry, "Transaction expired");
 
         uint256 required = _getRequiredConfirmations(transaction.securityLevel);
-        require(
-            transaction.confirmations >= required,
-            "Insufficient confirmations"
-        );
+        require(transaction.confirmations >= required, "Insufficient confirmations");
 
         transaction.executed = true;
 
         // Execute the transaction
-        (bool success, ) = transaction.to.call{value: transaction.value}(
-            transaction.data
-        );
+        (bool success,) = transaction.to.call{value: transaction.value}(transaction.data);
         require(success, "Transaction execution failed");
 
         emit TransactionExecuted(txId);
@@ -200,17 +175,10 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      * @param publicKey Quantum-resistant public key
      * @param clearance Security clearance level
      */
-    function addGuardian(
-        address guardian,
-        bytes32 publicKey,
-        SecurityClearance clearance
-    ) external onlyOwner {
+    function addGuardian(address guardian, bytes32 publicKey, SecurityClearance clearance) external onlyOwner {
         require(guardian != address(0), "Invalid guardian address");
         require(publicKey != bytes32(0), "Invalid public key");
-        require(
-            guardianList.length < MAX_GUARDIANS,
-            "Maximum guardians reached"
-        );
+        require(guardianList.length < MAX_GUARDIANS, "Maximum guardians reached");
         require(!_isValidGuardian(guardian), "Already a guardian");
 
         guardians[guardian] = Guardian({
@@ -267,9 +235,7 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      * @notice Get transaction details
      * @param txId Transaction ID
      */
-    function getTransaction(
-        uint256 txId
-    )
+    function getTransaction(uint256 txId)
         external
         view
         returns (
@@ -282,14 +248,15 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
         )
     {
         MultiSigTx storage txRecord = transactions[txId];
-        return (
-            txRecord.to,
-            txRecord.value,
-            txRecord.data,
-            txRecord.confirmations,
-            txRecord.executed,
-            txRecord.securityLevel
-        );
+        return
+            (
+                txRecord.to,
+                txRecord.value,
+                txRecord.data,
+                txRecord.confirmations,
+                txRecord.executed,
+                txRecord.securityLevel
+            );
     }
 
     /**
@@ -297,10 +264,7 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      * @param txId Transaction ID
      * @param guardian Guardian address
      */
-    function getConfirmation(
-        uint256 txId,
-        address guardian
-    ) external view returns (bool) {
+    function getConfirmation(uint256 txId, address guardian) external view returns (bool) {
         return confirmations[txId][guardian];
     }
 
@@ -328,9 +292,7 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
     /**
      * @notice Get required confirmations for security level
      */
-    function _getRequiredConfirmations(
-        SecurityLevel level
-    ) internal view returns (uint256) {
+    function _getRequiredConfirmations(SecurityLevel level) internal view returns (uint256) {
         if (emergencyMode) {
             return emergencyThreshold;
         }
@@ -340,20 +302,21 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
     /**
      * @notice Check if guardian has required security clearance
      */
-    function _hasRequiredClearance(
-        address guardian,
-        SecurityLevel level
-    ) internal view returns (bool) {
+    function _hasRequiredClearance(address guardian, SecurityLevel level) internal view returns (bool) {
         SecurityClearance clearance = guardians[guardian].clearance;
 
-        if (level == SecurityLevel.LOW)
+        if (level == SecurityLevel.LOW) {
             return clearance >= SecurityClearance.BASIC;
-        if (level == SecurityLevel.MEDIUM)
+        }
+        if (level == SecurityLevel.MEDIUM) {
             return clearance >= SecurityClearance.ADVANCED;
-        if (level == SecurityLevel.HIGH)
+        }
+        if (level == SecurityLevel.HIGH) {
             return clearance >= SecurityClearance.EXPERT;
-        if (level == SecurityLevel.CRITICAL)
+        }
+        if (level == SecurityLevel.CRITICAL) {
             return clearance >= SecurityClearance.MASTER;
+        }
 
         return false;
     }
@@ -362,19 +325,14 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      * @notice Check if address is a valid active guardian
      */
     function _isValidGuardian(address account) internal view returns (bool) {
-        return
-            guardians[account].active &&
-            guardians[account].guardianAddress != address(0);
+        return guardians[account].active && guardians[account].guardianAddress != address(0);
     }
 
     /**
      * @notice Check if guardian can act in emergency mode
      */
-    function _isEmergencyGuardian(
-        address guardian
-    ) internal view returns (bool) {
-        return
-            _isValidGuardian(guardian) && guardians[guardian].reputation >= 150; // High reputation required
+    function _isEmergencyGuardian(address guardian) internal view returns (bool) {
+        return _isValidGuardian(guardian) && guardians[guardian].reputation >= 150; // High reputation required
     }
 
     /**
@@ -382,46 +340,26 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
      */
     function _getTransactionHash(uint256 txId) internal view returns (bytes32) {
         MultiSigTx storage txRecord = transactions[txId];
-        return
-            keccak256(
-                abi.encodePacked(
-                    txId,
-                    txRecord.to,
-                    txRecord.value,
-                    txRecord.data,
-                    txRecord.timestamp,
-                    address(this)
-                )
-            );
+        return keccak256(
+            abi.encodePacked(txId, txRecord.to, txRecord.value, txRecord.data, txRecord.timestamp, address(this))
+        );
     }
 
     /**
      * @notice Recover signer using quantum-resistant signature
      */
-    function _recoverQuantumSigner(
-        bytes32 message,
-        bytes memory signature
-    ) internal view returns (address) {
+    function _recoverQuantumSigner(bytes32 message, bytes memory signature) internal view returns (address) {
         // In production, this would use quantum-resistant signature verification
         // For demo, using ECDSA with additional validation
 
-        bytes32 ethSignedMessageHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", message)
-        );
+        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
 
         address recovered = ethSignedMessageHash.recover(signature);
         require(recovered != address(0), "ECDSA: invalid signature");
 
         // Additional validation using stored public key
-        require(
-            guardians[recovered].publicKey != bytes32(0),
-            "No public key registered"
-        );
-        require(
-            block.timestamp - guardians[recovered].lastActivity <=
-                SIGNATURE_VALIDITY,
-            "Signature expired"
-        );
+        require(guardians[recovered].publicKey != bytes32(0), "No public key registered");
+        require(block.timestamp - guardians[recovered].lastActivity <= SIGNATURE_VALIDITY, "Signature expired");
 
         return recovered;
     }

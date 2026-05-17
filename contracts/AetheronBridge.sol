@@ -50,18 +50,11 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
     );
 
     event TokensUnbridged(
-        address indexed sender,
-        address indexed recipient,
-        uint256 amount,
-        bytes32 indexed transferId
+        address indexed sender, address indexed recipient, uint256 amount, bytes32 indexed transferId
     );
 
     event TransferCompleted(bytes32 indexed transferId);
-    event BridgeInitialized(
-        address indexed token,
-        address indexed bridge,
-        uint256 initialSupply
-    );
+    event BridgeInitialized(address indexed token, address indexed bridge, uint256 initialSupply);
     event TokenSupportUpdated(address indexed token, bool supported);
     event EmergencyPaused(address indexed pauser);
     event EmergencyUnpaused(address indexed unpauser);
@@ -80,12 +73,12 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param chainId Destination chain ID
      * @param tokenAddress Token contract address
      */
-    function bridgeTokens(
-        address recipient,
-        uint256 amount,
-        uint256 chainId,
-        address tokenAddress
-    ) external payable nonReentrant whenNotPaused {
+    function bridgeTokens(address recipient, uint256 amount, uint256 chainId, address tokenAddress)
+        external
+        payable
+        nonReentrant
+        whenNotPaused
+    {
         require(amount > 0, "Amount must be positive");
         require(recipient != address(0), "Invalid recipient");
         require(chainId != block.chainid, "Cannot bridge to same chain");
@@ -94,40 +87,20 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
         require(msg.value >= bridgeFee, "Insufficient bridge fee");
 
         // Rate limiting per user
-        require(
-            userTransferCount[msg.sender] < MAX_TRANSFERS_PER_USER,
-            "User transfer limit exceeded"
-        );
+        require(userTransferCount[msg.sender] < MAX_TRANSFERS_PER_USER, "User transfer limit exceeded");
 
         // Volume limits per chain
-        require(
-            chainTransferVolume[chainId] + amount <= MAX_CHAIN_VOLUME,
-            "Chain volume limit exceeded"
-        );
+        require(chainTransferVolume[chainId] + amount <= MAX_CHAIN_VOLUME, "Chain volume limit exceeded");
 
         // Transfer tokens from sender
         uint256 balanceBefore = IERC20(tokenAddress).balanceOf(address(this));
-        IERC20(tokenAddress).safeTransferFrom(
-            msg.sender,
-            address(this),
-            amount
-        );
+        IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
         uint256 balanceAfter = IERC20(tokenAddress).balanceOf(address(this));
-        require(
-            balanceAfter - balanceBefore == amount,
-            "Transfer amount mismatch"
-        );
+        require(balanceAfter - balanceBefore == amount, "Transfer amount mismatch");
 
         bytes32 transferId = keccak256(
             abi.encodePacked(
-                msg.sender,
-                recipient,
-                amount,
-                chainId,
-                tokenAddress,
-                block.timestamp,
-                block.number,
-                _transferNonce++
+                msg.sender, recipient, amount, chainId, tokenAddress, block.timestamp, block.number, _transferNonce++
             )
         );
 
@@ -148,20 +121,11 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         // Refund excess fee — use call() to support smart contract wallets
         if (msg.value > bridgeFee) {
-            (bool refundOk, ) = payable(msg.sender).call{
-                value: msg.value - bridgeFee
-            }("");
+            (bool refundOk,) = payable(msg.sender).call{value: msg.value - bridgeFee}("");
             require(refundOk, "Fee refund failed");
         }
 
-        emit TokensBridged(
-            msg.sender,
-            recipient,
-            amount,
-            chainId,
-            tokenAddress,
-            transferId
-        );
+        emit TokensBridged(msg.sender, recipient, amount, chainId, tokenAddress, transferId);
     }
 
     /**
@@ -169,20 +133,14 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param transferId Original transfer ID
      * @param signature Oracle/relayer signature for validation
      */
-    function unbridgeTokens(
-        bytes32 transferId,
-        bytes calldata signature
-    ) external nonReentrant {
+    function unbridgeTokens(bytes32 transferId, bytes calldata signature) external nonReentrant {
         Transfer storage transfer = transfers[transferId];
         require(!transfer.completed, "Transfer already completed");
         require(transfer.amount > 0, "Invalid transfer");
 
         // Verify signature from authorized relayer
         bytes32 messageHash = keccak256(
-            abi.encodePacked(
-                "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encodePacked(transferId, block.chainid))
-            )
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(transferId, block.chainid)))
         );
 
         address signer = recoverSigner(messageHash, signature);
@@ -191,18 +149,10 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
         transfer.completed = true;
 
         // Release tokens to recipient — use safeTransfer
-        IERC20(transfer.tokenAddress).safeTransfer(
-            transfer.recipient,
-            transfer.amount
-        );
+        IERC20(transfer.tokenAddress).safeTransfer(transfer.recipient, transfer.amount);
         totalValueLocked -= transfer.amount;
 
-        emit TokensUnbridged(
-            transfer.sender,
-            transfer.recipient,
-            transfer.amount,
-            transferId
-        );
+        emit TokensUnbridged(transfer.sender, transfer.recipient, transfer.amount, transferId);
         emit TransferCompleted(transferId);
     }
 
@@ -212,10 +162,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param signature Signature to recover from
      * @return signer The recovered signer address
      */
-    function recoverSigner(
-        bytes32 messageHash,
-        bytes memory signature
-    ) internal pure returns (address) {
+    function recoverSigner(bytes32 messageHash, bytes memory signature) internal pure returns (address) {
         require(signature.length == 65, "Invalid signature length");
 
         bytes32 r;
@@ -253,10 +200,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param tokenAddress Token contract address
      * @param supported Whether to support this token
      */
-    function setTokenSupport(
-        address tokenAddress,
-        bool supported
-    ) external onlyRole(OPERATOR_ROLE) {
+    function setTokenSupport(address tokenAddress, bool supported) external onlyRole(OPERATOR_ROLE) {
         require(tokenAddress != address(0), "Invalid token address");
         if (supported && !supportedTokens[tokenAddress]) {
             supportedTokenCount++;
@@ -272,10 +216,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param chainId Chain ID
      * @param limit Maximum transfer amount
      */
-    function setChainLimit(
-        uint256 chainId,
-        uint256 limit
-    ) external onlyRole(OPERATOR_ROLE) {
+    function setChainLimit(uint256 chainId, uint256 limit) external onlyRole(OPERATOR_ROLE) {
         require(chainId != 0, "Invalid chain ID");
         require(chainId != block.chainid, "Cannot set local chain limit");
         require(limit > 0, "Limit must be positive");
@@ -287,10 +228,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @param tokenAddress Token contract address
      * @param initialSupply Initial supply to bridge
      */
-    function initializeBridge(
-        address tokenAddress,
-        uint256 initialSupply
-    ) external onlyRole(OPERATOR_ROLE) {
+    function initializeBridge(address tokenAddress, uint256 initialSupply) external onlyRole(OPERATOR_ROLE) {
         require(tokenAddress != address(0), "Invalid token address");
         require(initialSupply > 0, "Initial supply must be positive");
 
@@ -334,7 +272,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
         address payable recipient = payable(owner());
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
-        (bool ok, ) = recipient.call{value: balance}("");
+        (bool ok,) = recipient.call{value: balance}("");
         require(ok, "Fee withdrawal failed");
     }
 
@@ -356,11 +294,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
     /**
      * @notice Get bridge statistics
      */
-    function getBridgeStats()
-        external
-        view
-        returns (uint256 tvl, uint256 fee, uint256 tokenCount)
-    {
+    function getBridgeStats() external view returns (uint256 tvl, uint256 fee, uint256 tokenCount) {
         return (totalValueLocked, bridgeFee, supportedTokenCount);
     }
 
@@ -368,9 +302,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @notice Check if transfer can be processed
      * @param transferId Transfer ID to check
      */
-    function canProcessTransfer(
-        bytes32 transferId
-    ) external view returns (bool) {
+    function canProcessTransfer(bytes32 transferId) external view returns (bool) {
         Transfer memory transfer = transfers[transferId];
         return !transfer.completed && transfer.amount > 0;
     }

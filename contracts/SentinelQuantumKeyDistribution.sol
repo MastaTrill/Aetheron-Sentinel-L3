@@ -64,20 +64,9 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
     uint256 public keyDistributionSuccessRate;
     uint256 public activeKeyPairs;
 
-    event QuantumKeyGenerated(
-        bytes32 indexed keyId,
-        address indexed holder,
-        uint256 keyLength
-    );
-    event QuantumKeyExchangeInitiated(
-        bytes32 indexed sessionId,
-        address indexed initiator,
-        address indexed responder
-    );
-    event QuantumKeyExchangeCompleted(
-        bytes32 indexed sessionId,
-        bytes32 sharedSecretHash
-    );
+    event QuantumKeyGenerated(bytes32 indexed keyId, address indexed holder, uint256 keyLength);
+    event QuantumKeyExchangeInitiated(bytes32 indexed sessionId, address indexed initiator, address indexed responder);
+    event QuantumKeyExchangeCompleted(bytes32 indexed sessionId, bytes32 sharedSecretHash);
     event QuantumKeyCompromised(bytes32 indexed keyId, string reason);
     event QuantumKeyRotated(bytes32 indexed oldKeyId, bytes32 indexed newKeyId);
 
@@ -92,38 +81,21 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
      * @param keyLength Desired key length in bits
      * @return keyId Unique identifier for the generated key
      */
-    function generateQuantumKey(
-        address keyHolder,
-        uint256 keyLength
-    ) external onlyOwner returns (bytes32) {
+    function generateQuantumKey(address keyHolder, uint256 keyLength) external onlyOwner returns (bytes32) {
         return _generateQuantumKey(keyHolder, keyLength);
     }
 
-    function _generateQuantumKey(
-        address keyHolder,
-        uint256 keyLength
-    ) internal returns (bytes32) {
+    function _generateQuantumKey(address keyHolder, uint256 keyLength) internal returns (bytes32) {
         require(keyHolder != address(0), "Invalid key holder");
         require(keyLength >= MIN_KEY_LENGTH, "Key length too short");
 
         // Generate quantum-resistant key material
-        bytes32 keyId = keccak256(
-            abi.encodePacked(
-                block.timestamp,
-                block.prevrandao,
-                keyHolder,
-                keyLength,
-                entanglementEntropy
-            )
-        );
+        bytes32 keyId =
+            keccak256(abi.encodePacked(block.timestamp, block.prevrandao, keyHolder, keyLength, entanglementEntropy));
 
-        bytes32 publicKey = keccak256(
-            abi.encodePacked("quantum_public_key", keyId, block.timestamp)
-        );
+        bytes32 publicKey = keccak256(abi.encodePacked("quantum_public_key", keyId, block.timestamp));
 
-        bytes32 privateKeyCommitment = keccak256(
-            abi.encodePacked("quantum_private_commitment", keyId, block.number)
-        );
+        bytes32 privateKeyCommitment = keccak256(abi.encodePacked("quantum_private_commitment", keyId, block.number));
 
         quantumKeys[keyId] = QuantumKey({
             keyId: keyId,
@@ -152,16 +124,10 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
      * @param keyId Key to activate
      * @param activationProof Proof of successful key distribution
      */
-    function activateQuantumKey(
-        bytes32 keyId,
-        bytes calldata activationProof
-    ) external {
+    function activateQuantumKey(bytes32 keyId, bytes calldata activationProof) external {
         QuantumKey storage key = quantumKeys[keyId];
         require(key.keyHolder == msg.sender, "Not key holder");
-        require(
-            key.state == QuantumKeyState.DISTRIBUTED,
-            "Key not distributed"
-        );
+        require(key.state == QuantumKeyState.DISTRIBUTED, "Key not distributed");
         require(key.active, "Key not active");
 
         // Verify activation proof (simplified)
@@ -180,31 +146,12 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
      * @param initiatorKeyId Key ID of the initiator
      * @return sessionId Unique session identifier
      */
-    function initiateKeyExchange(
-        address responder,
-        bytes32 initiatorKeyId
-    ) external returns (bytes32) {
-        require(
-            quantumKeys[initiatorKeyId].keyHolder == msg.sender,
-            "Not key owner"
-        );
-        require(
-            quantumKeys[initiatorKeyId].state == QuantumKeyState.ACTIVE,
-            "Key not active"
-        );
-        require(
-            responder != address(0) && responder != msg.sender,
-            "Invalid responder"
-        );
+    function initiateKeyExchange(address responder, bytes32 initiatorKeyId) external returns (bytes32) {
+        require(quantumKeys[initiatorKeyId].keyHolder == msg.sender, "Not key owner");
+        require(quantumKeys[initiatorKeyId].state == QuantumKeyState.ACTIVE, "Key not active");
+        require(responder != address(0) && responder != msg.sender, "Invalid responder");
 
-        bytes32 sessionId = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                responder,
-                initiatorKeyId,
-                block.timestamp
-            )
-        );
+        bytes32 sessionId = keccak256(abi.encodePacked(msg.sender, responder, initiatorKeyId, block.timestamp));
 
         keySessions[sessionId] = KeyExchangeSession({
             sessionId: sessionId,
@@ -227,27 +174,17 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
      * @param sharedSecretCommitment Commitment to shared secret
      * @param sessionKey Encrypted session key
      */
-    function completeKeyExchange(
-        bytes32 sessionId,
-        bytes32 sharedSecretCommitment,
-        bytes32 sessionKey
-    ) external {
+    function completeKeyExchange(bytes32 sessionId, bytes32 sharedSecretCommitment, bytes32 sessionKey) external {
         KeyExchangeSession storage session = keySessions[sessionId];
         require(session.responder == msg.sender, "Not session responder");
-        require(
-            session.sessionState == QuantumKeyState.GENERATING,
-            "Invalid session state"
-        );
+        require(session.sessionState == QuantumKeyState.GENERATING, "Invalid session state");
 
         session.sharedSecretCommitment = sharedSecretCommitment;
         session.sessionKey = sessionKey;
         session.sessionState = QuantumKeyState.ACTIVE;
         session.establishedTime = block.timestamp;
 
-        emit QuantumKeyExchangeCompleted(
-            sessionId,
-            keccak256(abi.encodePacked(sharedSecretCommitment))
-        );
+        emit QuantumKeyExchangeCompleted(sessionId, keccak256(abi.encodePacked(sharedSecretCommitment)));
     }
 
     /**
@@ -260,8 +197,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
         require(oldKey.active, "Key not active");
 
         // Check if rotation is needed
-        bool needsRotation = (block.timestamp >= oldKey.expiryTime) ||
-            (oldKey.state == QuantumKeyState.COMPROMISED);
+        bool needsRotation = (block.timestamp >= oldKey.expiryTime) || (oldKey.state == QuantumKeyState.COMPROMISED);
 
         require(needsRotation, "Key rotation not required");
 
@@ -282,15 +218,14 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
     function reportKeyCompromise(
         bytes32 keyId,
         bytes calldata /* evidence */
-    ) external {
+    )
+        external
+    {
         QuantumKey storage key = quantumKeys[keyId];
         require(key.active, "Key not active");
 
         // Only key holder or security auditor can report compromise
-        require(
-            key.keyHolder == msg.sender || owner() == msg.sender,
-            "Unauthorized report"
-        );
+        require(key.keyHolder == msg.sender || owner() == msg.sender, "Unauthorized report");
 
         key.state = QuantumKeyState.COMPROMISED;
         key.active = false;
@@ -304,9 +239,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
      * @notice Get quantum key information
      * @param keyId Key to query
      */
-    function getQuantumKey(
-        bytes32 keyId
-    )
+    function getQuantumKey(bytes32 keyId)
         external
         view
         returns (
@@ -319,39 +252,20 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
         )
     {
         QuantumKey memory key = quantumKeys[keyId];
-        return (
-            key.publicKey,
-            key.keyLength,
-            key.generationTime,
-            key.expiryTime,
-            key.active,
-            key.state
-        );
+        return (key.publicKey, key.keyLength, key.generationTime, key.expiryTime, key.active, key.state);
     }
 
     /**
      * @notice Get key exchange session info
      * @param sessionId Session to query
      */
-    function getKeySession(
-        bytes32 sessionId
-    )
+    function getKeySession(bytes32 sessionId)
         external
         view
-        returns (
-            address initiator,
-            address responder,
-            QuantumKeyState sessionState,
-            uint256 establishedTime
-        )
+        returns (address initiator, address responder, QuantumKeyState sessionState, uint256 establishedTime)
     {
         KeyExchangeSession memory session = keySessions[sessionId];
-        return (
-            session.initiator,
-            session.responder,
-            session.sessionState,
-            session.establishedTime
-        );
+        return (session.initiator, session.responder, session.sessionState, session.establishedTime);
     }
 
     /**
@@ -360,13 +274,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
     function getQuantumNetworkStats()
         external
         view
-        returns (
-            uint256 totalKeys,
-            uint256 activeKeys,
-            uint256 entropyLevel,
-            uint256 errorRate,
-            uint256 successRate
-        )
+        returns (uint256 totalKeys, uint256 activeKeys, uint256 entropyLevel, uint256 errorRate, uint256 successRate)
     {
         uint256 totalKeysCount = 0;
         uint256 activeKeysCount = 0;
@@ -375,13 +283,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
         totalKeysCount = activeKeyPairs * 2; // Approximate
         activeKeysCount = activeKeyPairs;
 
-        return (
-            totalKeysCount,
-            activeKeysCount,
-            entanglementEntropy,
-            quantumBitErrorRate,
-            keyDistributionSuccessRate
-        );
+        return (totalKeysCount, activeKeysCount, entanglementEntropy, quantumBitErrorRate, keyDistributionSuccessRate);
     }
 
     /**
@@ -389,10 +291,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
      * @param newEntropy New entanglement entropy level
      * @param newErrorRate New quantum bit error rate
      */
-    function updateQuantumParameters(
-        uint256 newEntropy,
-        uint256 newErrorRate
-    ) external onlyOwner {
+    function updateQuantumParameters(uint256 newEntropy, uint256 newErrorRate) external onlyOwner {
         require(newEntropy <= 100, "Invalid entropy level");
         require(newErrorRate <= 100, "Invalid error rate");
 
@@ -420,11 +319,7 @@ contract SentinelQuantumKeyDistribution is Ownable, ReentrancyGuard {
         uint256 entropyBonus = entanglementEntropy / 10;
         uint256 errorPenalty = quantumBitErrorRate / 5;
 
-        return
-            Math.min(
-                Math.max(baseSuccess + entropyBonus - errorPenalty, 50),
-                99
-            );
+        return Math.min(Math.max(baseSuccess + entropyBonus - errorPenalty, 50), 99);
     }
 
     /**

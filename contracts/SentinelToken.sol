@@ -62,11 +62,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     event TokensStaked(address indexed user, uint256 amount);
     event TokensUnstaked(address indexed user, uint256 amount);
     event RewardsClaimed(address indexed user, uint256 amount);
-    event VestingScheduleCreated(
-        address indexed beneficiary,
-        uint256 amount,
-        uint256 duration
-    );
+    event VestingScheduleCreated(address indexed beneficiary, uint256 amount, uint256 duration);
     event GovernanceReward(address indexed user, uint256 amount);
     event SecurityReward(address indexed user, uint256 amount);
     event SecurityReporterUpdated(address indexed reporter, bool status);
@@ -76,16 +72,8 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         _mint(address(this), TOTAL_SUPPLY);
 
         // Create vesting schedules for different allocations
-        _createVestingSchedule(
-            initialOwner,
-            TEAM_ALLOCATION,
-            365 days,
-            90 days
-        );
-        rewardPoolRemaining =
-            STAKING_REWARDS +
-            GOVERNANCE_REWARDS +
-            SECURITY_REWARDS;
+        _createVestingSchedule(initialOwner, TEAM_ALLOCATION, 365 days, 90 days);
+        rewardPoolRemaining = STAKING_REWARDS + GOVERNANCE_REWARDS + SECURITY_REWARDS;
     }
 
     /**
@@ -110,10 +98,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param amount Amount to unstake
      */
     function unstake(uint256 amount) external whenNotPaused nonReentrant {
-        require(
-            stakedBalances[msg.sender] >= amount,
-            "Insufficient staked balance"
-        );
+        require(stakedBalances[msg.sender] >= amount, "Insufficient staked balance");
 
         _updateReward(msg.sender);
         _claimRewards(msg.sender);
@@ -137,23 +122,19 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Participate in governance to earn bonus APY
      */
-    function participateInGovernance(uint256 /* proposalId */) external {
-        require(
-            stakedBalances[msg.sender] > 0,
-            "Must be staking to participate"
-        );
-        require(
-            block.timestamp >=
-                lastGovernanceReward[msg.sender] + REWARD_COOLDOWN,
-            "Cooldown active"
-        );
+    function participateInGovernance(
+        uint256 /* proposalId */
+    )
+        external
+    {
+        require(stakedBalances[msg.sender] > 0, "Must be staking to participate");
+        require(block.timestamp >= lastGovernanceReward[msg.sender] + REWARD_COOLDOWN, "Cooldown active");
 
         lastGovernanceReward[msg.sender] = block.timestamp;
         governanceParticipation[msg.sender] += 1;
 
         // 0.1% of staked balance, capped so reward pool is preserved
-        uint256 bonus = (stakedBalances[msg.sender] *
-            MAX_GOVERNANCE_BONUS_BPS) / 10000;
+        uint256 bonus = (stakedBalances[msg.sender] * MAX_GOVERNANCE_BONUS_BPS) / 10000;
         if (bonus > 0) {
             _payoutReward(msg.sender, bonus);
             emit GovernanceReward(msg.sender, bonus);
@@ -165,14 +146,8 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param contributionType Type of security contribution
      */
     function reportSecurityContribution(uint256 contributionType) external {
-        require(
-            securityReporters[msg.sender] || msg.sender == owner(),
-            "Not authorized"
-        );
-        require(
-            block.timestamp >= lastSecurityReward[msg.sender] + REWARD_COOLDOWN,
-            "Cooldown active"
-        );
+        require(securityReporters[msg.sender] || msg.sender == owner(), "Not authorized");
+        require(block.timestamp >= lastSecurityReward[msg.sender] + REWARD_COOLDOWN, "Cooldown active");
 
         lastSecurityReward[msg.sender] = block.timestamp;
         securityContributions[msg.sender] += 1;
@@ -197,10 +172,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param reporter Address to grant/revoke
      * @param status true to grant, false to revoke
      */
-    function setSecurityReporter(
-        address reporter,
-        bool status
-    ) external onlyOwner {
+    function setSecurityReporter(address reporter, bool status) external onlyOwner {
         require(reporter != address(0), "Invalid address");
         securityReporters[reporter] = status;
         emit SecurityReporterUpdated(reporter, status);
@@ -212,10 +184,8 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      */
     function getUserAPY(address user) external view returns (uint256) {
         uint256 baseAPY = BASE_STAKING_APY;
-        uint256 governanceBonus = (governanceParticipation[user] *
-            GOVERNANCE_APY_BONUS) / 100;
-        uint256 securityBonus = (securityContributions[user] *
-            SECURITY_APY_BONUS) / 10;
+        uint256 governanceBonus = (governanceParticipation[user] * GOVERNANCE_APY_BONUS) / 100;
+        uint256 securityBonus = (securityContributions[user] * SECURITY_APY_BONUS) / 10;
 
         uint256 totalAPY = baseAPY + governanceBonus + securityBonus;
 
@@ -233,8 +203,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
             rewardPerToken += (timeElapsed * rewardRate) / totalStaked;
         }
 
-        uint256 userReward = (stakedBalances[user] *
-            (rewardPerToken - lastRewardClaim[user])) / 1e18;
+        uint256 userReward = (stakedBalances[user] * (rewardPerToken - lastRewardClaim[user])) / 1e18;
         return userReward;
     }
 
@@ -245,27 +214,17 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param duration Total vesting duration
      * @param cliff Cliff period
      */
-    function createVestingSchedule(
-        address beneficiary,
-        uint256 amount,
-        uint256 duration,
-        uint256 cliff
-    ) external onlyOwner {
+    function createVestingSchedule(address beneficiary, uint256 amount, uint256 duration, uint256 cliff)
+        external
+        onlyOwner
+    {
         _createVestingSchedule(beneficiary, amount, duration, cliff);
     }
 
-    function _createVestingSchedule(
-        address beneficiary,
-        uint256 amount,
-        uint256 duration,
-        uint256 cliff
-    ) internal {
+    function _createVestingSchedule(address beneficiary, uint256 amount, uint256 duration, uint256 cliff) internal {
         require(beneficiary != address(0), "Invalid beneficiary");
         require(amount > 0, "Invalid amount");
-        require(
-            vestingSchedules[beneficiary].totalAmount == 0,
-            "Schedule already exists"
-        );
+        require(vestingSchedules[beneficiary].totalAmount == 0, "Schedule already exists");
 
         vestingSchedules[beneficiary] = VestingSchedule({
             totalAmount: amount,
@@ -298,9 +257,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Get vesting schedule details
      * @param beneficiary Address to check
      */
-    function getVestingSchedule(
-        address beneficiary
-    )
+    function getVestingSchedule(address beneficiary)
         external
         view
         returns (
@@ -328,9 +285,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Calculate releasable vested amount
      */
-    function _calculateReleasableAmount(
-        VestingSchedule memory schedule
-    ) internal view returns (uint256) {
+    function _calculateReleasableAmount(VestingSchedule memory schedule) internal view returns (uint256) {
         if (block.timestamp < schedule.startTime + schedule.cliff) {
             return 0; // Before cliff
         }
@@ -341,8 +296,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
 
         // Linear vesting after cliff
         uint256 timeFromStart = block.timestamp - schedule.startTime;
-        uint256 vestedAmount = (schedule.totalAmount * timeFromStart) /
-            schedule.duration;
+        uint256 vestedAmount = (schedule.totalAmount * timeFromStart) / schedule.duration;
 
         return vestedAmount - schedule.releasedAmount;
     }
@@ -356,8 +310,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         lastUpdateTime = block.timestamp;
 
         if (user != address(0)) {
-            uint256 pending = (stakedBalances[user] *
-                (updatedRewardPerToken - lastRewardClaim[user])) / 1e18;
+            uint256 pending = (stakedBalances[user] * (updatedRewardPerToken - lastRewardClaim[user])) / 1e18;
             if (pending > 0) {
                 accruedRewards[user] += pending;
             }
@@ -392,10 +345,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     function _payoutReward(address recipient, uint256 amount) internal {
         require(recipient != address(0), "Invalid recipient");
         require(amount <= rewardPoolRemaining, "Reward pool exhausted");
-        require(
-            balanceOf(address(this)) >= amount,
-            "Insufficient reward balance"
-        );
+        require(balanceOf(address(this)) >= amount, "Insufficient reward balance");
         rewardPoolRemaining -= amount;
         _transfer(address(this), recipient, amount);
     }

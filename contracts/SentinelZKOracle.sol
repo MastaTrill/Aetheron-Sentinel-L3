@@ -56,16 +56,8 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     uint256 public constant MIN_STAKE = 1000 ether;
     uint256 public constant SLASH_PERCENTAGE = 10; // 10% slash for invalid proofs
 
-    event ZKProofSubmitted(
-        string indexed feedName,
-        address indexed oracle,
-        bytes32 dataHash
-    );
-    event ZKProofVerified(
-        string indexed feedName,
-        uint256 value,
-        uint256 confidence
-    );
+    event ZKProofSubmitted(string indexed feedName, address indexed oracle, bytes32 dataHash);
+    event ZKProofVerified(string indexed feedName, uint256 value, uint256 confidence);
     event OracleSlashed(address indexed oracle, uint256 amount, string reason);
     event DataFeedCreated(string feedName, address creator);
 
@@ -85,12 +77,10 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @param value The actual data value (revealed after verification)
      * @param proof ZK-SNARK proof
      */
-    function submitZKProof(
-        string calldata feedName,
-        bytes32 dataHash,
-        uint256 value,
-        ZKProof calldata proof
-    ) external payable {
+    function submitZKProof(string calldata feedName, bytes32 dataHash, uint256 value, ZKProof calldata proof)
+        external
+        payable
+    {
         require(oracleStakes[msg.sender] >= MIN_STAKE, "Insufficient stake");
         require(dataFeeds[feedName].isActive, "Feed not active");
 
@@ -133,23 +123,15 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @notice Get latest verified data from feed
      * @param feedName Name of the data feed
      */
-    function getZKData(
-        string calldata feedName
-    )
+    function getZKData(string calldata feedName)
         external
         view
-        returns (
-            uint256 value,
-            uint256 timestamp,
-            uint256 confidence,
-            bool isValid
-        )
+        returns (uint256 value, uint256 timestamp, uint256 confidence, bool isValid)
     {
         ZKDataFeed storage feed = dataFeeds[feedName];
         require(feed.isActive, "Feed not active");
 
-        bool valid = feed.lastUpdate > 0 &&
-            (block.timestamp - feed.lastUpdate) < 1 hours; // 1 hour validity
+        bool valid = feed.lastUpdate > 0 && (block.timestamp - feed.lastUpdate) < 1 hours; // 1 hour validity
 
         return (feed.latestValue, feed.lastUpdate, feed.confidenceScore, valid);
     }
@@ -159,18 +141,14 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
      * @param oracle Address of oracle to slash
      * @param amount Amount to slash
      */
-    function slashOracle(
-        address oracle,
-        uint256 amount,
-        string calldata reason
-    ) external onlyOwner {
+    function slashOracle(address oracle, uint256 amount, string calldata reason) external onlyOwner {
         require(oracleStakes[oracle] >= amount, "Insufficient stake to slash");
 
         uint256 slashAmount = (oracleStakes[oracle] * SLASH_PERCENTAGE) / 100;
         oracleStakes[oracle] -= slashAmount;
 
         // Transfer slashed amount to treasury
-        (bool ok, ) = payable(owner()).call{value: slashAmount}("");
+        (bool ok,) = payable(owner()).call{value: slashAmount}("");
         require(ok, "ETH transfer failed");
 
         emit OracleSlashed(oracle, slashAmount, reason);
@@ -190,41 +168,34 @@ contract SentinelZKOracle is Ownable, ReentrancyGuard {
     function _verifyZKProof(
         ZKProof memory proof,
         bytes32 /* dataHash */
-    ) internal pure returns (bool) {
+    )
+        internal
+        pure
+        returns (bool)
+    {
         // In production, this would verify the actual ZK-SNARK proof
         // For demo, we do basic validation
 
         // Check proof structure
         require(proof.a.length == 2, "Invalid proof format");
-        require(
-            proof.b.length == 2 && proof.b[0].length == 2,
-            "Invalid proof format"
-        );
+        require(proof.b.length == 2 && proof.b[0].length == 2, "Invalid proof format");
         require(proof.c.length == 2, "Invalid proof format");
 
         // Simplified verification (would use actual ZK verification in production)
-        uint256 proofHash = uint256(
-            keccak256(abi.encode(proof.a, proof.b, proof.c, proof.inputs))
-        );
+        uint256 proofHash = uint256(keccak256(abi.encode(proof.a, proof.b, proof.c, proof.inputs)));
         return (proofHash % 100) < 95; // 95% success rate for demo
     }
 
     /**
      * @dev Update feed data when consensus is reached
      */
-    function _updateFeedWithConsensus(
-        string memory feedName,
-        bytes32 dataHash,
-        uint256 value
-    ) internal {
+    function _updateFeedWithConsensus(string memory feedName, bytes32 dataHash, uint256 value) internal {
         ZKDataFeed storage feed = dataFeeds[feedName];
 
         // Simplified consensus: require at least 3 submissions with same hash
         uint256 matchingSubmissions = 0;
         for (uint256 i = 0; i < feed.submissionHashes.length; i++) {
-            if (
-                feed.submissions[feed.submissionHashes[i]].dataHash == dataHash
-            ) {
+            if (feed.submissions[feed.submissionHashes[i]].dataHash == dataHash) {
                 matchingSubmissions++;
             }
         }

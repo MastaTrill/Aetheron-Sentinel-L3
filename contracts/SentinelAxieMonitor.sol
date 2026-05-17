@@ -47,38 +47,18 @@ contract SentinelAxieMonitor is Ownable {
     mapping(address => uint256) public userActivityCount;
     mapping(bytes32 => bool) public flaggedTransactions;
 
-    event SuspiciousTransaction(
-        uint256 indexed axieId,
-        address indexed seller,
-        uint256 price,
-        string reason
-    );
+    event SuspiciousTransaction(uint256 indexed axieId, address indexed seller, uint256 price, string reason);
 
-    event BreedingAnomaly(
-        uint256 indexed axieId,
-        address indexed breeder,
-        uint256 breedingCount,
-        string anomalyType
-    );
+    event BreedingAnomaly(uint256 indexed axieId, address indexed breeder, uint256 breedingCount, string anomalyType);
 
-    event MarketplaceAlert(
-        address indexed user,
-        uint256 activityCount,
-        string alertType
-    );
+    event MarketplaceAlert(address indexed user, uint256 activityCount, string alertType);
 
     constructor() Ownable(msg.sender) {}
 
     /**
      * @notice Monitor marketplace transaction
      */
-    function monitorTransaction(
-        address seller,
-        address buyer,
-        uint256 axieId,
-        uint256 price
-    ) external {
-
+    function monitorTransaction(address seller, address buyer, uint256 axieId, uint256 price) external {
         AxieTransaction memory axieTx = AxieTransaction({
             seller: seller,
             buyer: buyer,
@@ -113,7 +93,9 @@ contract SentinelAxieMonitor is Ownable {
         uint256 axieId,
         address breeder,
         uint256 /*fee*/
-    ) external {
+    )
+        external
+    {
         BreedingRecord storage record = breedingRecords[axieId];
         record.axieId = axieId;
         record.breedingCount++;
@@ -134,7 +116,12 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @notice Report stolen Axie
      */
-    function reportStolenAxie(uint256 axieId, bytes memory /*evidence*/) external {
+    function reportStolenAxie(
+        uint256 axieId,
+        bytes memory /*evidence*/
+    )
+        external
+    {
         // Mark Axie as flagged
         bytes32 txHash = keccak256(abi.encodePacked(axieId, block.timestamp));
         flaggedTransactions[txHash] = true;
@@ -162,11 +149,11 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @notice Get breeding record
      */
-    function getBreedingRecord(uint256 axieId) external view returns (
-        uint256 breedingCount,
-        uint256 lastBreedingTime,
-        address breeder
-    ) {
+    function getBreedingRecord(uint256 axieId)
+        external
+        view
+        returns (uint256 breedingCount, uint256 lastBreedingTime, address breeder)
+    {
         BreedingRecord memory record = breedingRecords[axieId];
         return (record.breedingCount, record.lastBreedingTime, record.breeder);
     }
@@ -191,11 +178,12 @@ contract SentinelAxieMonitor is Ownable {
         AxieTransaction[] memory history = axieTransactions[axieTx.axieId];
         if (history.length > 1) {
             AxieTransaction memory lastTx = history[history.length - 2];
-            uint256 priceChange = axieTx.price > lastTx.price ?
-                ((axieTx.price - lastTx.price) * 100) / lastTx.price :
-                ((lastTx.price - axieTx.price) * 100) / axieTx.price;
+            uint256 priceChange = axieTx.price > lastTx.price
+                ? ((axieTx.price - lastTx.price) * 100) / lastTx.price
+                : ((lastTx.price - axieTx.price) * 100) / axieTx.price;
 
-            if (priceChange > 200) { // 200% price change
+            if (priceChange > 200) {
+                // 200% price change
                 emit SuspiciousTransaction(axieTx.axieId, axieTx.seller, axieTx.price, "ExtremePriceChange");
             }
         }
@@ -204,11 +192,11 @@ contract SentinelAxieMonitor is Ownable {
     /**
      * @notice Get marketplace statistics
      */
-    function getMarketplaceStats() external pure returns (
-        uint256 totalTransactions,
-        uint256 /* flaggedTransactions */,
-        uint256 activeUsers
-    ) {
+    function getMarketplaceStats()
+        external
+        pure
+        returns (uint256 totalTransactions, uint256, /* flaggedTransactions */ uint256 activeUsers)
+    {
         // Simplified statistics
         return (0, 0, 0); // Would need proper tracking
     }

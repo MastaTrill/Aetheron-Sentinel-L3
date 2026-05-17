@@ -24,10 +24,10 @@ contract SentinelCrossProtocolStandards is Ownable {
 
     // Compliance levels
     enum ComplianceLevel {
-        BASIC,      // Minimum requirements
+        BASIC, // Minimum requirements
         INTERMEDIATE, // Enhanced protection
-        ADVANCED,   // Enterprise-grade
-        ELITE       // Cutting-edge security
+        ADVANCED, // Enterprise-grade
+        ELITE // Cutting-edge security
     }
 
     // Standard definition
@@ -82,12 +82,7 @@ contract SentinelCrossProtocolStandards is Ownable {
         string memory description,
         string[] memory requirements
     ) external onlyOwner returns (bytes32) {
-        bytes32 standardId = keccak256(abi.encodePacked(
-            category,
-            level,
-            title,
-            block.timestamp
-        ));
+        bytes32 standardId = keccak256(abi.encodePacked(category, level, title, block.timestamp));
 
         require(standards[standardId].standardId == bytes32(0), "Standard already exists");
 
@@ -180,16 +175,15 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Check protocol certification status
      */
-    function isProtocolCertified(
-        address protocolAddress,
-        bytes32 standardId
-    ) external view returns (bool, ComplianceLevel) {
+    function isProtocolCertified(address protocolAddress, bytes32 standardId)
+        external
+        view
+        returns (bool, ComplianceLevel)
+    {
         ProtocolCertification[] memory certs = protocolCertifications[protocolAddress];
 
         for (uint256 i = 0; i < certs.length; i++) {
-            if (certs[i].standardId == standardId &&
-                certs[i].isActive &&
-                certs[i].expiryDate > block.timestamp) {
+            if (certs[i].standardId == standardId && certs[i].isActive && certs[i].expiryDate > block.timestamp) {
                 return (true, certs[i].certifiedLevel);
             }
         }
@@ -200,22 +194,14 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Get protocol certifications
      */
-    function getProtocolCertifications(address protocolAddress)
-        external
-        view
-        returns (ProtocolCertification[] memory)
-    {
+    function getProtocolCertifications(address protocolAddress) external view returns (ProtocolCertification[] memory) {
         return protocolCertifications[protocolAddress];
     }
 
     /**
      * @notice Get standard details
      */
-    function getStandard(bytes32 standardId)
-        external
-        view
-        returns (SecurityStandard memory)
-    {
+    function getStandard(bytes32 standardId) external view returns (SecurityStandard memory) {
         return standards[standardId];
     }
 
@@ -262,10 +248,7 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Update standard version
      */
-    function updateStandardVersion(
-        bytes32 standardId,
-        string[] memory newRequirements
-    ) external onlyOwner {
+    function updateStandardVersion(bytes32 standardId, string[] memory newRequirements) external onlyOwner {
         SecurityStandard storage standard = standards[standardId];
         require(standard.isActive, "Standard not active");
 
@@ -292,11 +275,7 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Get standards by category
      */
-    function getStandardsByCategory(StandardCategory category)
-        external
-        view
-        returns (bytes32[] memory)
-    {
+    function getStandardsByCategory(StandardCategory category) external view returns (bytes32[] memory) {
         bytes32[] memory categoryStandards = new bytes32[](activeStandards.length);
         uint256 count = 0;
 
@@ -319,11 +298,11 @@ contract SentinelCrossProtocolStandards is Ownable {
     /**
      * @notice Get certification statistics
      */
-    function getCertificationStats() external view returns (
-        uint256 totalStandards,
-        uint256 totalCertifications,
-        uint256 activeCertifications
-    ) {
+    function getCertificationStats()
+        external
+        view
+        returns (uint256 totalStandards, uint256 totalCertifications, uint256 activeCertifications)
+    {
         uint256 certifications = 0;
         uint256 activeCerts = 0;
 

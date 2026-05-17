@@ -14,8 +14,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  */
 contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     using SafeERC20 for IERC20;
-    bytes32 public constant REWARD_DISTRIBUTOR_ROLE =
-        keccak256("REWARD_DISTRIBUTOR_ROLE");
+    bytes32 public constant REWARD_DISTRIBUTOR_ROLE = keccak256("REWARD_DISTRIBUTOR_ROLE");
 
     IERC20 public lpToken; // Bridge LP token
     IERC20 public rewardToken;
@@ -68,20 +67,11 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     event Deposited(address indexed user, uint256 poolId, uint256 amount);
     event Withdrawn(address indexed user, uint256 poolId, uint256 amount);
     event Harvested(address indexed user, uint256 poolId, uint256 amount);
-    event EmergencyWithdrawn(
-        address indexed user,
-        uint256 poolId,
-        uint256 amount
-    );
+    event EmergencyWithdrawn(address indexed user, uint256 poolId, uint256 amount);
     event FeeShared(address indexed user, uint256 amount);
     event PoolCreated(uint256 poolId, uint256 allocPoint, uint256 baseAPY);
 
-    constructor(
-        address _lpToken,
-        address _rewardToken,
-        uint256 _rewardPerSecond,
-        address initialOwner
-    ) {
+    constructor(address _lpToken, address _rewardToken, uint256 _rewardPerSecond, address initialOwner) {
         require(_lpToken != address(0), "Invalid LP token");
         require(_rewardToken != address(0), "Invalid reward token");
         require(initialOwner != address(0), "Invalid owner");
@@ -124,10 +114,7 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID to deposit into
      * @param amount Amount of LP tokens to deposit
      */
-    function deposit(
-        uint256 poolId,
-        uint256 amount
-    ) external nonReentrant whenNotPaused {
+    function deposit(uint256 poolId, uint256 amount) external nonReentrant whenNotPaused {
         require(poolId < pools.length, "Invalid pool");
         require(amount > 0, "Cannot deposit 0");
 
@@ -230,10 +217,7 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     function emergencyWithdraw(uint256 poolId) external nonReentrant {
         require(poolId < pools.length, "Invalid pool");
         Pool storage pool = pools[poolId];
-        require(
-            pool.emergencyWithdrawEnabled,
-            "Emergency withdraw not enabled"
-        );
+        require(pool.emergencyWithdrawEnabled, "Emergency withdraw not enabled");
 
         MiningPosition storage position = positions[poolId][msg.sender];
         uint256 amount = position.amount;
@@ -252,16 +236,13 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @notice Distribute bridge fees to liquidity providers
      * @param feeAmount Amount of fees to distribute
      */
-    function distributeBridgeFees(
-        uint256 feeAmount
-    ) external onlyRole(REWARD_DISTRIBUTOR_ROLE) {
+    function distributeBridgeFees(uint256 feeAmount) external onlyRole(REWARD_DISTRIBUTOR_ROLE) {
         require(feeAmount > 0, "Cannot distribute 0 fees");
 
         // Distribute fees proportionally to all pools
         for (uint256 i = 0; i < pools.length; i++) {
             if (pools[i].totalStaked > 0) {
-                uint256 poolShare = (feeAmount * pools[i].allocPoint) /
-                    totalAllocPoint;
+                uint256 poolShare = (feeAmount * pools[i].allocPoint) / totalAllocPoint;
                 // In a real implementation, this would increase the reward rate for the pool
                 totalFeeShare += poolShare;
             }
@@ -273,10 +254,7 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID
      * @param user User address
      */
-    function getUserAPY(
-        uint256 poolId,
-        address user
-    ) external view returns (uint256) {
+    function getUserAPY(uint256 poolId, address user) external view returns (uint256) {
         if (poolId >= pools.length) return 0;
 
         MiningPosition memory position = positions[poolId][user];
@@ -286,8 +264,7 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
         uint256 boostMultiplier = position.multiplier;
         uint256 performanceBonus = bridgeFeeShareAPY + securityRewardAPY;
 
-        uint256 totalAPY = ((basePoolAPY * boostMultiplier) / 100) +
-            performanceBonus;
+        uint256 totalAPY = ((basePoolAPY * boostMultiplier) / 100) + performanceBonus;
 
         return totalAPY > MAX_APY ? MAX_APY : totalAPY;
     }
@@ -297,10 +274,7 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
      * @param poolId Pool ID
      * @param user User address
      */
-    function pendingRewards(
-        uint256 poolId,
-        address user
-    ) external view returns (uint256) {
+    function pendingRewards(uint256 poolId, address user) external view returns (uint256) {
         if (poolId >= pools.length) return 0;
 
         MiningPosition memory position = positions[poolId][user];
@@ -311,24 +285,17 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
 
         if (block.timestamp > pool.lastRewardTime && pool.totalStaked != 0) {
             uint256 multiplier = block.timestamp - pool.lastRewardTime;
-            uint256 reward = (multiplier * rewardPerSecond * pool.allocPoint) /
-                totalAllocPoint;
+            uint256 reward = (multiplier * rewardPerSecond * pool.allocPoint) / totalAllocPoint;
             accRewardPerShare += (reward * 1e12) / pool.totalStaked;
         }
 
-        return
-            (position.amount * accRewardPerShare) /
-            1e12 -
-            position.lastHarvest +
-            position.accumulatedRewards;
+        return (position.amount * accRewardPerShare) / 1e12 - position.lastHarvest + position.accumulatedRewards;
     }
 
     /**
      * @notice Calculate boost multiplier based on stake amount
      */
-    function _calculateMultiplier(
-        uint256 amount
-    ) internal pure returns (uint256) {
+    function _calculateMultiplier(uint256 amount) internal pure returns (uint256) {
         if (amount >= 100000 ether) return PLATINUM_MULTIPLIER;
         if (amount >= 50000 ether) return GOLD_MULTIPLIER;
         if (amount >= 10000 ether) return SILVER_MULTIPLIER;
@@ -339,23 +306,18 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Calculate pending rewards for user
      */
-    function _calculatePendingRewards(
-        uint256 poolId,
-        address user
-    ) internal view returns (uint256) {
+    function _calculatePendingRewards(uint256 poolId, address user) internal view returns (uint256) {
         MiningPosition memory position = positions[poolId][user];
         Pool memory pool = pools[poolId];
 
         uint256 accRewardPerShare = pool.accRewardPerShare;
         if (block.timestamp > pool.lastRewardTime && pool.totalStaked != 0) {
             uint256 multiplier = block.timestamp - pool.lastRewardTime;
-            uint256 reward = (multiplier * rewardPerSecond * pool.allocPoint) /
-                totalAllocPoint;
+            uint256 reward = (multiplier * rewardPerSecond * pool.allocPoint) / totalAllocPoint;
             accRewardPerShare += (reward * 1e12) / pool.totalStaked;
         }
 
-        return
-            (position.amount * accRewardPerShare) / 1e12 - position.lastHarvest;
+        return (position.amount * accRewardPerShare) / 1e12 - position.lastHarvest;
     }
 
     /**
@@ -371,8 +333,7 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
         }
 
         uint256 multiplier = block.timestamp - pool.lastRewardTime;
-        uint256 reward = (multiplier * rewardPerSecond * pool.allocPoint) /
-            totalAllocPoint;
+        uint256 reward = (multiplier * rewardPerSecond * pool.allocPoint) / totalAllocPoint;
         pool.accRewardPerShare += (reward * 1e12) / pool.totalStaked;
         pool.lastRewardTime = block.timestamp;
     }

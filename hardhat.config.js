@@ -82,7 +82,6 @@ const config = {
             type: 'http',
             url: process.env.SEPOLIA_RPC_URL,
             accounts: getOwnerAccounts(),
-            gasPrice: 20000000000,
           },
         }
       : {}),
@@ -92,7 +91,6 @@ const config = {
             type: 'http',
             url: process.env.MAINNET_RPC_URL,
             accounts: getOwnerAccounts(),
-            gasPrice: 20000000000,
           },
         }
       : {}),
@@ -102,7 +100,6 @@ const config = {
             type: 'http',
             url: process.env.POLYGON_RPC_URL,
             accounts: getOwnerAccounts(),
-            gasPrice: 40000000000,
           },
         }
       : {}),
@@ -112,7 +109,6 @@ const config = {
             type: 'http',
             url: process.env.BASE_RPC_URL,
             accounts: getOwnerAccounts(),
-            gasPrice: 1000000000,
           },
         }
       : {}),
@@ -122,7 +118,6 @@ const config = {
             type: 'http',
             url: process.env.ARBITRUM_RPC_URL,
             accounts: getOwnerAccounts(),
-            gasPrice: 2000000000,
           },
         }
       : {}),

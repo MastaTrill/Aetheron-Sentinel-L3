@@ -69,23 +69,11 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     address[] private _userList;
     mapping(address => bool) private _knownUser;
 
-    event StrategyAdded(
-        uint256 indexed strategyId,
-        address protocol,
-        uint256 allocation
-    );
-    event StrategyUpdated(
-        uint256 indexed strategyId,
-        uint256 newAPY,
-        uint256 newAllocation
-    );
+    event StrategyAdded(uint256 indexed strategyId, address protocol, uint256 allocation);
+    event StrategyUpdated(uint256 indexed strategyId, uint256 newAPY, uint256 newAllocation);
     event YieldOptimized(address indexed user, uint256 yield, uint256 newAPY);
     event AutoCompounded(address indexed user, uint256 compoundedAmount);
-    event Rebalanced(
-        uint256 indexed strategyId,
-        uint256 oldAllocation,
-        uint256 newAllocation
-    );
+    event Rebalanced(uint256 indexed strategyId, uint256 oldAllocation, uint256 newAllocation);
 
     constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
@@ -112,10 +100,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      */
     function deposit(uint256 amount) external nonReentrant whenNotPaused {
         require(amount > 0, "Cannot deposit 0");
-        require(
-            address(yieldToken) != address(0),
-            "Yield token not configured"
-        );
+        require(address(yieldToken) != address(0), "Yield token not configured");
 
         yieldToken.safeTransferFrom(msg.sender, address(this), amount);
 
@@ -139,10 +124,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      * @param amount Amount to withdraw
      */
     function withdraw(uint256 amount) external nonReentrant {
-        require(
-            address(yieldToken) != address(0),
-            "Yield token not configured"
-        );
+        require(address(yieldToken) != address(0), "Yield token not configured");
         UserPosition storage position = userPositions[msg.sender];
         require(position.totalDeposited >= amount, "Insufficient balance");
 
@@ -169,11 +151,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
      */
     function autoCompound() external {
         require(autoCompoundEnabled, "Auto-compound disabled");
-        require(
-            block.timestamp >=
-                lastCompoundTime + compoundFrequency * 3600,
-            "Too early to compound"
-        );
+        require(block.timestamp >= lastCompoundTime + compoundFrequency * 3600, "Too early to compound");
 
         uint256 totalCompounded = 0;
 
@@ -197,28 +175,18 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
         require(strategyId < strategyCount, "Invalid strategy");
 
         YieldStrategy storage strategy = yieldStrategies[strategyId];
-        require(
-            block.timestamp >=
-                strategy.lastRebalance + MIN_REBALANCE_INTERVAL,
-            "Rebalance too frequent"
-        );
+        require(block.timestamp >= strategy.lastRebalance + MIN_REBALANCE_INTERVAL, "Rebalance too frequent");
 
         // Predict optimal allocation using AI-like algorithm
         uint256 predictedAPY = _predictStrategyAPY(strategyId);
-        uint256 optimalAllocation = _calculateOptimalAllocation(
-            strategyId,
-            predictedAPY
-        );
+        uint256 optimalAllocation = _calculateOptimalAllocation(strategyId, predictedAPY);
 
         uint256 oldAllocation = strategy.allocation;
-        uint256 allocationChange = oldAllocation > optimalAllocation
-            ? oldAllocation - optimalAllocation
-            : optimalAllocation - oldAllocation;
+        uint256 allocationChange =
+            oldAllocation > optimalAllocation ? oldAllocation - optimalAllocation : optimalAllocation - oldAllocation;
 
         // Only rebalance if change exceeds threshold
-        if (
-            allocationChange * 10000 / oldAllocation >= rebalanceThreshold
-        ) {
+        if (allocationChange * 10000 / oldAllocation >= rebalanceThreshold) {
             strategy.allocation = optimalAllocation;
             strategy.lastRebalance = block.timestamp;
 
@@ -293,10 +261,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
             }
         }
 
-        return
-            position.totalDeposited > 0
-                ? weightedAPY / position.totalDeposited
-                : 0;
+        return position.totalDeposited > 0 ? weightedAPY / position.totalDeposited : 0;
     }
 
     /**
@@ -305,30 +270,15 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     function getSystemMetrics()
         external
         view
-        returns (
-            uint256 tvl,
-            uint256 avgAPY,
-            uint256 totalYield,
-            uint256 volatility,
-            uint256 riskToleranceLevel
-        )
+        returns (uint256 tvl, uint256 avgAPY, uint256 totalYield, uint256 volatility, uint256 riskToleranceLevel)
     {
-        return (
-            totalValueLocked,
-            averageAPY,
-            totalYieldGenerated,
-            volatilityIndex,
-            riskTolerance
-        );
+        return (totalValueLocked, averageAPY, totalYieldGenerated, volatilityIndex, riskTolerance);
     }
 
     /**
      * @notice Calculate optimal allocation for strategy using predictive algorithm
      */
-    function _calculateOptimalAllocation(
-        uint256 strategyId,
-        uint256 predictedAPY
-    ) internal view returns (uint256) {
+    function _calculateOptimalAllocation(uint256 strategyId, uint256 predictedAPY) internal view returns (uint256) {
         YieldStrategy memory strategy = yieldStrategies[strategyId];
 
         // Risk-adjusted allocation algorithm
@@ -341,11 +291,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
         uint256 apyMultiplier = predictedAPY / 300; // Base 3% APY
 
         // Calculate optimal allocation
-        uint256 optimal = strategy.allocation
-            * riskAdjustment
-            * volatilityAdjustment
-            * apyMultiplier
-            / 1000000; // Normalize
+        uint256 optimal = strategy.allocation * riskAdjustment * volatilityAdjustment * apyMultiplier / 1000000; // Normalize
 
         // Cap at reasonable bounds
         return optimal > BASIS_POINTS ? BASIS_POINTS : optimal;
@@ -354,9 +300,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Predict APY for strategy using historical data and market conditions
      */
-    function _predictStrategyAPY(
-        uint256 strategyId
-    ) internal view returns (uint256) {
+    function _predictStrategyAPY(uint256 strategyId) internal view returns (uint256) {
         YieldStrategy memory strategy = yieldStrategies[strategyId];
 
         // Simplified prediction algorithm
@@ -365,22 +309,15 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
 
         // Adjust based on volatility and risk
         int256 volatilityAdjustment = int256(volatilityIndex) - 50; // Center at 50
-        int256 riskAdjustment = int256(riskTolerance) -
-            int256(strategy.riskLevel);
+        int256 riskAdjustment = int256(riskTolerance) - int256(strategy.riskLevel);
 
         // Combine adjustments
-        int256 totalAdjustment = (volatilityAdjustment *
-            2 +
-            riskAdjustment *
-            3) / 10;
+        int256 totalAdjustment = (volatilityAdjustment * 2 + riskAdjustment * 3) / 10;
 
         uint256 predictedAPY = uint256(int256(baseAPY) + totalAdjustment * 10);
 
         // Ensure reasonable bounds
-        return
-            predictedAPY < 100 ? 100 : predictedAPY > 1000
-                ? 1000
-                : predictedAPY;
+        return predictedAPY < 100 ? 100 : predictedAPY > 1000 ? 1000 : predictedAPY;
     }
 
     /**
@@ -391,11 +328,8 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
 
         for (uint256 i = 0; i < strategyCount; i++) {
             if (yieldStrategies[i].active) {
-                uint256 allocation = amount
-                    * yieldStrategies[i].allocation
-                    / BASIS_POINTS;
-                position.strategyAllocations[i] = position
-                    .strategyAllocations[i] + allocation;
+                uint256 allocation = amount * yieldStrategies[i].allocation / BASIS_POINTS;
+                position.strategyAllocations[i] = position.strategyAllocations[i] + allocation;
             }
         }
     }
@@ -409,10 +343,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
         for (uint256 i = 0; i < strategyCount; i++) {
             if (yieldStrategies[i].active) {
                 // Recalculate optimal allocation
-                uint256 optimalAllocation = position
-                    .totalDeposited
-                    * yieldStrategies[i].allocation
-                    / BASIS_POINTS;
+                uint256 optimalAllocation = position.totalDeposited * yieldStrategies[i].allocation / BASIS_POINTS;
 
                 position.strategyAllocations[i] = optimalAllocation;
             }
@@ -422,21 +353,15 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Rebalance all users for a strategy change
      */
-    function _rebalanceAllUsers(
-        uint256 strategyId,
-        uint256 oldAllocation,
-        uint256 newAllocation
-    ) internal {
+    function _rebalanceAllUsers(uint256 strategyId, uint256 oldAllocation, uint256 newAllocation) internal {
         if (oldAllocation == 0) return;
         uint256 allocationRatio = newAllocation * 1e18 / oldAllocation;
         for (uint256 i = 0; i < _userList.length; i++) {
             address user = _userList[i];
             UserPosition storage position = userPositions[user];
             if (position.strategyAllocations[strategyId] > 0) {
-                position.strategyAllocations[strategyId] = position
-                    .strategyAllocations[strategyId]
-                    * allocationRatio
-                    / 1e18;
+                position.strategyAllocations[strategyId] =
+                    position.strategyAllocations[strategyId] * allocationRatio / 1e18;
             }
         }
     }
@@ -449,12 +374,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
 
         // Simplified yield calculation
         uint256 timeStaked = block.timestamp - position.lastDeposit;
-        uint256 baseYield = position
-            .totalDeposited
-            * averageAPY
-            * timeStaked
-            / 365 days
-            / 10000; // Convert to actual yield
+        uint256 baseYield = position.totalDeposited * averageAPY * timeStaked / 365 days / 10000; // Convert to actual yield
 
         return baseYield + position.netYield;
     }

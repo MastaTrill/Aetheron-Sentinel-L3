@@ -64,20 +64,11 @@ contract SentinelGovernance is
     uint256 public emergencyProposalsExecuted;
     uint256 public securityProposalsExecuted;
 
-    event EnhancedProposalCreated(
-        uint256 indexed proposalId,
-        ProposalCategory category
-    );
+    event EnhancedProposalCreated(uint256 indexed proposalId, ProposalCategory category);
     event EmergencyProtocolActivated(uint256 indexed proposalId, string reason);
-    event GovernanceReputationUpdated(
-        address indexed voter,
-        uint256 newReputation
-    );
+    event GovernanceReputationUpdated(address indexed voter, uint256 newReputation);
 
-    constructor(
-        IVotes _token,
-        TimelockController _timelock
-    )
+    constructor(IVotes _token, TimelockController _timelock)
         Governor("SentinelGovernance")
         GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 100)
         GovernorVotes(_token)
@@ -108,18 +99,9 @@ contract SentinelGovernance is
         uint256 securityImpact,
         uint256 economicImpact
     ) external returns (uint256) {
-        require(
-            targets.length == values.length && values.length == calldatas.length,
-            "Array length mismatch"
-        );
-        require(
-            securityImpact >= 1 && securityImpact <= 10,
-            "Invalid security impact"
-        );
-        require(
-            economicImpact >= 1 && economicImpact <= 10,
-            "Invalid economic impact"
-        );
+        require(targets.length == values.length && values.length == calldatas.length, "Array length mismatch");
+        require(securityImpact >= 1 && securityImpact <= 10, "Invalid security impact");
+        require(economicImpact >= 1 && economicImpact <= 10, "Invalid economic impact");
 
         uint256 proposalId = propose(targets, values, calldatas, description);
 
@@ -128,8 +110,7 @@ contract SentinelGovernance is
             category: category,
             securityImpact: securityImpact,
             economicImpact: economicImpact,
-            requiresQuantumValidation: category == ProposalCategory.SECURITY ||
-                category == ProposalCategory.CRITICAL,
+            requiresQuantumValidation: category == ProposalCategory.SECURITY || category == ProposalCategory.CRITICAL,
             quantumProof: bytes32(0)
         });
 
@@ -151,15 +132,9 @@ contract SentinelGovernance is
         bytes[] memory calldatas,
         string memory description
     ) external returns (uint256) {
-        require(
-            targets.length == values.length && values.length == calldatas.length,
-            "Array length mismatch"
-        );
+        require(targets.length == values.length && values.length == calldatas.length, "Array length mismatch");
         // Emergency proposals require higher reputation
-        require(
-            governanceReputation[msg.sender] >= 100,
-            "Insufficient reputation for emergency proposal"
-        );
+        require(governanceReputation[msg.sender] >= 100, "Insufficient reputation for emergency proposal");
 
         uint256 proposalId = propose(targets, values, calldatas, description);
 
@@ -174,10 +149,7 @@ contract SentinelGovernance is
 
         totalProposalsCreated++;
         emergencyProposalsExecuted++;
-        emit EmergencyProtocolActivated(
-            proposalId,
-            "Emergency proposal created"
-        );
+        emit EmergencyProtocolActivated(proposalId, "Emergency proposal created");
         emit EnhancedProposalCreated(proposalId, ProposalCategory.EMERGENCY);
 
         return proposalId;
@@ -190,18 +162,12 @@ contract SentinelGovernance is
      * @param reason Vote reason
      * @param params Additional vote parameters
      */
-    function castVoteWithReasonAndParams(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params
-    ) public override(Governor) returns (uint256) {
-        uint256 weight = super.castVoteWithReasonAndParams(
-            proposalId,
-            support,
-            reason,
-            params
-        );
+    function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string calldata reason, bytes memory params)
+        public
+        override(Governor)
+        returns (uint256)
+    {
+        uint256 weight = super.castVoteWithReasonAndParams(proposalId, support, reason, params);
 
         // Update governance reputation based on participation
         _updateGovernanceReputation(msg.sender, weight);
@@ -213,9 +179,7 @@ contract SentinelGovernance is
      * @notice Get voting parameters based on proposal category
      * @param proposalId Proposal ID
      */
-    function getVotingParameters(
-        uint256 proposalId
-    )
+    function getVotingParameters(uint256 proposalId)
         external
         view
         returns (uint256 delay, uint256 period, uint256 quorumPercentage)
@@ -223,23 +187,11 @@ contract SentinelGovernance is
         EnhancedProposal memory proposal = enhancedProposals[proposalId];
 
         if (proposal.category == ProposalCategory.EMERGENCY) {
-            return (
-                MIN_VOTING_DELAY,
-                EMERGENCY_VOTING_PERIOD,
-                EMERGENCY_QUORUM_PERCENTAGE
-            );
+            return (MIN_VOTING_DELAY, EMERGENCY_VOTING_PERIOD, EMERGENCY_QUORUM_PERCENTAGE);
         } else if (proposal.category == ProposalCategory.CRITICAL) {
-            return (
-                MIN_VOTING_DELAY,
-                CRITICAL_VOTING_PERIOD,
-                CRITICAL_QUORUM_PERCENTAGE
-            );
+            return (MIN_VOTING_DELAY, CRITICAL_VOTING_PERIOD, CRITICAL_QUORUM_PERCENTAGE);
         } else {
-            return (
-                GovernorSettings.votingDelay(),
-                GovernorSettings.votingPeriod(),
-                quorumNumerator()
-            );
+            return (GovernorSettings.votingDelay(), GovernorSettings.votingPeriod(), quorumNumerator());
         }
     }
 
@@ -248,8 +200,9 @@ contract SentinelGovernance is
      * @param proposalId Proposal ID
      */
     function canExecute(uint256 proposalId) external view returns (bool) {
-        if (state(proposalId) != IGovernor.ProposalState.Succeeded)
+        if (state(proposalId) != IGovernor.ProposalState.Succeeded) {
             return false;
+        }
 
         EnhancedProposal memory proposal = enhancedProposals[proposalId];
 
@@ -310,54 +263,35 @@ contract SentinelGovernance is
     /**
      * @notice Update governance reputation
      */
-    function _updateGovernanceReputation(
-        address voter,
-        uint256 votingWeight
-    ) internal {
+    function _updateGovernanceReputation(address voter, uint256 votingWeight) internal {
         // Reputation increases with consistent voting
         uint256 reputationIncrease = votingWeight / 1000; // 0.1% of voting weight
-        governanceReputation[voter] =
-            governanceReputation[voter] +
-            reputationIncrease;
+        governanceReputation[voter] = governanceReputation[voter] + reputationIncrease;
 
         emit GovernanceReputationUpdated(voter, governanceReputation[voter]);
     }
 
     // Override voting period based on proposal category
-    function votingPeriod()
-        public
-        view
-        override(Governor, GovernorSettings)
-        returns (uint256)
-    {
+    function votingPeriod() public view override(Governor, GovernorSettings) returns (uint256) {
         return uint256(MAX_VOTING_PERIOD);
     }
 
     // Override voting delay based on proposal category
-    function votingDelay()
-        public
-        view
-        override(Governor, GovernorSettings)
-        returns (uint256)
-    {
+    function votingDelay() public view override(Governor, GovernorSettings) returns (uint256) {
         return uint256(MAX_VOTING_DELAY);
     }
 
     // The following functions are overrides required by Solidity
-    function state(
-        uint256 proposalId
-    )
-        public
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (ProposalState)
-    {
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 
-    function proposalNeedsQueuing(
-        uint256 proposalId
-    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
+    function proposalNeedsQueuing(uint256 proposalId)
+        public
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (bool)
+    {
         return super.proposalNeedsQueuing(proposalId);
     }
 
@@ -391,27 +325,15 @@ contract SentinelGovernance is
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
-    function _executor()
-        internal
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (address)
-    {
+    function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(Governor) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(Governor) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    function proposalThreshold()
-        public
-        view
-        override(Governor, GovernorSettings)
-        returns (uint256)
-    {
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
     }
 }

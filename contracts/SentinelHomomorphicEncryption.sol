@@ -45,14 +45,8 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
     bytes32 public publicKey;
     bytes32 public evaluationKey;
 
-    event CiphertextEncrypted(
-        bytes32 indexed ciphertextId,
-        address indexed encryptor
-    );
-    event HomomorphicOperationPerformed(
-        bytes32 indexed resultId,
-        uint256 operationType
-    );
+    event CiphertextEncrypted(bytes32 indexed ciphertextId, address indexed encryptor);
+    event HomomorphicOperationPerformed(bytes32 indexed resultId, uint256 operationType);
     event CiphertextDecrypted(bytes32 indexed ciphertextId, uint256 plaintext);
 
     constructor(address initialOwner) Ownable(initialOwner) {
@@ -66,26 +60,14 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param randomness Randomness for encryption
      * @return ciphertextId Unique identifier for the encrypted data
      */
-    function encryptValue(
-        uint256 value,
-        uint256 randomness
-    ) external returns (bytes32) {
+    function encryptValue(uint256 value, uint256 randomness) external returns (bytes32) {
         require(value < 2 ** 32, "Value too large for demonstration");
         require(randomness != 0, "Randomness cannot be zero");
 
         // Generate ciphertext components (simplified homomorphic encryption)
-        bytes32 c1 = keccak256(
-            abi.encodePacked(
-                value,
-                randomness,
-                block.timestamp,
-                "homomorphic_c1"
-            )
-        );
+        bytes32 c1 = keccak256(abi.encodePacked(value, randomness, block.timestamp, "homomorphic_c1"));
 
-        bytes32 c2 = keccak256(
-            abi.encodePacked(value, randomness, block.number, "homomorphic_c2")
-        );
+        bytes32 c2 = keccak256(abi.encodePacked(value, randomness, block.number, "homomorphic_c2"));
 
         // Create commitment to plaintext
         bytes32 commitment = keccak256(abi.encodePacked(value, randomness));
@@ -113,39 +95,21 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param ciphertextId2 Second ciphertext ID
      * @return resultId ID of the homomorphic operation result
      */
-    function homomorphicAdd(
-        bytes32 ciphertextId1,
-        bytes32 ciphertextId2
-    ) external returns (bytes32) {
-        require(
-            _ciphertextExists(ciphertextId1),
-            "Ciphertext 1 does not exist"
-        );
-        require(
-            _ciphertextExists(ciphertextId2),
-            "Ciphertext 2 does not exist"
-        );
+    function homomorphicAdd(bytes32 ciphertextId1, bytes32 ciphertextId2) external returns (bytes32) {
+        require(_ciphertextExists(ciphertextId1), "Ciphertext 1 does not exist");
+        require(_ciphertextExists(ciphertextId2), "Ciphertext 2 does not exist");
 
         Ciphertext memory ct1 = ciphertexts[ciphertextId1];
         Ciphertext memory ct2 = ciphertexts[ciphertextId2];
 
         // Homomorphic addition: E(a) + E(b) = E(a + b)
-        bytes32 resultCipher = keccak256(
-            abi.encodePacked(ct1.c1, ct2.c1, ct1.c2, ct2.c2, "homomorphic_add")
-        );
+        bytes32 resultCipher = keccak256(abi.encodePacked(ct1.c1, ct2.c1, ct1.c2, ct2.c2, "homomorphic_add"));
 
         address[] memory participants = new address[](2);
         participants[0] = ct1.encryptor;
         participants[1] = ct2.encryptor;
 
-        bytes32 resultId = keccak256(
-            abi.encodePacked(
-                ciphertextId1,
-                ciphertextId2,
-                resultCipher,
-                block.timestamp
-            )
-        );
+        bytes32 resultId = keccak256(abi.encodePacked(ciphertextId1, ciphertextId2, resultCipher, block.timestamp));
 
         homomorphicResults[resultId] = HomomorphicResult({
             resultCipher: resultCipher,
@@ -167,36 +131,19 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param multiplier Constant to multiply by
      * @return resultId ID of the homomorphic operation result
      */
-    function homomorphicMultiplyConstant(
-        bytes32 ciphertextId,
-        uint256 multiplier
-    ) external returns (bytes32) {
+    function homomorphicMultiplyConstant(bytes32 ciphertextId, uint256 multiplier) external returns (bytes32) {
         require(_ciphertextExists(ciphertextId), "Ciphertext does not exist");
         require(multiplier > 0 && multiplier < 1000, "Invalid constant");
 
         Ciphertext memory ct = ciphertexts[ciphertextId];
 
         // Homomorphic multiplication by constant: E(a) * k = E(a * k)
-        bytes32 resultCipher = keccak256(
-            abi.encodePacked(
-                ct.c1,
-                ct.c2,
-                multiplier,
-                "homomorphic_mult_constant"
-            )
-        );
+        bytes32 resultCipher = keccak256(abi.encodePacked(ct.c1, ct.c2, multiplier, "homomorphic_mult_constant"));
 
         address[] memory participants = new address[](1);
         participants[0] = ct.encryptor;
 
-        bytes32 resultId = keccak256(
-            abi.encodePacked(
-                ciphertextId,
-                multiplier,
-                resultCipher,
-                block.timestamp
-            )
-        );
+        bytes32 resultId = keccak256(abi.encodePacked(ciphertextId, multiplier, resultCipher, block.timestamp));
 
         homomorphicResults[resultId] = HomomorphicResult({
             resultCipher: resultCipher,
@@ -218,30 +165,18 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param threshold Threshold value
      * @return resultId ID of the comparison result
      */
-    function homomorphicCompare(
-        bytes32 ciphertextId,
-        uint256 threshold
-    ) external returns (bytes32) {
+    function homomorphicCompare(bytes32 ciphertextId, uint256 threshold) external returns (bytes32) {
         require(_ciphertextExists(ciphertextId), "Ciphertext does not exist");
 
         Ciphertext memory ct = ciphertexts[ciphertextId];
 
         // Homomorphic comparison (simplified)
-        bytes32 resultCipher = keccak256(
-            abi.encodePacked(ct.c1, ct.c2, threshold, "homomorphic_compare")
-        );
+        bytes32 resultCipher = keccak256(abi.encodePacked(ct.c1, ct.c2, threshold, "homomorphic_compare"));
 
         address[] memory participants = new address[](1);
         participants[0] = ct.encryptor;
 
-        bytes32 resultId = keccak256(
-            abi.encodePacked(
-                ciphertextId,
-                threshold,
-                resultCipher,
-                block.timestamp
-            )
-        );
+        bytes32 resultId = keccak256(abi.encodePacked(ciphertextId, threshold, resultCipher, block.timestamp));
 
         homomorphicResults[resultId] = HomomorphicResult({
             resultCipher: resultCipher,
@@ -263,36 +198,23 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param decryptionKey Decryption key (simplified)
      * @return plaintext Decrypted value
      */
-    function decryptCiphertext(
-        bytes32 ciphertextId,
-        bytes32 decryptionKey
-    ) external returns (uint256) {
+    function decryptCiphertext(bytes32 ciphertextId, bytes32 decryptionKey) external returns (uint256) {
         require(_ciphertextExists(ciphertextId), "Ciphertext does not exist");
 
         Ciphertext memory ct = ciphertexts[ciphertextId];
 
         // Only encryptor can decrypt (simplified access control)
-        require(
-            ct.encryptor == msg.sender || owner() == msg.sender,
-            "Unauthorized decryption"
-        );
+        require(ct.encryptor == msg.sender || owner() == msg.sender, "Unauthorized decryption");
 
         // Verify decryption key (simplified)
-        bytes32 expectedKey = keccak256(
-            abi.encodePacked(ct.randomness, "decryption_key")
-        );
+        bytes32 expectedKey = keccak256(abi.encodePacked(ct.randomness, "decryption_key"));
         require(decryptionKey == expectedKey, "Invalid decryption key");
 
         // Check expiry
-        require(
-            block.timestamp <= ct.timestamp + CIPHERTEXT_EXPIRY,
-            "Ciphertext expired"
-        );
+        require(block.timestamp <= ct.timestamp + CIPHERTEXT_EXPIRY, "Ciphertext expired");
 
         // Simplified decryption (in real homomorphic encryption, this would be much more complex)
-        uint256 plaintext = uint256(
-            keccak256(abi.encodePacked(ct.c1, ct.c2, ct.randomness))
-        ) % 2 ** 32;
+        uint256 plaintext = uint256(keccak256(abi.encodePacked(ct.c1, ct.c2, ct.randomness))) % 2 ** 32;
 
         emit CiphertextDecrypted(ciphertextId, plaintext);
         return plaintext;
@@ -303,36 +225,23 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @param resultId Result to verify
      * @return isValid Whether the result is valid
      */
-    function verifyHomomorphicResult(
-        bytes32 resultId
-    ) external view returns (bool) {
+    function verifyHomomorphicResult(bytes32 resultId) external view returns (bool) {
         HomomorphicResult memory result = homomorphicResults[resultId];
         require(result.computationTime > 0, "Result does not exist");
 
         // Simplified verification
         // In real implementation, this would verify the homomorphic properties
-        return
-            result.verified &&
-            result.participants.length > 0 &&
-            result.participants.length <= MAX_PARTICIPANTS;
+        return result.verified && result.participants.length > 0 && result.participants.length <= MAX_PARTICIPANTS;
     }
 
     /**
      * @notice Get ciphertext information
      * @param ciphertextId Ciphertext to query
      */
-    function getCiphertext(
-        bytes32 ciphertextId
-    )
+    function getCiphertext(bytes32 ciphertextId)
         external
         view
-        returns (
-            bytes32 c1,
-            bytes32 c2,
-            address encryptor,
-            uint256 timestamp,
-            bool isExpired
-        )
+        returns (bytes32 c1, bytes32 c2, address encryptor, uint256 timestamp, bool isExpired)
     {
         Ciphertext memory ct = ciphertexts[ciphertextId];
         bool expired = block.timestamp > ct.timestamp + CIPHERTEXT_EXPIRY;
@@ -344,9 +253,7 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      * @notice Get homomorphic operation result
      * @param resultId Result to query
      */
-    function getHomomorphicResult(
-        bytes32 resultId
-    )
+    function getHomomorphicResult(bytes32 resultId)
         external
         view
         returns (
@@ -358,13 +265,7 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
         )
     {
         HomomorphicResult memory result = homomorphicResults[resultId];
-        return (
-            result.resultCipher,
-            result.operationType,
-            result.participants,
-            result.computationTime,
-            result.verified
-        );
+        return (result.resultCipher, result.operationType, result.participants, result.computationTime, result.verified);
     }
 
     /**
@@ -415,18 +316,14 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
     /**
      * @dev Check if ciphertext exists
      */
-    function _ciphertextExists(
-        bytes32 ciphertextId
-    ) internal view returns (bool) {
+    function _ciphertextExists(bytes32 ciphertextId) internal view returns (bool) {
         return ciphertexts[ciphertextId].timestamp > 0;
     }
 
     /**
      * @dev Check if ciphertext is expired
      */
-    function _isCiphertextExpired(
-        bytes32 ciphertextId
-    ) internal view returns (bool) {
+    function _isCiphertextExpired(bytes32 ciphertextId) internal view returns (bool) {
         Ciphertext memory ct = ciphertexts[ciphertextId];
         return block.timestamp > ct.timestamp + CIPHERTEXT_EXPIRY;
     }
@@ -436,20 +333,8 @@ contract SentinelHomomorphicEncryption is Ownable, ReentrancyGuard {
      */
     function _initializeHomomorphicSystem() internal {
         // Initialize public parameters (simplified)
-        publicKey = keccak256(
-            abi.encodePacked(
-                "homomorphic_public_key",
-                block.timestamp,
-                address(this)
-            )
-        );
+        publicKey = keccak256(abi.encodePacked("homomorphic_public_key", block.timestamp, address(this)));
 
-        evaluationKey = keccak256(
-            abi.encodePacked(
-                "homomorphic_evaluation_key",
-                block.number,
-                address(this)
-            )
-        );
+        evaluationKey = keccak256(abi.encodePacked("homomorphic_evaluation_key", block.number, address(this)));
     }
 }

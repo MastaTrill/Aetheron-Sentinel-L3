@@ -13,6 +13,7 @@ Extended prototype for Aetheron Sentinel Gateway, as described in
 the Sentinel Manifesto.
 """
 
+import os
 import re
 import logging
 import json
@@ -195,7 +196,7 @@ class SentinelGateway:
 
 
 # --- API Key Auth ---
-API_KEY = "supersecretapikey"  # In production, load from env or config
+API_KEY = os.environ.get("SENTINEL_API_KEY", "")
 
 
 def get_api_key(x_api_key: str = Header(...)):

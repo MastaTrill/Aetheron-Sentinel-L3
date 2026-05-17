@@ -71,11 +71,7 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
     uint256 public constant CREDENTIAL_VALIDITY = 180 days;
 
     event IdentityCreated(address indexed user, bytes32 identityHash);
-    event CredentialIssued(
-        bytes32 indexed credentialId,
-        bytes32 indexed identityId,
-        string credentialType
-    );
+    event CredentialIssued(bytes32 indexed credentialId, bytes32 indexed identityId, string credentialType);
     event ZKProofVerified(bytes32 indexed proofId, bool success);
     event IdentityVerified(bytes32 indexed identityHash, uint256 trustScore);
 
@@ -89,19 +85,9 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
      * @return identityHash Unique identifier for the new identity
      */
     function createZKIdentity(bytes32 publicKey) external returns (bytes32) {
-        require(
-            identities[msg.sender].creationTime == 0,
-            "Identity already exists"
-        );
+        require(identities[msg.sender].creationTime == 0, "Identity already exists");
 
-        bytes32 identityHash = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                publicKey,
-                block.timestamp,
-                "zk_identity_v1"
-            )
-        );
+        bytes32 identityHash = keccak256(abi.encodePacked(msg.sender, publicKey, block.timestamp, "zk_identity_v1"));
 
         identities[msg.sender].identityHash = identityHash;
         identities[msg.sender].publicKey = publicKey;
@@ -131,23 +117,11 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
         bytes32[] calldata attributes,
         uint256 validityPeriod
     ) external onlyOwner returns (bytes32) {
-        require(
-            validityPeriod <= CREDENTIAL_VALIDITY,
-            "Validity period too long"
-        );
+        require(validityPeriod <= CREDENTIAL_VALIDITY, "Validity period too long");
 
-        bytes32 credentialId = keccak256(
-            abi.encodePacked(
-                identityId,
-                credentialType,
-                block.timestamp,
-                msg.sender
-            )
-        );
+        bytes32 credentialId = keccak256(abi.encodePacked(identityId, credentialType, block.timestamp, msg.sender));
 
-        ZKCredential storage credential = identities[
-            _getIdentityOwner(identityId)
-        ].credentialStore[credentialId];
+        ZKCredential storage credential = identities[_getIdentityOwner(identityId)].credentialStore[credentialId];
 
         credential.credentialId = credentialId;
         credential.credentialType = credentialType;
@@ -165,9 +139,7 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
         }
 
         // Generate proof hash
-        credential.proofHash = keccak256(
-            abi.encodePacked(credentialId, attributes, block.timestamp)
-        );
+        credential.proofHash = keccak256(abi.encodePacked(credentialId, attributes, block.timestamp));
 
         // Add to identity's credentials
         ZKIdentity storage identity = identities[_getIdentityOwner(identityId)];
@@ -189,21 +161,13 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
      * @param publicInputsHash Hash of public inputs
      * @param proofType Type of verification (identity, credential, etc.)
      */
-    function submitZKProof(
-        ZKProof calldata proof,
-        bytes32 publicInputsHash,
-        string calldata proofType
-    ) external returns (bool) {
+    function submitZKProof(ZKProof calldata proof, bytes32 publicInputsHash, string calldata proofType)
+        external
+        returns (bool)
+    {
         require(identities[msg.sender].isActive, "Identity not active");
 
-        bytes32 proofId = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                publicInputsHash,
-                proofType,
-                block.timestamp
-            )
-        );
+        bytes32 proofId = keccak256(abi.encodePacked(msg.sender, publicInputsHash, proofType, block.timestamp));
 
         // Verify ZK proof (simplified for demonstration)
         bool isValid = _verifyZKProof(proof, publicInputsHash);
@@ -222,19 +186,10 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
         if (isValid) {
             ZKIdentity storage identity = identities[msg.sender];
 
-            if (
-                keccak256(abi.encodePacked(proofType)) ==
-                keccak256(abi.encodePacked("identity_verification"))
-            ) {
+            if (keccak256(abi.encodePacked(proofType)) == keccak256(abi.encodePacked("identity_verification"))) {
                 identity.isVerified = true;
-                identity.trustScore = Math.min(
-                    identity.trustScore + 100,
-                    MAX_TRUST_SCORE
-                );
-                emit IdentityVerified(
-                    identity.identityHash,
-                    identity.trustScore
-                );
+                identity.trustScore = Math.min(identity.trustScore + 100, MAX_TRUST_SCORE);
+                emit IdentityVerified(identity.identityHash, identity.trustScore);
             }
 
             identity.reputation = Math.min(identity.reputation + 10, 1000);
@@ -249,28 +204,14 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
      * @param credentialId Credential to verify
      * @param presentationProof ZK proof of credential possession
      */
-    function verifyZKCredential(
-        bytes32 credentialId,
-        ZKProof calldata presentationProof
-    ) external view returns (bool) {
+    function verifyZKCredential(bytes32 credentialId, ZKProof calldata presentationProof) external view returns (bool) {
         ZKCredential storage credential = _getCredential(credentialId);
-        require(
-            credential.isValid && !credential.isRevoked,
-            "Credential invalid"
-        );
-        require(
-            block.timestamp <= credential.expirationTime,
-            "Credential expired"
-        );
+        require(credential.isValid && !credential.isRevoked, "Credential invalid");
+        require(block.timestamp <= credential.expirationTime, "Credential expired");
 
         // Verify presentation proof
-        bytes32 publicInputsHash = keccak256(
-            abi.encodePacked(
-                credentialId,
-                credential.subjectId,
-                "credential_presentation"
-            )
-        );
+        bytes32 publicInputsHash =
+            keccak256(abi.encodePacked(credentialId, credential.subjectId, "credential_presentation"));
 
         bool isValid = _verifyZKProof(presentationProof, publicInputsHash);
 
@@ -288,39 +229,24 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
      */
     function revokeZKCredential(bytes32 credentialId) external {
         ZKCredential storage credential = _getCredential(credentialId);
-        require(
-            credentialIssuers[credentialId] == msg.sender,
-            "Not credential issuer"
-        );
+        require(credentialIssuers[credentialId] == msg.sender, "Not credential issuer");
 
         credential.isRevoked = true;
 
         // Update identity reputation
         address identityOwner = _getIdentityOwner(credential.subjectId);
-        identities[identityOwner].reputation = Math.max(
-            identities[identityOwner].reputation > 50
-                ? identities[identityOwner].reputation - 50
-                : 0,
-            0
-        );
+        identities[identityOwner].reputation =
+            Math.max(identities[identityOwner].reputation > 50 ? identities[identityOwner].reputation - 50 : 0, 0);
     }
 
     /**
      * @notice Get identity information
      * @param user Address to query
      */
-    function getZKIdentity(
-        address user
-    )
+    function getZKIdentity(address user)
         external
         view
-        returns (
-            bytes32 identityHash,
-            uint256 reputation,
-            uint256 trustScore,
-            bool isVerified,
-            uint256 credentialCount
-        )
+        returns (bytes32 identityHash, uint256 reputation, uint256 trustScore, bool isVerified, uint256 credentialCount)
     {
         return (
             identities[user].identityHash,
@@ -335,9 +261,7 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
      * @notice Get credential information
      * @param credentialId Credential to query
      */
-    function getZKCredential(
-        bytes32 credentialId
-    )
+    function getZKCredential(bytes32 credentialId)
         external
         view
         returns (
@@ -366,24 +290,19 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
      * @param minReputation Minimum reputation required
      * @param minTrustScore Minimum trust score required
      */
-    function checkIdentityRequirements(
-        address user,
-        uint256 minReputation,
-        uint256 minTrustScore
-    ) external view returns (bool) {
-        return
-            identities[user].isActive &&
-            identities[user].isVerified &&
-            identities[user].reputation >= minReputation &&
-            identities[user].trustScore >= minTrustScore;
+    function checkIdentityRequirements(address user, uint256 minReputation, uint256 minTrustScore)
+        external
+        view
+        returns (bool)
+    {
+        return identities[user].isActive && identities[user].isVerified && identities[user].reputation >= minReputation
+            && identities[user].trustScore >= minTrustScore;
     }
 
     /**
      * @dev Get identity owner from identity hash using reverse mapping
      */
-    function _getIdentityOwner(
-        bytes32 identityId
-    ) internal view returns (address) {
+    function _getIdentityOwner(bytes32 identityId) internal view returns (address) {
         address owner = identityHashToOwner[identityId];
         require(owner != address(0), "Identity not found");
         return owner;
@@ -392,9 +311,7 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
     /**
      * @dev Get credential from owner's credentialStore using reverse mapping
      */
-    function _getCredential(
-        bytes32 credentialId
-    ) internal view returns (ZKCredential storage) {
+    function _getCredential(bytes32 credentialId) internal view returns (ZKCredential storage) {
         address owner = credentialToOwner[credentialId];
         require(owner != address(0), "Credential not found");
         return identities[owner].credentialStore[credentialId];
@@ -403,10 +320,7 @@ contract SentinelZKIdentity is Ownable, ReentrancyGuard {
     /**
      * @dev Verify ZK-SNARK proof (simplified demonstration)
      */
-    function _verifyZKProof(
-        ZKProof memory proof,
-        bytes32 publicInputsHash
-    ) internal pure returns (bool) {
+    function _verifyZKProof(ZKProof memory proof, bytes32 publicInputsHash) internal pure returns (bool) {
         // In production, this would verify the actual ZK-SNARK proof
         // using the verifying key and pairing operations
 

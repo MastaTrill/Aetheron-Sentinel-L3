@@ -167,12 +167,8 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
         }
         require(hasPurchased, "Must have purchased this listing to review");
 
-        Review memory review = Review({
-            reviewer: msg.sender,
-            rating: rating,
-            comment: comment,
-            timestamp: block.timestamp
-        });
+        Review memory review =
+            Review({reviewer: msg.sender, rating: rating, comment: comment, timestamp: block.timestamp});
 
         listingReviews[listingId].push(review);
 
@@ -246,12 +242,11 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
     /**
      * @notice Get marketplace statistics
      */
-    function getMarketStats() external view returns (
-        uint256 totalListings,
-        uint256 activeListings,
-        uint256 totalVolume_,
-        uint256 totalReviews
-    ) {
+    function getMarketStats()
+        external
+        view
+        returns (uint256 totalListings, uint256 activeListings, uint256 totalVolume_, uint256 totalReviews)
+    {
         uint256 activeCount = 0;
         uint256 reviewCount = 0;
 
@@ -267,14 +262,16 @@ contract SentinelAPIMarketplace is Ownable, ReentrancyGuard {
      * @dev Generate access token
      */
     function _generateAccessToken(uint256 listingId, address buyer) internal returns (string memory) {
-        string memory token = string(abi.encodePacked(
-            "access-",
-            Strings.toString(listingId),
-            "-",
-            Strings.toHexString(uint160(buyer)),
-            "-",
-            Strings.toString(block.timestamp)
-        ));
+        string memory token = string(
+            abi.encodePacked(
+                "access-",
+                Strings.toString(listingId),
+                "-",
+                Strings.toHexString(uint160(buyer)),
+                "-",
+                Strings.toString(block.timestamp)
+            )
+        );
 
         validAccessTokens[token] = true;
         return token;

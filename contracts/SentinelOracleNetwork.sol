@@ -70,16 +70,8 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
     bool public emergencyShutdown;
 
     event OracleRegistered(address indexed oracle, uint256 stake);
-    event PriceSubmitted(
-        string indexed symbol,
-        uint256 price,
-        address indexed oracle
-    );
-    event SecurityMetricReported(
-        string indexed metric,
-        uint256 value,
-        address indexed reporter
-    );
+    event PriceSubmitted(string indexed symbol, uint256 price, address indexed oracle);
+    event SecurityMetricReported(string indexed metric, uint256 value, address indexed reporter);
     event ReputationUpdated(address indexed oracle, uint256 newReputation);
     event EmergencyShutdown(address indexed activator, string reason);
 
@@ -118,25 +110,17 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      * @param confidence Confidence interval in basis points
      * @param signature Quantum-resistant signature
      */
-    function submitPriceFeed(
-        string calldata symbol,
-        uint256 price,
-        uint256 confidence,
-        bytes calldata signature
-    ) external {
+    function submitPriceFeed(string calldata symbol, uint256 price, uint256 confidence, bytes calldata signature)
+        external
+    {
         require(oracles[msg.sender].active, "Not an active oracle");
         require(price > 0, "Invalid price");
         require(confidence <= 10000, "Invalid confidence"); // Max 100%
         require(!emergencyShutdown, "Network shutdown");
 
         // Verify quantum-resistant signature
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(symbol, price, confidence, block.timestamp)
-        );
-        require(
-            _verifyQuantumSignature(msg.sender, messageHash, signature),
-            "Invalid signature"
-        );
+        bytes32 messageHash = keccak256(abi.encodePacked(symbol, price, confidence, block.timestamp));
+        require(_verifyQuantumSignature(msg.sender, messageHash, signature), "Invalid signature");
 
         // Update price feed using median calculation
         _updatePriceFeed(symbol, price, confidence, msg.sender);
@@ -153,22 +137,13 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      * @param value Metric value
      * @param signature Quantum-resistant signature
      */
-    function reportSecurityMetric(
-        string calldata metricName,
-        uint256 value,
-        bytes calldata signature
-    ) external {
+    function reportSecurityMetric(string calldata metricName, uint256 value, bytes calldata signature) external {
         require(oracles[msg.sender].active, "Not an active oracle");
         require(!emergencyShutdown, "Network shutdown");
 
         // Verify signature
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(metricName, value, block.timestamp)
-        );
-        require(
-            _verifyQuantumSignature(msg.sender, messageHash, signature),
-            "Invalid signature"
-        );
+        bytes32 messageHash = keccak256(abi.encodePacked(metricName, value, block.timestamp));
+        require(_verifyQuantumSignature(msg.sender, messageHash, signature), "Invalid signature");
 
         SecurityMetric memory metric = SecurityMetric({
             metricName: metricName,
@@ -193,21 +168,13 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      * @notice Get latest price for asset
      * @param symbol Asset symbol
      */
-    function getPrice(
-        string calldata symbol
-    )
+    function getPrice(string calldata symbol)
         external
         view
-        returns (
-            uint256 price,
-            uint256 timestamp,
-            uint256 confidence,
-            bool isValid
-        )
+        returns (uint256 price, uint256 timestamp, uint256 confidence, bool isValid)
     {
         PriceFeed memory feed = priceFeeds[symbol];
-        bool valid = feed.isActive &&
-            (block.timestamp - feed.timestamp) <= PRICE_VALIDITY;
+        bool valid = feed.isActive && (block.timestamp - feed.timestamp) <= PRICE_VALIDITY;
 
         return (feed.price, feed.timestamp, feed.confidence, valid);
     }
@@ -216,16 +183,10 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      * @notice Get security metric data
      * @param metricName Name of metric
      */
-    function getSecurityMetric(
-        string calldata metricName
-    )
+    function getSecurityMetric(string calldata metricName)
         external
         view
-        returns (
-            uint256 latestValue,
-            uint256 timestamp,
-            uint256 averageReliability
-        )
+        returns (uint256 latestValue, uint256 timestamp, uint256 averageReliability)
     {
         SecurityMetric[] memory metrics = securityMetrics[metricName];
         require(metrics.length > 0, "No metrics available");
@@ -235,37 +196,22 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
 
         // Calculate average reliability from recent metrics
         uint256 count = 0;
-        for (
-            uint256 i = (metrics.length > 10 ? metrics.length - 10 : 0);
-            i < metrics.length;
-            i++
-        ) {
+        for (uint256 i = (metrics.length > 10 ? metrics.length - 10 : 0); i < metrics.length; i++) {
             totalReliability += metrics[i].reliability;
             count++;
         }
 
-        return (
-            latest.value,
-            latest.timestamp,
-            count > 0 ? totalReliability / count : 0
-        );
+        return (latest.value, latest.timestamp, count > 0 ? totalReliability / count : 0);
     }
 
     /**
      * @notice Get oracle information
      * @param oracle Oracle address
      */
-    function getOracleInfo(
-        address oracle
-    )
+    function getOracleInfo(address oracle)
         external
         view
-        returns (
-            bool active,
-            uint256 reputation,
-            uint256 stake,
-            uint256 lastSubmission
-        )
+        returns (bool active, uint256 reputation, uint256 stake, uint256 lastSubmission)
     {
         OracleData memory data = oracles[oracle];
         return (data.active, data.reputation, data.stake, data.lastSubmission);
@@ -275,9 +221,7 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      * @notice Emergency shutdown of oracle network
      * @param reason Reason for shutdown
      */
-    function triggerEmergencyShutdown(
-        string calldata reason
-    ) external onlyOwner {
+    function triggerEmergencyShutdown(string calldata reason) external onlyOwner {
         emergencyShutdown = true;
         emit EmergencyShutdown(msg.sender, reason);
     }
@@ -287,20 +231,11 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      * @param symbol Asset symbol
      * @param decimals Price decimals
      */
-    function addSupportedAsset(
-        string calldata symbol,
-        uint8 decimals
-    ) external onlyOwner {
+    function addSupportedAsset(string calldata symbol, uint8 decimals) external onlyOwner {
         require(!priceFeeds[symbol].isActive, "Asset already supported");
 
-        priceFeeds[symbol] = PriceFeed({
-            symbol: symbol,
-            price: 0,
-            timestamp: 0,
-            confidence: 0,
-            decimals: decimals,
-            isActive: true
-        });
+        priceFeeds[symbol] =
+            PriceFeed({symbol: symbol, price: 0, timestamp: 0, confidence: 0, decimals: decimals, isActive: true});
 
         supportedAssets.push(symbol);
     }
@@ -329,19 +264,14 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
 
         _updateOracleReputation(oracle, false);
 
-        (bool ok, ) = payable(owner()).call{value: slashAmount}("");
+        (bool ok,) = payable(owner()).call{value: slashAmount}("");
         require(ok, "ETH transfer failed");
     }
 
     /**
      * @notice Update price feed using median calculation
      */
-    function _updatePriceFeed(
-        string memory symbol,
-        uint256 newPrice,
-        uint256 confidence,
-        address oracle
-    ) internal {
+    function _updatePriceFeed(string memory symbol, uint256 newPrice, uint256 confidence, address oracle) internal {
         PriceFeed storage feed = priceFeeds[symbol];
         require(feed.isActive, "Asset not supported");
 
@@ -356,12 +286,7 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
             uint256 oracleWeight = oracles[oracle].reputation;
             uint256 totalWeight = MAX_REPUTATION; // Simplified
 
-            feed.price =
-                (feed.price *
-                    (totalWeight - oracleWeight) +
-                    newPrice *
-                    oracleWeight) /
-                totalWeight;
+            feed.price = (feed.price * (totalWeight - oracleWeight) + newPrice * oracleWeight) / totalWeight;
             feed.timestamp = block.timestamp;
             feed.confidence = confidence;
         }
@@ -370,25 +295,12 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
     /**
      * @notice Update network security score
      */
-    function _updateNetworkSecurity(
-        string memory metricName,
-        uint256 value
-    ) internal {
+    function _updateNetworkSecurity(string memory metricName, uint256 value) internal {
         // Simplified security scoring
-        if (
-            keccak256(abi.encodePacked(metricName)) ==
-            keccak256(abi.encodePacked("anomaly_count"))
-        ) {
+        if (keccak256(abi.encodePacked(metricName)) == keccak256(abi.encodePacked("anomaly_count"))) {
             networkSecurityScore = value < 10 ? 900 : value < 50 ? 700 : 500;
-        } else if (
-            keccak256(abi.encodePacked(metricName)) ==
-            keccak256(abi.encodePacked("bridge_volume"))
-        ) {
-            networkSecurityScore = value > 100000 ether
-                ? 950
-                : value > 10000 ether
-                ? 850
-                : 750;
+        } else if (keccak256(abi.encodePacked(metricName)) == keccak256(abi.encodePacked("bridge_volume"))) {
+            networkSecurityScore = value > 100000 ether ? 950 : value > 10000 ether ? 850 : 750;
         }
 
         lastSecurityUpdate = block.timestamp;
@@ -406,9 +318,8 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
                 oracleData.reputation = MAX_REPUTATION;
             }
         } else {
-            oracleData.reputation = oracleData.reputation > REPUTATION_PENALTY
-                ? oracleData.reputation - REPUTATION_PENALTY
-                : 0;
+            oracleData.reputation =
+                oracleData.reputation > REPUTATION_PENALTY ? oracleData.reputation - REPUTATION_PENALTY : 0;
         }
 
         oracleData.lastSubmission = block.timestamp;
@@ -420,30 +331,22 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
     /**
      * @notice Verify quantum-resistant signature
      */
-    function _verifyQuantumSignature(
-        address oracle,
-        bytes32 messageHash,
-        bytes memory signature
-    ) internal view returns (bool) {
+    function _verifyQuantumSignature(address oracle, bytes32 messageHash, bytes memory signature)
+        internal
+        view
+        returns (bool)
+    {
         // In production, this would use actual quantum-resistant signature verification
         // For demo, using simplified ECDSA with additional checks
 
-        require(
-            oracles[oracle].publicKey != bytes32(0),
-            "No public key registered"
-        );
+        require(oracles[oracle].publicKey != bytes32(0), "No public key registered");
 
-        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(
-            messageHash
-        );
+        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address recovered = ECDSA.recover(ethSignedMessageHash, signature);
         bool isValid = recovered == oracle;
 
         // Prevent same-block replay / rate-limit successive submissions
-        require(
-            block.number > oracles[oracle].lastSubmissionBlock,
-            "Already submitted this block"
-        );
+        require(block.number > oracles[oracle].lastSubmissionBlock, "Already submitted this block");
 
         return isValid;
     }

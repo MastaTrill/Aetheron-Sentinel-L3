@@ -9,38 +9,22 @@ interface ISentinelInterceptor {
     function getAnomalyStats()
         external
         view
-        returns (
-            uint256 totalCount,
-            uint256 lastBlock,
-            uint256 consecutive,
-            uint256 currentBlockFrequency
-        );
+        returns (uint256 totalCount, uint256 lastBlock, uint256 consecutive, uint256 currentBlockFrequency);
 }
 
 /// @dev Minimal interface for AetheronBridge
 interface IAetheronBridge {
-    function getBridgeStats()
-        external
-        view
-        returns (uint256 tvl, uint256 fee, uint256 supportedTokenCount);
+    function getBridgeStats() external view returns (uint256 tvl, uint256 fee, uint256 supportedTokenCount);
 
     function totalTransferCount() external view returns (uint256);
 }
 
 /// @dev Minimal interface for CircuitBreaker
 interface ICircuitBreaker {
-    function getCircuitStats(
-        uint256 chainId
-    )
+    function getCircuitStats(uint256 chainId)
         external
         view
-        returns (
-            uint8 state,
-            uint256 failures,
-            uint256 lastFailure,
-            uint256 successCount,
-            bool isShutdown
-        );
+        returns (uint8 state, uint256 failures, uint256 lastFailure, uint256 successCount, bool isShutdown);
 }
 
 /**
@@ -74,33 +58,14 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
     event HealthUpdated(SystemHealth health);
     event AlertTriggered(string conditionId, uint256 severity, string message);
     event ContractAuthorized(address contractAddress);
-    event AlertConditionSet(
-        string conditionId,
-        uint256 threshold,
-        uint256 severity
-    );
+    event AlertConditionSet(string conditionId, uint256 threshold, uint256 severity);
 
     constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         // Set default alert conditions
-        _setAlertCondition(
-            "high_anomalies",
-            10,
-            8,
-            "High anomaly count detected"
-        );
-        _setAlertCondition(
-            "low_tvl",
-            1000 ether,
-            7,
-            "TVL dropped below threshold"
-        );
-        _setAlertCondition(
-            "circuit_failures",
-            3,
-            9,
-            "Multiple circuits failed"
-        );
+        _setAlertCondition("high_anomalies", 10, 8, "High anomaly count detected");
+        _setAlertCondition("low_tvl", 1000 ether, 7, "TVL dropped below threshold");
+        _setAlertCondition("circuit_failures", 3, 9, "Multiple circuits failed");
     }
 
     /**
@@ -118,37 +83,27 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      * @param bridgeContract Address of bridge contract
      * @param circuitBreakerContract Address of circuit breaker contract
      */
-    function updateHealth(
-        address sentinelContract,
-        address bridgeContract,
-        address circuitBreakerContract
-    ) external onlyOwner {
-        require(
-            authorizedContracts[sentinelContract],
-            "Sentinel not authorized"
-        );
+    function updateHealth(address sentinelContract, address bridgeContract, address circuitBreakerContract)
+        external
+        onlyOwner
+    {
+        require(authorizedContracts[sentinelContract], "Sentinel not authorized");
         require(authorizedContracts[bridgeContract], "Bridge not authorized");
-        require(
-            authorizedContracts[circuitBreakerContract],
-            "CircuitBreaker not authorized"
-        );
+        require(authorizedContracts[circuitBreakerContract], "CircuitBreaker not authorized");
 
         // Pull live anomaly count from SentinelInterceptor
-        (uint256 totalAnomalies, , , ) = ISentinelInterceptor(sentinelContract)
-            .getAnomalyStats();
+        (uint256 totalAnomalies,,,) = ISentinelInterceptor(sentinelContract).getAnomalyStats();
         systemHealth.sentinelAnomalies = totalAnomalies;
 
         // Pull live TVL and transfer count from AetheronBridge
-        (uint256 tvl, , ) = IAetheronBridge(bridgeContract).getBridgeStats();
+        (uint256 tvl,,) = IAetheronBridge(bridgeContract).getBridgeStats();
         systemHealth.bridgeTVL = tvl;
-        systemHealth.totalTransfers = IAetheronBridge(bridgeContract)
-            .totalTransferCount();
+        systemHealth.totalTransfers = IAetheronBridge(bridgeContract).totalTransferCount();
 
         // Count open circuits across all tracked chains
         uint256 openCircuits = 0;
         for (uint256 i = 0; i < trackedChainIds.length; i++) {
-            (uint8 state, , , , ) = ICircuitBreaker(circuitBreakerContract)
-                .getCircuitStats(trackedChainIds[i]);
+            (uint8 state,,,,) = ICircuitBreaker(circuitBreakerContract).getCircuitStats(trackedChainIds[i]);
             if (state != 0) {
                 // 0 = CLOSED
                 openCircuits++;
@@ -203,11 +158,9 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      * @notice Check if system is in critical state
      */
     function isCriticalState() external view returns (bool) {
-        return
-            !systemHealth.overallHealth ||
-            systemHealth.sentinelAnomalies >
-            alertConditions["high_anomalies"].threshold ||
-            systemHealth.bridgeTVL < alertConditions["low_tvl"].threshold;
+        return !systemHealth.overallHealth
+            || systemHealth.sentinelAnomalies > alertConditions["high_anomalies"].threshold
+            || systemHealth.bridgeTVL < alertConditions["low_tvl"].threshold;
     }
 
     /**
@@ -220,10 +173,7 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
         string memory description
     ) internal {
         alertConditions[conditionId] = AlertCondition({
-            description: description,
-            threshold: threshold,
-            active: true,
-            severity: severity
+            description: description, threshold: threshold, active: true, severity: severity
         });
         emit AlertConditionSet(conditionId, threshold, severity);
     }
@@ -233,9 +183,8 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      */
     function _calculateOverallHealth() internal view returns (bool) {
         return
-            systemHealth.sentinelAnomalies < 20 &&
-            systemHealth.bridgeTVL > 10000 ether &&
-            systemHealth.activeCircuits < 5;
+            systemHealth.sentinelAnomalies < 20 && systemHealth.bridgeTVL > 10000 ether
+                && systemHealth.activeCircuits < 5;
     }
 
     /**
@@ -243,10 +192,7 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
      */
     function _checkAlerts() internal {
         // Check high anomalies
-        if (
-            systemHealth.sentinelAnomalies >
-            alertConditions["high_anomalies"].threshold
-        ) {
+        if (systemHealth.sentinelAnomalies > alertConditions["high_anomalies"].threshold) {
             emit AlertTriggered(
                 "high_anomalies",
                 alertConditions["high_anomalies"].severity,
@@ -256,18 +202,11 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
 
         // Check low TVL
         if (systemHealth.bridgeTVL < alertConditions["low_tvl"].threshold) {
-            emit AlertTriggered(
-                "low_tvl",
-                alertConditions["low_tvl"].severity,
-                alertConditions["low_tvl"].description
-            );
+            emit AlertTriggered("low_tvl", alertConditions["low_tvl"].severity, alertConditions["low_tvl"].description);
         }
 
         // Check circuit failures
-        if (
-            systemHealth.activeCircuits >
-            alertConditions["circuit_failures"].threshold
-        ) {
+        if (systemHealth.activeCircuits > alertConditions["circuit_failures"].threshold) {
             emit AlertTriggered(
                 "circuit_failures",
                 alertConditions["circuit_failures"].severity,

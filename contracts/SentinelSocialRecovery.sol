@@ -60,22 +60,10 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
     // ZK Identity integration
     address public zkIdentityContract;
 
-    event RecoveryConfigured(
-        address indexed account,
-        uint256 guardianCount,
-        uint256 threshold
-    );
-    event RecoveryRequested(
-        bytes32 indexed requestId,
-        address indexed account,
-        address newOwner
-    );
+    event RecoveryConfigured(address indexed account, uint256 guardianCount, uint256 threshold);
+    event RecoveryRequested(bytes32 indexed requestId, address indexed account, address newOwner);
     event RecoveryApproved(bytes32 indexed requestId, address indexed guardian);
-    event RecoveryExecuted(
-        bytes32 indexed requestId,
-        address indexed oldOwner,
-        address indexed newOwner
-    );
+    event RecoveryExecuted(bytes32 indexed requestId, address indexed oldOwner, address indexed newOwner);
     event GuardianAdded(address indexed account, address indexed guardian);
     event GuardianRemoved(address indexed account, address indexed guardian);
 
@@ -90,25 +78,10 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param threshold Number of guardians required for recovery
      * @param recoveryDelay Delay before recovery can be executed
      */
-    function configureRecovery(
-        address[] calldata guardians,
-        uint256 threshold,
-        uint256 recoveryDelay
-    ) external {
-        require(
-            guardians.length >= MIN_GUARDIANS &&
-                guardians.length <= MAX_GUARDIANS,
-            "Invalid guardian count"
-        );
-        require(
-            threshold > 0 && threshold <= guardians.length,
-            "Invalid threshold"
-        );
-        require(
-            recoveryDelay >= MIN_RECOVERY_DELAY &&
-                recoveryDelay <= MAX_RECOVERY_DELAY,
-            "Invalid recovery delay"
-        );
+    function configureRecovery(address[] calldata guardians, uint256 threshold, uint256 recoveryDelay) external {
+        require(guardians.length >= MIN_GUARDIANS && guardians.length <= MAX_GUARDIANS, "Invalid guardian count");
+        require(threshold > 0 && threshold <= guardians.length, "Invalid threshold");
+        require(recoveryDelay >= MIN_RECOVERY_DELAY && recoveryDelay <= MAX_RECOVERY_DELAY, "Invalid recovery delay");
 
         RecoveryConfig storage config = recoveryConfigs[msg.sender];
         require(!config.isActive, "Recovery already configured");
@@ -120,10 +93,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
             require(!config.guardians[guardians[i]], "Duplicate guardian");
 
             // Verify guardian identity (optional but recommended)
-            require(
-                _isValidZKIdentity(guardians[i]),
-                "Guardian must have valid ZK identity"
-            );
+            require(_isValidZKIdentity(guardians[i]), "Guardian must have valid ZK identity");
 
             config.guardians[guardians[i]] = true;
         }
@@ -142,21 +112,13 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param newOwner New owner address for the account
      * @param evidence Proof of compromise (IPFS hash, etc.)
      */
-    function requestRecovery(
-        address newOwner,
-        bytes calldata evidence
-    ) external returns (bytes32) {
+    function requestRecovery(address newOwner, bytes calldata evidence) external returns (bytes32) {
         RecoveryConfig storage config = recoveryConfigs[msg.sender];
         require(config.isActive, "Recovery not configured");
-        require(
-            newOwner != address(0) && newOwner != msg.sender,
-            "Invalid new owner"
-        );
+        require(newOwner != address(0) && newOwner != msg.sender, "Invalid new owner");
 
         // Generate recovery request
-        bytes32 requestId = keccak256(
-            abi.encodePacked(msg.sender, newOwner, block.timestamp, evidence)
-        );
+        bytes32 requestId = keccak256(abi.encodePacked(msg.sender, newOwner, block.timestamp, evidence));
 
         RecoveryRequest storage request = config.recoveryRequests[requestId];
         require(request.requestTime == 0, "Recovery request already exists");
@@ -180,31 +142,18 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param requestId Recovery request ID
      * @param approvalProof ZK proof of identity verification
      */
-    function approveRecovery(
-        address account,
-        bytes32 requestId,
-        bytes calldata approvalProof
-    ) external {
+    function approveRecovery(address account, bytes32 requestId, bytes calldata approvalProof) external {
         RecoveryConfig storage config = recoveryConfigs[account];
         require(config.isActive, "Recovery not configured");
         require(config.guardians[msg.sender], "Not a guardian");
 
         RecoveryRequest storage request = config.recoveryRequests[requestId];
-        require(
-            request.status == RecoveryStatus.PENDING,
-            "Request not pending"
-        );
+        require(request.status == RecoveryStatus.PENDING, "Request not pending");
         require(!request.approvals[msg.sender], "Already approved");
-        require(
-            block.timestamp <= request.requestTime + REQUEST_EXPIRY,
-            "Request expired"
-        );
+        require(block.timestamp <= request.requestTime + REQUEST_EXPIRY, "Request expired");
 
         // Verify guardian identity and approval
-        require(
-            _verifyGuardianApproval(msg.sender, requestId, approvalProof),
-            "Invalid guardian approval"
-        );
+        require(_verifyGuardianApproval(msg.sender, requestId, approvalProof), "Invalid guardian approval");
 
         request.approvals[msg.sender] = true;
         request.approvalCount++;
@@ -223,26 +172,14 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param account Account to recover
      * @param requestId Recovery request ID
      */
-    function executeRecovery(
-        address account,
-        bytes32 requestId
-    ) external nonReentrant {
+    function executeRecovery(address account, bytes32 requestId) external nonReentrant {
         RecoveryConfig storage config = recoveryConfigs[account];
         require(config.isActive, "Recovery not configured");
 
         RecoveryRequest storage request = config.recoveryRequests[requestId];
-        require(
-            request.status == RecoveryStatus.APPROVED,
-            "Request not approved"
-        );
-        require(
-            block.timestamp >= request.executionTime,
-            "Recovery delay not elapsed"
-        );
-        require(
-            block.timestamp <= request.requestTime + REQUEST_EXPIRY,
-            "Request expired"
-        );
+        require(request.status == RecoveryStatus.APPROVED, "Request not approved");
+        require(block.timestamp >= request.executionTime, "Recovery delay not elapsed");
+        require(block.timestamp <= request.requestTime + REQUEST_EXPIRY, "Request expired");
 
         // Execute recovery (this would transfer ownership in integrated contracts)
         address oldOwner = account;
@@ -279,19 +216,10 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
     function addGuardian(address guardian) external {
         RecoveryConfig storage config = recoveryConfigs[msg.sender];
         require(config.isActive, "Recovery not configured");
-        require(
-            config.guardianCount < MAX_GUARDIANS,
-            "Maximum guardians reached"
-        );
-        require(
-            guardian != address(0) && guardian != msg.sender,
-            "Invalid guardian"
-        );
+        require(config.guardianCount < MAX_GUARDIANS, "Maximum guardians reached");
+        require(guardian != address(0) && guardian != msg.sender, "Invalid guardian");
         require(!config.guardians[guardian], "Already a guardian");
-        require(
-            _isValidZKIdentity(guardian),
-            "Guardian must have valid ZK identity"
-        );
+        require(_isValidZKIdentity(guardian), "Guardian must have valid ZK identity");
 
         config.guardians[guardian] = true;
         config.guardianCount++;
@@ -312,10 +240,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
         RecoveryConfig storage config = recoveryConfigs[msg.sender];
         require(config.isActive, "Recovery not configured");
         require(config.guardians[guardian], "Not a guardian");
-        require(
-            config.guardianCount > MIN_GUARDIANS,
-            "Minimum guardians required"
-        );
+        require(config.guardianCount > MIN_GUARDIANS, "Minimum guardians required");
 
         config.guardians[guardian] = false;
         config.guardianCount--;
@@ -332,25 +257,13 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @notice Get recovery configuration
      * @param account Account to query
      */
-    function getRecoveryConfig(
-        address account
-    )
+    function getRecoveryConfig(address account)
         external
         view
-        returns (
-            uint256 guardianCount,
-            uint256 threshold,
-            uint256 recoveryDelay,
-            bool isActive
-        )
+        returns (uint256 guardianCount, uint256 threshold, uint256 recoveryDelay, bool isActive)
     {
         RecoveryConfig storage config = recoveryConfigs[account];
-        return (
-            config.guardianCount,
-            config.threshold,
-            config.recoveryDelay,
-            config.isActive
-        );
+        return (config.guardianCount, config.threshold, config.recoveryDelay, config.isActive);
     }
 
     /**
@@ -358,10 +271,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param account Account owner
      * @param requestId Request ID
      */
-    function getRecoveryRequest(
-        address account,
-        bytes32 requestId
-    )
+    function getRecoveryRequest(address account, bytes32 requestId)
         external
         view
         returns (
@@ -372,15 +282,8 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
             RecoveryStatus status
         )
     {
-        RecoveryRequest storage request = recoveryConfigs[account]
-            .recoveryRequests[requestId];
-        return (
-            request.newOwner,
-            request.requestTime,
-            request.executionTime,
-            request.approvalCount,
-            request.status
-        );
+        RecoveryRequest storage request = recoveryConfigs[account].recoveryRequests[requestId];
+        return (request.newOwner, request.requestTime, request.executionTime, request.approvalCount, request.status);
     }
 
     /**
@@ -388,10 +291,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param account Account to check
      * @param guardian Guardian to verify
      */
-    function isGuardian(
-        address account,
-        address guardian
-    ) external view returns (bool) {
+    function isGuardian(address account, address guardian) external view returns (bool) {
         return recoveryConfigs[account].guardians[guardian];
     }
 
@@ -400,18 +300,16 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      * @param account Account to check
      * @param requestId Request ID
      */
-    function canExecuteRecovery(
-        address account,
-        bytes32 requestId
-    ) external view returns (bool) {
+    function canExecuteRecovery(address account, bytes32 requestId) external view returns (bool) {
         RecoveryConfig storage config = recoveryConfigs[account];
         if (!config.isActive) return false;
 
         RecoveryRequest storage request = config.recoveryRequests[requestId];
         if (request.status != RecoveryStatus.APPROVED) return false;
         if (block.timestamp < request.executionTime) return false;
-        if (block.timestamp > request.requestTime + REQUEST_EXPIRY)
+        if (block.timestamp > request.requestTime + REQUEST_EXPIRY) {
             return false;
+        }
 
         return true;
     }
@@ -421,9 +319,14 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      */
     function _verifyGuardianApproval(
         address guardian,
-        bytes32 /*requestId*/,
+        bytes32,
+        /*requestId*/
         bytes memory /*approvalProof*/
-    ) internal pure returns (bool) {
+    )
+        internal
+        pure
+        returns (bool)
+    {
         // Verify guardian has valid ZK identity
         if (!_isValidZKIdentity(guardian)) return false;
 

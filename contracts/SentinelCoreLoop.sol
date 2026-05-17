@@ -62,8 +62,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     }
 
     // State transition validation
-    mapping(SystemStatus => mapping(SystemStatus => bool))
-        private _validTransitions;
+    mapping(SystemStatus => mapping(SystemStatus => bool)) private _validTransitions;
 
     struct CoreMetrics {
         uint256 totalValueSecured;
@@ -153,21 +152,11 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     // ════════════════════════════════════════════════════════════════
 
     event CoreLoopExecuted(uint256 indexed cycle, uint256 timestamp);
-    event QuantumCalibrationCompleted(
-        uint256 coherenceIndex,
-        uint256 entropyLevel
-    );
+    event QuantumCalibrationCompleted(uint256 coherenceIndex, uint256 entropyLevel);
     event SecurityAuditCompleted(uint256 securityScore, uint256 anomalyCount);
     event AutonomousBehaviorTriggered(string behavior, uint256 timestamp);
-    event SystemStatusChanged(
-        SystemStatus previousStatus,
-        SystemStatus newStatus
-    );
-    event ThreatIntercepted(
-        bytes32 threatId,
-        uint256 severity,
-        string description
-    );
+    event SystemStatusChanged(SystemStatus previousStatus, SystemStatus newStatus);
+    event ThreatIntercepted(bytes32 threatId, uint256 severity, string description);
     event YieldOptimizationEvent(uint256 optimizedAmount, uint256 apyIncrease);
     event EmergencyProtocolActivated(string reason, uint256 severity);
     event SystemComponentUpdated(string component, address contractAddress);
@@ -207,31 +196,21 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
      */
     function _setupStateTransitions() private {
         // From INITIALIZING: only to ACTIVE
-        _validTransitions[SystemStatus.INITIALIZING][
-            SystemStatus.ACTIVE
-        ] = true;
+        _validTransitions[SystemStatus.INITIALIZING][SystemStatus.ACTIVE] = true;
 
         // From ACTIVE: to MAINTENANCE, EMERGENCY, or QUANTUM_LOCKDOWN
         _validTransitions[SystemStatus.ACTIVE][SystemStatus.MAINTENANCE] = true;
         _validTransitions[SystemStatus.ACTIVE][SystemStatus.EMERGENCY] = true;
-        _validTransitions[SystemStatus.ACTIVE][
-            SystemStatus.QUANTUM_LOCKDOWN
-        ] = true;
+        _validTransitions[SystemStatus.ACTIVE][SystemStatus.QUANTUM_LOCKDOWN] = true;
 
         // From MAINTENANCE: back to ACTIVE or to EMERGENCY
         _validTransitions[SystemStatus.MAINTENANCE][SystemStatus.ACTIVE] = true;
-        _validTransitions[SystemStatus.MAINTENANCE][
-            SystemStatus.EMERGENCY
-        ] = true;
+        _validTransitions[SystemStatus.MAINTENANCE][SystemStatus.EMERGENCY] = true;
 
         // From EMERGENCY: to ACTIVE, MAINTENANCE, or QUANTUM_LOCKDOWN
         _validTransitions[SystemStatus.EMERGENCY][SystemStatus.ACTIVE] = true;
-        _validTransitions[SystemStatus.EMERGENCY][
-            SystemStatus.MAINTENANCE
-        ] = true;
-        _validTransitions[SystemStatus.EMERGENCY][
-            SystemStatus.QUANTUM_LOCKDOWN
-        ] = true;
+        _validTransitions[SystemStatus.EMERGENCY][SystemStatus.MAINTENANCE] = true;
+        _validTransitions[SystemStatus.EMERGENCY][SystemStatus.QUANTUM_LOCKDOWN] = true;
 
         // QUANTUM_LOCKDOWN is terminal state - no transitions out
         // Only governance can reset via emergencyRecovery()
@@ -241,18 +220,9 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
      * @dev Validate that initialization completed successfully
      */
     function _validateInitialization() private view {
-        require(
-            currentStatus == SystemStatus.INITIALIZING,
-            "Invalid initialization state"
-        );
-        require(
-            coreMetrics.activeSecurityScore >= MIN_SECURITY_SCORE,
-            "Security score too low"
-        );
-        require(
-            quantumState.entropyLevel >= QUANTUM_ENTROPY_MINIMUM,
-            "Quantum entropy too low"
-        );
+        require(currentStatus == SystemStatus.INITIALIZING, "Invalid initialization state");
+        require(coreMetrics.activeSecurityScore >= MIN_SECURITY_SCORE, "Security score too low");
+        require(quantumState.entropyLevel >= QUANTUM_ENTROPY_MINIMUM, "Quantum entropy too low");
         require(hasRole(DEFAULT_ADMIN_ROLE, owner()), "Owner role not set");
     }
 
@@ -275,10 +245,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         lastQuantumCalibration = block.timestamp;
         lastSecurityAudit = block.timestamp;
 
-        emit SystemStatusChanged(
-            SystemStatus.INITIALIZING,
-            SystemStatus.INITIALIZING
-        );
+        emit SystemStatusChanged(SystemStatus.INITIALIZING, SystemStatus.INITIALIZING);
     }
 
     function _activateAutonomousBehaviors() internal {
@@ -306,13 +273,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         });
     }
 
-
     function _generateQuantumSignature() internal view returns (bytes32) {
-        return keccak256(abi.encodePacked(
-            block.timestamp,
-            block.prevrandao,
-            msg.sender,
-            address(this)
-        ));
+        return keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender, address(this)));
     }
 }

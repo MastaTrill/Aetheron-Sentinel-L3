@@ -56,15 +56,8 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     uint256 public quantumNoiseLevel;
     uint256 public neuralStability;
 
-    event NeuralPrediction(
-        bytes32 indexed inputHash,
-        uint256 threatLevel,
-        uint256 confidence
-    );
-    event ThreatSignatureDetected(
-        bytes32 indexed patternHash,
-        uint256 severity
-    );
+    event NeuralPrediction(bytes32 indexed inputHash, uint256 threatLevel, uint256 confidence);
+    event ThreatSignatureDetected(bytes32 indexed patternHash, uint256 severity);
     event NeuralNetworkUpdated(uint256 layers, uint256 totalParameters);
     event QuantumCalibrationPerformed(uint256 coherence, uint256 stability);
 
@@ -80,9 +73,10 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
      * @return threatLevel Predicted threat level (0-100)
      * @return confidence Prediction confidence (0-100)
      */
-    function processQuantumNeuralAnalysis(
-        uint256[] calldata inputData
-    ) external returns (uint256 threatLevel, uint256 confidence) {
+    function processQuantumNeuralAnalysis(uint256[] calldata inputData)
+        external
+        returns (uint256 threatLevel, uint256 confidence)
+    {
         require(inputData.length > 0, "Empty input data");
 
         // Quantum state validation
@@ -95,17 +89,11 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
         int256[] memory networkOutput = _forwardPropagation(normalizedInput);
 
         // Quantum-enhanced prediction
-        (threatLevel, confidence) = _quantumPredictionEnhancement(
-            networkOutput
-        );
+        (threatLevel, confidence) = _quantumPredictionEnhancement(networkOutput);
 
         // Generate prediction hash for verification
-        bytes32 inputHash = keccak256(
-            abi.encodePacked(inputData, block.timestamp)
-        );
-        bytes32 predictionHash = keccak256(
-            abi.encodePacked(threatLevel, confidence, block.timestamp)
-        );
+        bytes32 inputHash = keccak256(abi.encodePacked(inputData, block.timestamp));
+        bytes32 predictionHash = keccak256(abi.encodePacked(threatLevel, confidence, block.timestamp));
 
         // Store prediction
         predictions[inputHash] = QuantumPrediction({
@@ -131,25 +119,18 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
      * @param severity Threat severity level
      * @param metadata Additional pattern metadata
      */
-    function addThreatSignature(
-        bytes calldata patternData,
-        uint256 severity,
-        bytes calldata metadata
-    ) external onlyOwner {
+    function addThreatSignature(bytes calldata patternData, uint256 severity, bytes calldata metadata)
+        external
+        onlyOwner
+    {
         _addThreatSignature(patternData, severity, metadata);
     }
 
-    function _addThreatSignature(
-        bytes memory patternData,
-        uint256 severity,
-        bytes memory metadata
-    ) internal {
+    function _addThreatSignature(bytes memory patternData, uint256 severity, bytes memory metadata) internal {
         require(severity >= 1 && severity <= 10, "Invalid severity");
         require(patternData.length > 0, "Empty pattern data");
 
-        bytes32 patternHash = keccak256(
-            abi.encodePacked(patternData, severity, block.timestamp)
-        );
+        bytes32 patternHash = keccak256(abi.encodePacked(patternData, severity, block.timestamp));
 
         threatSignatures[patternHash] = ThreatSignature({
             patternHash: patternHash,
@@ -168,18 +149,9 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
      * @param newCoherence New coherence factor
      * @param newEntanglement New entanglement strength
      */
-    function calibrateQuantumNeuralNetwork(
-        uint256 newCoherence,
-        uint256 newEntanglement
-    ) external onlyOwner {
-        require(
-            newCoherence >= 50 && newCoherence <= 100,
-            "Invalid coherence factor"
-        );
-        require(
-            newEntanglement >= 0 && newEntanglement <= 100,
-            "Invalid entanglement strength"
-        );
+    function calibrateQuantumNeuralNetwork(uint256 newCoherence, uint256 newEntanglement) external onlyOwner {
+        require(newCoherence >= 50 && newCoherence <= 100, "Invalid coherence factor");
+        require(newEntanglement >= 0 && newEntanglement <= 100, "Invalid entanglement strength");
 
         coherenceFactor = newCoherence;
         entanglementStrength = newEntanglement;
@@ -197,54 +169,31 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     function getNeuralArchitecture()
         external
         view
-        returns (
-            uint256 layers,
-            uint256 totalNeurons,
-            uint256 totalParameters,
-            uint256 quantumCoherence
-        )
+        returns (uint256 layers, uint256 totalNeurons, uint256 totalParameters, uint256 quantumCoherence)
     {
         uint256 totalNeuronsCount = 0;
         uint256 totalParams = 0;
 
         for (uint256 i = 0; i < neuralLayers.length; i++) {
             totalNeuronsCount += neuralLayers[i].neurons;
-            totalParams +=
-                neuralLayers[i].neurons *
-                neuralLayers[i].inputs + // weights count
-                neuralLayers[i].neurons; // biases count
+            totalParams += neuralLayers[i].neurons * neuralLayers[i].inputs // weights count
+            + neuralLayers[i].neurons; // biases count
         }
 
-        return (
-            neuralLayers.length,
-            totalNeuronsCount,
-            totalParams,
-            coherenceFactor
-        );
+        return (neuralLayers.length, totalNeuronsCount, totalParams, coherenceFactor);
     }
 
     /**
      * @notice Get prediction history for input hash
      */
-    function getPrediction(
-        bytes32 inputHash
-    )
+    function getPrediction(bytes32 inputHash)
         external
         view
-        returns (
-            uint256 threatProbability,
-            uint256 confidenceLevel,
-            bytes32 predictionHash,
-            uint256 timestamp
-        )
+        returns (uint256 threatProbability, uint256 confidenceLevel, bytes32 predictionHash, uint256 timestamp)
     {
         QuantumPrediction memory prediction = predictions[inputHash];
-        return (
-            prediction.threatProbability,
-            prediction.confidenceLevel,
-            prediction.predictionHash,
-            prediction.timestamp
-        );
+        return
+            (prediction.threatProbability, prediction.confidenceLevel, prediction.predictionHash, prediction.timestamp);
     }
 
     /**
@@ -274,84 +223,46 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     /**
      * @dev Add neural layer to network
      */
-    function _addNeuralLayer(
-        uint256 neurons,
-        uint256 inputs,
-        uint256 activation
-    ) internal {
+    function _addNeuralLayer(uint256 neurons, uint256 inputs, uint256 activation) internal {
         require(neuralLayers.length < MAX_LAYERS, "Max layers exceeded");
         require(neurons <= MAX_NEURONS, "Too many neurons");
 
         // Use a compact seed instead of storing full weight/bias arrays
-        bytes32 seed = keccak256(
-            abi.encodePacked(
-                block.timestamp,
-                neuralLayers.length,
-                neurons,
-                inputs
-            )
-        );
+        bytes32 seed = keccak256(abi.encodePacked(block.timestamp, neuralLayers.length, neurons, inputs));
 
-        neuralLayers.push(
-            NeuralLayer({
-                neurons: neurons,
-                inputs: inputs,
-                weightSeed: seed,
-                activation: activation
-            })
-        );
+        neuralLayers.push(NeuralLayer({neurons: neurons, inputs: inputs, weightSeed: seed, activation: activation}));
     }
 
     /**
      * @dev Derive a weight value from the layer seed deterministically
      */
-    function _getWeight(
-        bytes32 seed,
-        uint256 index
-    ) internal pure returns (int256) {
+    function _getWeight(bytes32 seed, uint256 index) internal pure returns (int256) {
         return
-            int256(
-                uint256(keccak256(abi.encodePacked(seed, index))) %
-                    (QUANTUM_PRECISION * 2)
-            ) - int256(QUANTUM_PRECISION);
+            int256(uint256(keccak256(abi.encodePacked(seed, index))) % (QUANTUM_PRECISION * 2))
+                - int256(QUANTUM_PRECISION);
     }
 
     /**
      * @dev Forward propagation through neural network
      */
-    function _forwardPropagation(
-        int256[] memory input
-    ) internal view returns (int256[] memory) {
+    function _forwardPropagation(int256[] memory input) internal view returns (int256[] memory) {
         int256[] memory currentInput = input;
 
         for (uint256 layerIdx = 0; layerIdx < neuralLayers.length; layerIdx++) {
             NeuralLayer memory layer = neuralLayers[layerIdx];
             int256[] memory layerOutput = new int256[](layer.neurons);
 
-            for (
-                uint256 neuronIdx = 0;
-                neuronIdx < layer.neurons;
-                neuronIdx++
-            ) {
+            for (uint256 neuronIdx = 0; neuronIdx < layer.neurons; neuronIdx++) {
                 int256 neuronSum = 0; // biases are zero by design
 
-                for (
-                    uint256 inputIdx = 0;
-                    inputIdx < layer.inputs;
-                    inputIdx++
-                ) {
+                for (uint256 inputIdx = 0; inputIdx < layer.inputs; inputIdx++) {
                     uint256 weightIdx = neuronIdx * layer.inputs + inputIdx;
                     int256 w = _getWeight(layer.weightSeed, weightIdx);
-                    neuronSum +=
-                        (w * currentInput[inputIdx]) /
-                        int256(QUANTUM_PRECISION);
+                    neuronSum += (w * currentInput[inputIdx]) / int256(QUANTUM_PRECISION);
                 }
 
                 // Apply activation function
-                layerOutput[neuronIdx] = _applyActivation(
-                    neuronSum,
-                    layer.activation
-                );
+                layerOutput[neuronIdx] = _applyActivation(neuronSum, layer.activation);
             }
 
             currentInput = layerOutput;
@@ -363,10 +274,7 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     /**
      * @dev Apply activation function
      */
-    function _applyActivation(
-        int256 x,
-        uint256 activationType
-    ) internal pure returns (int256) {
+    function _applyActivation(int256 x, uint256 activationType) internal pure returns (int256) {
         if (activationType == 1) {
             // Linear (input/output layer)
             return x;
@@ -376,9 +284,7 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
         } else if (activationType == 3) {
             // Sigmoid (0 to QUANTUM_PRECISION)
             int256 exp_neg_x = _exp(-x / int256(QUANTUM_PRECISION));
-            return
-                (int256(QUANTUM_PRECISION) * int256(QUANTUM_PRECISION)) /
-                (int256(QUANTUM_PRECISION) + exp_neg_x);
+            return (int256(QUANTUM_PRECISION) * int256(QUANTUM_PRECISION)) / (int256(QUANTUM_PRECISION) + exp_neg_x);
         }
         return x;
     }
@@ -391,18 +297,18 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
         if (x >= 0) {
             return int256(QUANTUM_PRECISION) + x; // Linear approximation for positive
         } else {
-            return
-                (int256(QUANTUM_PRECISION) * int256(QUANTUM_PRECISION)) /
-                (int256(QUANTUM_PRECISION) - x); // Approximation for negative
+            return (int256(QUANTUM_PRECISION) * int256(QUANTUM_PRECISION)) / (int256(QUANTUM_PRECISION) - x); // Approximation for negative
         }
     }
 
     /**
      * @dev Enhance prediction with quantum effects
      */
-    function _quantumPredictionEnhancement(
-        int256[] memory networkOutput
-    ) internal view returns (uint256 threatLevel, uint256 confidence) {
+    function _quantumPredictionEnhancement(int256[] memory networkOutput)
+        internal
+        view
+        returns (uint256 threatLevel, uint256 confidence)
+    {
         require(networkOutput.length >= 2, "Invalid network output");
 
         // Convert to uint256 with bounds checking
@@ -414,16 +320,10 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
         uint256 entanglementBonus = entanglementStrength / 20;
 
         // Calculate final predictions
-        threatLevel = Math
-            .min(
-                uint256(rawThreat >= 0 ? rawThreat : int256(0)),
-                QUANTUM_PRECISION
-            ) * 100 / QUANTUM_PRECISION;
-        confidence = Math
-            .min(
-                uint256(rawConfidence >= 0 ? rawConfidence : int256(0)),
-                QUANTUM_PRECISION
-            ) * 100 / QUANTUM_PRECISION;
+        threatLevel =
+            Math.min(uint256(rawThreat >= 0 ? rawThreat : int256(0)), QUANTUM_PRECISION) * 100 / QUANTUM_PRECISION;
+        confidence = Math.min(uint256(rawConfidence >= 0 ? rawConfidence : int256(0)), QUANTUM_PRECISION) * 100
+            / QUANTUM_PRECISION;
 
         // Apply quantum enhancements
         threatLevel = Math.min(threatLevel + quantumBonus, 100);
@@ -433,16 +333,12 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     /**
      * @dev Normalize input data for neural network
      */
-    function _normalizeInputData(
-        uint256[] memory input
-    ) internal pure returns (int256[] memory) {
+    function _normalizeInputData(uint256[] memory input) internal pure returns (int256[] memory) {
         int256[] memory normalized = new int256[](input.length);
 
         for (uint256 i = 0; i < input.length; i++) {
             // Normalize to [-QUANTUM_PRECISION, QUANTUM_PRECISION] range
-            normalized[i] =
-                int256(input[i] % (QUANTUM_PRECISION * 2)) -
-                int256(QUANTUM_PRECISION);
+            normalized[i] = int256(input[i] % (QUANTUM_PRECISION * 2)) - int256(QUANTUM_PRECISION);
         }
 
         return normalized;
@@ -452,10 +348,7 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
      * @dev Validate quantum coherence for reliable predictions
      */
     function _validateQuantumCoherence() internal view returns (bool) {
-        return
-            coherenceFactor >= 70 &&
-            entanglementStrength >= 50 &&
-            neuralStability >= 80;
+        return coherenceFactor >= 70 && entanglementStrength >= 50 && neuralStability >= 80;
     }
 
     /**
@@ -481,10 +374,7 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
     /**
      * @dev Trigger automated quantum response to high-threat predictions
      */
-    function _triggerQuantumResponse(
-        bytes32 inputHash,
-        uint256 threatLevel
-    ) internal {
+    function _triggerQuantumResponse(bytes32 inputHash, uint256 threatLevel) internal {
         // This would integrate with SentinelCoreLoop for automated responses
         // For demo, we emit an event that other contracts can listen to
 
@@ -499,25 +389,9 @@ contract SentinelQuantumNeural is Ownable, ReentrancyGuard {
      */
     function _initializeBaseThreatSignatures() internal {
         // Add common threat patterns
-        _addThreatSignature(
-            abi.encodePacked("reentrancy_attempt"),
-            8,
-            abi.encodePacked("Reentrancy attack pattern")
-        );
-        _addThreatSignature(
-            abi.encodePacked("flash_loan_exploit"),
-            9,
-            abi.encodePacked("Flash loan manipulation")
-        );
-        _addThreatSignature(
-            abi.encodePacked("oracle_price_attack"),
-            7,
-            abi.encodePacked("Oracle price manipulation")
-        );
-        _addThreatSignature(
-            abi.encodePacked("governance_attack"),
-            10,
-            abi.encodePacked("Governance manipulation")
-        );
+        _addThreatSignature(abi.encodePacked("reentrancy_attempt"), 8, abi.encodePacked("Reentrancy attack pattern"));
+        _addThreatSignature(abi.encodePacked("flash_loan_exploit"), 9, abi.encodePacked("Flash loan manipulation"));
+        _addThreatSignature(abi.encodePacked("oracle_price_attack"), 7, abi.encodePacked("Oracle price manipulation"));
+        _addThreatSignature(abi.encodePacked("governance_attack"), 10, abi.encodePacked("Governance manipulation"));
     }
 }

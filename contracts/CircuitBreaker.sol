@@ -54,15 +54,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @param chainId Chain ID
      * @param failureSeverity Severity level (1-10)
      */
-    function recordFailure(
-        uint256 chainId,
-        uint256 failureSeverity
-    ) external whenNotPaused onlyRole(MONITOR_ROLE) {
+    function recordFailure(uint256 chainId, uint256 failureSeverity) external whenNotPaused onlyRole(MONITOR_ROLE) {
         require(chainId > 0, "Invalid chain ID");
-        require(
-            failureSeverity >= 1 && failureSeverity <= 10,
-            "Invalid severity"
-        );
+        require(failureSeverity >= 1 && failureSeverity <= 10, "Invalid severity");
         require(!permanentShutdown[chainId], "Chain permanently shutdown");
 
         failureCounts[chainId]++;
@@ -84,11 +78,7 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
 
         if (circuitStates[chainId] == State.CLOSED) {
             // Open circuit if threshold reached or rapid/high-severity failures
-            if (
-                failureCounts[chainId] >= FAILURE_THRESHOLD ||
-                rapidFailures ||
-                highSeverityFailure
-            ) {
+            if (failureCounts[chainId] >= FAILURE_THRESHOLD || rapidFailures || highSeverityFailure) {
                 circuitStates[chainId] = State.OPEN;
                 halfOpenSuccessCount[chainId] = 0;
                 emit CircuitOpened(chainId, failureCounts[chainId]);
@@ -107,9 +97,7 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Records a success for a chain
      * @param chainId Chain ID
      */
-    function recordSuccess(
-        uint256 chainId
-    ) external whenNotPaused onlyRole(MONITOR_ROLE) {
+    function recordSuccess(uint256 chainId) external whenNotPaused onlyRole(MONITOR_ROLE) {
         require(chainId > 0, "Invalid chain ID");
 
         lastSuccessTime[chainId] = block.timestamp;
@@ -198,9 +186,7 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Permanently shutdown a chain (emergency measure)
      * @param chainId Chain ID to shutdown
      */
-    function triggerPermanentShutdown(
-        uint256 chainId
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function triggerPermanentShutdown(uint256 chainId) external onlyRole(DEFAULT_ADMIN_ROLE) {
         permanentShutdown[chainId] = true;
         circuitStates[chainId] = State.OPEN; // Ensure it's open
     }
@@ -229,18 +215,10 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Get circuit breaker statistics
      * @param chainId Chain ID
      */
-    function getCircuitStats(
-        uint256 chainId
-    )
+    function getCircuitStats(uint256 chainId)
         external
         view
-        returns (
-            State state,
-            uint256 failures,
-            uint256 lastFailure,
-            uint256 successCount,
-            bool isShutdown
-        )
+        returns (State state, uint256 failures, uint256 lastFailure, uint256 successCount, bool isShutdown)
     {
         return (
             circuitStates[chainId],
@@ -255,9 +233,7 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Get failure history for analysis
      * @param chainId Chain ID
      */
-    function getFailureHistory(
-        uint256 chainId
-    ) external view returns (uint256[] memory) {
+    function getFailureHistory(uint256 chainId) external view returns (uint256[] memory) {
         return failureHistory[chainId];
     }
 }

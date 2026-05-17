@@ -5,10 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 9999,
-    host: '192.168.5.170',
+    host: true,
     strictPort: true,
     hmr: {
-      host: '192.168.5.170',
+      host: 'localhost',
     },
   },
 });

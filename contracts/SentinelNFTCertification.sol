@@ -13,11 +13,11 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     // Certificate types
     enum CertificateType {
-        BASIC_SECURITY,      // Basic vulnerability scan
-        ADVANCED_SECURITY,   // Comprehensive security audit
-        QUANTUM_RESISTANT,   // Quantum-safe verification
-        CROSS_CHAIN,         // Multi-chain security
-        ENTERPRISE_GRADE     // Full enterprise certification
+        BASIC_SECURITY, // Basic vulnerability scan
+        ADVANCED_SECURITY, // Comprehensive security audit
+        QUANTUM_RESISTANT, // Quantum-safe verification
+        CROSS_CHAIN, // Multi-chain security
+        ENTERPRISE_GRADE // Full enterprise certification
     }
 
     struct NFTCertificate {
@@ -53,17 +53,10 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     event CertificationFeeUpdated(uint256 oldFee, uint256 newFee);
 
     event CertificateIssued(
-        uint256 indexed certificateId,
-        address indexed nftContract,
-        uint256 indexed nftTokenId,
-        CertificateType certType
+        uint256 indexed certificateId, address indexed nftContract, uint256 indexed nftTokenId, CertificateType certType
     );
 
-    event CollectionCertified(
-        address indexed collectionAddress,
-        uint256 securityScore,
-        bool certified
-    );
+    event CollectionCertified(address indexed collectionAddress, uint256 securityScore, bool certified);
 
     event CertificateRenewed(uint256 indexed certificateId);
     event CertificateRevoked(uint256 indexed certificateId, string reason);
@@ -184,11 +177,11 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
     /**
      * @notice Get collection security metrics
      */
-    function getCollectionMetrics(address collectionAddress) external view returns (
-        uint256 averageScore,
-        uint256 lastAuditDate,
-        bool isCertified
-    ) {
+    function getCollectionMetrics(address collectionAddress)
+        external
+        view
+        returns (uint256 averageScore, uint256 lastAuditDate, bool isCertified)
+    {
         CollectionAudit memory audit = collectionAudits[collectionAddress];
         return (audit.averageSecurityScore, audit.lastAuditDate, audit.isCertified);
     }

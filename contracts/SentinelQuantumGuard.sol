@@ -56,16 +56,10 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     }
     SecurityLevel public currentSecurityLevel;
 
-    event QuantumProofSubmitted(
-        bytes32 indexed proofId,
-        address indexed prover
-    );
+    event QuantumProofSubmitted(bytes32 indexed proofId, address indexed prover);
     event TransactionValidated(bytes32 indexed txHash, uint256 securityScore);
     event SecurityLevelChanged(SecurityLevel newLevel, string reason);
-    event OracleReputationUpdated(
-        address indexed oracle,
-        uint256 newReputation
-    );
+    event OracleReputationUpdated(address indexed oracle, uint256 newReputation);
 
     constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
@@ -79,34 +73,22 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
      * @param proof Zero-knowledge proof data
      * @param signature Oracle signature
      */
-    function submitQuantumProof(
-        bytes32 proofId,
-        bytes32 commitment,
-        bytes calldata proof,
-        bytes calldata signature
-    ) external whenNotPaused {
+    function submitQuantumProof(bytes32 proofId, bytes32 commitment, bytes calldata proof, bytes calldata signature)
+        external
+        whenNotPaused
+    {
         require(proofId != bytes32(0), "Invalid proof ID");
         require(proof.length >= 32, "Proof too small");
-        require(
-            currentSecurityLevel != SecurityLevel.LOCKDOWN,
-            "System locked down"
-        );
+        require(currentSecurityLevel != SecurityLevel.LOCKDOWN, "System locked down");
 
         // Verify oracle signature
         address oracle = _recoverSigner(proofId, signature);
         require(securityOracles[oracle].active, "Oracle not active");
-        require(
-            securityOracles[oracle].reputation >= MIN_ORACLE_REPUTATION,
-            "Low reputation oracle"
-        );
+        require(securityOracles[oracle].reputation >= MIN_ORACLE_REPUTATION, "Low reputation oracle");
 
         // Store quantum proof
         quantumProofs[proofId] = QuantumProof({
-            commitment: commitment,
-            proof: proof,
-            timestamp: block.timestamp,
-            prover: oracle,
-            verified: true
+            commitment: commitment, proof: proof, timestamp: block.timestamp, prover: oracle, verified: true
         });
 
         // Update oracle reputation
@@ -120,10 +102,7 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
      * @param txHash Transaction hash to validate
      * @param securityProofs Array of security proofs
      */
-    function validateTransaction(
-        bytes32 txHash,
-        bytes32[] calldata securityProofs
-    ) external returns (bool) {
+    function validateTransaction(bytes32 txHash, bytes32[] calldata securityProofs) external returns (bool) {
         require(securityProofs.length >= 3, "Insufficient proofs");
         require(!validatedTransactions[txHash], "Already validated");
 
@@ -139,16 +118,11 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
             }
         }
 
-        require(
-            validProofs >= securityProofs.length / 2 + 1,
-            "Insufficient valid proofs"
-        );
+        require(validProofs >= securityProofs.length / 2 + 1, "Insufficient valid proofs");
 
         // Calculate final security score
         securityScore = securityScore / validProofs;
-        securityScore = securityScore > MAX_SECURITY_SCORE
-            ? MAX_SECURITY_SCORE
-            : securityScore;
+        securityScore = securityScore > MAX_SECURITY_SCORE ? MAX_SECURITY_SCORE : securityScore;
 
         // Update system security metrics
         _updateSecurityMetrics(securityScore);
@@ -165,10 +139,7 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
      * @param oracleAddress Oracle contract address
      * @param publicKey Quantum-resistant public key
      */
-    function registerSecurityOracle(
-        address oracleAddress,
-        bytes32 publicKey
-    ) external onlyOwner {
+    function registerSecurityOracle(address oracleAddress, bytes32 publicKey) external onlyOwner {
         require(oracleAddress != address(0), "Invalid oracle address");
         require(publicKey != bytes32(0), "Invalid public key");
 
@@ -186,14 +157,8 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
      * @param newLevel New security level
      * @param reason Reason for escalation
      */
-    function escalateSecurityLevel(
-        SecurityLevel newLevel,
-        string calldata reason
-    ) external onlyOwner {
-        require(
-            uint256(newLevel) > uint256(currentSecurityLevel),
-            "New level must be higher than current"
-        );
+    function escalateSecurityLevel(SecurityLevel newLevel, string calldata reason) external onlyOwner {
+        require(uint256(newLevel) > uint256(currentSecurityLevel), "New level must be higher than current");
 
         currentSecurityLevel = newLevel;
 
@@ -209,14 +174,8 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
      * @param newLevel New security level (must be lower than current)
      * @param reason Reason for de-escalation
      */
-    function deescalateSecurityLevel(
-        SecurityLevel newLevel,
-        string calldata reason
-    ) external onlyOwner {
-        require(
-            uint256(newLevel) < uint256(currentSecurityLevel),
-            "New level must be lower than current"
-        );
+    function deescalateSecurityLevel(SecurityLevel newLevel, string calldata reason) external onlyOwner {
+        require(uint256(newLevel) < uint256(currentSecurityLevel), "New level must be lower than current");
 
         currentSecurityLevel = newLevel;
 
@@ -233,19 +192,9 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     function getSecurityStatus()
         external
         view
-        returns (
-            uint256 securityScore,
-            SecurityLevel level,
-            uint256 validatedTx,
-            uint256 falsePositives
-        )
+        returns (uint256 securityScore, SecurityLevel level, uint256 validatedTx, uint256 falsePositives)
     {
-        return (
-            systemSecurityScore,
-            currentSecurityLevel,
-            totalValidatedTransactions,
-            falsePositiveRate
-        );
+        return (systemSecurityScore, currentSecurityLevel, totalValidatedTransactions, falsePositiveRate);
     }
 
     /**
@@ -254,7 +203,11 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     function _isValidProof(
         QuantumProof memory proof,
         bytes32 /* txHash */
-    ) internal view returns (bool) {
+    )
+        internal
+        view
+        returns (bool)
+    {
         // Check proof age
         if (block.timestamp - proof.timestamp > PROOF_VALIDITY_PERIOD) {
             return false;
@@ -275,9 +228,7 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Calculate security score for a proof
      */
-    function _calculateProofScore(
-        QuantumProof memory proof
-    ) internal view returns (uint256) {
+    function _calculateProofScore(QuantumProof memory proof) internal view returns (uint256) {
         uint256 baseScore = 500; // Base security score
 
         // Reputation bonus
@@ -301,15 +252,9 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
         systemSecurityScore = (systemSecurityScore * 9 + newScore) / 10;
 
         // Adjust security level based on score
-        if (
-            systemSecurityScore < 600 &&
-            currentSecurityLevel != SecurityLevel.NORMAL
-        ) {
+        if (systemSecurityScore < 600 && currentSecurityLevel != SecurityLevel.NORMAL) {
             currentSecurityLevel = SecurityLevel.NORMAL;
-        } else if (
-            systemSecurityScore < 750 &&
-            uint256(currentSecurityLevel) < uint256(SecurityLevel.ELEVATED)
-        ) {
+        } else if (systemSecurityScore < 750 && uint256(currentSecurityLevel) < uint256(SecurityLevel.ELEVATED)) {
             currentSecurityLevel = SecurityLevel.ELEVATED;
         }
     }
@@ -320,13 +265,9 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     function _updateOracleReputation(address oracle, bool positive) internal {
         SecurityOracle storage oracleData = securityOracles[oracle];
         if (positive) {
-            oracleData.reputation = oracleData.reputation >= 990
-                ? 1000
-                : oracleData.reputation + 10;
+            oracleData.reputation = oracleData.reputation >= 990 ? 1000 : oracleData.reputation + 10;
         } else {
-            oracleData.reputation = oracleData.reputation <= 10
-                ? 0
-                : oracleData.reputation - 10;
+            oracleData.reputation = oracleData.reputation <= 10 ? 0 : oracleData.reputation - 10;
         }
         oracleData.lastUpdate = block.timestamp;
 
@@ -336,13 +277,8 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Recover signer from signature
      */
-    function _recoverSigner(
-        bytes32 message,
-        bytes memory signature
-    ) internal pure returns (address recovered) {
-        bytes32 ethSignedMessageHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", message)
-        );
+    function _recoverSigner(bytes32 message, bytes memory signature) internal pure returns (address recovered) {
+        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
         recovered = ethSignedMessageHash.recover(signature);
         require(recovered != address(0), "ECDSA: invalid signature");
     }

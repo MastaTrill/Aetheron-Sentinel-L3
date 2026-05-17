@@ -14,8 +14,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  */
 contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     using SafeERC20 for IERC20;
-    bytes32 public constant REWARD_MANAGER_ROLE =
-        keccak256("REWARD_MANAGER_ROLE");
+    bytes32 public constant REWARD_MANAGER_ROLE = keccak256("REWARD_MANAGER_ROLE");
 
     IERC20 public stakingToken;
     IERC20 public rewardToken;
@@ -63,17 +62,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     event Unstaked(address indexed user, uint256 amount, uint256 rewards);
     event RewardsClaimed(address indexed user, uint256 amount);
     event TierUpgraded(address indexed user, uint256 newTier);
-    event SecurityBonusAwarded(
-        address indexed user,
-        uint256 amount,
-        string reason
-    );
+    event SecurityBonusAwarded(address indexed user, uint256 amount, string reason);
 
-    constructor(
-        address _stakingToken,
-        address _rewardToken,
-        address initialOwner
-    ) {
+    constructor(address _stakingToken, address _rewardToken, address initialOwner) {
         require(_stakingToken != address(0), "Invalid staking token");
         require(_rewardToken != address(0), "Invalid reward token");
         require(initialOwner != address(0), "Invalid owner");
@@ -179,11 +170,7 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     function unstake(uint256 amount) external nonReentrant whenNotPaused {
         StakeInfo storage userStake = stakes[msg.sender];
         require(userStake.amount >= amount, "Insufficient stake");
-        require(
-            block.timestamp >=
-                userStake.stakedAt + tiers[userStake.tier].lockPeriod,
-            "Still locked"
-        );
+        require(block.timestamp >= userStake.stakedAt + tiers[userStake.tier].lockPeriod, "Still locked");
 
         _updateRewards(msg.sender);
         _claimRewards(msg.sender);
@@ -219,29 +206,17 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @param user User to reward
      * @param reason Reason for bonus
      */
-    function awardSecurityBonus(
-        address user,
-        string calldata reason
-    ) external onlyRole(REWARD_MANAGER_ROLE) {
+    function awardSecurityBonus(address user, string calldata reason) external onlyRole(REWARD_MANAGER_ROLE) {
         uint256 bonusAmount;
 
-        if (
-            keccak256(abi.encodePacked(reason)) ==
-            keccak256(abi.encodePacked("anomaly_report"))
-        ) {
+        if (keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("anomaly_report"))) {
             bonusAmount = anomalyReportBonus;
-        } else if (
-            keccak256(abi.encodePacked(reason)) ==
-            keccak256(abi.encodePacked("bridge_security"))
-        ) {
+        } else if (keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("bridge_security"))) {
             bonusAmount = bridgeSecurityBonus;
         }
 
         if (bonusAmount > 0) {
-            require(
-                rewardToken.balanceOf(address(this)) >= bonusAmount,
-                "Insufficient reward balance"
-            );
+            require(rewardToken.balanceOf(address(this)) >= bonusAmount, "Insufficient reward balance");
 
             // Increase security score for performance-based APY
             securityScore[user] += 10;
@@ -276,29 +251,15 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
      * @notice Get user's stake information
      * @param user User address
      */
-    function getStakeInfo(
-        address user
-    )
+    function getStakeInfo(address user)
         external
         view
-        returns (
-            uint256 amount,
-            uint256 stakedAt,
-            uint256 tier,
-            uint256 pendingRewards,
-            uint256 currentAPY
-        )
+        returns (uint256 amount, uint256 stakedAt, uint256 tier, uint256 pendingRewards, uint256 currentAPY)
     {
         StakeInfo memory userStake = stakes[user];
         uint256 pending = _calculatePendingRewards(user);
 
-        return (
-            userStake.amount,
-            userStake.stakedAt,
-            userStake.tier,
-            pending,
-            this.getUserAPY(user)
-        );
+        return (userStake.amount, userStake.stakedAt, userStake.tier, pending, this.getUserAPY(user));
     }
 
     /**
@@ -316,22 +277,16 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     /**
      * @notice Calculate pending rewards for user
      */
-    function _calculatePendingRewards(
-        address user
-    ) internal view returns (uint256) {
+    function _calculatePendingRewards(address user) internal view returns (uint256) {
         StakeInfo memory userStake = stakes[user];
         if (userStake.amount == 0) return 0;
 
         uint256 currentRewardPerToken = rewardPerTokenStored;
         if (totalStaked > 0) {
             uint256 timeElapsed = block.timestamp - lastUpdateTime;
-            currentRewardPerToken +=
-                (timeElapsed * rewardRate * tiers[userStake.tier].multiplier) /
-                (100 * totalStaked);
+            currentRewardPerToken += (timeElapsed * rewardRate * tiers[userStake.tier].multiplier) / (100 * totalStaked);
         }
-        return
-            (userStake.amount *
-                (currentRewardPerToken - userRewardPerTokenPaid[user])) / 1e18;
+        return (userStake.amount * (currentRewardPerToken - userRewardPerTokenPaid[user])) / 1e18;
     }
 
     /**
@@ -342,9 +297,7 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
         if (totalStaked > 0) {
             uint256 timeElapsed = block.timestamp - lastUpdateTime;
             StakeInfo memory userStake = stakes[user];
-            rewardPerTokenStored +=
-                (timeElapsed * rewardRate * tiers[userStake.tier].multiplier) /
-                (100 * totalStaked);
+            rewardPerTokenStored += (timeElapsed * rewardRate * tiers[userStake.tier].multiplier) / (100 * totalStaked);
         }
         lastUpdateTime = block.timestamp;
         // Credit pending rewards, then snapshot the accumulator for this user

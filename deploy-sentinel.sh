@@ -63,7 +63,7 @@ initialize_contract() {
     echo -e "${YELLOW}Initializing ${contract_name}...${NC}"
 
     # Call initialization function
-    npx hardhat run scripts/initialize.js --network $NETWORK \
+    npx hardhat run scripts/initialize.cjs --network $NETWORK \
         --contract $contract_address \
         --function $init_function \
         --args $init_args || echo -e "${RED}Initialization failed for ${contract_name}${NC}"
