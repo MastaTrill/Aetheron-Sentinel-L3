@@ -217,7 +217,7 @@ describe('SentinelSocialRecovery', function () {
       const requestId = event.args[0];
 
       await expect(recovery.connect(stranger).cancelRecovery(requestId)).to.be.revertedWith(
-        'Not request owner'
+        'Not the request owner'
       );
     });
   });

@@ -85,8 +85,8 @@ contract SentinelGovernance is
         GovernorTimelockControl(_timelock)
         Ownable(msg.sender)
     {
-        require(_token != address(0), "Invalid token");
-        require(_timelock != address(0), "Invalid timelock");
+        require(address(_token) != address(0), "Invalid token");
+        require(address(_timelock) != address(0), "Invalid timelock");
     }
 
     /**

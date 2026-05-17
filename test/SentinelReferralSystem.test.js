@@ -12,7 +12,7 @@ describe('SentinelReferralSystem', function () {
     [owner, user1, user2, user3] = await ethers.getSigners();
     const SentinelReferralSystem = await ethers.getContractFactory('SentinelReferralSystem');
     referral = await SentinelReferralSystem.deploy(
-      ethers.ZeroAddress, // reward token (simulated, no real transfer)
+      user1.address, // reward token (simulated, no real transfer)
       owner.address
     );
     await referral.waitForDeployment();
