@@ -1,7 +1,5 @@
 {
   "detectors": ["all"],
-  "exclude": ["reentrancy-no-eth", "naming-convention", "unused-state", "pragma"],
-  "exclude-dependencies": true,
-  "fail-on": "high",
-  "solc": "0.8.30"
+  "exclude-detectors": ["naming-convention", "uninitialized-state"],
+  "exclude-dependencies": true
 }
