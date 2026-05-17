@@ -38,6 +38,9 @@ jobs:
     name: Security Scan (Slither)
     runs-on: ubuntu-latest
     needs: build-and-test
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
