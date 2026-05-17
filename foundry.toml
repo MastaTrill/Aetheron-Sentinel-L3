@@ -2,7 +2,7 @@
 src = "contracts"
 out = "out"
 libs = ["lib"]
-solc = "0.8.30"
+solc = "0.8.28"
 evm_version = "cancun"
 optimizer = true
 optimizer_runs = 200
@@ -13,3 +13,12 @@ remappings = [
     "@layerzerolabs/solidity-examples/=lib/solidity-examples/",
     "solidity-examples/=lib/solidity-examples/"
 ]
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
+multiline_func_header = "params_first"
+sort_imports = true
+wrap_comments = true

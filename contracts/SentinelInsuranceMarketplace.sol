@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelInsuranceMarketplace
@@ -90,10 +90,10 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     uint256 duration,
     uint256 maxCapacity
   ) external returns (uint256) {
-    require(coverageAmount > 0, 'Invalid coverage amount');
-    require(premiumAmount > 0, 'Invalid premium amount');
-    require(duration > 0, 'Invalid duration');
-    require(maxCapacity > 0, 'Invalid max capacity');
+        require(coverageAmount > 0, "Invalid coverage amount");
+        require(premiumAmount > 0, "Invalid premium amount");
+        require(duration > 0, "Invalid duration");
+        require(maxCapacity > 0, "Invalid max capacity");
 
     uint256 offeringId = nextOfferingId++;
 
@@ -123,18 +123,15 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    */
   function purchasePolicy(uint256 offeringId, uint256 coverageAmount) external nonReentrant {
     InsuranceOffering storage offering = offerings[offeringId];
-    require(offering.isActive, 'Offering not active');
-    require(offering.currentCapacity + coverageAmount <= offering.maxCapacity, 'Exceeds capacity');
+    require(offering.isActive, "Offering not active");
+    require(offering.currentCapacity + coverageAmount <= offering.maxCapacity, "Exceeds capacity");
 
     uint256 premiumAmount = (coverageAmount * offering.premiumAmount) / offering.coverageAmount;
     uint256 marketplaceFeeAmount = (premiumAmount * marketplaceFee) / 10000;
     uint256 providerAmount = premiumAmount - marketplaceFeeAmount;
 
     // Transfer premium payment
-    require(
-      paymentToken.transferFrom(msg.sender, address(this), premiumAmount),
-      'Premium transfer failed'
-    );
+    require(paymentToken.transferFrom(msg.sender, address(this), premiumAmount), "Premium transfer failed");
 
     uint256 policyId = nextPolicyId++;
 
@@ -159,11 +156,8 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     totalCoverageProvided += coverageAmount;
 
     // Distribute payments
-    require(paymentToken.transfer(offering.provider, providerAmount), 'Provider payment failed');
-    require(
-      paymentToken.transfer(owner(), marketplaceFeeAmount),
-      'Marketplace fee transfer failed'
-    );
+    require(paymentToken.transfer(offering.provider, providerAmount), "Provider payment failed");
+    require(paymentToken.transfer(owner(), marketplaceFeeAmount), "Marketplace fee transfer failed");
 
     emit PolicyPurchased(policyId, offeringId, msg.sender);
   }
@@ -172,11 +166,8 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    * @notice Add liquidity to backing pool
    */
   function addLiquidity(uint256 amount) external nonReentrant {
-    require(amount > 0, 'Invalid amount');
-    require(
-      paymentToken.transferFrom(msg.sender, address(this), amount),
-      'Liquidity transfer failed'
-    );
+    require(amount > 0, "Invalid amount");
+    require(paymentToken.transferFrom(msg.sender, address(this), amount), "Liquidity transfer failed");
 
     liquidityPool.totalLiquidity += amount;
     liquidityPool.providerBalances[msg.sender] += amount;
@@ -188,12 +179,12 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    * @notice Remove liquidity from pool
    */
   function removeLiquidity(uint256 amount) external nonReentrant {
-    require(amount > 0, 'Invalid amount');
-    require(liquidityPool.providerBalances[msg.sender] >= amount, 'Insufficient balance');
-    require(
-      liquidityPool.totalLiquidity - liquidityPool.utilizedLiquidity >= amount,
-      'Insufficient available liquidity'
-    );
+        require(amount > 0, "Invalid amount");
+        require(liquidityPool.providerBalances[msg.sender] >= amount, "Insufficient balance");
+        require(
+            liquidityPool.totalLiquidity - liquidityPool.utilizedLiquidity >= amount,
+            "Insufficient available liquidity"
+        );
 
     liquidityPool.totalLiquidity -= amount;
     liquidityPool.providerBalances[msg.sender] -= amount;
@@ -204,7 +195,7 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
       liquidityPool.providerRewards[msg.sender] += rewards;
     }
 
-    require(paymentToken.transfer(msg.sender, amount + rewards), 'Liquidity withdrawal failed');
+    require(paymentToken.transfer(msg.sender, amount + rewards), "Liquidity withdrawal failed");
 
     emit LiquidityRemoved(msg.sender, amount);
   }
@@ -214,15 +205,15 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    */
   function fileClaim(uint256 policyId, string memory evidence) external nonReentrant {
     MarketPolicy storage policy = policies[policyId];
-    require(policy.buyer == msg.sender, 'Not policy owner');
-    require(policy.isActive, 'Policy not active');
-    require(!policy.isClaimed, 'Claim already filed');
-    require(policy.endTime > block.timestamp, 'Policy expired');
+    require(policy.buyer == msg.sender, "Not policy owner");
+    require(policy.isActive, "Policy not active");
+    require(!policy.isClaimed, "Claim already filed");
+    require(policy.endTime > block.timestamp, "Policy expired");
 
     InsuranceOffering memory offering = offerings[policy.offeringId];
 
     // Validate claim (simplified)
-    require(_validateClaim(offering.coverageType, evidence), 'Invalid claim');
+    require(_validateClaim(offering.coverageType, evidence), "Invalid claim");
 
     // Process payout
     _processPayout(policyId, policy.coverageAmount);
@@ -304,7 +295,7 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    */
   function _processPayout(uint256, uint256 payoutAmount) internal {
     // Ensure sufficient liquidity
-    require(liquidityPool.totalLiquidity >= payoutAmount, 'Insufficient liquidity');
+    require(liquidityPool.totalLiquidity >= payoutAmount, "Insufficient liquidity");
 
     liquidityPool.utilizedLiquidity += payoutAmount;
 
@@ -316,7 +307,7 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    * @notice Set marketplace fee
    */
   function setMarketplaceFee(uint256 newFee) external onlyOwner {
-    require(newFee <= 1000, 'Fee cannot exceed 10%');
+    require(newFee <= 1000, "Fee cannot exceed 10%");
     marketplaceFee = newFee;
   }
 

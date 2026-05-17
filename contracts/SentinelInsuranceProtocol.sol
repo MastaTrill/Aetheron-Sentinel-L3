@@ -316,9 +316,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
             require(payOk, "Claim payout failed");
 
             // Update policy and pool
-policy.totalPaid = policy.totalPaid + claim.claimAmount;
-        pool.claimReserve = pool.claimReserve - claim.claimAmount;
-        pool.lockedFunds = pool.lockedFunds - claim.claimAmount;
+            policy.totalPaid = policy.totalPaid + claim.claimAmount;
+            pool.claimReserve = pool.claimReserve - claim.claimAmount;
+            pool.lockedFunds = pool.lockedFunds - claim.claimAmount;
 
             claim.status = ClaimStatus.PAID;
             claim.processingTime = block.timestamp;

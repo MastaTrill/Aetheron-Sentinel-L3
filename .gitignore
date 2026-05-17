@@ -39,3 +39,4 @@ coverage/
 tools/
 tests/
 apps/*/dist/
+.env
