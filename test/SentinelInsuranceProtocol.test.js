@@ -1,8 +1,6 @@
 // test/SentinelInsuranceProtocol.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 // InsuranceType enum: HACK_COVERAGE=0, ORACLE_FAILURE=1, ... PROTOCOL_EXPLOIT=7
 const HACK_COVERAGE = 0;
@@ -14,12 +12,15 @@ const ACTIVE = 0n;
 describe('SentinelInsuranceProtocol', function () {
   let insurance;
   let owner, policyHolder, other;
+  let ethers;
 
-  const MIN_COVERAGE = ethers.parseEther('1');
+  const MIN_COVERAGE_AMOUNT = '1';
   const COVERAGE_PERIOD_MIN = 30 * 24 * 60 * 60; // 30 days in seconds
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, policyHolder, other] = await ethers.getSigners();
+    const MIN_COVERAGE = ethers.parseEther('1');
     const SentinelInsuranceProtocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
     insurance = await SentinelInsuranceProtocol.deploy(
       ethers.ZeroAddress, // sentinelCore (not called in basic flows)
@@ -50,9 +51,10 @@ describe('SentinelInsuranceProtocol', function () {
       const SentinelInsuranceProtocol = await ethers.getContractFactory(
         'SentinelInsuranceProtocol'
       );
+      // OZ's Ownable throws custom error when owner is zero
       await expect(
         SentinelInsuranceProtocol.deploy(ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroAddress)
-      ).to.be.revertedWith('Invalid owner');
+      ).to.be.revertedWithCustomError(SentinelInsuranceProtocol, 'OwnableInvalidOwner');
     });
   });
 
@@ -133,10 +135,11 @@ describe('SentinelInsuranceProtocol', function () {
     });
 
     it('reverts with coverage period below minimum', async function () {
+      const MIN_COVERAGE_AMOUNT = ethers.parseEther('1');
       await expect(
         insurance.connect(policyHolder).purchaseInsurance(
           other.address,
-          MIN_COVERAGE,
+          MIN_COVERAGE_AMOUNT,
           HACK_COVERAGE,
           3600, // 1 hour — below 30 day minimum
           { value: ethers.parseEther('1') }

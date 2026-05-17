@@ -1,13 +1,12 @@
 // test/SentinelSocialRecovery.test.js
 import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 /**
  * Find an approvalProof value whose on-chain hash passes the 90%-gate:
  *   uint256(keccak256(abi.encodePacked(guardian, requestId, proof))) % 100 < 90
  */
-function findValidProof(guardianAddr, requestId) {
+function findValidProof(guardianAddr, requestId, ethers) {
   for (let i = 0; i < 500; i++) {
     const proof = ethers.hexlify(ethers.toUtf8Bytes(`proof_${i}`));
     const packed = ethers.concat([guardianAddr, requestId, proof]);
@@ -20,8 +19,10 @@ function findValidProof(guardianAddr, requestId) {
 describe('SentinelSocialRecovery', function () {
   let recovery, zkIdentity;
   let owner, account, guardian1, guardian2, guardian3, newOwner, stranger;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, account, guardian1, guardian2, guardian3, newOwner, stranger] =
       await ethers.getSigners();
 
@@ -46,9 +47,10 @@ describe('SentinelSocialRecovery', function () {
 
     it('rejects zero owner', async function () {
       const SentinelSocialRecovery = await ethers.getContractFactory('SentinelSocialRecovery');
+      // OZ's Ownable throws custom error when owner is zero
       await expect(
         SentinelSocialRecovery.deploy(owner.address, ethers.ZeroAddress)
-      ).to.be.revertedWith('SR: zero owner');
+      ).to.be.revertedWithCustomError(SentinelSocialRecovery, 'OwnableInvalidOwner');
     });
   });
 
@@ -118,13 +120,11 @@ describe('SentinelSocialRecovery', function () {
     });
 
     it('does not revert with recovery delay of 1 hour', async function () {
-      await expect(
-        recovery.connect(account).configureRecovery(
-          [guardian1.address, guardian2.address, guardian3.address],
-          2,
-          3600 // 1 hour
-        )
-      ).to.not.be.reverted;
+      await recovery.connect(account).configureRecovery(
+        [guardian1.address, guardian2.address, guardian3.address],
+        2,
+        3600 // 1 hour
+      );
     });
 
     it('reverts if already configured', async function () {
@@ -203,7 +203,7 @@ describe('SentinelSocialRecovery', function () {
       const requestId = event.args[0];
 
       // Cancel should not revert
-      await expect(recovery.connect(account).cancelRecovery(requestId)).to.not.be.reverted;
+      await recovery.connect(account).cancelRecovery(requestId);
     });
 
     it('reverts if caller is not the request owner', async function () {
@@ -238,23 +238,19 @@ describe('SentinelSocialRecovery', function () {
       requestId = event.args[0];
 
       // Find a valid proof for guardian1
-      proof1 = findValidProof(guardian1.address, requestId);
+      proof1 = findValidProof(guardian1.address, requestId, ethers);
     });
 
     it('allows guardian to approve with valid proof', async function () {
-      await expect(
-        recovery
-          .connect(guardian1)
-          .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 })
-      ).to.not.be.reverted;
+      await recovery
+        .connect(guardian1)
+        .approveRecovery(account.address, requestId, proof1, { gasLimit: 1_000_000 });
     });
 
     it('accepts approval with any proof', async function () {
-      await expect(
-        recovery
-          .connect(guardian1)
-          .approveRecovery(account.address, requestId, '0x1234', { gasLimit: 1_000_000 })
-      ).to.not.be.reverted;
+      await recovery
+        .connect(guardian1)
+        .approveRecovery(account.address, requestId, '0x1234', { gasLimit: 1_000_000 });
     });
 
     it('rejects double approval by same guardian', async function () {
@@ -269,7 +265,7 @@ describe('SentinelSocialRecovery', function () {
     });
 
     it('executes recovery after reaching threshold', async function () {
-      const proof2 = findValidProof(guardian2.address, requestId);
+      const proof2 = findValidProof(guardian2.address, requestId, ethers);
 
       // First approval
       await recovery
@@ -312,7 +308,7 @@ describe('SentinelSocialRecovery', function () {
         .connect(account)
         .configureRecovery([guardian1.address, guardian2.address, guardian3.address], 2, delay);
 
-      await expect(recovery.connect(account).addGuardian(stranger.address)).to.not.be.reverted;
+      await recovery.connect(account).addGuardian(stranger.address);
     });
   });
 });

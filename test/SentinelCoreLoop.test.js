@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelCoreLoop', function () {
   let coreLoop;
   let owner;
   let other;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, other] = await ethers.getSigners();
     const SentinelCoreLoop = await ethers.getContractFactory('SentinelCoreLoop');
     coreLoop = await SentinelCoreLoop.deploy(owner.address);

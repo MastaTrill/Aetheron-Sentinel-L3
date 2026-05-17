@@ -1,6 +1,10 @@
 let hre;
 let ethers;
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
 require('dotenv').config();
+require('dotenv').config({ path: '.env.mainnet', override: true });
+if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+else delete process.env.OWNER_PRIVATE_KEY;
 
 function parseAddressList(value) {
   return (value || '')
@@ -48,7 +52,7 @@ function requireMainnetRpcUrl() {
   const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
   if (!rpcUrl) {
     throw new Error(
-      'MAINNET_RPC_URL is missing. Set it in .env to a real Ethereum mainnet RPC endpoint.'
+      'MAINNET_RPC_URL is missing. Set it in .env.mainnet to a real Ethereum mainnet RPC endpoint.'
     );
   }
   if (rpcUrl.includes('YOUR_') || rpcUrl.includes('YOUR_INFURA_KEY') || rpcUrl.endsWith('/v3/')) {
@@ -76,9 +80,11 @@ async function main() {
   const connection = await hre.network.getOrCreate();
   ethers = connection.ethers;
 
-  const privateKey = (process.env.PRIVATE_KEY || '').trim();
+  const privateKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
-    throw new Error('PRIVATE_KEY must be set in .env as a 0x-prefixed 32-byte hex key.');
+    throw new Error(
+      'OWNER_PRIVATE_KEY must be set in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+    );
   }
 
   const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();

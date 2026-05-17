@@ -7,7 +7,7 @@ Deployment automation:
 - Use `scripts/deploy.cjs` with `.env` values copied from `.env.example`.
 - If `SENTINEL_OWNER` equals the deploying account, the script also performs owner-only post-deploy setup.
 - If `SENTINEL_OWNER` is a different account or multisig, the script deploys safely and prints the exact pending owner actions to execute afterward.
-- Use `npm run deploy:local`, `npm run deploy:testnet`, or `npm run deploy:mainnet`.
+- Use `npm run deploy:local` (direct local RPC), `npm run deploy:testnet` (Sepolia), or `npm run deploy:mainnet`.
 
 Owner handoff automation:
 
@@ -205,6 +205,10 @@ Operational remediation:
    - `SentinelCoreLoop` component address wiring
 7. Update site/subgraph config with the new `DEPLOYED_ADDRESSES` map if CoreLoop address is consumed downstream.
 8. Attach transaction hashes and audit output to PR/release notes for reviewer sign-off.
+
+Operational note:
+
+- `npm run redeploy:coreloop` is the root alias for `node scripts/redeploy-coreloop.cjs`.
 
 ## 11. Live Status Snapshot (Sepolia, 2026-04-23)
 

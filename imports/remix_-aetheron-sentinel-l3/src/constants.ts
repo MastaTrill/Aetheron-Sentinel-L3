@@ -374,14 +374,13 @@ export const BUG_BOUNTY_STATS: BugBountyStats = {
 export const YIELD_STATS: YieldAggregator = {
   currentYield: 3.15,
   targetYield: 25.0,
-  totalStaked: '42,069,000 BMNR',
+  totalStaked: '42,069,000 $AETH',
   activePools: 12,
-  bmnrPower: 15.4,
 };
 
 export const REWARD_POOLS: RewardPool[] = [
-  { id: 'rp-1', name: 'BMNR/ETH LP', apr: 18.5, multiplier: '2.5x', status: 'boosting' },
-  { id: 'rp-2', name: 'BMNR SINGLE STAKE', apr: 12.2, multiplier: '1.8x', status: 'active' },
+  { id: 'rp-1', name: 'AETH/ETH LP', apr: 18.5, multiplier: '2.5x', status: 'boosting' },
+  { id: 'rp-2', name: 'AETH SINGLE STAKE', apr: 12.2, multiplier: '1.8x', status: 'active' },
   { id: 'rp-3', name: 'SENTINEL GOVERNANCE', apr: 25.0, multiplier: '5.0x', status: 'boosting' },
   { id: 'rp-4', name: 'QUANTUM VAULT REWARDS', apr: 8.4, multiplier: '1.2x', status: 'stable' },
 ];

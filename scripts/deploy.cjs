@@ -1,7 +1,21 @@
 console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
+let deployer; // Will be set in main()
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const networkArgIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
 require('dotenv').config();
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: '.env.mainnet', override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
+
+// In Hardhat, when running a script with `hardhat run`,
+// the hre is available globally. We'll lazy-load it in main().
 
 function parseAddressList(value) {
   return (value || '')
@@ -43,7 +57,13 @@ async function deployContract(name, args) {
   if (sandboxContracts.has(name)) {
     throw new Error(`Refusing to deploy sandbox contract "${name}" from imported Remix sandbox`);
   }
-  const Factory = await ethers.getContractFactory(name);
+
+  // Get contract artifacts from hardhat artifacts
+  const artifactPath = require.resolve(`../artifacts/contracts/${name}.sol/${name}.json`);
+  const artifact = require(artifactPath);
+
+  // Create contract factory with the signer
+  const Factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
   const contract = await Factory.deploy(...args);
   await contract.waitForDeployment();
   return contract;
@@ -67,22 +87,50 @@ async function getTxOverrides(provider) {
   return {};
 }
 
+function requireOwnerPrivateKey() {
+  const privateKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
+    throw new Error(
+      requestedNetwork === 'mainnet'
+        ? 'Mainnet deploy requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+        : 'OWNER_PRIVATE_KEY environment variable must be set as a 0x-prefixed 32-byte hex key.'
+    );
+  }
+  return privateKey;
+}
+
 async function main() {
+  // Hardhat v3 is ESM-first, so load it via dynamic import from CommonJS.
   const hardhatModule = await import('hardhat');
   hre = hardhatModule.default ?? hardhatModule;
-  ethers = hre.ethers;
+
+  // Use the active Hardhat connection instead of reading raw network config.
+  const connection = await hre.network.getOrCreate();
+  ethers = connection.ethers;
+
+  console.log('ethers version:', ethers.version);
+  console.log('hre.network.name:', hre.network?.name);
+
+  const provider = ethers.provider;
+  if (!provider) {
+    throw new Error('Active Hardhat connection did not expose an ethers provider.');
+  }
+
+  // Get signer from private key
+  const privateKey = requireOwnerPrivateKey();
+
+  deployer = new ethers.Wallet(privateKey, provider);
+
+  // Set up ethers.provider so the rest of the script can use it
+  ethers.provider = provider;
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');
-  console.log('Hardhat network:', hre.network.name);
-  const signers = await ethers.getSigners();
-  if (!signers.length) {
-    throw new Error(
-      'No deployer signer available. Set PRIVATE_KEY or OWNER_PRIVATE_KEY to a valid 0x-prefixed hex private key.'
-    );
-  }
-  const [deployer] = signers;
+  console.log('Hardhat network:', requestedNetwork || hre.network?.name || '<active connection>');
   const deployerAddress = await deployer.getAddress();
+  if (!deployerAddress) {
+    throw new Error('Could not derive deployer address from private key.');
+  }
   console.log('Deployer address:', deployerAddress);
   console.log('-------------------------');
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
@@ -117,11 +165,17 @@ async function main() {
 
   console.log('Deploying with account:', deployerAddress);
   console.log('Configured owner:', config.owner);
-  console.log('Network:', hre.network.name);
+  console.log('Network:', requestedNetwork || hre.network?.name || '<active connection>');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
   const balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
+
+  if (balance === 0n) {
+    throw new Error(
+      `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
+    );
+  }
 
   const addresses = {};
   const pendingActions = [];
@@ -227,7 +281,7 @@ async function main() {
     : [deployerAddress];
   const timelockExecutors = config.timelockExecutors.length
     ? config.timelockExecutors
-    : [ethers.ZeroAddress]; // address(0) = anyone can execute
+    : [deployerAddress]; // Default to deployer; governance will be added after deployment
   const timelock = await deployContract('SentinelTimelock', [
     config.timelockMinDelay,
     timelockProposers,
@@ -253,7 +307,10 @@ async function main() {
     const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
     await (await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)).wait();
-    console.log('   Granted PROPOSER + CANCELLER roles to SentinelGovernance on timelock');
+    const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
+    await (await timelock.grantRole(EXECUTOR_ROLE, addresses.SentinelGovernance, ov)).wait();
+    await (await timelock.revokeRole(EXECUTOR_ROLE, deployerAddress, ov)).wait();
+    console.log('   Granted PROPOSER + CANCELLER + EXECUTOR roles to SentinelGovernance, revoked deployer EXECUTOR');
     // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
       await (await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)).wait();
@@ -262,7 +319,9 @@ async function main() {
   } else {
     pendingActions.push(
       `SentinelTimelock.grantRole(PROPOSER_ROLE, ${addresses.SentinelGovernance})`,
-      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`
+      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.grantRole(EXECUTOR_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.revokeRole(EXECUTOR_ROLE, <deployer>)`
     );
   }
 

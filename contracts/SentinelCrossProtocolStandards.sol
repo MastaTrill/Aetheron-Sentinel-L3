@@ -67,7 +67,7 @@ contract SentinelCrossProtocolStandards is Ownable {
     event ProtocolCertified(address indexed protocol, bytes32 indexed standardId, ComplianceLevel level);
     event CertificationRevoked(address indexed protocol, bytes32 indexed standardId);
 
-    constructor() {
+    constructor() Ownable(msg.sender) {
         // Add initial certifying authorities
         certifyingAuthorities.push(owner());
     }
@@ -120,10 +120,12 @@ contract SentinelCrossProtocolStandards is Ownable {
         ComplianceLevel certifiedLevel,
         uint256 validityPeriod,
         string memory auditReportURI
-    ) external {
+    ) external onlyOwner {
         require(isCertifyingAuthority(msg.sender), "Not authorized to certify");
         require(standards[standardId].isActive, "Standard not active");
         require(certifiedLevel >= standards[standardId].level, "Certification level too low");
+        require(bytes(auditReportURI).length > 0, "Audit report URI required");
+        require(validityPeriod > 0 && validityPeriod <= 365 days, "Invalid validity period");
 
         ProtocolCertification memory cert = ProtocolCertification({
             protocolAddress: protocolAddress,

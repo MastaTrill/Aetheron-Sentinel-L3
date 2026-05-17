@@ -15,9 +15,21 @@
  * Set DEPLOYED_ADDRESSES as a JSON string of { ContractName: address }.
  */
 
+const cliNetworkIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  process.env.npm_config_network ||
+  (cliNetworkIndex >= 0 ? process.argv[cliNetworkIndex + 1] : undefined) ||
+  'sepolia';
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
 require('dotenv').config();
-const { ethers } = require('ethers');
 const path = require('path');
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: path.resolve(__dirname, '..', '.env.mainnet'), override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
+const { ethers } = require('ethers');
 const fsSync = require('fs');
 const fs = require('fs/promises');
 const { execFile, exec } = require('child_process');
@@ -48,6 +60,18 @@ function parseAddressList(value) {
 function parseBoolean(value, fallback) {
   if (value === undefined || value === null || value === '') return fallback;
   return value === 'true' || value === '1';
+}
+
+function requireOwnerPrivateKey() {
+  const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(ownerKey)) {
+    throw new Error(
+      requestedNetwork === 'mainnet'
+        ? 'Mainnet verification requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+        : 'OWNER_PRIVATE_KEY must be set as a 0x-prefixed 32-byte hex key.'
+    );
+  }
+  return ownerKey;
 }
 
 function getVerifyCliConfig() {
@@ -106,14 +130,17 @@ async function verify(address, constructorArguments) {
     }
 
     console.log(`  ✅ Verified: ${address}`);
+    return true;
   } catch (err) {
     const output = `${err.stdout || ''}\n${err.stderr || ''}\n${err.message || ''}`;
     if (/already verified/i.test(output)) {
       console.log(`  ℹ️  Already verified: ${address}`);
+      return true;
     } else {
       const reason =
         (err.stderr && err.stderr.trim()) || (err.stdout && err.stdout.trim()) || err.message;
       console.warn(`  ⚠️  Verification failed for ${address}: ${reason}`);
+      return false;
     }
   } finally {
     await fs.rm(argsFilePath, { force: true }).catch(() => {});
@@ -132,10 +159,9 @@ async function main() {
 
   const addresses = JSON.parse(rawAddresses);
 
-  const deployerAddress = process.env.PRIVATE_KEY
-    ? new ethers.Wallet(process.env.PRIVATE_KEY).address
-    : ethers.ZeroAddress;
-  const owner = process.env.SENTINEL_OWNER || deployerAddress;
+  const ownerKey = requireOwnerPrivateKey();
+  const ownerAddress = new ethers.Wallet(ownerKey).address;
+  const owner = process.env.SENTINEL_OWNER || ownerAddress;
 
   const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
   const tvlThreshold = ethers.parseEther(process.env.TVL_THRESHOLD_ETH || '1000');
@@ -275,7 +301,7 @@ async function main() {
               BigInt(process.env.TIMELOCK_MIN_DELAY || '172800'),
               parseAddressList(process.env.TIMELOCK_PROPOSERS).length
                 ? parseAddressList(process.env.TIMELOCK_PROPOSERS)
-                : [deployerAddress],
+                : [ownerAddress],
               parseAddressList(process.env.TIMELOCK_EXECUTORS).length
                 ? parseAddressList(process.env.TIMELOCK_EXECUTORS)
                 : [ethers.ZeroAddress],
@@ -294,6 +320,8 @@ async function main() {
       : []),
   ];
 
+  const failedContracts = [];
+
   for (const { name, args } of tasks) {
     const address = addresses[name];
     if (!address) {
@@ -301,7 +329,16 @@ async function main() {
       continue;
     }
     console.log(`Verifying ${name} at ${address}...`);
-    await verify(address, args);
+    const verified = await verify(address, args);
+    if (!verified) {
+      failedContracts.push(`${name}@${address}`);
+    }
+  }
+
+  if (failedContracts.length > 0) {
+    throw new Error(
+      `Verification failed for ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`
+    );
   }
 
   console.log('\nVerification run complete.');

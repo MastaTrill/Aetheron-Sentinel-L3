@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelSecurityAuditor', function () {
   let auditor;
   let owner;
   let user;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user] = await ethers.getSigners();
     const SentinelSecurityAuditor = await ethers.getContractFactory('SentinelSecurityAuditor');
     auditor = await SentinelSecurityAuditor.deploy(owner.address);

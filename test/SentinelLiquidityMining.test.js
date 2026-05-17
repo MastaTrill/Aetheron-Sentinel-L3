@@ -1,18 +1,20 @@
 // test/SentinelLiquidityMining.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelLiquidityMining', function () {
   let mining, lpToken, rewardToken;
   let owner, user, other;
+  let ethers;
 
-  const INITIAL_SUPPLY = ethers.parseEther('1000000');
-  const REWARD_PER_SECOND = ethers.parseEther('1');
+  let INITIAL_SUPPLY;
+  let REWARD_PER_SECOND;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, other] = await ethers.getSigners();
+    INITIAL_SUPPLY = ethers.parseEther('1000000');
+    REWARD_PER_SECOND = ethers.parseEther('1');
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
     lpToken = await ERC20Mock.deploy('LP Token', 'LP', owner.address, INITIAL_SUPPLY);
@@ -143,9 +145,11 @@ describe('SentinelLiquidityMining', function () {
   });
 
   describe('withdraw', function () {
-    const depositAmount = ethers.parseEther('1000');
+    const depositAmountStr = '1000';
+    let depositAmount;
 
     beforeEach(async function () {
+      depositAmount = ethers.parseEther(depositAmountStr);
       await mining.connect(user).deposit(0, depositAmount);
     });
 

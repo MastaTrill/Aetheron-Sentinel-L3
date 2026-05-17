@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title SentinelRewardAggregator
@@ -66,7 +66,7 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         address _liquidityMiningContract,
         address _governanceTokenContract,
         address _referralSystemContract
-    ) {
+    ) Ownable(msg.sender) {
         stakingContract = _stakingContract;
         liquidityMiningContract = _liquidityMiningContract;
         governanceTokenContract = _governanceTokenContract;
@@ -80,19 +80,19 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
      * @param user User address to update
      */
     function updateUserRewards(address user) external nonReentrant {
-        // In a real implementation, these would be contract calls
-        // For demo purposes, we'll simulate reward aggregation
+        require(
+            msg.sender == owner() || msg.sender == address(this),
+            "Only owner or self can trigger reward update"
+        );
 
         UserRewards storage rewards = userRewards[user];
 
-        // Simulate getting rewards from different contracts
         rewards.stakingRewards = _getStakingRewards(user);
         rewards.liquidityRewards = _getLiquidityRewards(user);
         rewards.governanceRewards = _getGovernanceRewards(user);
         rewards.referralRewards = _getReferralRewards(user);
         rewards.securityRewards = _getSecurityRewards(user);
 
-        // Calculate total APY
         rewards.totalAPY = _calculateUserAPY(user);
         rewards.lastUpdate = block.timestamp;
 

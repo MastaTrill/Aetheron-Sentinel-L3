@@ -1,17 +1,17 @@
 // test/SentinelStaking.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelStaking', function () {
   let staking, stakingToken, rewardToken;
   let owner, user, user2;
+  let ethers;
 
   // Bronze tier lock period (7 days in seconds)
   const BRONZE_LOCK = 7 * 24 * 3600;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, user2] = await ethers.getSigners();
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
@@ -189,7 +189,7 @@ describe('SentinelStaking', function () {
     it('reverts when called by a non-REWARD_MANAGER', async function () {
       await expect(
         staking.connect(user2).awardSecurityBonus(user.address, 'anomaly_report')
-      ).to.be.revertedWith(/AccessControl/);
+      ).to.be.revertedWithCustomError(staking, 'AccessControlUnauthorizedAccount');
     });
 
     it('owner (REWARD_MANAGER) can award anomaly_report bonus', async function () {

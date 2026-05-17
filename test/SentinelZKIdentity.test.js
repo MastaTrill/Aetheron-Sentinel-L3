@@ -1,14 +1,14 @@
 // test/SentinelZKIdentity.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelZKIdentity', function () {
   let identity;
   let owner, user, user2;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, user2] = await ethers.getSigners();
     const SentinelZKIdentity = await ethers.getContractFactory('SentinelZKIdentity');
     identity = await SentinelZKIdentity.deploy(owner.address);

@@ -1,0 +1,30 @@
+[
+  {
+    "inputs": [],
+    "name": "getAnomalyStats",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastBlock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "consecutive",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentBlockFrequency",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

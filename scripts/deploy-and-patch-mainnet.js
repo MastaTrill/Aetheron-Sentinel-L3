@@ -7,13 +7,14 @@ const path = require('path');
 
 // --- CONFIG ---
 const DEPLOY_SCRIPT = path.join(__dirname, 'deploy.cjs');
-const NETWORK = 'mainnet';
+const networkArgIndex = process.argv.indexOf('--network');
+const NETWORK = networkArgIndex >= 0 && process.argv[networkArgIndex + 1] ? process.argv[networkArgIndex + 1] : 'mainnet';
 const SUMMARY_MD = path.join(__dirname, '../DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md');
 const OWNERSHIP_MD = path.join(__dirname, '../DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md');
 const ENV_FILE = path.join(__dirname, '../.env.mainnet');
 
 function runDeployScript() {
-  console.log('Running deploy.cjs for mainnet...');
+  console.log(`Running deploy.cjs for ${NETWORK}...`);
   const output = execSync(`node ${DEPLOY_SCRIPT} --network ${NETWORK}`, {
     encoding: 'utf-8',
   });
@@ -49,6 +50,7 @@ function main() {
 
   // Print details to console
   console.log('--- Deployment Details ---');
+  console.log('Network:', NETWORK);
   console.log('Block number:', blockNumber);
   console.log('Deployed addresses:', JSON.stringify(addresses, null, 2));
   console.log('--------------------------');

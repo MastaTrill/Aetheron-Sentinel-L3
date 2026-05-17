@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /**
@@ -67,12 +67,9 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
         uint256 newReputation
     );
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializeSecuritySystem();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -195,14 +192,36 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
     ) external onlyOwner {
         require(
             uint256(newLevel) > uint256(currentSecurityLevel),
-            "Cannot de-escalate"
+            "New level must be higher than current"
         );
 
         currentSecurityLevel = newLevel;
 
-        // Implement security measures based on level
         if (newLevel == SecurityLevel.CRITICAL) {
             _pause();
+        }
+
+        emit SecurityLevelChanged(newLevel, reason);
+    }
+
+    /**
+     * @notice De-escalate security level (separate function for safety)
+     * @param newLevel New security level (must be lower than current)
+     * @param reason Reason for de-escalation
+     */
+    function deescalateSecurityLevel(
+        SecurityLevel newLevel,
+        string calldata reason
+    ) external onlyOwner {
+        require(
+            uint256(newLevel) < uint256(currentSecurityLevel),
+            "New level must be lower than current"
+        );
+
+        currentSecurityLevel = newLevel;
+
+        if (newLevel == SecurityLevel.NORMAL) {
+            _unpause();
         }
 
         emit SecurityLevelChanged(newLevel, reason);

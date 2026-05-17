@@ -2,8 +2,10 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title SentinelReferralSystem
@@ -11,6 +13,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * Enhanced rewards for bringing new participants to the ecosystem
  */
 contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
     // Referral structure
     struct ReferralInfo {
         address referrer;
@@ -69,15 +72,12 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
         string activityType
     );
 
-    constructor(address _rewardToken, address initialOwner) {
+    constructor(address _rewardToken, address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         rewardToken = _rewardToken;
 
         // Initialize referral tiers
         _initializeTiers();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -312,15 +312,16 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
      * @notice Distribute reward tokens
      */
     function _distributeReward(
-        address /* recipient */,
+        address recipient,
         uint256 amount
     ) internal {
-        // In a real implementation, this would transfer from reward pool
-        // For demo: assume reward token has minting capability or pre-allocated pool
+        if (amount == 0) return;
+        if (rewardToken == address(0)) {
+            totalRewardsDistributed += amount;
+            return;
+        }
         totalRewardsDistributed += amount;
-
-        // Note: Actual token transfer would be implemented here
-        // IERC20(rewardToken).transfer(recipient, amount);
+        IERC20(rewardToken).safeTransfer(recipient, amount);
     }
 
     /**

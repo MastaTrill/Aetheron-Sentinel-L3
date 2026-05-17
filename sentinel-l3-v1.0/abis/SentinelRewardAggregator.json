@@ -1,0 +1,631 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_stakingContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_liquidityMiningContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_governanceTokenContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_referralSystemContract",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "rewardType",
+        "type": "string"
+      }
+    ],
+    "name": "RewardClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "stakingRewards",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidityRewards",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "governanceRewards",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "referralRewards",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "securityRewards",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastUpdate",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct SentinelRewardAggregator.UserRewards",
+        "name": "rewards",
+        "type": "tuple"
+      }
+    ],
+    "name": "RewardsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "stakingAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidityAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "governanceAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "referralAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "securityAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct SentinelRewardAggregator.SystemAPY",
+        "name": "newAPY",
+        "type": "tuple"
+      }
+    ],
+    "name": "SystemAPYUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "BASE_APY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "GOVERNANCE_WEIGHT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LIQUIDITY_WEIGHT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_APY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_MULTIPLIER",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "REFERRAL_WEIGHT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SECURITY_WEIGHT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "STAKING_WEIGHT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "claimAllRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "currentSystemAPY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "stakingAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "liquidityAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "governanceAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "securityAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getSystemAPY",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "stakingAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidityAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "governanceAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "referralAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "securityAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalAPY",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct SentinelRewardAggregator.SystemAPY",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserRewardBreakdown",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "stakingAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "liquidityAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "governanceAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "securityAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAPY",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserTotalAPY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governanceTokenContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "liquidityMiningContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "performanceMultiplier",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "referralSystemContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakingContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "systemHealthScore",
+        "type": "uint256"
+      }
+    ],
+    "name": "updatePerformanceMultiplier",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "updateSystemAPY",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "updateUserRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userRewards",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "stakingRewards",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "liquidityRewards",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "governanceRewards",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralRewards",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "securityRewards",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAPY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastUpdate",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

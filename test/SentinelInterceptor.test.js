@@ -1,14 +1,14 @@
 // test/SentinelInterceptor.test.js
 import { expect } from 'chai';
-
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelInterceptor', function () {
   let interceptor;
   let owner, monitorUser;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, monitorUser] = await ethers.getSigners();
 
     const SentinelInterceptor = await ethers.getContractFactory('SentinelInterceptor');

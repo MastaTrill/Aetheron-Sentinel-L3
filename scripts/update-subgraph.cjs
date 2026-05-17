@@ -17,6 +17,9 @@ const path = require('path');
 
 const SUBGRAPH_PATH = path.join(__dirname, '..', 'subgraph.yaml');
 
+const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
+const subgraphNetwork = network === 'mainnet' ? 'mainnet' : network;
+
 function main() {
   const rawAddresses = process.env.DEPLOYED_ADDRESSES;
   if (!rawAddresses) {
@@ -70,6 +73,10 @@ function main() {
   // Patch all startBlock occurrences
   yaml = yaml.replace(/startBlock:\s*\d+/g, `startBlock: ${startBlock}`);
   console.log(`  ✅ startBlock: ${startBlock}`);
+
+  // Patch network name in all data source blocks
+  yaml = yaml.replace(/network:\s*\S+/g, `network: ${subgraphNetwork}`);
+  console.log(`  ✅ network: ${subgraphNetwork}`);
 
   fs.writeFileSync(SUBGRAPH_PATH, yaml, 'utf8');
   console.log(`\nPatched ${patchCount} data source addresses in subgraph.yaml.`);

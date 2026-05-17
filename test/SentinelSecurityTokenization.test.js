@@ -1,17 +1,20 @@
 // test/SentinelSecurityTokenization.test.js
 import { expect } from 'chai';
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import { network } from 'hardhat';
 
 describe('SentinelSecurityTokenization', function () {
   let securityTokenization;
   let owner, user, user2;
+  let ethers;
 
   beforeEach(async function () {
+    ({ ethers } = await network.getOrCreate());
     [owner, user, user2] = await ethers.getSigners();
 
     // Deploy the security tokenization contract
-    const SentinelSecurityTokenization = await ethers.getContractFactory('SentinelSecurityTokenization');
+    const SentinelSecurityTokenization = await ethers.getContractFactory(
+      'SentinelSecurityTokenization'
+    );
     securityTokenization = await SentinelSecurityTokenization.deploy();
     await securityTokenization.waitForDeployment();
   });
@@ -29,7 +32,7 @@ describe('SentinelSecurityTokenization', function () {
       const initialSupply = ethers.parseEther('1000');
 
       // Send required platform fee (500 wei)
-      const tx = await securityTokenization.connect(user).createSecurityToken(
+      const tx = await securityTokenization.connect(owner).createSecurityToken(
         name,
         symbol,
         initialSupply,
@@ -53,18 +56,17 @@ describe('SentinelSecurityTokenization', function () {
     it('should allow only owner to set platform fee', async function () {
       await expect(
         securityTokenization.connect(user).setPlatformFee(800)
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWithCustomError(securityTokenization, 'OwnableUnauthorizedAccount');
     });
 
     it('should allow owner to update platform fee', async function () {
-      await expect(securityTokenization.connect(owner).setPlatformFee(800))
-        .to.not.be.reverted;
+      await securityTokenization.connect(owner).setPlatformFee(800);
     });
 
     it('should revert if fee exceeds maximum', async function () {
-      await expect(
-        securityTokenization.connect(owner).setPlatformFee(1500)
-      ).to.be.revertedWith('Fee cannot exceed 10%');
+      await expect(securityTokenization.connect(owner).setPlatformFee(1500)).to.be.revertedWith(
+        'Fee cannot exceed 10%'
+      );
     });
   });
 

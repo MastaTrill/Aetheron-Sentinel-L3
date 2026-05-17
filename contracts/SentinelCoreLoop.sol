@@ -3,9 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -37,7 +36,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  */
 
 contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
-    using SafeMath for uint256;
     using Math for uint256;
     using Address for address;
     using Strings for uint256;
@@ -180,13 +178,10 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     //                    CONSTRUCTOR & INITIALIZATION
     // ════════════════════════════════════════════════════════════════
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
 
         // Transfer ownership first so owner() == initialOwner during validation
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
 
         // Initialize roles with secure defaults
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
@@ -339,17 +334,9 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             return;
         }
 
-        // Execute core loop phases with error handling
-        try this._executeCoreLoopPhases(cycleNumber) {
-            // Success - update metrics
-            coreMetrics.lastCoreUpdate = block.timestamp;
-        } catch Error(string memory reason) {
-            // Handle expected errors
-            _handleCoreLoopError(reason, cycleNumber);
-        } catch (bytes memory /*lowLevelData*/) {
-            // Handle unexpected errors
-            _handleCoreLoopError("Unexpected error in core loop", cycleNumber);
-        }
+        // Execute core loop phases
+        this._executeCoreLoopPhases(cycleNumber);
+        coreMetrics.lastCoreUpdate = block.timestamp;
 
         // Post-execution validation
         _validatePostExecution();
@@ -482,7 +469,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         );
 
         // Increment error counter
-        coreMetrics.anomalyCount = coreMetrics.anomalyCount.add(1);
+        coreMetrics.anomalyCount = coreMetrics.anomalyCount + 1;
 
         // If too many errors, elevate security
         if (coreMetrics.anomalyCount > 10) {
@@ -556,7 +543,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         if (entropyChange > 7) {
             uint256 entropyReduction = Math.min(entropyChange, 5);
             quantumState.entropyLevel = Math.max(
-                quantumState.entropyLevel.sub(entropyReduction),
+                quantumState.entropyLevel - entropyReduction,
                 QUANTUM_ENTROPY_MINIMUM
             );
         }
@@ -564,7 +551,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         if (coherenceChange > 6) {
             uint256 coherenceIncrease = Math.min(coherenceChange, 2);
             quantumState.coherenceIndex = Math.min(
-                quantumState.coherenceIndex.add(coherenceIncrease),
+                quantumState.coherenceIndex + coherenceIncrease,
                 uint256(100)
             );
         }
@@ -573,7 +560,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         uint256 networkActivity = _calculateNetworkActivity();
         quantumState.superpositionStrength = Math.min(
             Math.max(
-                quantumState.superpositionStrength.add(networkActivity / 10),
+                quantumState.superpositionStrength + networkActivity / 10,
                 uint256(50)
             ),
             uint256(100)
@@ -596,7 +583,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         uint256 txCount = 100; // Simplified - would query actual network data
         uint256 blockUtilization = uint256(block.prevrandao) % 100;
 
-        return Math.min(txCount.add(blockUtilization), uint256(1000));
+        return Math.min(txCount + blockUtilization, uint256(1000));
     }
 
     /**
@@ -667,7 +654,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         // Apply calibration with overflow protection
         quantumState.entropyLevel = Math.min(
             Math.max(
-                quantumState.entropyLevel.add(entropyCalibration),
+                quantumState.entropyLevel + entropyCalibration,
                 uint256(70)
             ),
             uint256(95)
@@ -675,7 +662,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         quantumState.coherenceIndex = Math.min(
             Math.max(
-                quantumState.coherenceIndex.add(coherenceCalibration),
+                quantumState.coherenceIndex + coherenceCalibration,
                 uint256(85)
             ),
             uint256(100)
@@ -683,9 +670,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         quantumState.superpositionStrength = Math.min(
             Math.max(
-                quantumState.superpositionStrength.add(
-                    superpositionCalibration
-                ),
+                quantumState.superpositionStrength + superpositionCalibration,
                 uint256(80)
             ),
             uint256(100)
@@ -746,7 +731,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         uint256 anomalyCount = _detectAnomalies();
 
         coreMetrics.activeSecurityScore = securityScore;
-        coreMetrics.anomalyCount = coreMetrics.anomalyCount.add(anomalyCount);
+        coreMetrics.anomalyCount = coreMetrics.anomalyCount + anomalyCount;
 
         // Adjust system status based on security score
         if (securityScore < CRITICAL_SECURITY_THRESHOLD) {
@@ -768,13 +753,11 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     function _calculateSecurityScore() internal view returns (uint256) {
         // Multi-factor security scoring
         uint256 baseScore = 800;
-        uint256 quantumBonus = quantumState.coherenceIndex.div(2);
-        uint256 networkBonus = coreMetrics.networkHealthIndex.div(2);
-        uint256 interceptionBonus = coreMetrics.successfulInterceptions.mul(5);
+        uint256 quantumBonus = quantumState.coherenceIndex / 2;
+        uint256 networkBonus = coreMetrics.networkHealthIndex / 2;
+        uint256 interceptionBonus = coreMetrics.successfulInterceptions * 5;
 
-        uint256 totalScore = baseScore.add(quantumBonus).add(networkBonus).add(
-            interceptionBonus
-        );
+        uint256 totalScore = baseScore + quantumBonus + networkBonus + interceptionBonus;
 
         // Cap at maximum score
         return totalScore > 1000 ? 1000 : totalScore;
@@ -958,8 +941,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         // Increment interception counter with overflow protection
         coreMetrics.successfulInterceptions = coreMetrics
-            .successfulInterceptions
-            .add(1);
+            .successfulInterceptions + 1;
 
         // Threat response logic with escalation protocol
         if (severity >= 9) {
@@ -1009,20 +991,18 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     function _calculateYieldOptimization() internal view returns (uint256) {
         // Yield optimization calculation
         uint256 baseOptimization = 1000 ether; // Base optimization amount
-        uint256 quantumMultiplier = quantumState.coherenceIndex.div(10);
-        uint256 securityMultiplier = coreMetrics.activeSecurityScore.div(100);
+        uint256 quantumMultiplier = quantumState.coherenceIndex / 10;
+        uint256 securityMultiplier = coreMetrics.activeSecurityScore / 100;
 
         return
-            baseOptimization.mul(quantumMultiplier).mul(securityMultiplier).div(
-                100
-            );
+            baseOptimization * quantumMultiplier * securityMultiplier / 100;
     }
 
     function _predictAPYImprovement() internal view returns (uint256) {
         // APY improvement prediction
         uint256 baseImprovement = 50; // 0.5% base improvement
-        uint256 quantumBonus = quantumState.superpositionStrength.div(10);
-        uint256 networkBonus = coreMetrics.networkHealthIndex.div(20);
+        uint256 quantumBonus = quantumState.superpositionStrength / 10;
+        uint256 networkBonus = coreMetrics.networkHealthIndex / 20;
 
         return baseImprovement + quantumBonus + networkBonus;
     }
@@ -1147,7 +1127,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             contractAddress != address(this),
             "Cannot set self as component"
         );
-        require(contractAddress.isContract(), "Address must be a contract");
+        require(contractAddress.code.length > 0, "Address must be a contract");
 
         bytes32 componentHash = keccak256(abi.encodePacked(component));
 
@@ -1285,15 +1265,15 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         require(aetheronBridgeAddress != address(0), "Invalid AetheronBridge");
         require(quantumGuardAddress != address(0), "Invalid QuantumGuard");
         require(
-            sentinelInterceptorAddress.isContract(),
+            sentinelInterceptorAddress.code.length > 0,
             "SentinelInterceptor not a contract"
         );
         require(
-            aetheronBridgeAddress.isContract(),
+            aetheronBridgeAddress.code.length > 0,
             "AetheronBridge not a contract"
         );
         require(
-            quantumGuardAddress.isContract(),
+            quantumGuardAddress.code.length > 0,
             "QuantumGuard not a contract"
         );
 
@@ -1303,28 +1283,28 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         if (rateLimiterAddress != address(0)) {
             require(
-                rateLimiterAddress.isContract(),
+                rateLimiterAddress.code.length > 0,
                 "RateLimiter not a contract"
             );
             rateLimiter = rateLimiterAddress;
         }
         if (circuitBreakerAddress != address(0)) {
             require(
-                circuitBreakerAddress.isContract(),
+                circuitBreakerAddress.code.length > 0,
                 "CircuitBreaker not a contract"
             );
             circuitBreaker = circuitBreakerAddress;
         }
         if (yieldMaximizerAddress != address(0)) {
             require(
-                yieldMaximizerAddress.isContract(),
+                yieldMaximizerAddress.code.length > 0,
                 "YieldMaximizer not a contract"
             );
             yieldMaximizer = yieldMaximizerAddress;
         }
         if (oracleNetworkAddress != address(0)) {
             require(
-                oracleNetworkAddress.isContract(),
+                oracleNetworkAddress.code.length > 0,
                 "OracleNetwork not a contract"
             );
             oracleNetwork = oracleNetworkAddress;
@@ -1380,11 +1360,11 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
 
         // Ensure all components are valid contracts
         require(
-            sentinelInterceptor.isContract(),
+            sentinelInterceptor.code.length > 0,
             "SentinelInterceptor not a contract"
         );
-        require(aetheronBridge.isContract(), "AetheronBridge not a contract");
-        require(quantumGuard.isContract(), "QuantumGuard not a contract");
+        require(aetheronBridge.code.length > 0, "AetheronBridge not a contract");
+        require(quantumGuard.code.length > 0, "QuantumGuard not a contract");
     }
 
     function toggleAutonomousBehavior(
@@ -1608,16 +1588,16 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
         // Component validation
         if (
             sentinelInterceptor == address(0) ||
-            !sentinelInterceptor.isContract()
+            sentinelInterceptor.code.length == 0
         ) {
             foundIssues[issueCount++] = "SentinelInterceptor component invalid";
         }
 
-        if (aetheronBridge == address(0) || !aetheronBridge.isContract()) {
+        if (aetheronBridge == address(0) || aetheronBridge.code.length == 0) {
             foundIssues[issueCount++] = "AetheronBridge component invalid";
         }
 
-        if (quantumGuard == address(0) || !quantumGuard.isContract()) {
+        if (quantumGuard == address(0) || quantumGuard.code.length == 0) {
             foundIssues[issueCount++] = "QuantumGuard component invalid";
         }
 

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /**
  * @title SentinelOracleNetwork
@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
  * Provides tamper-proof price feeds and security monitoring data
  */
 contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
     using ECDSA for bytes32;
 
     // Oracle data structure
@@ -84,12 +83,9 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
     event ReputationUpdated(address indexed oracle, uint256 newReputation);
     event EmergencyShutdown(address indexed activator, string reason);
 
-    constructor(address initialOwner) {
+    constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _initializeNetwork();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
     }
 
     /**
@@ -316,15 +312,23 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      */
     function slashOracle(address oracle, uint256 penalty) external onlyOwner {
         require(oracles[oracle].active, "Oracle not active");
-        require(penalty <= 10000, "Invalid penalty"); // Max 100%
+        require(penalty <= 10000, "Invalid penalty");
 
-        uint256 slashAmount = oracles[oracle].stake.mul(penalty).div(10000);
-        oracles[oracle].stake = oracles[oracle].stake.sub(slashAmount);
+        uint256 slashAmount = oracles[oracle].stake * penalty / 10000;
+        require(slashAmount > 0, "Nothing to slash");
 
-        // Update reputation
+        uint256 remainingStake = oracles[oracle].stake - slashAmount;
+        if (remainingStake > 0 && remainingStake < MIN_STAKE) {
+            remainingStake = 0;
+            slashAmount = oracles[oracle].stake;
+        }
+        oracles[oracle].stake = remainingStake;
+        if (remainingStake == 0) {
+            oracles[oracle].active = false;
+        }
+
         _updateOracleReputation(oracle, false);
 
-        // Transfer slashed amount to treasury
         (bool ok, ) = payable(owner()).call{value: slashAmount}("");
         require(ok, "ETH transfer failed");
     }
@@ -397,15 +401,13 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
         OracleData storage oracleData = oracles[oracle];
 
         if (positive) {
-            oracleData.reputation = oracleData.reputation.add(
-                REPUTATION_REWARD
-            );
+            oracleData.reputation = oracleData.reputation + REPUTATION_REWARD;
             if (oracleData.reputation > MAX_REPUTATION) {
                 oracleData.reputation = MAX_REPUTATION;
             }
         } else {
             oracleData.reputation = oracleData.reputation > REPUTATION_PENALTY
-                ? oracleData.reputation.sub(REPUTATION_PENALTY)
+                ? oracleData.reputation - REPUTATION_PENALTY
                 : 0;
         }
 
@@ -431,7 +433,7 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
             "No public key registered"
         );
 
-        bytes32 ethSignedMessageHash = ECDSA.toEthSignedMessageHash(
+        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(
             messageHash
         );
         address recovered = ECDSA.recover(ethSignedMessageHash, signature);

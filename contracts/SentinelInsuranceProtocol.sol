@@ -2,9 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
@@ -13,7 +12,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  * Parametric insurance triggered by Sentinel security events
  */
 contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
 
     // Insurance policy structure
     struct InsurancePolicy {
@@ -135,7 +133,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         address _sentinelCore,
         address _sentinelAuditor,
         address initialOwner
-    ) {
+    ) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         sentinelCore = _sentinelCore;
         sentinelAuditor = _sentinelAuditor;
@@ -147,9 +145,16 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
 
         // Initialize insurance pools
         _initializeInsurancePools();
-        if (initialOwner != msg.sender) {
-            super.transferOwnership(initialOwner);
-        }
+    }
+
+    /**
+     * @notice Fund an insurance pool with ETH to back claims
+     * @param poolType The insurance pool type to fund
+     */
+    function fundPool(InsuranceType poolType) external payable nonReentrant {
+        require(msg.value > 0, "Must send ETH");
+        uint256 poolIndex = uint256(poolType);
+        insurancePools[poolIndex].claimReserve += msg.value;
     }
 
     /**
@@ -215,13 +220,13 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
 
         // Update insurance pool
         InsurancePool storage pool = insurancePools[uint256(insuranceType)];
-        pool.totalCoverage = pool.totalCoverage.add(coverageAmount);
-        pool.totalPremiums = pool.totalPremiums.add(premiumAmount);
-        pool.lockedFunds = pool.lockedFunds.add(coverageAmount);
+        pool.totalCoverage = pool.totalCoverage + coverageAmount;
+        pool.totalPremiums = pool.totalPremiums + premiumAmount;
+        pool.lockedFunds = pool.lockedFunds + coverageAmount;
         pool.policies.push(msg.sender);
 
-        totalCoverageProvided = totalCoverageProvided.add(coverageAmount);
-        totalPremiumsCollected = totalPremiumsCollected.add(premiumAmount);
+        totalCoverageProvided = totalCoverageProvided + coverageAmount;
+        totalPremiumsCollected = totalPremiumsCollected + premiumAmount;
 
         emit PolicyCreated(policyId, msg.sender, insuranceType);
         emit PremiumCollected(policyId, premiumAmount);
@@ -309,9 +314,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
             require(payOk, "Claim payout failed");
 
             // Update policy and pool
-            policy.totalPaid = policy.totalPaid.add(claim.claimAmount);
-            pool.claimReserve = pool.claimReserve.sub(claim.claimAmount);
-            pool.lockedFunds = pool.lockedFunds.sub(claim.claimAmount);
+policy.totalPaid = policy.totalPaid + claim.claimAmount;
+        pool.claimReserve = pool.claimReserve - claim.claimAmount;
+        pool.lockedFunds = pool.lockedFunds - claim.claimAmount;
 
             claim.status = ClaimStatus.PAID;
             claim.processingTime = block.timestamp;
@@ -420,23 +425,23 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
     ) internal pure returns (uint256) {
         // Base premium calculation
         uint256 basePremium = coverageAmount
-            .mul(_getBasePremiumRate(insuranceType))
-            .div(10000);
+            * _getBasePremiumRate(insuranceType)
+            / 10000;
 
         // Risk adjustment
         uint256 riskMultiplier = _assessContractRisk(
             coveredContract,
             insuranceType
         );
-        uint256 riskAdjustedPremium = basePremium.mul(riskMultiplier).div(100);
+        uint256 riskAdjustedPremium = basePremium * riskMultiplier / 100;
 
         // Time adjustment
-        uint256 timeMultiplier = coveragePeriod.mul(100).div(365 days);
-        uint256 finalPremium = riskAdjustedPremium.mul(timeMultiplier).div(100);
+        uint256 timeMultiplier = coveragePeriod * 100 / 365 days;
+        uint256 finalPremium = riskAdjustedPremium * timeMultiplier / 100;
 
         // Apply bounds
-        uint256 minPremium = coverageAmount.mul(MIN_PREMIUM_RATE).div(1 ether);
-        uint256 maxPremium = coverageAmount.mul(MAX_PREMIUM_RATE).div(1 ether);
+        uint256 minPremium = coverageAmount * MIN_PREMIUM_RATE / 1 ether;
+        uint256 maxPremium = coverageAmount * MAX_PREMIUM_RATE / 1 ether;
 
         return Math.max(finalPremium, Math.min(maxPremium, minPremium));
     }
@@ -471,7 +476,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
 
         // Adjust based on insurance type
         if (insuranceType == InsuranceType.HACK_COVERAGE) {
-            contractRisk = contractRisk.add(50); // Higher risk for hack coverage
+            contractRisk = contractRisk + 50; // Higher risk for hack coverage
         }
 
         return contractRisk;
@@ -479,24 +484,19 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
 
     /**
      * @dev Verify security incident through Sentinel
+     * @notice This is a placeholder that returns a default medium severity.
+     * In production, integrate with SentinelSecurityAuditor for real verification.
      */
     function _verifySecurityIncident(
         bytes32 incidentHash,
-        address /* coveredContract */
-    ) internal pure returns (uint256) {
-        // In production, this would query Sentinel security auditor
-        // For demo, simulate incident verification
-
-        // Simulate verification based on incident hash
-        uint256 severity = (uint256(incidentHash) % 10) + 1; // 1-10 severity
-
-        // Additional validation could check:
-        // - Incident timestamp
-        // - Contract involvement
-        // - Sentinel confirmation
-        // - Evidence validation
-
-        return severity;
+        address coveredContract
+    ) internal view returns (uint256) {
+        // Placeholder: return default medium severity (5)
+        // TODO: Replace with actual SentinelSecurityAuditor integration
+        // The incidentHash and coveredContract params are intentionally unused in this stub
+        incidentHash;
+        coveredContract;
+        return 5;
     }
 
     /**
@@ -507,10 +507,10 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         uint256 incidentSeverity
     ) internal pure returns (uint256) {
         // Base claim calculation
-        uint256 baseClaim = policy.coverageAmount.mul(incidentSeverity).div(10);
+        uint256 baseClaim = policy.coverageAmount * incidentSeverity / 10;
 
         // Apply policy limits
-        uint256 maxClaim = policy.coverageAmount.sub(policy.totalPaid);
+        uint256 maxClaim = policy.coverageAmount - policy.totalPaid;
         uint256 claimAmount = Math.min(baseClaim, maxClaim);
 
         return claimAmount;

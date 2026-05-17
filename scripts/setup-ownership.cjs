@@ -17,7 +17,18 @@
  *   TRACKED_CHAIN_IDS, CHAIN_LIMITS, YIELD_TOKEN_ADDRESS, etc.
  */
 
+const cliNetworkIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  (cliNetworkIndex >= 0 ? process.argv[cliNetworkIndex + 1] : undefined) ||
+  'sepolia';
+const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
 require('dotenv').config();
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: '.env.mainnet', override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
 const { ethers } = require('ethers');
 const path = require('path');
 const fs = require('fs');
@@ -102,10 +113,11 @@ async function main() {
   const addresses = JSON.parse(rawAddresses);
 
   const ownerKey = process.env.OWNER_PRIVATE_KEY;
-  if (!ownerKey) {
+  if (!/^0x[0-9a-fA-F]{64}$/.test((ownerKey || '').trim())) {
     throw new Error(
-      'OWNER_PRIVATE_KEY env var is required.\n' +
-        'This must be the private key of the SENTINEL_OWNER wallet.'
+      requestedNetwork === 'mainnet'
+        ? 'Mainnet ownership setup requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
+        : 'OWNER_PRIVATE_KEY env var is required as a 0x-prefixed 32-byte hex key. This must be the private key of the SENTINEL_OWNER wallet.'
     );
   }
 

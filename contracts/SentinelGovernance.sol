@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title SentinelGovernance
@@ -19,7 +20,8 @@ contract SentinelGovernance is
     GovernorCountingSimple,
     GovernorVotes,
     GovernorVotesQuorumFraction,
-    GovernorTimelockControl
+    GovernorTimelockControl,
+    Ownable
 {
     // Governance parameters optimized for security
     uint256 public constant MIN_VOTING_DELAY = 1 days;
@@ -77,10 +79,11 @@ contract SentinelGovernance is
         TimelockController _timelock
     )
         Governor("SentinelGovernance")
-        GovernorSettings(MIN_VOTING_DELAY, MAX_VOTING_DELAY, 10000) // 10k gas limit for proposal creation
+        GovernorSettings(uint48(MIN_VOTING_DELAY), uint32(MAX_VOTING_DELAY), 100)
         GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4) // 4% quorum
+        GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
+        Ownable(msg.sender)
     {}
 
     /**
@@ -181,7 +184,7 @@ contract SentinelGovernance is
         uint8 support,
         string calldata reason,
         bytes memory params
-    ) public override(Governor, IGovernor) returns (uint256) {
+    ) public override(Governor) returns (uint256) {
         uint256 weight = super.castVoteWithReasonAndParams(
             proposalId,
             support,
@@ -234,28 +237,36 @@ contract SentinelGovernance is
      * @param proposalId Proposal ID
      */
     function canExecute(uint256 proposalId) external view returns (bool) {
-        // Check standard governor conditions
         if (state(proposalId) != IGovernor.ProposalState.Succeeded)
             return false;
 
         EnhancedProposal memory proposal = enhancedProposals[proposalId];
 
-        // Additional checks for enhanced proposals
         if (proposal.requiresQuantumValidation) {
-            // Would check quantum proof validation in production
-            require(
-                proposal.quantumProof != bytes32(0),
-                "Quantum validation required"
-            );
+            if (proposal.quantumProof == bytes32(0)) {
+                return false;
+            }
         }
 
-        // Check execution grace period
         uint256 proposalEnd = proposalDeadline(proposalId);
         if (block.timestamp > proposalEnd + EXECUTION_GRACE_PERIOD) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @notice Submit quantum proof for a proposal
+     * @param proposalId Proposal ID
+     * @param quantumProof The quantum proof hash
+     */
+    function submitQuantumProof(uint256 proposalId, bytes32 quantumProof) external onlyOwner {
+        require(quantumProof != bytes32(0), "Invalid quantum proof");
+        EnhancedProposal storage proposal = enhancedProposals[proposalId];
+        require(proposal.requiresQuantumValidation, "Proposal does not require quantum validation");
+        require(proposal.quantumProof == bytes32(0), "Quantum proof already submitted");
+        proposal.quantumProof = quantumProof;
     }
 
     /**
@@ -304,23 +315,21 @@ contract SentinelGovernance is
     // Override voting period based on proposal category
     function votingPeriod()
         public
-        pure
-        override(GovernorSettings, IGovernor)
+        view
+        override(Governor, GovernorSettings)
         returns (uint256)
     {
-        // This would be customized per proposal in production
-        return MIN_VOTING_PERIOD;
+        return uint256(MAX_VOTING_PERIOD);
     }
 
     // Override voting delay based on proposal category
     function votingDelay()
         public
-        pure
-        override(GovernorSettings, IGovernor)
+        view
+        override(Governor, GovernorSettings)
         returns (uint256)
     {
-        // This would be customized per proposal in production
-        return MIN_VOTING_DELAY;
+        return uint256(MAX_VOTING_DELAY);
     }
 
     // The following functions are overrides required by Solidity
@@ -335,14 +344,30 @@ contract SentinelGovernance is
         return super.state(proposalId);
     }
 
-    function _execute(
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.proposalNeedsQueuing(proposalId);
+    }
+
+    function _queueOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
+        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockControl) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
         totalProposalsExecuted++;
     }
 
@@ -366,7 +391,7 @@ contract SentinelGovernance is
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
+    ) public view override(Governor) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
