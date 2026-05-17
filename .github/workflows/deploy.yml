@@ -25,6 +25,7 @@ jobs:
         run: forge build
 
       - name: Deploy
-        run: forge script script/DeployLiquidity.s.sol --rpc-url ${{ secrets.RPC_URL }} --broadcast
+        run: node scripts/deploy.cjs --network ${{ github.ref == 'refs/heads/main' && 'mainnet' || 'sepolia' }}
         env:
           PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          RPC_URL: ${{ secrets.RPC_URL }}
