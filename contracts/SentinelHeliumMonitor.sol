@@ -36,6 +36,7 @@ contract SentinelHeliumMonitor is Ownable {
 
   mapping(bytes32 => IoTDevice) public devices;
   mapping(address => bytes32[]) public ownerDevices;
+  mapping(address => bool) public authorizedReporters;
 
   NetworkHealth public networkHealth;
 
@@ -198,9 +199,8 @@ contract SentinelHeliumMonitor is Ownable {
   /**
    * @dev Validate anomaly reporter
    */
-  function _validateReporter(address) internal pure returns (bool) {
-    // Could check against whitelist of trusted reporters
-    return true; // Simplified
+  function _validateReporter(address reporter) internal view returns (bool) {
+    return authorizedReporters[reporter] || msg.sender == owner();
   }
 
   /**

@@ -334,17 +334,9 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             return;
         }
 
-        // Execute core loop phases with error handling
-        try this._executeCoreLoopPhases(cycleNumber) {
-            // Success - update metrics
-            coreMetrics.lastCoreUpdate = block.timestamp;
-        } catch Error(string memory reason) {
-            // Handle expected errors
-            _handleCoreLoopError(reason, cycleNumber);
-        } catch (bytes memory /*lowLevelData*/) {
-            // Handle unexpected errors
-            _handleCoreLoopError("Unexpected error in core loop", cycleNumber);
-        }
+        // Execute core loop phases
+        this._executeCoreLoopPhases(cycleNumber);
+        coreMetrics.lastCoreUpdate = block.timestamp;
 
         // Post-execution validation
         _validatePostExecution();
