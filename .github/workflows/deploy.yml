@@ -15,7 +15,7 @@ jobs:
     environment: 
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: foundry-rs/foundry-toolchain@v1
         with:
