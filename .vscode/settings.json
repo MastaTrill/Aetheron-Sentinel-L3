@@ -2,4 +2,8 @@
   "gitlens.views.showRelativeDateMarkers": true,
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "editor.tabCompletion": "on",
+  "diffEditor.codeLens": true,
+  "MutableAI.upsell": false,
+  "snyk.advanced.autoSelectOrganization": true,
 }

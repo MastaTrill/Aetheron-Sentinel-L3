@@ -40,3 +40,5 @@ tools/
 tests/
 apps/*/dist/
 .env
+.env
+.env
