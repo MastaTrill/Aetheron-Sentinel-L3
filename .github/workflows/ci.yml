@@ -52,7 +52,8 @@ jobs:
           target: contracts/
           slither-args: --config-file slither.config.json
           sarif: results.sarif
-          fail-on: none   # Change to "high" or "medium" later when you want it strict
+          fail-on: none
+          foundry: true
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
