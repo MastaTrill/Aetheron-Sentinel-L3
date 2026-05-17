@@ -263,7 +263,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      */
     function cancelRecovery(bytes32 requestId) external {
         address account = requestToAccount[requestId];
-        require(account == msg.sender, "Not request owner");
+        require(account == msg.sender, "Not the request owner");
 
         RecoveryConfig storage config = recoveryConfigs[account];
         RecoveryRequest storage request = config.recoveryRequests[requestId];

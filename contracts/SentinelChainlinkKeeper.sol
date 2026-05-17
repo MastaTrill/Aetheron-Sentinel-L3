@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+// // import "@chainlink/contracts/v0.8/automation/interfaces/AutomationCompatibleInterface.sol"; // DISABLED // DISABLED
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SentinelCore.sol";
 
@@ -10,7 +10,7 @@ import "./SentinelCore.sol";
  * @notice Chainlink Automation integration for Sentinel L3 upkeep
  * Handles automated security checks, rebalancing, and maintenance
  */
-contract SentinelChainlinkKeeper is AutomationCompatibleInterface, Ownable {
+contract SentinelChainlinkKeeper is  Ownable {
     SentinelCore public sentinelCore;
     uint256 public lastUpkeepTime;
     uint256 public upkeepInterval = 1 hours;
@@ -43,7 +43,7 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface, Ownable {
      * @notice Perform automated upkeep
      * @dev Restricted to Chainlink Automation registry or owner
      */
-    function performUpkeep(bytes calldata) external override {
+    function performUpkeep(bytes calldata) external {
         require(
             msg.sender == owner() || msg.sender == address(sentinelCore),
             "Only owner or SentinelCore can trigger upkeep"

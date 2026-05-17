@@ -84,7 +84,10 @@ contract SentinelGovernance is
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
         Ownable(msg.sender)
-    {}
+    {
+        require(_token != address(0), "Invalid token");
+        require(_timelock != address(0), "Invalid timelock");
+    }
 
     /**
      * @notice Create enhanced proposal with security categorization
@@ -105,6 +108,10 @@ contract SentinelGovernance is
         uint256 securityImpact,
         uint256 economicImpact
     ) external returns (uint256) {
+        require(
+            targets.length == values.length && values.length == calldatas.length,
+            "Array length mismatch"
+        );
         require(
             securityImpact >= 1 && securityImpact <= 10,
             "Invalid security impact"
@@ -144,6 +151,10 @@ contract SentinelGovernance is
         bytes[] memory calldatas,
         string memory description
     ) external returns (uint256) {
+        require(
+            targets.length == values.length && values.length == calldatas.length,
+            "Array length mismatch"
+        );
         // Emergency proposals require higher reputation
         require(
             governanceReputation[msg.sender] >= 100,

@@ -67,6 +67,10 @@ contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
         address _governanceTokenContract,
         address _referralSystemContract
     ) Ownable(msg.sender) {
+        require(_stakingContract != address(0), "Invalid staking contract");
+        require(_liquidityMiningContract != address(0), "Invalid liquidity mining contract");
+        require(_governanceTokenContract != address(0), "Invalid governance token contract");
+        require(_referralSystemContract != address(0), "Invalid referral system contract");
         stakingContract = _stakingContract;
         liquidityMiningContract = _liquidityMiningContract;
         governanceTokenContract = _governanceTokenContract;

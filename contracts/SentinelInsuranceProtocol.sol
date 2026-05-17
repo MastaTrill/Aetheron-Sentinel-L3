@@ -193,12 +193,9 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
         );
         require(msg.value >= premiumAmount, "Insufficient premium payment");
 
-        // Refund excess payment
+        uint256 excess = 0;
         if (msg.value > premiumAmount) {
-            (bool refundOk, ) = payable(msg.sender).call{
-                value: msg.value - premiumAmount
-            }("");
-            require(refundOk, "Refund failed");
+            excess = msg.value - premiumAmount;
         }
 
         uint256 policyId = policyCount++;
@@ -230,6 +227,11 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
 
         emit PolicyCreated(policyId, msg.sender, insuranceType);
         emit PremiumCollected(policyId, premiumAmount);
+
+        if (excess > 0) {
+            (bool refundOk, ) = payable(msg.sender).call{value: excess}("");
+            require(refundOk, "Refund failed");
+        }
 
         return policyId;
     }
