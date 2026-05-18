@@ -23,6 +23,18 @@ module.exports = {
       url: process.env.BASE_TESTNET_RPC_URL || "https://sepolia.base.org",
       accounts: [DEPLOYER_PRIVATE_KEY],
       chainId: 84532
+    },
+    sepolia: {
+      type: "http",
+      url: process.env.BASE_TESTNET_RPC_URL || "https://sepolia.base.org",
+      accounts: [DEPLOYER_PRIVATE_KEY],
+      chainId: 84532
+    },
+    mainnet: {
+      type: "http",
+      url: process.env.BASE_MAINNET_RPC_URL || "https://mainnet.base.org",
+      accounts: [DEPLOYER_PRIVATE_KEY],
+      chainId: 8453
     }
   }
 };
