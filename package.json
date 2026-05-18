@@ -43,7 +43,7 @@
     "build:web": "next build",
     "start": "next start",
     "lint:web": "next lint",
-    "add-liquidity": "hardhat run scripts/add-liquidity.js",
+    "add-liquidity": "hardhat run scripts/add-liquidity.cjs",
     "codegen": "graph codegen",
     "build": "graph build"
   },

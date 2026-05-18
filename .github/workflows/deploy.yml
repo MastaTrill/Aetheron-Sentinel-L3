@@ -31,7 +31,7 @@ jobs:
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
 
       - name: Deploy
-        run: npx hardhat run scripts/add-liquidity.js --network ${{ github.ref == 'refs/heads/main' && 'mainnet' || 'sepolia' }} --config hardhat.config.cjs
+        run: npx hardhat run scripts/add-liquidity.cjs --network ${{ github.ref == 'refs/heads/main' && 'mainnet' || 'sepolia' }} --config hardhat.config.cjs
         env:
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
           RPC_URL: ${{ secrets.RPC_URL }}
