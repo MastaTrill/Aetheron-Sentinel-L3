@@ -1,11 +1,7 @@
 require("dotenv").config();
 require("@nomicfoundation/hardhat-toolbox");
 
-const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
-
-if (!DEPLOYER_PRIVATE_KEY) {
-  throw new Error("Missing DEPLOYER_PRIVATE_KEY in .env");
-}
+const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "0000000000000000000000000000000000000000000000000000000000000000";
 
 module.exports = {
   solidity: {
