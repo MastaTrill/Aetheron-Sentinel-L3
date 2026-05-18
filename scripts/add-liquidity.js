@@ -1,5 +1,4 @@
-import hre from 'hardhat';
-const { ethers } = hre;
+import { network } from 'hardhat';
 import { Contract } from 'ethers';
 
 /**
@@ -7,6 +6,8 @@ import { Contract } from 'ethers';
  * This script creates a pool and adds initial liquidity
  */
 async function addLiquidity() {
+  const connection = await network.create();
+  const { ethers } = connection;
   const [deployer] = await ethers.getSigners();
   console.log('Adding liquidity with account:', deployer.address);
 
