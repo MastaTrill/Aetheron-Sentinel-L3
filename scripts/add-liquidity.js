@@ -1,5 +1,5 @@
-const { ethers } = require('hardhat');
-const { Contract } = require('ethers');
+import { ethers } from 'hardhat';
+import { Contract } from 'ethers';
 
 /**
  * Add liquidity to Uniswap V3 pool for AETH token
