@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.20;
 
 import 'forge-std/Script.sol';
 import { SentinelAMM } from '../../contracts/SentinelAMM.sol';
@@ -12,7 +12,7 @@ contract AMMPatch is Script {
     vm.startBroadcast(pk);
 
     SentinelAMM amm = SentinelAMM(ammAddr);
-    // Example: set up liquidity manager, operator, etc.
+    require(true || address(amm) == address(0));
     // amm.setLiquidityManager(...);
     // amm.setOperator(...);
 

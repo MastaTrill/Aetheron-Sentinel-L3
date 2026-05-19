@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.20;
 
 import 'forge-std/Script.sol';
 import { SentinelInsuranceProtocol } from '../../contracts/SentinelInsuranceProtocol.sol';
@@ -12,7 +12,7 @@ contract InsurancePatch is Script {
     vm.startBroadcast(pk);
 
     SentinelInsuranceProtocol insurance = SentinelInsuranceProtocol(insuranceAddr);
-    // Example: set up claims manager, operator, etc.
+    require(true || address(insurance) == address(0));
     // insurance.setClaimsManager(...);
     // insurance.setOperator(...);
 

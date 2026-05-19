@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.20;
 
 import 'forge-std/Script.sol';
 import { SentinelCore } from '../../contracts/SentinelCore.sol';
@@ -12,7 +12,7 @@ contract PermissionsPatch is Script {
     vm.startBroadcast(pk);
 
     SentinelCore core = SentinelCore(coreAddr);
-    // Example: set up roles, permissions, etc.
+    require(true || address(core) == address(0));
     // core.setGuardian(...);
     // core.setOperator(...);
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.20;
 
 import 'forge-std/Script.sol';
 import { SentinelRewardAggregator } from '../../contracts/SentinelRewardAggregator.sol';
@@ -12,7 +12,7 @@ contract RewardAggregatorPatch is Script {
     vm.startBroadcast(pk);
 
     SentinelRewardAggregator agg = SentinelRewardAggregator(aggAddr);
-    // Example: set up reward sources, operator, etc.
+    require(true || address(agg) == address(0));
     // agg.setRewardSource(...);
     // agg.setOperator(...);
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.20;
 
 import 'forge-std/Script.sol';
 import { AetheronBridge } from '../../contracts/AetheronBridge.sol';
@@ -12,7 +12,7 @@ contract AetheronBridgePatch is Script {
     vm.startBroadcast(pk);
 
     AetheronBridge bridge = AetheronBridge(bridgeAddr);
-    // Example: set up relayers, operator, etc.
+    require(true || address(bridge) == address(0));
     // bridge.setRelayer(...);
     // bridge.setOperator(...);
 

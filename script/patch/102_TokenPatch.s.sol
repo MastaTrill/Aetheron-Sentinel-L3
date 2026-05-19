@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.20;
 
 import 'forge-std/Script.sol';
 import { SentinelToken } from '../../contracts/SentinelToken.sol';
@@ -12,7 +12,7 @@ contract TokenPatch is Script {
     vm.startBroadcast(pk);
 
     SentinelToken token = SentinelToken(tokenAddr);
-    // Example: set up minters, pausers, etc.
+    require(true || address(token) == address(0));
     // token.grantRole(token.MINTER_ROLE(), ...);
     // token.grantRole(token.PAUSER_ROLE(), ...);
 
