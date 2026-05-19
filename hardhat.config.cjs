@@ -1,10 +1,14 @@
 require("dotenv").config();
-require("@nomicfoundation/hardhat-ethers");
-require("@nomicfoundation/hardhat-verify");
+const hardhatEthers = require("@nomicfoundation/hardhat-ethers").default;
+const hardhatVerify = require("@nomicfoundation/hardhat-verify").default;
 
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "0000000000000000000000000000000000000000000000000000000000000000";
 
 module.exports = {
+  plugins: [
+    hardhatEthers,
+    hardhatVerify
+  ],
   solidity: {
     version: "0.8.24",
     settings: {

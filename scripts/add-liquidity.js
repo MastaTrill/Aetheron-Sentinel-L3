@@ -1,4 +1,5 @@
-import hre from 'hardhat';
+import hardhatModule from 'hardhat';
+const hre = hardhatModule.default ?? hardhatModule;
 const { ethers, network } = hre;
 import { Contract } from 'ethers';
 
