@@ -1,6 +1,5 @@
 import hardhatModule from 'hardhat';
 const hre = hardhatModule.default ?? hardhatModule;
-const { ethers, network } = hre;
 import { Contract } from 'ethers';
 
 /**
@@ -8,6 +7,8 @@ import { Contract } from 'ethers';
  * This script creates a pool and adds initial liquidity
  */
 async function addLiquidity() {
+  const connection = await hre.network.getOrCreate(hre.network.name);
+  const { ethers, networkConfig } = connection;
   const [deployer] = await ethers.getSigners();
   console.log('Adding liquidity with account:', deployer.address);
 
@@ -18,7 +19,7 @@ async function addLiquidity() {
   const tokenAddress = await token.getAddress();
   console.log('SentinelToken deployed to:', tokenAddress);
 
-  const chainId = network.config.chainId;
+  const chainId = networkConfig.chainId;
   console.log(`Connected to chain ID: ${chainId}`);
 
   let WETH_ADDRESS, FACTORY_ADDRESS, POSITION_MANAGER;
