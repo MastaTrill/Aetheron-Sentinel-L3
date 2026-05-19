@@ -45,7 +45,15 @@
     "lint:web": "next lint",
     "add-liquidity": "hardhat run scripts/add-liquidity.js",
     "codegen": "graph codegen",
-    "build": "graph build"
+    "build": "graph build",
+    "mainnet:preflight": "node deploy/preflight.ts",
+    "mainnet:build": "forge build --profile default",
+    "mainnet:test": "forge test -vvv",
+    "mainnet:simulate": "forge script script/deploy/001_SentinelCore.s.sol:SentinelCoreDeploy --rpc-url $BASE_MAINNET_RPC_URL --chain-id 8453 --sender $OWNER_ADDRESS --broadcast --dry-run",
+    "deploy:base": "hardhat run deploy/deploy-mainnet.ts --network base",
+    "verify:base": "hardhat run deploy/verify-mainnet.ts --network base",
+    "patch:base": "hardhat run deploy/patch-mainnet.ts --network base",
+    "pipeline:base": "npm run mainnet:preflight && npm run mainnet:build && npm run mainnet:test && npm run mainnet:simulate && npm run deploy:base && npm run verify:base && npm run patch:base"
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",

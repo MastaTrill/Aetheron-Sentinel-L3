@@ -14,22 +14,56 @@ const IPFS_PROJECT_ID = process.env.IPFS_PROJECT_ID;
 const IPFS_PROJECT_SECRET = process.env.IPFS_PROJECT_SECRET;
 
 /**
+ * Creates an authenticated IPFS client instance.
+ * @returns {object} The IPFS client instance.
+ */
+function getIpfsClient() {
+  if (!IPFS_PROJECT_ID || !IPFS_PROJECT_SECRET) {
+    throw new Error('IPFS_PROJECT_ID and IPFS_PROJECT_SECRET must be set in environment variables.');
+  }
+  const auth =
+    'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
+
+  const url = new URL(IPFS_API_URL);
+
+  return create({
+    host: url.hostname,
+    port: url.port,
+    protocol: url.protocol.replace(':', ''), // Remove trailing colon
+    headers: {
+      authorization: auth,
+    },
+  });
+}
+
+/**
+ * Helper function to retry asynchronous operations with exponential backoff.
+ * @param {Function} fn - The asynchronous function to execute.
+ * @param {number} [retries=3] - The number of retry attempts.
+ * @param {number} [delay=1000] - The initial delay between retries in milliseconds.
+ * @returns {Promise<any>} The result of the asynchronous function.
+ */
+async function withRetry(fn, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      console.warn(`Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2; // Exponential backoff
+    }
+  }
+}
+
+/**
  * Upload security log to IPFS
+ * @param {object} logData - The security log data to upload.
+ * @param {string} [filename='security-log.json'] - The desired filename for the log.
+ * @returns {Promise<object>} An object containing the CID, URL, and filename of the uploaded log.
  */
 async function uploadSecurityLog(logData, filename = 'security-log.json') {
   try {
-    const auth =
-      'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
-
-    const ipfs = create({
-      host: 'ipfs.infura.io',
-      port: 5001,
-      protocol: 'https',
-      headers: {
-        authorization: auth,
-      },
-    });
-
     // Create log file
     const logContent = JSON.stringify(
       {
@@ -41,12 +75,14 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
       2
     );
 
+    const ipfs = getIpfsClient();
+
     const file = {
       path: filename,
       content: Buffer.from(logContent),
     };
 
-    const result = await ipfs.add(file);
+    const result = await withRetry(() => ipfs.add(file));
     console.log('Security log uploaded to IPFS:', result.cid.toString());
 
     return {
@@ -61,29 +97,22 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
 }
 
 /**
- * Upload AI model to IPFS
+ * Upload AI model file to IPFS
+ * @param {string} modelPath - The file path to the AI model.
+ * @returns {Promise<object>} An object containing the CID, URL, and filename of the uploaded model.
  */
 async function uploadAIModel(modelPath) {
   try {
-    const auth =
-      'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
+    const ipfs = getIpfsClient();
 
-    const ipfs = create({
-      host: 'ipfs.infura.io',
-      port: 5001,
-      protocol: 'https',
-      headers: {
-        authorization: auth,
-      },
-    });
-
-    const fileContent = fs.readFileSync(modelPath);
+    // Using fs.promises.readFile for asynchronous file reading
+    const fileContent = await fs.promises.readFile(modelPath);
     const file = {
       path: modelPath.split('/').pop(),
       content: fileContent,
     };
 
-    const result = await ipfs.add(file);
+    const result = await withRetry(() => ipfs.add(file));
     console.log('AI model uploaded to IPFS:', result.cid.toString());
 
     return {
@@ -98,40 +127,42 @@ async function uploadAIModel(modelPath) {
 }
 
 /**
- * Pin content to Filecoin for permanence
+ * Placeholder function to pin content to Filecoin for permanence.
+ * Actual implementation would depend on the chosen pinning service (e.g., Pinata, NFT.Storage).
+ * @param {string} cid - The CID of the content to pin.
+ * @returns {Promise<void>}
  */
 async function pinToFilecoin(cid) {
   // Integration with Filecoin pinning services
   // This would use services like Pinata, NFT.Storage, or Web3.Storage
   console.log('Pinning to Filecoin:', cid);
   // Implementation would depend on chosen pinning service
+  return Promise.resolve(); // Placeholder for actual pinning logic
 }
 
 /**
  * Retrieve content from IPFS
+ * @param {string} cid - The CID of the content to retrieve.
+ * @returns {Promise<object|string>} The retrieved content, parsed as JSON if possible.
  */
 async function retrieveFromIPFS(cid) {
   try {
-    const auth =
-      'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
+    const ipfs = getIpfsClient();
 
-    const ipfs = create({
-      host: 'ipfs.infura.io',
-      port: 5001,
-      protocol: 'https',
-      headers: {
-        authorization: auth,
-      },
+    const data = await withRetry(async () => {
+      const stream = ipfs.cat(cid);
+      let content = '';
+      for await (const chunk of stream) {
+        content += chunk.toString();
+      }
+      return content;
     });
 
-    const stream = ipfs.cat(cid);
-    let data = '';
-
-    for await (const chunk of stream) {
-      data += chunk.toString();
+    try {
+      return JSON.parse(data); // Attempt to parse as JSON
+    } catch (jsonError) {
+      return data; // Return as plain string if not JSON
     }
-
-    return JSON.parse(data);
   } catch (error) {
     console.error('Failed to retrieve from IPFS:', error);
     throw error;
@@ -148,7 +179,10 @@ if (require.main === module) {
     ],
   };
 
-  uploadSecurityLog(exampleLog)
+  // Example usage: upload with a dynamic filename
+  const dynamicFilename = `security-log-${Date.now()}.json`;
+
+  uploadSecurityLog(exampleLog, dynamicFilename)
     .then(result => console.log('Upload result:', result))
     .catch(console.error);
 }

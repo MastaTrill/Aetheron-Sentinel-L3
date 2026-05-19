@@ -1,5 +1,5 @@
 import 'dotenv/config.js';
-import { readFileSync } from 'fs';
+import { readFileSync, appendFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -90,11 +90,11 @@ async function main() {
   console.log('ethers version:', ethers.version);
 
   // Get RPC URL from environment (set by hardhat when running with --network base)
-  const rpcUrl = process.env.BASE_RPC_URL;
+  const rpcUrl = process.env.MAINNET_RPC_URL || process.env.BASE_RPC_URL;
   if (!rpcUrl) {
     throw new Error(
-      `BASE_RPC_URL not set. ` +
-        `Usage: BASE_RPC_URL=https://... OWNER_PRIVATE_KEY=... hardhat run scripts/deploy.js --network base`
+      `RPC URL not set (checked MAINNET_RPC_URL and BASE_RPC_URL). ` +
+      `Usage: MAINNET_RPC_URL=https://... OWNER_PRIVATE_KEY=... hardhat run scripts/deploy.js --network base`
     );
   }
 
@@ -497,6 +497,19 @@ async function main() {
   // Output the final block number for automation
   const latestBlock = await provider.getBlockNumber();
   console.log(`Final Block: ${latestBlock}`);
+
+  // Update .env file with deployed addresses for the Sentinel Engine
+  try {
+    const envPath = resolve(__dirname, '../.env');
+    const engineConfig = `\n# Sentinel Engine Configuration - Deployed ${new Date().toISOString()}\n` +
+      `INTERCEPTOR_ADDRESS=${addresses.SentinelInterceptor}\n` +
+      `MONITOR_ADDRESS=${addresses.SentinelMonitor}\n` +
+      `SEVERITY_THRESHOLD=${config.anomalyThreshold}\n`;
+    appendFileSync(envPath, engineConfig);
+    console.log(`\n📝 Updated ${envPath} with engine environment variables.`);
+  } catch (err) {
+    console.warn('\n⚠️ Could not automatically update .env file:', err.message);
+  }
 }
 
 main().catch(error => {

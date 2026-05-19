@@ -6,10 +6,12 @@ import { Contract } from 'ethers';
  * Add liquidity to Uniswap V3 pool for AETH token
  * This script creates a pool and adds initial liquidity
  */
+let L2_ADDRESS;
+
 async function addLiquidity() {
-  const connection = await hre.network.getOrCreate(hre.network.name);
-  const { ethers, networkConfig } = connection;
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
+  L2_ADDRESS = deployer.address;
+  console.log('Using bridge address as deployer:', L2_ADDRESS);
   console.log('Adding liquidity with account:', deployer.address);
 
   // Deploy or get SentinelToken
@@ -19,17 +21,17 @@ async function addLiquidity() {
   const tokenAddress = await token.getAddress();
   console.log('SentinelToken deployed to:', tokenAddress);
 
-  const chainId = networkConfig.chainId;
-  console.log(`Connected to chain ID: ${chainId}`);
+  const { chainId } = await hre.ethers.provider.getNetwork();
+  console.log(`Connected to chain ID: ${chainId.toString()}`);
 
   let WETH_ADDRESS, FACTORY_ADDRESS, POSITION_MANAGER;
 
-  if (chainId === 84532) {
+  if (chainId === 84532n) {
     // Base Sepolia
     WETH_ADDRESS = '0x4200000000000000000000000000000000000006';
     FACTORY_ADDRESS = '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24';
     POSITION_MANAGER = '0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2';
-  } else if (chainId === 8453) {
+  } else if (chainId === 8453n) {
     // Base Mainnet
     WETH_ADDRESS = '0x4200000000000000000000000000000000000006';
     FACTORY_ADDRESS = '0x33128a8fC17869897dcE68Ed026d694621f6FDfD';
@@ -86,8 +88,8 @@ async function addLiquidity() {
   }
 
   // Mint tokens to deployer
-  await token.mint(deployer.address, ethers.parseEther('1000000'));
-  console.log('Minted 1M SENT');
+  await token.mint(L2_ADDRESS, ethers.parseEther('1000000'));
+  console.log('Minted 1M SENT to L2 address');
 
   // Get WETH and deposit 0.05 ETH
   const weth = new Contract(WETH_ADDRESS, ['function deposit() payable', 'function approve(address spender, uint256 amount) external returns (bool)'], deployer);
@@ -120,7 +122,7 @@ async function addLiquidity() {
     amount1Desired: tokenAddress < WETH_ADDRESS ? ethers.parseEther('0.01') : ethers.parseEther('10000'),
     amount0Min: 0,
     amount1Min: 0,
-    recipient: deployer.address,
+    recipient: L2_ADDRESS,
     deadline: Math.floor(Date.now() / 1000) + 3600,
   };
 

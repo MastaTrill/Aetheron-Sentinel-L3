@@ -1,0 +1,49 @@
+name: Sentinel L3 Mainnet Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  mainnet-deploy:
+    runs-on: ubuntu-latest
+    env:
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+      DEPLOY_TAG: sentinel-l3-v1
+      OWNER_ADDRESS: ${{ secrets.OWNER_ADDRESS }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+      - name: Set up Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: '1.0.0'
+      - name: Install dependencies
+        run: npm ci
+      - name: Preflight
+        run: npm run mainnet:preflight
+      - name: Build
+        run: npm run mainnet:build
+      - name: Test
+        run: npm run mainnet:test
+      - name: Simulate
+        run: npm run mainnet:simulate
+      - name: Deploy
+        run: npm run deploy:base
+      - name: Verify
+        run: npm run verify:base
+      - name: Patch
+        run: npm run patch:base
+      - name: Upload deployment manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployments
+          path: deployments/base-mainnet.json

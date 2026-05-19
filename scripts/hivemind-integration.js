@@ -12,11 +12,29 @@ const HIVEMIND_API_URL = process.env.HIVEMIND_API_URL || 'https://api.hivemind.a
 const HIVEMIND_API_KEY = process.env.HIVEMIND_API_KEY;
 
 /**
+ * Helper function to retry asynchronous operations with exponential backoff.
+ */
+async function withRetry(fn, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      // Only retry on network errors or 5xx server errors
+      const isRetryable = !error.response || (error.response.status >= 500 && error.response.status <= 599);
+      if (i === retries - 1 || !isRetryable) throw error;
+      console.warn(`Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2;
+    }
+  }
+}
+
+/**
  * Train AI model on Sentinel security data
  */
 async function trainSentinelModel(trainingData) {
   try {
-    const response = await axios.post(
+    const response = await withRetry(() => axios.post(
       `${HIVEMIND_API_URL}/models/train`,
       {
         modelType: 'threat-detection',
@@ -51,7 +69,7 @@ async function trainSentinelModel(trainingData) {
  */
 async function runInference(securityData) {
   try {
-    const response = await axios.post(
+    const response = await withRetry(() => axios.post(
       `${HIVEMIND_API_URL}/inference/run`,
       {
         modelId: 'sentinel-threat-detector',
@@ -77,7 +95,7 @@ async function runInference(securityData) {
  */
 async function contributeResources(resourceSpec) {
   try {
-    const response = await axios.post(
+    const response = await withRetry(() => axios.post(
       `${HIVEMIND_API_URL}/resources/contribute`,
       {
         resourceSpec,
@@ -107,7 +125,7 @@ async function contributeResources(resourceSpec) {
  */
 async function getTrainingStatus(trainingId) {
   try {
-    const response = await axios.get(`${HIVEMIND_API_URL}/training/${trainingId}/status`, {
+    const response = await withRetry(() => axios.get(`${HIVEMIND_API_URL}/training/${trainingId}/status`, {
       headers: {
         Authorization: `Bearer ${HIVEMIND_API_KEY}`,
       },
@@ -125,7 +143,7 @@ async function getTrainingStatus(trainingId) {
  */
 async function validatePredictions(predictions, actualEvents) {
   try {
-    const response = await axios.post(
+    const response = await withRetry(() => axios.post(
       `${HIVEMIND_API_URL}/validation/run`,
       {
         predictions,
