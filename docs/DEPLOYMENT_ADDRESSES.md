@@ -20,4 +20,4 @@ forge script script/deploy/003_SentinelChainlinkKeeper.s.sol:SentinelChainlinkKe
 ### Post-Deployment Verification
 1. Verify contracts on Basescan
 2. Update this file with deployed addresses
-3. Run health check: `forge script script/health/201_DeploymentHealthCheck.s.sol --rpc-url $BASE_MAINNET_RPC_URL`
+3. Run health check: `forge script script/health/202_SentinelChainlinkKeeperHealthCheck.s.sol --rpc-url $BASE_MAINNET_RPC_URL`
