@@ -13,7 +13,7 @@ async function addLiquidity() {
 
   // Deploy or get SentinelToken
   const SentinelToken = await ethers.getContractFactory('SentinelToken');
-  const token = await SentinelToken.deploy();
+  const token = await SentinelToken.deploy(deployer.address);
   await token.waitForDeployment();
   const tokenAddress = await token.getAddress();
   console.log('SentinelToken deployed to:', tokenAddress);
