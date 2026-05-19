@@ -254,6 +254,15 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         _createVestingSchedule(beneficiary, amount, duration, cliff);
     }
 
+    /**
+     * @notice Mint new tokens (only owner)
+     * @param to Address to receive tokens
+     * @param amount Amount to mint
+     */
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+
     function _createVestingSchedule(
         address beneficiary,
         uint256 amount,

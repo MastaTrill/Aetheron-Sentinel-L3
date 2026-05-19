@@ -21,7 +21,7 @@ module.exports = {
     hardhat: {
       type: "edr-simulated"
     },
-    baseTestnet: {
+    baseSepolia: {
       type: "http",
       url: process.env.BASE_TESTNET_RPC_URL || "https://sepolia.base.org",
       accounts: [DEPLOYER_PRIVATE_KEY]
@@ -29,6 +29,11 @@ module.exports = {
     sepolia: {
       type: "http",
       url: process.env.BASE_TESTNET_RPC_URL || "https://sepolia.base.org",
+      accounts: [DEPLOYER_PRIVATE_KEY]
+    },
+    ethereumSepolia: {
+      type: "http",
+      url: process.env.SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
       accounts: [DEPLOYER_PRIVATE_KEY]
     },
     mainnet: {
