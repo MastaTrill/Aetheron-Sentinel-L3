@@ -49,7 +49,7 @@ async function runFeedbackLoop() {
         if (validationResult.metrics.accuracy < 0.90) {
             console.warn('⚠️ Accuracy low. Triggering model retraining...');
             await hivemind.trainSentinelModel(groundTruth.map(gt => ({
-                features: [/* extracted features from IPFS log */],
+                features: events.find(e => e.tx_hash === gt.txHash)?.analysis_data?.features || [], // Assuming analysis_data contains features
                 label: gt.outcome
             })));
         }

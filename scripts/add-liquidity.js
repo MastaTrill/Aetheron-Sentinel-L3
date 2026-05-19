@@ -15,7 +15,7 @@ async function addLiquidity() {
   console.log('Adding liquidity with account:', deployer.address);
 
   // Deploy or get SentinelToken
-  const SentinelToken = await ethers.getContractFactory('SentinelToken');
+  const SentinelToken = await hre.ethers.getContractFactory('SentinelToken');
   const token = await SentinelToken.deploy(deployer.address);
   await token.waitForDeployment();
   const tokenAddress = await token.getAddress();
@@ -88,11 +88,11 @@ async function addLiquidity() {
   }
 
   // Mint tokens to deployer
-  await token.mint(L2_ADDRESS, ethers.parseEther('1000000'));
+  await token.mint(L2_ADDRESS, hre.ethers.parseEther('1000000'));
   console.log('Minted 1M SENT to L2 address');
 
   // Get WETH and deposit 0.05 ETH
-  const weth = new Contract(WETH_ADDRESS, ['function deposit() payable', 'function approve(address spender, uint256 amount) external returns (bool)'], deployer);
+  const weth = new Contract(WETH_ADDRESS, ['function deposit() payable', 'function approve(address spender, uint256 amount) external returns (bool)'], deployer); // ethers.Contract is fine here
   const depositTx = await weth.deposit({ value: ethers.parseEther('0.05') });
   await depositTx.wait();
   console.log('Wrapped 0.05 ETH to WETH');
@@ -116,8 +116,8 @@ async function addLiquidity() {
     token0: tokenAddress < WETH_ADDRESS ? tokenAddress : WETH_ADDRESS,
     token1: tokenAddress < WETH_ADDRESS ? WETH_ADDRESS : tokenAddress,
     fee: 3000,
-    tickLower: -60000, // Wide range
-    tickUpper: 60000,
+    tickLower: -60000, // Wide range for testing
+    tickUpper: 60000, // Wide range for testing
     amount0Desired: tokenAddress < WETH_ADDRESS ? ethers.parseEther('10000') : ethers.parseEther('0.01'),
     amount1Desired: tokenAddress < WETH_ADDRESS ? ethers.parseEther('0.01') : ethers.parseEther('10000'),
     amount0Min: 0,

@@ -7,8 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 console.log('=== DEPLOY SCRIPT START ===');
-let ethers;
-let provider; // Will be set in main()
+let ethers; // Will be set in main()
 let deployer; // Will be set in main()
 
 function parseAddressList(value) {
@@ -98,7 +97,7 @@ async function main() {
     );
   }
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  const currentProvider = new ethers.JsonRpcProvider(rpcUrl);
 
   // Get signer from private key
   const privateKey = process.env.OWNER_PRIVATE_KEY;
@@ -106,7 +105,7 @@ async function main() {
     throw new Error('OWNER_PRIVATE_KEY environment variable not set');
   }
 
-  deployer = new ethers.Wallet(privateKey, provider);
+  deployer = new ethers.Wallet(privateKey, currentProvider);
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');
@@ -152,7 +151,7 @@ async function main() {
   console.log('Network: base (mainnet)');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
-  const balance = await provider.getBalance(deployerAddress);
+  const balance = await currentProvider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
 
   const addresses = {};
@@ -279,7 +278,7 @@ async function main() {
 
   // Grant PROPOSER_ROLE and CANCELLER_ROLE on the timelock to the governance contract
   if (deployerIsOwner) {
-    const ov = await getTxOverrides(deployer.provider);
+    const ov = await getTxOverrides(currentProvider); // Use currentProvider here
     const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
     const CANCELLER_ROLE = await timelock.CANCELLER_ROLE();
     const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
@@ -495,7 +494,7 @@ async function main() {
   );
 
   // Output the final block number for automation
-  const latestBlock = await provider.getBlockNumber();
+  const latestBlock = await currentProvider.getBlockNumber();
   console.log(`Final Block: ${latestBlock}`);
 
   // Update .env file with deployed addresses for the Sentinel Engine

@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol';
-import './SentinelCore.sol';
+import "./chainlink/AutomationCompatibleInterface.sol";
+import "./SentinelCore.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title SentinelChainlinkKeeper
  * @notice Chainlink Automation integration for Sentinel L3 upkeep
  * Handles automated security checks, rebalancing, and maintenance
  */
-contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
+contract SentinelChainlinkKeeper is AutomationCompatibleInterface, Ownable {
   SentinelCore public sentinelCore;
   uint256 public lastUpkeepTime;
   uint256 public upkeepInterval = 1 hours;
@@ -18,7 +19,7 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
   event UpkeepPerformed(uint256 timestamp, uint256 gasUsed);
   event IntervalUpdated(uint256 newInterval);
 
-  constructor(address _sentinelCore) {
+  constructor(address _sentinelCore) Ownable(msg.sender) {
     sentinelCore = SentinelCore(_sentinelCore);
     lastUpkeepTime = block.timestamp;
   }
@@ -47,23 +48,19 @@ contract SentinelChainlinkKeeper is AutomationCompatibleInterface {
   function performUpkeep(bytes calldata /* performData */) external override {
     uint256 startGas = gasleft();
 
-    // Update last upkeep time
     lastUpkeepTime = block.timestamp;
-
-    // Perform Sentinel maintenance
     _performSentinelUpkeep();
 
     uint256 gasUsed = startGas - gasleft();
-    emit UpkeepPerformed(block.timestamp, gasUsed);
+    require(gasUsed <= MAX_PERFORM_GAS, "Upkeep gas limit exceeded");
 
-    require(gasUsed <= MAX_PERFORM_GAS, 'Upkeep gas limit exceeded');
+    emit UpkeepPerformed(block.timestamp, gasUsed);
   }
 
   /**
    * @notice Update upkeep interval (owner only)
    */
-  function updateInterval(uint256 _interval) external {
-    // Add access control here
+  function updateInterval(uint256 _interval) external onlyOwner {
     upkeepInterval = _interval;
     emit IntervalUpdated(_interval);
   }

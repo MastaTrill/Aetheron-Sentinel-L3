@@ -23,8 +23,8 @@ async function analyzeGasUsage() {
 
   for (const contractName of contracts) {
     try {
-      const Contract = await ethers.getContractFactory(contractName);
-      const deploymentTx = Contract.getDeployTransaction();
+      const ContractFactory = await ethers.getContractFactory(contractName);
+      const deploymentTx = ContractFactory.getDeployTransaction();
 
       if (deploymentTx) {
         const estimatedGas = await ethers.provider.estimateGas(deploymentTx);

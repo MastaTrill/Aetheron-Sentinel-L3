@@ -3,6 +3,7 @@
  * Monitors Sentinel contracts for security anomalies
  */
 
+const { ethers } = require('ethers');
 const { Finding, FindingSeverity, FindingType } = require('forta-agent');
 
 // Agent metadata

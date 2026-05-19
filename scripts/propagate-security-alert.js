@@ -18,10 +18,12 @@ async function initializeWallet(provider) {
 
     if (cdpKeyName && cdpKeyPrivate) {
         console.log('🔐 Using CDP MPC Wallet for propagation...');
-        // Note: For propagation we need a standard ethers signer
-        // We assume the user provides a fallback for scripts not yet fully agentic
-        if (rawPrivateKey) return new ethers.Wallet(rawPrivateKey, provider);
-        throw new Error('CDP propagation requires a standard ethers signer fallback currently.');
+        const cdpWallet = await CdpWalletProvider.configureWithWallet({
+            apiKeyName: cdpKeyName,
+            apiKeyPrivateKey: cdpKeyPrivate?.replace(/\\n/g, '\n'),
+            networkId: "base-mainnet", // Assuming base-mainnet for propagation
+        });
+        return cdpWallet;
     } else if (keystorePath && keystorePassword && fs.existsSync(keystorePath)) {
         console.log('🔐 Loading wallet from encrypted keystore...');
         const json = fs.readFileSync(keystorePath, 'utf8');
@@ -43,21 +45,29 @@ async function propagateAlert(targetChainId, severity) {
     const wallet = await initializeWallet(provider);
 
     const bridgeAddress = process.env.BRIDGE_ADDRESS;
-    const bridge = new ethers.Contract(
-        bridgeAddress,
-        ['function sendSecurityAlert(uint16 _dstChainId, uint8 _severity) external payable'],
-        wallet
-    );
+    const bridgeInterface = new ethers.Interface(['function sendSecurityAlert(uint16 _dstChainId, uint8 _severity) external payable']);
 
     console.log(`📡 Propagating Security Alert (Severity ${severity}) to Chain ${targetChainId}...`);
 
     try {
         // Estimate fee (LayerZero requirement)
-        const adapterParams = ethers.solidityPacked(['uint16', 'uint256'], [1, 200000]);
-        const tx = await bridge.sendSecurityAlert(targetChainId, severity, {
-            value: ethers.parseEther('0.01') // Placeholder for LZ native fee
-        });
+        // Note: adapterParams are not directly used in the sendSecurityAlert call as per the ABI provided.
+        // If LayerZero requires adapterParams, they would need to be part of the function signature.
+        // const adapterParams = ethers.solidityPacked(['uint16', 'uint256'], [1, 200000]);
 
+        let tx;
+        const data = bridgeInterface.encodeFunctionData("sendSecurityAlert", [targetChainId, severity]);
+
+        if (wallet.sendTransaction) { // Check if it's a CdpWalletProvider or similar signer
+            tx = await wallet.sendTransaction({
+                to: bridgeAddress,
+                data: data,
+                value: ethers.parseEther('0.01') // Placeholder for LZ native fee
+            });
+        } else { // Fallback to ethers.Wallet as a signer for a Contract instance
+            const bridgeContract = new ethers.Contract(bridgeAddress, bridgeInterface, wallet);
+            tx = await bridgeContract.sendSecurityAlert(targetChainId, severity, { value: ethers.parseEther('0.01') });
+        }
         await tx.wait();
         console.log(`✅ Alert sent: ${tx.hash}`);
     } catch (error) {
