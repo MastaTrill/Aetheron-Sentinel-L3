@@ -12,6 +12,7 @@ const { createClient } = require('../src/lib/supabase/server');
 const { CdpWalletProvider } = require("@coinbase/agentkit");
 const config = require('./config');
 const fs = require('fs');
+const express = require('express');
 
 class SentinelEngine {
     constructor(params) {
@@ -23,15 +24,36 @@ class SentinelEngine {
         this.supabase = null;
         this.chainId = null;
         this.walletProvider = null;
+        this.lastHeartbeat = Date.now();
     }
 
     setupProvider() {
         this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
+
         // Handle provider stalls/disconnects
         this.provider.on('error', (e) => {
-            console.error('Provider Error:', e);
+            console.error('🚨 Provider Error Detected:', e);
             setTimeout(() => this.setupProvider(), 5000);
         });
+    }
+
+    startHealthCheck() {
+        const app = express();
+        const port = process.env.HEALTH_CHECK_PORT || 3005;
+
+        app.get('/health', (req, res) => {
+            const now = Date.now();
+            // If no event seen or heartbeat recorded in 5 minutes, mark as unhealthy
+            const isStalled = (now - this.lastHeartbeat) > 300000;
+
+            res.status(isStalled ? 503 : 200).json({
+                status: isStalled ? 'stalled' : 'active',
+                chainId: this.chainId,
+                lastHeartbeat: new Date(this.lastHeartbeat).toISOString()
+            });
+        });
+
+        app.listen(port, () => console.log(`RT Health Check active on port ${port}`));
     }
 
     async initializeWallet() {
@@ -70,6 +92,7 @@ class SentinelEngine {
         console.log('🚀 Sentinel Engine starting...');
         this.supabase = await createClient();
         await this.initializeWallet();
+        this.startHealthCheck();
 
         const network = await this.provider.getNetwork();
         this.chainId = network.chainId.toString();
@@ -85,11 +108,13 @@ class SentinelEngine {
         );
 
         monitorContract.on('DataTracked', async (chainId, data, event) => {
+            this.lastHeartbeat = Date.now();
             console.log(`[Chain ${chainId}] New transaction data tracked. Analyzing...`);
             await this.processTransaction({ rawBytes: data, context: 'DATA_TRACKED' }, event.log.transactionHash);
         });
 
         monitorContract.on('TransactionObserved', async (chainId, sender, target, value, data, context, timestamp, event) => {
+            this.lastHeartbeat = Date.now();
             console.log(`[Chain ${chainId}] Observed transaction from ${sender} to ${target}. Analyzing...`);
             await this.processTransaction({
                 sender,

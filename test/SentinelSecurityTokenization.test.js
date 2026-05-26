@@ -48,7 +48,7 @@ describe('SentinelSecurityTokenization', function () {
 
       // Check that a token was created
       const activeTokens = await securityTokenization.getActiveTokens();
-      expect(activeTokens.length).to.equal(1);
+      expect(activeTokens.length).to.equal(1n);
     });
   });
 

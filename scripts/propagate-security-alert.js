@@ -49,20 +49,22 @@ async function propagateAlert(targetChainId, severity) {
 
     console.log(`📡 Propagating Security Alert (Severity ${severity}) to Chain ${targetChainId}...`);
 
-    try {
-        // Estimate fee (LayerZero requirement)
-        // Note: adapterParams are not directly used in the sendSecurityAlert call as per the ABI provided.
-        // If LayerZero requires adapterParams, they would need to be part of the function signature.
-        // const adapterParams = ethers.solidityPacked(['uint16', 'uint256'], [1, 200000]);
+    // Requirement: In production, call AetheronBridge.estimateAlertFee() if available
+    const alertFee = process.env.PROPAGATION_FEE_WEI || ethers.parseEther('0.02');
 
+    try {
         let tx;
         const data = bridgeInterface.encodeFunctionData("sendSecurityAlert", [targetChainId, severity]);
+
+        // Fetch dynamic gas data to ensure priority during network congestion
+        const feeData = await provider.getFeeData();
 
         if (wallet.sendTransaction) { // Check if it's a CdpWalletProvider or similar signer
             tx = await wallet.sendTransaction({
                 to: bridgeAddress,
                 data: data,
-                value: ethers.parseEther('0.01') // Placeholder for LZ native fee
+                value: alertFee,
+                maxPriorityFeePerGas: feeData.maxPriorityFeePerGas * 2n // Priority for security alerts
             });
         } else { // Fallback to ethers.Wallet as a signer for a Contract instance
             const bridgeContract = new ethers.Contract(bridgeAddress, bridgeInterface, wallet);

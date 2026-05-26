@@ -11,5 +11,6 @@ remappings = [
     "forge-std/=lib/forge-std/src/",
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
     "@layerzerolabs/solidity-examples/=lib/solidity-examples/",
-    "solidity-examples/=lib/solidity-examples/"
+    "solidity-examples/=lib/solidity-examples/",
+    "@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/src/"
 ]

@@ -31,17 +31,17 @@ describe('AetheronBridge', function () {
 
   describe('Token support tracking', function () {
     it('increments supportedTokenCount when adding a new token', async function () {
-      expect(await bridge.supportedTokenCount()).to.equal(1);
+      expect(await bridge.supportedTokenCount()).to.equal(1n);
     });
 
     it('does not double-count the same token added twice', async function () {
       await bridge.setTokenSupport(await token.getAddress(), true);
-      expect(await bridge.supportedTokenCount()).to.equal(1);
+      expect(await bridge.supportedTokenCount()).to.equal(1n);
     });
 
     it('decrements supportedTokenCount when removing a token', async function () {
       await bridge.setTokenSupport(await token.getAddress(), false);
-      expect(await bridge.supportedTokenCount()).to.equal(0);
+      expect(await bridge.supportedTokenCount()).to.equal(0n);
     });
 
     it('increments count via initializeBridge', async function () {
@@ -54,21 +54,21 @@ describe('AetheronBridge', function () {
       );
       await token2.waitForDeployment();
       await bridge.initializeBridge(await token2.getAddress(), ethers.parseEther('100'));
-      expect(await bridge.supportedTokenCount()).to.equal(2);
+      expect(await bridge.supportedTokenCount()).to.equal(2n);
     });
   });
 
   describe('getBridgeStats', function () {
     it('returns live token count and zero TVL when no transfers', async function () {
       const [tvl, , tokenCount] = await bridge.getBridgeStats();
-      expect(tvl).to.equal(0);
-      expect(tokenCount).to.equal(1);
+      expect(tvl).to.equal(0n);
+      expect(tokenCount).to.equal(1n);
     });
   });
 
   describe('totalTransferCount', function () {
     it('starts at zero', async function () {
-      expect(await bridge.totalTransferCount()).to.equal(0);
+      expect(await bridge.totalTransferCount()).to.equal(0n);
     });
 
     it('increments after a successful bridgeTokens call', async function () {
@@ -88,7 +88,7 @@ describe('AetheronBridge', function () {
           }
         );
 
-      expect(await bridge.totalTransferCount()).to.equal(1);
+      expect(await bridge.totalTransferCount()).to.equal(1n);
     });
   });
 
