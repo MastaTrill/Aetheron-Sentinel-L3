@@ -1,0 +1,19 @@
+COSMIC ECHO — GENERATED ASSET BUNDLE
+====================================
+
+This bundle contains all brand, launch, glyph, metadata, and icon assets
+required for public release, BaseScan verification, and ecosystem integration.
+
+Included:
+- Mandala Glyph Specification (Waveform‑Integrated Cosmic Engine)
+- Brand Identity Sheet (full)
+- Launch Package (full)
+- SVG Glyph
+- PNG Token Icons (32/64/128/256)
+- Metadata (BaseScan-ready)
+- Logo directory
+- Brand directory
+- Launch directory
+- Glyph directory
+
+Generated on: $(date)

@@ -9,7 +9,9 @@ set -e  # Exit on any error
 # Configuration
 NETWORK="sepolia"
 PRIVATE_KEY=$PRIVATE_KEY
-RPC_URL="https://sepolia.infura.io/v3/YOUR_INFURA_KEY"
+RPC_URL="https://sepolia.infura.io/v3/${INFURA_API_KEY}"
+MAX_GAS_GWEI=50 # Safety threshold for all initialization calls
+RELAYER_ROLE="0xe2b7fb3b832174769106daebcfd6d1970523240dda11281102db9363b83b0dc4"
 
 # Colors for output
 RED='\033[0;31m'
@@ -34,11 +36,11 @@ deploy_contract() {
     # Compile contract
     npx hardhat compile
 
-    # Deploy contract
-    DEPLOY_OUTPUT=$(npx hardhat run scripts/deploy.js --network $NETWORK 2>/dev/null | grep "Deployed to:" | tail -1)
+    # Deploy contract - passing name and args via environment variables
+    DEPLOY_OUTPUT=$(CONTRACT_NAME="$contract_name" CONSTRUCTOR_ARGS="$constructor_args" npx hardhat run scripts/deploy.js --network $NETWORK | grep "Deployed to:" | tail -1)
 
-    if [[ $DEPLOY_OUTPUT =~ "0x"[a-fA-F0-9]{40} ]]; then
-        CONTRACT_ADDRESS=$(echo $DEPLOY_OUTPUT | grep -o "0x[a-fA-F0-9]\{40\}")
+    CONTRACT_ADDRESS=$(echo $DEPLOY_OUTPUT | grep -oE "0x[a-fA-F0-9]{40}")
+    if [ -n "$CONTRACT_ADDRESS" ]; then
         echo -e "${GREEN}✅ ${contract_name} deployed at: ${CONTRACT_ADDRESS}${NC}"
 
         # Store address for later use
@@ -64,9 +66,11 @@ initialize_contract() {
 
     # Call initialization function
     npx hardhat run scripts/initialize.js --network $NETWORK \
+        --name "$contract_name" \
         --contract $contract_address \
         --function $init_function \
-        --args $init_args || echo -e "${RED}Initialization failed for ${contract_name}${NC}"
+        --args $init_args \
+        --max-gas $MAX_GAS_GWEI || echo -e "${RED}Initialization failed for ${contract_name}${NC}"
 }
 
 # Pre-deployment checks
@@ -75,6 +79,12 @@ echo -e "${YELLOW}Running pre-deployment checks...${NC}"
 # Check if private key is set
 if [ -z "$PRIVATE_KEY" ]; then
     echo -e "${RED}❌ PRIVATE_KEY environment variable not set${NC}"
+    exit 1
+fi
+
+# Check if Infura key is set
+if [ -z "$INFURA_API_KEY" ]; then
+    echo -e "${RED}❌ INFURA_API_KEY environment variable not set${NC}"
     exit 1
 fi
 
@@ -227,6 +237,22 @@ initialize_contract "SentinelCoreLoop" $SentinelCoreLoop_ADDRESS "setSystemCompo
 initialize_contract "SentinelCoreLoop" $SentinelCoreLoop_ADDRESS "setSystemComponent" "aetheronBridge $AetheronBridge_ADDRESS"
 initialize_contract "SentinelCoreLoop" $SentinelCoreLoop_ADDRESS "setSystemComponent" "quantumGuard $SentinelQuantumGuard_ADDRESS"
 initialize_contract "SentinelCoreLoop" $SentinelCoreLoop_ADDRESS "setSystemComponent" "yieldMaximizer $SentinelYieldMaximizer_ADDRESS"
+initialize_contract "SentinelCoreLoop" $SentinelCoreLoop_ADDRESS "setSystemComponent" "circuitBreaker $CircuitBreaker_ADDRESS"
+
+# Link Security Layer to Bridge
+echo -e "${YELLOW}Linking security modules to AetheronBridge...${NC}"
+initialize_contract "AetheronBridge" $AetheronBridge_ADDRESS "setRateLimiter" "$RateLimiter_ADDRESS"
+initialize_contract "AetheronBridge" $AetheronBridge_ADDRESS "setCircuitBreaker" "$CircuitBreaker_ADDRESS"
+initialize_contract "AetheronBridge" $AetheronBridge_ADDRESS "setInterceptor" "$SentinelInterceptor_ADDRESS"
+
+# Authorize initial Relayer (required for bridge functionality)
+RELAYER_ADDRESS=$(cast wallet address $PRIVATE_KEY)
+echo -e "${YELLOW}Authorizing deployer as initial relayer...${NC}"
+
+# Grant RELAYER_ROLE to the deployer
+initialize_contract "AetheronBridge" $AetheronBridge_ADDRESS "grantRole" "$RELAYER_ROLE $RELAYER_ADDRESS"
+
+initialize_contract "AetheronBridge" $AetheronBridge_ADDRESS "setRelayer" "$RELAYER_ADDRESS true"
 
 # Initialize governance
 echo -e "${YELLOW}Setting up governance roles...${NC}"
@@ -236,6 +262,23 @@ echo -e "${YELLOW}Setting up governance roles...${NC}"
 echo -e "${YELLOW}Configuring oracle network...${NC}"
 initialize_contract "SentinelOracleNetwork" $SentinelOracleNetwork_ADDRESS "addSupportedAsset" "ETH/USD 8"
 initialize_contract "SentinelOracleNetwork" $SentinelOracleNetwork_ADDRESS "addSupportedAsset" "BTC/USD 8"
+
+# Verify Bridge Relayer Authorization
+echo -e "${YELLOW}Verifying bridge relayer status...${NC}"
+ACTUAL_RELAYER_ROLE=$(cast call $AetheronBridge_ADDRESS "RELAYER_ROLE()(bytes32)" --rpc-url $RPC_URL)
+HAS_ROLE=$(cast call $AetheronBridge_ADDRESS "hasRole(bytes32,address)(bool)" $ACTUAL_RELAYER_ROLE $RELAYER_ADDRESS --rpc-url $RPC_URL)
+IS_ACTIVE=$(cast call $AetheronBridge_ADDRESS "relayers(address)(bool)" $RELAYER_ADDRESS --rpc-url $RPC_URL)
+
+if [ "$HAS_ROLE" == "true" ] && [ "$IS_ACTIVE" == "true" ]; then
+    echo -e "${GREEN}✅ Relayer $RELAYER_ADDRESS is correctly authorized and active in bridge.${NC}"
+else
+    echo -e "${RED}❌ Bridge Relayer verification failed!${NC}"
+    echo "   Target: $RELAYER_ADDRESS"
+    echo "   Has RELAYER_ROLE: $HAS_ROLE"
+    echo "   Active in mapping: $IS_ACTIVE"
+    echo "   Expected Hash: $ACTUAL_RELAYER_ROLE"
+    exit 1
+fi
 
 echo ""
 

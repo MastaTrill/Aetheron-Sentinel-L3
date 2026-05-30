@@ -86,6 +86,8 @@ TIMELOCK_ADMIN=0xAdminAddress
 ANOMALY_THRESHOLD=10          # Default: 10, min: 0
 TVL_THRESHOLD_ETH=1000        # Default: 1000 ETH
 AUTONOMOUS_MODE=true         # Default: true (allows auto-actions)
+QUANTUM_CALIBRATION_INTERVAL=86400 # Default: 24h (86400s) for Mainnet gas optimization
+MAX_CALIBRATION_GAS_PRICE=100 # Default: 100 Gwei (prevents maintenance during gas spikes)
 REWARD_PER_SECOND=0          # Default: 0 (manual reward distribution)
 ```
 

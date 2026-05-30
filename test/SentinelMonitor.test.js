@@ -42,8 +42,8 @@ describe('SentinelMonitor', function () {
     it('sets default alert conditions on deploy', async function () {
       const highAnomalies = await monitor.alertConditions('high_anomalies');
       expect(highAnomalies.active).to.equal(true);
-      expect(highAnomalies.threshold).to.equal(10);
-      expect(highAnomalies.severity).to.equal(8);
+      expect(highAnomalies.threshold).to.equal(10n);
+      expect(highAnomalies.severity).to.equal(8n);
     });
 
     it('allows owner to update alert conditions', async function () {
@@ -58,8 +58,8 @@ describe('SentinelMonitor', function () {
     it('adds tracked chain IDs', async function () {
       await monitor.addTrackedChain(137);
       await monitor.addTrackedChain(1);
-      expect(await monitor.trackedChainIds(0)).to.equal(137);
-      expect(await monitor.trackedChainIds(1)).to.equal(1);
+      expect(await monitor.trackedChainIds(0)).to.equal(137n);
+      expect(await monitor.trackedChainIds(1)).to.equal(1n);
     });
 
     it('rejects chain ID of zero', async function () {

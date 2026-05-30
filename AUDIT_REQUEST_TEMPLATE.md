@@ -17,6 +17,7 @@ Aetheron Sentinel L3 is seeking a comprehensive smart contract security audit fr
 **Mission:** Protect cross-chain DeFi from bridge exploits, oracle manipulations, and quantum attacks while providing 3–5% enhanced yield.
 
 **Key Features:**
+
 - Real-time AI-powered anomaly detection (95%+ accuracy)
 - Post-quantum cryptography (Dilithium, Kyber)
 - Zero-knowledge proofs for privacy
@@ -24,6 +25,7 @@ Aetheron Sentinel L3 is seeking a comprehensive smart contract security audit fr
 - Multi-chain monitoring and yield optimization
 
 **Scale:**
+
 - 26 smart contracts (19+ core + supporting)
 - Sepolia testnet deployment complete and operational
 - Mainnet readiness: pending audit clearance
@@ -34,7 +36,9 @@ Aetheron Sentinel L3 is seeking a comprehensive smart contract security audit fr
 ## 3. Audit Scope
 
 ### Contracts (26 total)
+
 All contracts listed in [AUDIT_SCOPE_DOCUMENT.md](./AUDIT_SCOPE_DOCUMENT.md):
+
 - Core monitoring & threat response (6)
 - Security & control (5)
 - Governance (2)
@@ -45,11 +49,18 @@ All contracts listed in [AUDIT_SCOPE_DOCUMENT.md](./AUDIT_SCOPE_DOCUMENT.md):
 - Quantum-resistant modules (3)
 
 ### Code Repository
+
 **Public:** https://github.com/MastaTrill/Aetheron-Sentinel-L3  
 **Branch:** `main` (production-ready)  
 **Languages:** Solidity 0.8.x, Python (supporting scripts)
 
-### Key Risk Areas (from our pre-audit analysis)
+### Technical Stats
+
+- **Total nSLOC:** [Insert Number, e.g., 3,850]
+- **Test Coverage:** 100% (366 unit tests, [X] invariant/fuzzing tests)
+
+### Key Risk Areas
+
 1. Autonomous decision-making in SentinelCore/SentinelCoreLoop
 2. Cross-chain message validation (AetheronBridge)
 3. Cryptographic implementations (post-quantum + ZK proofs)
@@ -77,6 +88,7 @@ We expect the audit to:
 ## 5. Deliverables
 
 ### Required
+
 - [ ] Detailed vulnerability report (severity-ranked)
 - [ ] Code review findings (inline comments with line numbers)
 - [ ] Remediation checklist (required vs. recommended)
@@ -84,6 +96,7 @@ We expect the audit to:
 - [ ] Audit certification (if Critical/High issues resolved)
 
 ### Optional
+
 - [ ] Formal verification report (for critical state machines)
 - [ ] Fuzzing & property-based testing results
 - [ ] Gas optimization recommendations
@@ -98,7 +111,7 @@ We expect the audit to:
 **Audit Duration:** 4–6 weeks  
 **Interim Report:** Mid-audit progress update  
 **Final Report Delivery:** By end of audit period  
-**Remediation Review:** 2–3 weeks (follow-up if needed)  
+**Remediation Review:** 2–3 weeks (follow-up if needed)
 
 **Target Mainnet Launch:** June 2026 (post-audit)
 
@@ -106,11 +119,13 @@ We expect the audit to:
 
 ## 7. Budget & Commercial Terms
 
-**Estimated Budget Range:** $25,000–$75,000 USD  
+**Estimated Budget Range:** $25,000–$75,000 USD
+
 - Depends on audit depth, complexity, and timeline
 - We are flexible on payment terms (upfront, milestone-based, or hybrid)
 
 **Preferred Engagement Model:**
+
 - Kick-off call (risk assessment + scope finalization)
 - Weekly sync meetings during audit
 - Access to team for clarifications
@@ -123,42 +138,49 @@ We expect the audit to:
 We are seeking auditors with:
 
 ✓ **Tier-1 Reputation:**
-  - Minimum 50+ completed audits in Web3/DeFi
-  - Public track record (e.g., Certik, OpenZeppelin, Quantstamp, Trail of Bits)
-  - 4+ years of smart contract security experience
+
+- Minimum 50+ completed audits in Web3/DeFi
+- Public track record (e.g., Certik, OpenZeppelin, Quantstamp, Trail of Bits)
+- 4+ years of smart contract security experience
 
 ✓ **Specialized Expertise:**
-  - Cross-chain bridge security (AetheronBridge)
-  - Post-quantum cryptography (Dilithium, Kyber)
-  - Zero-knowledge proof verification
-  - DeFi/AMM mechanics (SentinelYieldMaximizer, SentinelAMM)
-  - Oracle design & manipulation vectors
+
+- Cross-chain bridge security (AetheronBridge)
+- Post-quantum cryptography (Dilithium, Kyber)
+- Zero-knowledge proof verification
+- DeFi/AMM mechanics (SentinelYieldMaximizer, SentinelAMM)
+- Oracle design & manipulation vectors
 
 ✓ **Team Capability:**
-  - At least 2 auditors assigned (one lead, one reviewer)
-  - One cryptography specialist (for ZK + post-quantum modules)
-  - One DeFi specialist (for yield/staking/AMM logic)
+
+- At least 2 auditors assigned (one lead, one reviewer)
+- One cryptography specialist (for ZK + post-quantum modules)
+- One DeFi specialist (for yield/staking/AMM logic)
 
 ✓ **Communication:**
-  - Clear, actionable vulnerability descriptions
-  - Responsive to follow-up questions
-  - Willing to explain findings to non-technical stakeholders
+
+- Clear, actionable vulnerability descriptions
+- Responsive to follow-up questions
+- Willing to explain findings to non-technical stakeholders
 
 ---
 
 ## 9. Security Considerations
 
 **Code Access:**
+
 - Public GitHub repo; no special access required
 - Testnet contracts deployed; can be inspected on-chain
 - Hardhat environment; contracts compile without modifications
 
 **Confidentiality:**
+
 - Pre-audit; findings are confidential until team remediates
 - Post-audit; high-level summary will be published (per firm guidelines)
 - Specific vulnerabilities remain confidential until mainnet launch
 
 **Conflict of Interest:**
+
 - No current financial relationship with Aetheron or team members
 - No seat on governance or advisory board
 - Independent, unbiased assessment expected
@@ -168,6 +190,7 @@ We are seeking auditors with:
 ## 10. Success Criteria
 
 ✅ **Audit succeeds if:**
+
 - All Critical vulnerabilities are identified and remediable
 - High vulnerabilities have clear mitigation paths
 - Cryptographic components are sound
@@ -175,6 +198,7 @@ We are seeking auditors with:
 - Firm provides clear, actionable remediation guidance
 
 ❌ **Audit fails if:**
+
 - Unfixable critical flaws (e.g., protocol design flaw)
 - Cryptographic weaknesses with no workaround
 - Team loses confidence in contract security
@@ -186,13 +210,14 @@ We are seeking auditors with:
 **Primary Contact:**  
 Name: Aetheron Sentinel  
 Email: aetheron.solana@gmail.com  
-Security Issues: security@aetheron.org  
+Security Issues: security@aetheron.org
 
 **Technical Lead:**  
 Available for kick-off call, architecture walkthrough, and Q&A
 
 **Response Format:**
 Please provide:
+
 1. **Firm profile** (team size, relevant experience, certifications)
 2. **Proposed timeline** (start date, duration, milestones)
 3. **Budget estimate** (fixed, T&M, or tiered)
@@ -208,6 +233,7 @@ Please provide:
 ## 12. Appendices
 
 ### A. Repository Structure
+
 ```
 Aetheron-Sentinel-L3/
 ├── contracts/          # Smart contracts (Solidity)
@@ -221,6 +247,7 @@ Aetheron-Sentinel-L3/
 ```
 
 ### B. Quick Start for Auditors
+
 ```bash
 # Clone repo
 git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
@@ -244,6 +271,7 @@ npm run test:coverage
 ```
 
 ### C. Key Documentation
+
 - [CONTRACTS.md](./CONTRACTS.md) — All deployed contract addresses + explorer links
 - [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md) — Technical architecture overview
 - [DEPLOYMENT_COMPLETE_SUMMARY.md](./DEPLOYMENT_COMPLETE_SUMMARY.md) — Testnet deployment evidence

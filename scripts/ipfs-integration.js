@@ -7,6 +7,7 @@
 
 const { create } = require('ipfs-http-client');
 const fs = require('fs');
+const EthCrypto = require('eth-crypto');
 
 // IPFS configuration
 const IPFS_API_URL = process.env.IPFS_API_URL || 'https://ipfs.infura.io:5001/api/v0';
@@ -64,7 +65,7 @@ async function withRetry(fn, retries = 3, delay = 1000) {
  */
 async function uploadSecurityLog(logData, filename = 'security-log.json') {
   try {
-    // Create log file
+    // Prepare log content
     const logContent = JSON.stringify(
       {
         timestamp: new Date().toISOString(),
@@ -75,11 +76,23 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
       2
     );
 
-    const ipfs = getIpfsClient();
+    let finalContent = Buffer.from(logContent);
+    const publicKey = process.env.OWNER_PUBLIC_KEY;
 
+    // Encrypt using ECIES if a public key is provided in environment
+    if (publicKey) {
+      console.log('🔒 Encrypting security log with ECIES...');
+      const encrypted = await EthCrypto.encryptWithPublicKey(
+        publicKey.replace('0x', ''), // EthCrypto expects hex without 0x
+        logContent
+      );
+      finalContent = Buffer.from(JSON.stringify(encrypted));
+    }
+
+    const ipfs = getIpfsClient();
     const file = {
       path: filename,
-      content: Buffer.from(logContent),
+      content: finalContent,
     };
 
     const result = await withRetry(() => ipfs.add(file));
@@ -143,9 +156,10 @@ async function pinToFilecoin(cid) {
 /**
  * Retrieve content from IPFS
  * @param {string} cid - The CID of the content to retrieve.
+ * @param {string} [privateKey] - Optional private key to decrypt ECIES content.
  * @returns {Promise<object|string>} The retrieved content, parsed as JSON if possible.
  */
-async function retrieveFromIPFS(cid) {
+async function retrieveFromIPFS(cid, privateKey) {
   try {
     const ipfs = getIpfsClient();
 
@@ -159,7 +173,22 @@ async function retrieveFromIPFS(cid) {
     });
 
     try {
-      return JSON.parse(data); // Attempt to parse as JSON
+      const parsed = JSON.parse(data);
+
+      // Check if this looks like an ECIES encrypted object (has ciphertext, iv, etc.)
+      if (parsed.ciphertext && parsed.iv && privateKey) {
+        console.log('🔓 Decrypting ECIES content...');
+        const decrypted = await EthCrypto.decryptWithPrivateKey(
+          privateKey.replace('0x', ''),
+          parsed
+        );
+        try {
+          return JSON.parse(decrypted);
+        } catch {
+          return decrypted;
+        }
+      }
+      return parsed;
     } catch (jsonError) {
       return data; // Return as plain string if not JSON
     }

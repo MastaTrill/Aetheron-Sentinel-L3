@@ -25,8 +25,8 @@ describe('SentinelZKIdentity', function () {
       );
 
       expect(identityHash).to.not.equal(ethers.ZeroHash);
-      expect(reputation).to.equal(500);
-      expect(trustScore).to.equal(600);
+      expect(reputation).to.equal(500n);
+      expect(trustScore).to.equal(600n);
       expect(isVerified).to.equal(false);
 
       // Reverse mapping should point back to user

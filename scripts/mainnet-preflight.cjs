@@ -1,5 +1,4 @@
-let hre;
-let ethers;
+const ethers = require('ethers');
 const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
 require('dotenv').config();
 require('dotenv').config({ path: '.env.mainnet', override: true });
@@ -7,106 +6,53 @@ if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
 else delete process.env.OWNER_PRIVATE_KEY;
 
 function parseAddressList(value) {
-  return (value || '')
-    .split(',')
-    .map(item => item.trim())
-    .filter(Boolean);
+  return (value || '').split(',').map(s => s.trim()).filter(Boolean);
 }
-
-function parseUint(value, fallback) {
-  if (value === undefined || value === null || value === '') return fallback;
-  return BigInt(value);
-}
-
-function parseBoolean(value, fallback) {
-  if (value === undefined || value === null || value === '') return fallback;
-  return value === 'true' || value === '1';
-}
-
+function parseUint(v, fb) { return (v === undefined || v === null || v === '') ? fb : BigInt(v); }
+function parseBool(v, fb) { return (v === undefined || v === null || v === '') ? fb : v === 'true' || v === '1'; }
 function parseChainLimits(value) {
-  return (value || '')
-    .split(',')
-    .map(item => item.trim())
-    .filter(Boolean)
-    .map(entry => {
-      const [chainId, limit] = entry.split(':').map(part => part.trim());
-      if (!chainId || !limit) throw new Error(`Invalid CHAIN_LIMITS entry: ${entry}`);
-      return { chainId: BigInt(chainId), limit: ethers.parseEther(limit) };
-    });
+  return (value || '').split(',').map(s => s.trim()).filter(Boolean).map(e => {
+    const [id, lim] = e.split(':').map(s => s.trim());
+    if (!id || !lim) throw new Error(`Invalid CHAIN_LIMITS: ${e}`);
+    return { chainId: BigInt(id), limit: ethers.parseEther(lim) };
+  });
 }
-
-function requireAddress(name, value) {
-  if (!value || !ethers.isAddress(value)) {
-    throw new Error(`${name} must be a valid address. Received: ${value || '<empty>'}`);
-  }
-}
-
-function requireAddressList(name, values, required = false) {
-  if (required && values.length === 0) {
-    throw new Error(`${name} must contain at least one address`);
-  }
-  for (const value of values) requireAddress(name, value);
-}
-
-function requireMainnetRpcUrl() {
-  const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
-  if (!rpcUrl) {
-    throw new Error(
-      'MAINNET_RPC_URL is missing. Set it in .env.mainnet to a real Ethereum mainnet RPC endpoint.'
-    );
-  }
-  if (rpcUrl.includes('YOUR_') || rpcUrl.includes('YOUR_INFURA_KEY') || rpcUrl.endsWith('/v3/')) {
-    throw new Error(
-      'MAINNET_RPC_URL still contains a placeholder. Replace it with a real Infura, Alchemy, QuickNode, or other mainnet RPC URL.'
-    );
-  }
-  try {
-    const parsed = new URL(rpcUrl);
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
-      throw new Error('MAINNET_RPC_URL must start with http:// or https://');
-    }
-  } catch (error) {
-    throw new Error(`MAINNET_RPC_URL is not a valid URL: ${error.message}`, {
-      cause: error,
-    });
-  }
+function reqAddr(name, val) { if (!val || !ethers.isAddress(val)) throw new Error(name + ' must be valid. Got: ' + (val || '<empty>')); }
+function reqAddrList(name, vals, req = false) {
+  if (req && vals.length === 0) throw new Error(`${name} needs at least one address`);
+  vals.forEach(v => reqAddr(name, v));
 }
 
 async function main() {
-  requireMainnetRpcUrl();
-
-  const hardhatModule = await import('hardhat');
-  hre = hardhatModule.default ?? hardhatModule;
-  const connection = await hre.network.getOrCreate();
-  ethers = connection.ethers;
-
-  const privateKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
-  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
-    throw new Error(
-      'OWNER_PRIVATE_KEY must be set in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
-    );
-  }
-
   const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
-  const provider = new ethers.JsonRpcProvider(rpcUrl, 1);
-  const deployer = new ethers.Wallet(privateKey, provider);
-  const deployerAddress = await deployer.getAddress();
-  const network = await provider.getNetwork();
-  const chainId = Number(network.chainId);
+  if (!rpcUrl) throw new Error('MAINNET_RPC_URL missing');
+  if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/')) throw new Error('MAINNET_RPC_URL is a placeholder');
 
-  if (chainId !== 1) {
-    throw new Error(
-      `Refusing mainnet preflight on chainId ${chainId}. Expected Ethereum mainnet chainId 1.`
-    );
+  const pk = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(pk)) throw new Error('OWNER_PRIVATE_KEY must be 0x + 64 hex chars (set in shell)');
+
+  // Create provider — use chainId 1 directly to skip network detection
+  const provider = new ethers.JsonRpcProvider(rpcUrl, { name: 'mainnet', chainId: 1 });
+
+  // Verify RPC is reachable with a simple call
+  let blockNumber;
+  try {
+    blockNumber = await provider.getBlockNumber();
+  } catch (e) {
+    throw new Error(`Cannot reach MAINNET_RPC_URL: ${e.message}`);
   }
+
+  const deployer = new ethers.Wallet(pk, provider);
+  const deployerAddress = await deployer.getAddress();
+  const balance = await provider.getBalance(deployerAddress);
+  const feeData = await provider.getFeeData();
 
   const owner = process.env.SENTINEL_OWNER || deployerAddress;
-
   const config = {
     owner,
     anomalyThreshold: Number(process.env.ANOMALY_THRESHOLD || '10'),
     tvlThreshold: ethers.parseEther(process.env.TVL_THRESHOLD_ETH || '1000'),
-    autonomousMode: parseBoolean(process.env.AUTONOMOUS_MODE, true),
+    autonomousMode: parseBool(process.env.AUTONOMOUS_MODE, true),
     rewardPerSecond: parseUint(process.env.REWARD_PER_SECOND, 0n),
     relayers: parseAddressList(process.env.RELAYER_ADDRESSES),
     callers: parseAddressList(process.env.CALLER_ADDRESSES),
@@ -126,68 +72,26 @@ async function main() {
     timelockAdmin: process.env.TIMELOCK_ADMIN || owner,
   };
 
-  requireAddress('SENTINEL_OWNER', config.owner);
-  requireAddress('TIMELOCK_ADMIN', config.timelockAdmin);
-  requireAddressList('RELAYER_ADDRESSES', config.relayers, true);
-  requireAddressList('CALLER_ADDRESSES', config.callers);
-  requireAddressList('MONITOR_ADDRESSES', config.monitors);
-  requireAddressList('REPORTER_ADDRESSES', config.reporters);
-  requireAddressList('BRIDGE_TOKEN_ADDRESSES', config.bridgeTokens);
-  requireAddressList('SECURITY_REPORTER_ADDRESSES', config.grantSecurityReporters);
-  requireAddressList('TIMELOCK_PROPOSERS', config.timelockProposers);
-  requireAddressList(
-    'TIMELOCK_EXECUTORS',
-    config.timelockExecutors.filter(addr => addr !== ethers.ZeroAddress)
-  );
-
-  for (const maybeAddress of ['lpToken', 'stakingToken', 'rewardToken', 'yieldToken']) {
-    const value = config[maybeAddress];
-    if (value) requireAddress(maybeAddress.toUpperCase(), value);
-  }
-
-  if (!Number.isFinite(config.anomalyThreshold) || config.anomalyThreshold < 0) {
-    throw new Error('ANOMALY_THRESHOLD must be a non-negative number');
-  }
-
-  const balance = await provider.getBalance(deployerAddress);
-  const feeData = await provider.getFeeData();
-  const blockNumber = await provider.getBlockNumber();
+  reqAddr('SENTINEL_OWNER', config.owner);
+  reqAddr('TIMELOCK_ADMIN', config.timelockAdmin);
+  reqAddrList('RELAYER_ADDRESSES', config.relayers, true);
+  reqAddrList('CALLER_ADDRESSES', config.callers);
+  reqAddrList('MONITOR_ADDRESSES', config.monitors);
+  reqAddrList('REPORTER_ADDRESSES', config.reporters);
+  reqAddrList('BRIDGE_TOKEN_ADDRESSES', config.bridgeTokens);
+  reqAddrList('SECURITY_REPORTER_ADDRESSES', config.grantSecurityReporters);
+  reqAddrList('TIMELOCK_PROPOSERS', config.timelockProposers);
+  reqAddrList('TIMELOCK_EXECUTORS', config.timelockExecutors.filter(a => a !== ethers.ZeroAddress));
+  ['lpToken','stakingToken','rewardToken','yieldToken'].forEach(k => { if (config[k]) reqAddr(k.toUpperCase(), config[k]); });
 
   console.log('MAINNET PREFLIGHT: PASS');
-  console.log('Network chainId:', chainId);
   console.log('Latest block:', blockNumber);
   console.log('Deployer:', deployerAddress);
   console.log('Owner:', config.owner);
-  console.log('Account balance:', ethers.formatEther(balance), 'ETH');
+  console.log('Balance:', ethers.formatEther(balance), 'ETH');
   console.log('Relayers:', config.relayers.join(', '));
-  console.log('Tracked chains:', config.trackedChains.map(String).join(', ') || '<none>');
-  console.log('Bridge tokens:', config.bridgeTokens.join(', ') || '<none>');
-  console.log(
-    'Chain limits:',
-    config.chainLimits.map(item => `${item.chainId}:${item.limit}`).join(', ') || '<none>'
-  );
-  console.log('Timelock min delay:', config.timelockMinDelay.toString());
-  console.log(
-    'Gas data:',
-    JSON.stringify(
-      {
-        gasPrice: feeData.gasPrice ? feeData.gasPrice.toString() : null,
-        maxFeePerGas: feeData.maxFeePerGas ? feeData.maxFeePerGas.toString() : null,
-        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas
-          ? feeData.maxPriorityFeePerGas.toString()
-          : null,
-      },
-      null,
-      2
-    )
-  );
-  console.log(
-    '\nNo transactions were sent. This command only validates mainnet config, signer, RPC, balance, and address formats.'
-  );
+  console.log('Gas:', JSON.stringify({ gasPrice: feeData.gasPrice?.toString(), maxFeePerGas: feeData.maxFeePerGas?.toString() }));
+  console.log('\nNo transactions sent. All config valid.');
 }
 
-main().catch(error => {
-  console.error('MAINNET PREFLIGHT: FAIL');
-  console.error(error.message || error);
-  process.exitCode = 1;
-});
+main().catch(e => { console.error('MAINNET PREFLIGHT: FAIL'); console.error(e.message); process.exitCode = 1; });

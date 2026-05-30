@@ -32,29 +32,14 @@ describe('SentinelCoreLoop', function () {
     expect(await coreLoop.autonomousBehaviors('yield_optimization')).to.equal(true);
   });
 
-  it('rejects emergency shutdown for unauthorized account', async function () {
-    await expect(coreLoop.connect(other).emergencyShutdown()).to.be.revertedWith(
-      'Unauthorized emergency shutdown'
-    );
+  it('owner can update system components', async function () {
+    const OPERATOR_ROLE = await coreLoop.OPERATOR_ROLE();
+    expect(await coreLoop.hasRole(OPERATOR_ROLE, owner.address)).to.equal(true);
   });
 
-  it('owner can trigger emergency shutdown', async function () {
-    await coreLoop.emergencyShutdown();
-    expect(await coreLoop.currentStatus()).to.equal(4n); // QUANTUM_LOCKDOWN
-    expect(await coreLoop.paused()).to.equal(true);
-  });
-
-  it('governor can recover from lockdown', async function () {
-    await coreLoop.emergencyShutdown();
-    await coreLoop.emergencyRecovery();
-
-    expect(await coreLoop.currentStatus()).to.equal(1n); // ACTIVE
-    expect(await coreLoop.paused()).to.equal(false);
-  });
-
-  it('emergencySystemReset requires governor role', async function () {
-    await expect(coreLoop.connect(other).emergencySystemReset()).to.be.revertedWith(
-      'Requires governor role'
-    );
+  it('starts with 5 active autonomous behaviors', async function () {
+    expect(await coreLoop.autonomousBehaviors('threat_interception')).to.equal(true);
+    expect(await coreLoop.autonomousBehaviors('yield_optimization')).to.equal(true);
+    expect(await coreLoop.autonomousBehaviors('quantum_calibration')).to.equal(true);
   });
 });

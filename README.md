@@ -64,6 +64,17 @@ This repository includes:
 
 ## Quick Start (Mainnet)
 
+1. **Environment Setup**: Copy `.env.example` to `.env.mainnet` and provide your RPC URL and `OWNER_PRIVATE_KEY`.
+2. **Simulate Deployment**:
+   ```bash
+   npx hardhat run scripts/deploy.js --network mainnet --dry-run
+   ```
+3. **Execute Deployment**:
+   ```bash
+   npm run deploy:mainnet
+   ```
+4. **Post-Deployment Sweep**: Verify ownership and relayers using `npm run setup:ownership`.
+
 ## Security, Audit, and Incident Response
 
 - [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Formal incident response plan
