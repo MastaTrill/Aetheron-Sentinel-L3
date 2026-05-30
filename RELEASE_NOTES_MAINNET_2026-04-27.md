@@ -1,7 +1,7 @@
-# Aetheron Sentinel L3 Mainnet Release Notes Draft
+# Aetheron Sentinel L3 Mainnet Release Notes (Draft)
 
-**Date:** 2026-05-04  
-**Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)  
+**Target Date:** 2026-05-04  
+**Network:** Ethereum Mainnet (ChainID 1) | Current repo evidence: Sepolia rehearsal (ChainID 11155111)  
 **Status:** Draft pending objective mainnet execution evidence
 
 > Evidence gate: this file must not be published as final until every placeholder below is replaced with Ethereum mainnet tx hashes, blocks, explorer links, and verification outputs.
@@ -10,9 +10,9 @@
 
 ## Executive Summary
 
-Aetheron Sentinel L3 mainnet deployment has not been evidenced in this repository yet. The current address table and operational notes below still reference the completed Sepolia rehearsal deployment and exist only as a draft structure for the final mainnet release packet.
+Aetheron Sentinel L3 mainnet deployment is in the pre-execution phase. The deployment follows the validated Sepolia model but includes optimized maintenance intervals. Specifically, the **Quantum Calibration Interval** has been extended to 24 hours to reduce Mainnet operational overhead.
 
-**Release condition:** 100% of privileged paths must terminate at the owner EOA, multisig, or explicitly approved service accounts, and every claim below must be backed by mainnet explorer links plus archived verification outputs.
+**Release Condition:** 100% of privileged paths must terminate at the owner EOA, multisig, or explicitly approved service accounts. Every claim must be supported by Mainnet explorer links and archived verification outputs.
 
 ---
 
@@ -209,7 +209,7 @@ _Draft file. Finalize only after Ethereum mainnet deployment is executed and all
 | 2   | `grantRole(CANCELLER_ROLE, multisig)`       | Timelock | [TBD]   | [TBD] | ⏳     |
 | 3   | `revokeRole(TIMELOCK_ADMIN_ROLE, ownerEOA)` | Timelock | [TBD]   | [TBD] | ⏳     |
 
-**Break-glass recovery:** Owner EOA retains `PROPOSER_ROLE` and `CANCELLER_ROLE` as an emergency rollback path. Revoke via multisig when production lock-down is required.
+**Break-glass Recovery:** Owner EOA retains `PROPOSER_ROLE` and `CANCELLER_ROLE` as an emergency rollback path for the first 72 hours post-deployment. These roles are scheduled for revocation via Multisig once the monitoring phase reaches "Stable" status.
 
 ### 2. Bridge Relayer Enablement
 

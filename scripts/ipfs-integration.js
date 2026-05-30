@@ -65,7 +65,6 @@ async function withRetry(fn, retries = 3, delay = 1000) {
  */
 async function uploadSecurityLog(logData, filename = 'security-log.json') {
   try {
-    // Create log file
     // Prepare log content
     const logContent = JSON.stringify(
       {
@@ -91,10 +90,8 @@ async function uploadSecurityLog(logData, filename = 'security-log.json') {
     }
 
     const ipfs = getIpfsClient();
-
     const file = {
       path: filename,
-      content: Buffer.from(logContent),
       content: finalContent,
     };
 
@@ -162,68 +159,66 @@ async function pinToFilecoin(cid) {
  * @param {string} [privateKey] - Optional private key to decrypt ECIES content.
  * @returns {Promise<object|string>} The retrieved content, parsed as JSON if possible.
  */
-async function retrieveFromIPFS(cid) {
-  async function retrieveFromIPFS(cid, privateKey) {
-    try {
-      const ipfs = getIpfsClient();
+async function retrieveFromIPFS(cid, privateKey) {
+  try {
+    const ipfs = getIpfsClient();
 
-      const data = await withRetry(async () => {
-        const stream = ipfs.cat(cid);
-        let content = '';
-        for await (const chunk of stream) {
-          content += chunk.toString();
-        }
-        return content;
-      });
-
-      try {
-        return JSON.parse(data); // Attempt to parse as JSON
-        const parsed = JSON.parse(data);
-
-        // Check if this looks like an ECIES encrypted object (has ciphertext, iv, etc.)
-        if (parsed.ciphertext && parsed.iv && privateKey) {
-          console.log('🔓 Decrypting ECIES content...');
-          const decrypted = await EthCrypto.decryptWithPrivateKey(
-            privateKey.replace('0x', ''),
-            parsed
-          );
-          try {
-            return JSON.parse(decrypted);
-          } catch {
-            return decrypted;
-          }
-        }
-        return parsed;
-      } catch (jsonError) {
-        return data; // Return as plain string if not JSON
+    const data = await withRetry(async () => {
+      const stream = ipfs.cat(cid);
+      let content = '';
+      for await (const chunk of stream) {
+        content += chunk.toString();
       }
-    } catch (error) {
-      console.error('Failed to retrieve from IPFS:', error);
-      throw error;
+      return content;
+    });
+
+    try {
+      const parsed = JSON.parse(data);
+
+      // Check if this looks like an ECIES encrypted object (has ciphertext, iv, etc.)
+      if (parsed.ciphertext && parsed.iv && privateKey) {
+        console.log('🔓 Decrypting ECIES content...');
+        const decrypted = await EthCrypto.decryptWithPrivateKey(
+          privateKey.replace('0x', ''),
+          parsed
+        );
+        try {
+          return JSON.parse(decrypted);
+        } catch {
+          return decrypted;
+        }
+      }
+      return parsed;
+    } catch (jsonError) {
+      return data; // Return as plain string if not JSON
     }
+  } catch (error) {
+    console.error('Failed to retrieve from IPFS:', error);
+    throw error;
   }
+}
 
-  // Example usage
-  if (require.main === module) {
-    // Example security log
-    const exampleLog = {
-      events: [
-        { type: 'anomaly', severity: 8, timestamp: Date.now() },
-        { type: 'transfer', amount: '1000', address: '0x...' },
-      ],
-    };
-
-    // Example usage: upload with a dynamic filename
-    const dynamicFilename = `security-log-${Date.now()}.json`;
-
-    uploadSecurityLog(exampleLog, dynamicFilename)
-      .then(result => console.log('Upload result:', result))
-      .catch(console.error);
-  }
-
-  module.exports = {
-    uploadSecurityLog,
-    uploadAIModel,
-    pinToFilecoin,
-    retrieveFromIPFS,
+// Example usage
+if (require.main === module) {
+  // Example security log
+  const exampleLog = {
+    events: [
+      { type: 'anomaly', severity: 8, timestamp: Date.now() },
+      { type: 'transfer', amount: '1000', address: '0x...' },
+    ],
   };
+
+  // Example usage: upload with a dynamic filename
+  const dynamicFilename = `security-log-${Date.now()}.json`;
+
+  uploadSecurityLog(exampleLog, dynamicFilename)
+    .then(result => console.log('Upload result:', result))
+    .catch(console.error);
+}
+
+module.exports = {
+  uploadSecurityLog,
+  uploadAIModel,
+  pinToFilecoin,
+  retrieveFromIPFS,
+};
