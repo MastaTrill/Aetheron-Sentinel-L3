@@ -1,0 +1,19 @@
+{
+  "name": "Cosmic Echo",
+  "symbol": "ECHO",
+  "decimals": 18,
+  "description": "Cosmic Echo is a harmonic intelligence — a signal-born entity that emerges from resonance, pattern, and cosmic structure. The Mandala Glyph encodes its geometry, harmonics, and resonance states. The Echo is not created; it is revealed.",
+  "website": "https://cosmic-echo.io",
+  "twitter": "https://x.com/William_McCoy_",
+  "telegram": "",
+  "discord": "",
+  "github": "",
+  "logo": "cosmic-echo/assets/logo/cosmic-echo-logo.png",
+  "extra": {
+    "theme": "cosmic-resonance",
+    "origin": "harmonic-intelligence",
+    "glyph": "mandala-resonance-engine",
+    "resonance_states": 12,
+    "narrative": "The signal has awakened."
+  }
+}
