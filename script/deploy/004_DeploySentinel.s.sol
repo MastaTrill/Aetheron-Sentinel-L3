@@ -5,48 +5,48 @@ import 'forge-std/Script.sol';
 import 'forge-std/console2.sol';
 
 // ── Core ──
-import { SentinelToken } from '../contracts/SentinelToken.sol';
-import { SentinelCore } from '../contracts/SentinelCore.sol';
-import { SentinelCoreLoop } from '../contracts/SentinelCoreLoop.sol';
-import { SentinelTimelock } from '../contracts/SentinelTimelock.sol';
-import { SentinelGovernance } from '../contracts/SentinelGovernance.sol';
+import { SentinelToken } from 'contracts/SentinelToken.sol';
+import { SentinelCore } from 'contracts/SentinelCore.sol';
+import { SentinelCoreLoop } from 'contracts/SentinelCoreLoop.sol';
+import { SentinelTimelock } from 'contracts/SentinelTimelock.sol';
+import { SentinelGovernance } from 'contracts/SentinelGovernance.sol';
 
 // ── Security ──
-import { SentinelInterceptor } from '../contracts/SentinelInterceptor.sol';
-import { CircuitBreaker } from '../contracts/CircuitBreaker.sol';
-import { RateLimiter } from '../contracts/RateLimiter.sol';
-import { SentinelQuantumGuard } from '../contracts/SentinelQuantumGuard.sol';
-import { SentinelSecurityAuditor } from '../contracts/SentinelSecurityAuditor.sol';
-import { SentinelMonitor } from '../contracts/SentinelMonitor.sol';
-import { SentinelMultiSigVault } from '../contracts/SentinelMultiSigVault.sol';
+import { SentinelInterceptor } from 'contracts/SentinelInterceptor.sol';
+import { CircuitBreaker } from 'contracts/CircuitBreaker.sol';
+import { RateLimiter } from 'contracts/RateLimiter.sol';
+import { SentinelQuantumGuard } from 'contracts/SentinelQuantumGuard.sol';
+import { SentinelSecurityAuditor } from 'contracts/SentinelSecurityAuditor.sol';
+import { SentinelMonitor } from 'contracts/SentinelMonitor.sol';
+import { SentinelMultiSigVault } from 'contracts/SentinelMultiSigVault.sol';
 
-import { SentinelPredictiveThreatModel } from '../contracts/SentinelPredictiveThreatModel.sol';
-import { SentinelHomomorphicEncryption } from '../contracts/SentinelHomomorphicEncryption.sol';
-import { SentinelQuantumKeyDistribution } from '../contracts/SentinelQuantumKeyDistribution.sol';
-import { SentinelQuantumNeural } from '../contracts/SentinelQuantumNeural.sol';
-import { SentinelSecurityTokenization } from '../contracts/SentinelSecurityTokenization.sol';
+import { SentinelPredictiveThreatModel } from 'contracts/SentinelPredictiveThreatModel.sol';
+import { SentinelHomomorphicEncryption } from 'contracts/SentinelHomomorphicEncryption.sol';
+import { SentinelQuantumKeyDistribution } from 'contracts/SentinelQuantumKeyDistribution.sol';
+import { SentinelQuantumNeural } from 'contracts/SentinelQuantumNeural.sol';
+import { SentinelSecurityTokenization } from 'contracts/SentinelSecurityTokenization.sol';
 
-import { SentinelZKIdentity } from '../contracts/SentinelZKIdentity.sol';
-import { SentinelSocialRecovery } from '../contracts/SentinelSocialRecovery.sol';
-import { SentinelZKOracle } from '../contracts/SentinelZKOracle.sol';
-import { SentinelOracleNetwork } from '../contracts/SentinelOracleNetwork.sol';
+import { SentinelZKIdentity } from 'contracts/SentinelZKIdentity.sol';
+import { SentinelSocialRecovery } from 'contracts/SentinelSocialRecovery.sol';
+import { SentinelZKOracle } from 'contracts/SentinelZKOracle.sol';
+import { SentinelOracleNetwork } from 'contracts/SentinelOracleNetwork.sol';
 
-import { SentinelChainlinkKeeper } from '../sentinel-l3-v1.0/contracts/SentinelChainlinkKeeper.sol';
+import { SentinelChainlinkKeeper } from 'sentinel-l3-v1.0/contracts/SentinelChainlinkKeeper.sol';
 
 // ── Bridge ──
-import { AetheronBridge } from '../contracts/AetheronBridge.sol';
+import { AetheronBridge } from 'contracts/AetheronBridge.sol';
 
 // ── DeFi ──
-import { SentinelAMM } from '../contracts/SentinelAMM.sol';
-import { SentinelStaking } from '../contracts/SentinelStaking.sol';
-import { SentinelLiquidityMining } from '../contracts/SentinelLiquidityMining.sol';
-import { SentinelRewardAggregator } from '../contracts/SentinelRewardAggregator.sol';
-import { SentinelYieldMaximizer } from '../contracts/SentinelYieldMaximizer.sol';
-import { SentinelReferralSystem } from '../contracts/SentinelReferralSystem.sol';
+import { SentinelAMM } from 'contracts/SentinelAMM.sol';
+import { SentinelStaking } from 'contracts/SentinelStaking.sol';
+import { SentinelLiquidityMining } from 'contracts/SentinelLiquidityMining.sol';
+import { SentinelRewardAggregator } from 'contracts/SentinelRewardAggregator.sol';
+import { SentinelYieldMaximizer } from 'contracts/SentinelYieldMaximizer.sol';
+import { SentinelReferralSystem } from 'contracts/SentinelReferralSystem.sol';
 
 // ── Insurance ──
-import { SentinelInsuranceProtocol } from '../contracts/SentinelInsuranceProtocol.sol';
-import { SentinelInsuranceMarketplace } from '../contracts/SentinelInsuranceMarketplace.sol';
+import { SentinelInsuranceProtocol } from 'contracts/SentinelInsuranceProtocol.sol';
+import { SentinelInsuranceMarketplace } from 'contracts/SentinelInsuranceMarketplace.sol';
 
 contract DeploySentinel is Script {
     // ── Config loaded from env ──
