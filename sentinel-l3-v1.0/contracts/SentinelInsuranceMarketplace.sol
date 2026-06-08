@@ -72,6 +72,7 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
     address indexed buyer
   );
   event LiquidityAdded(address indexed provider, uint256 amount);
+  event PayoutProcessed(uint256 indexed policyId, address indexed buyer, uint256 amount);
   event LiquidityRemoved(address indexed provider, uint256 amount);
   event ClaimProcessed(uint256 indexed policyId, uint256 payoutAmount);
 

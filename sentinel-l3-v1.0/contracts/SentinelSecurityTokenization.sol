@@ -59,11 +59,12 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
   event SecurityTokenCreated(address indexed tokenAddress, string name, AssetType assetType);
   event SecurityNFTMinted(uint256 indexed tokenId, address indexed creator, AssetType assetType);
   event TokenTransferred(
-    address indexed token,
+    address indexed tokenAddress,
     address indexed from,
     address indexed to,
     uint256 amount
   );
+  event NFTTransferred(uint256 indexed tokenId, address indexed from, address indexed to);
 
   constructor() Ownable(msg.sender) {}
 
