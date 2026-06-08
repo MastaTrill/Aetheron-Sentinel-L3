@@ -49,6 +49,7 @@ import { SentinelReferralSystem } from 'contracts/SentinelReferralSystem.sol';
 // ── Insurance ──
 import { SentinelInsuranceProtocol } from 'contracts/SentinelInsuranceProtocol.sol';
 import { SentinelInsuranceMarketplace } from 'contracts/SentinelInsuranceMarketplace.sol';
+import { SentinelInsuranceMarketplace } from 'contracts/SentinelInsuranceMarketplace.sol';
 
 contract DeploySentinel is Script {
     // ── Config loaded from env ──
@@ -300,6 +301,18 @@ contract DeploySentinel is Script {
         console2.log('SentinelInsuranceProtocol:', insuranceProtocol);
 
         // ════════════════════════════════════════
+        //  Phase 7b: Insurance Marketplace
+        // ════════════════════════════════════════
+
+        SentinelInsuranceMarketplace insMarketplace = new SentinelInsuranceMarketplace(
+            sentinelToken,
+            insuranceProtocol,
+            owner
+        );
+        insuranceMarketplace = address(insMarketplace);
+        console2.log('SentinelInsuranceMarketplace:', insuranceMarketplace);
+
+        // ════════════════════════════════════════
         //  Phase 8: Predictive & Quantum Modules
         // ════════════════════════════════════════
 
@@ -355,12 +368,22 @@ contract DeploySentinel is Script {
         timelock.grantRole(timelock.PROPOSER_ROLE(), sentinelGovernance);
         timelock.grantRole(timelock.CANCELLER_ROLE(), sentinelGovernance);
         timelock.grantRole(timelock.EXECUTOR_ROLE(), sentinelGovernance);
-        console2.log('Governance roles granted');
+        // Renounce admin role from deployer — governance is now in control
+        timelock.renounceRole(timelock.TIMELOCK_ADMIN_ROLE(), owner);
+        console2.log('Governance roles granted, admin renounced');
 
         // Authorize contracts in monitor
         monitor.authorizeContract(sentinelInterceptor);
         monitor.authorizeContract(aetheronBridge);
         monitor.authorizeContract(circuitBreaker);
+        monitor.authorizeContract(rateLimiter);
+        monitor.authorizeContract(sentinelQuantumGuard);
+        monitor.authorizeContract(sentinelStaking);
+        monitor.authorizeContract(liquidityMining);
+        monitor.authorizeContract(rewardAggregator);
+        monitor.authorizeContract(sentinelAMM);
+        monitor.authorizeContract(insuranceProtocol);
+        monitor.authorizeContract(multiSigVault);
         console2.log('Monitor authorized');
 
         // Wire core loop components
@@ -371,6 +394,13 @@ contract DeploySentinel is Script {
         coreLoop.setSystemComponent('quantumGuard', sentinelQuantumGuard);
         coreLoop.setSystemComponent('yieldMaximizer', yieldMaximizer);
         coreLoop.setSystemComponent('oracleNetwork', sentinelOracle);
+        coreLoop.setSystemComponent('sentinelStaking', sentinelStaking);
+        coreLoop.setSystemComponent('liquidityMining', liquidityMining);
+        coreLoop.setSystemComponent('rewardAggregator', rewardAggregator);
+        coreLoop.setSystemComponent('sentinelAMM', sentinelAMM);
+        coreLoop.setSystemComponent('insuranceProtocol', insuranceProtocol);
+        coreLoop.setSystemComponent('predictiveThreat', predictiveThreat);
+        coreLoop.setSystemComponent('chainlinkKeeper', chainlinkKeeper);
         console2.log('CoreLoop wired');
 
         // Set relayers on bridge
@@ -425,6 +455,7 @@ contract DeploySentinel is Script {
         console2.log('AetheronBridge:         ', aetheronBridge);
         console2.log('SentinelAMM:            ', sentinelAMM);
         console2.log('InsuranceProtocol:      ', insuranceProtocol);
+        console2.log('InsuranceMarketplace:   ', insuranceMarketplace);
         console2.log('PredictiveThreat:       ', predictiveThreat);
         console2.log('HomomorphicEnc:         ', homomorphicEnc);
         console2.log('QuantumKDF:             ', quantumKDF);

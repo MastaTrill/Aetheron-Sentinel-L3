@@ -207,10 +207,9 @@ contract SentinelHeliumMonitor is Ownable {
   /**
    * @dev Validate anomaly reporter
    */
-  function _validateReporter(address reporter) internal pure returns (bool) {
-    // Could check against whitelist of trusted reporters
-    (reporter); // silence unused
-    return true; // Simplified
+  function _validateReporter(address reporter) internal view returns (bool) {
+    // Only owner or trusted callers can report
+    return reporter == owner();
   }
 
   /**

@@ -200,6 +200,6 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
      * @notice Update certification fee
      */
     function setCertificationFee(uint256 newFee) external onlyOwner {
-        // Implementation for fee updates
+        CERTIFICATION_FEE = newFee;
     }
 }

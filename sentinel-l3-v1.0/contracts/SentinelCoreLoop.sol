@@ -397,8 +397,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     /**
      * @dev Execute all core loop phases
      */
-    function _executeCoreLoopPhases(uint256 /* cycleNumber */) external {
-        require(msg.sender == address(this), "Internal function call only");
+    function _executeCoreLoopPhases(uint256 /* cycleNumber */) internal {
 
         // ════════════════════════════════════════════════════════════════
         //                    PHASE 1: QUANTUM STATE ASSESSMENT

@@ -69,7 +69,7 @@ contract SentinelCompoundMonitor is Ownable, ReentrancyGuard {
     address cToken,
     uint256 amount,
     bool isBorrow
-  ) external {
+  ) external onlyOwner {
     // Check for large borrows
     if (isBorrow && amount > LARGE_BORROW_THRESHOLD) {
       _recordAnomaly(user, cToken, amount, AnomalyType.LARGE_BORROW);

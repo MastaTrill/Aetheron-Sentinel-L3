@@ -297,13 +297,12 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
    * @notice Process insurance payout
    */
   function _processPayout(uint256 policyId, uint256 payoutAmount) internal {
-    policyId;
-    payoutAmount; // silence unused
-    // Ensure sufficient liquidity
     require(liquidityPool.totalLiquidity >= payoutAmount, 'Insufficient liquidity');
     liquidityPool.utilizedLiquidity += payoutAmount;
-    // Transfer payout (simplified - would use actual payout token)
-    // require(payoutToken.transfer(policies[policyId].buyer, payoutAmount), "Payout failed");
+    address buyer = policies[policyId].buyer;
+    require(buyer != address(0), 'Invalid buyer');
+    IERC20(paymentToken).safeTransfer(buyer, payoutAmount);
+    emit PayoutProcessed(policyId, buyer, payoutAmount);
   }
 
   /**
