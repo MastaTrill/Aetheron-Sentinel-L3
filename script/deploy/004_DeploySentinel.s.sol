@@ -7,9 +7,11 @@ import 'forge-std/console2.sol';
 // ── Core ──
 import { SentinelToken } from 'contracts/SentinelToken.sol';
 import { SentinelCore } from 'contracts/SentinelCore.sol';
-import { SentinelCoreLoop } from 'contracts/SentinelCoreLoop.sol';
+import { SentinelCoreLoop } from 'sentinel-l3-v1.0/contracts/SentinelCoreLoop.sol';
 import { SentinelTimelock } from 'contracts/SentinelTimelock.sol';
 import { SentinelGovernance } from 'contracts/SentinelGovernance.sol';
+import { IVotes } from '@openzeppelin/contracts/governance/utils/IVotes.sol';
+import { TimelockController } from '@openzeppelin/contracts/governance/TimelockController.sol';
 
 // ── Security ──
 import { SentinelInterceptor } from 'contracts/SentinelInterceptor.sol';
@@ -96,12 +98,33 @@ contract DeploySentinel is Script {
 
     function _parseAddresses(string memory s) internal pure returns (address[] memory) {
         if (bytes(s).length == 0) return new address[](0);
-        string[] memory parts = vm.parseCsvLine(s);
+        string[] memory parts = _splitString(s, ',');
         address[] memory addrs = new address[](parts.length);
         for (uint256 i = 0; i < parts.length; i++) {
             addrs[i] = vm.parseAddress(parts[i]);
         }
         return addrs;
+    }
+
+    function _splitString(string memory s, bytes1 sep) internal pure returns (string[] memory) {
+        uint256 count = 1;
+        for (uint256 i = 0; i < bytes(s).length; i++) {
+            if (bytes(s)[i] == sep) count++;
+        }
+        string[] memory parts = new string[](count);
+        uint256 idx = 0;
+        uint256 start = 0;
+        for (uint256 i = 0; i <= bytes(s).length; i++) {
+            if (i == bytes(s).length || bytes(s)[i] == sep) {
+                bytes memory part = new bytes(i - start);
+                for (uint256 j = start; j < i; j++) {
+                    part[j - start] = bytes(s)[j];
+                }
+                parts[idx++] = string(part);
+                start = i + 1;
+            }
+        }
+        return parts;
     }
 
     function _loadConfig() internal {
@@ -154,7 +177,7 @@ contract DeploySentinel is Script {
         console2.log('SentinelTimelock:', sentinelTimelock);
 
         // 1.3 SentinelGovernance (token + timelock)
-        SentinelGovernance governance = new SentinelGovernance(sentinelToken, sentinelTimelock);
+        SentinelGovernance governance = new SentinelGovernance(IVotes(sentinelToken), TimelockController(payable(sentinelTimelock)));
         sentinelGovernance = address(governance);
         console2.log('SentinelGovernance:', sentinelGovernance);
 
@@ -172,7 +195,7 @@ contract DeploySentinel is Script {
         //  Phase 2: Quantum Security Stack
         // ════════════════════════════════════════
 
-        SentinelQuantumGuard qGuard = new SentinelQuantumGuard(100, address(0));
+        SentinelQuantumGuard qGuard = new SentinelQuantumGuard(owner);
         sentinelQuantumGuard = address(qGuard);
         console2.log('SentinelQuantumGuard:', sentinelQuantumGuard);
 
