@@ -16,24 +16,29 @@ contract SentinelCoreLoop is Ownable {
   uint256 public s_anomalyWindow;
   uint256 public s_minAnomalyWindow;
   uint256 public s_maxAnomalyWindow;
-  uint256[] private s_anomalyTimestamps;
+  uint256 public constant OBSERVATION_SIZE = 16;
+  uint256 public constant OBSERVATION_MASK = 15;
+  uint256[OBSERVATION_SIZE] private s_anomalyTimestamps;
   uint256 private s_anomalyPointer;
   bool public s_coreComponentsBootstrapped;
+  mapping(address => bool) public s_monitors;
 
   event HighThreatCalibrationTriggered(uint256 finalAnomalyCount);
   event HighThreatThresholdUpdated(uint256 newThreshold);
+  event MonitorStatusUpdated(address indexed monitor, bool status);
+  event ThreatMitigated(bytes32 indexed threatId, uint256 timestamp);
 
   error SentinelCoreLoop__QuantumGuardFrozen();
   error SentinelCoreLoop__AlreadyBootstrapped();
   error SentinelCoreLoop__NotBootstrapped();
   error SentinelCoreLoop__InvalidComponent();
+  error SentinelCoreLoop__UnauthorizedMonitor();
 
   constructor(address initialOwner) Ownable(initialOwner) {
-    s_highThreatAnomalyThreshold = 10; // Default threshold based on MAINNET_CONFIG_GUIDE
-    s_anomalyWindow = 1 hours;
+    s_highThreatAnomalyThreshold = 16; // Default to max buffer size for bitwise efficiency
+    s_anomalyWindow = 30 minutes;
     s_maxAnomalyWindow = 1 hours;
     s_minAnomalyWindow = 5 minutes;
-    s_anomalyTimestamps = new uint256[](10);
   }
 
   /**
@@ -46,7 +51,6 @@ contract SentinelCoreLoop is Ownable {
     if (quantumGuard == address(0)) revert SentinelCoreLoop__InvalidComponent();
 
     s_quantumGuard = ISentinelQuantumGuard(quantumGuard);
-    s_anomalyTimestamps = new uint256[](s_highThreatAnomalyThreshold);
     s_coreComponentsBootstrapped = true;
   }
 
@@ -67,9 +71,9 @@ contract SentinelCoreLoop is Ownable {
    * @param newThreshold The number of anomalies before high-threat logic kicks in.
    */
   function setHighThreatThreshold(uint256 newThreshold) external onlyOwner {
-    if (newThreshold == 0) revert SentinelCoreLoop__InvalidComponent();
+    if (newThreshold == 0 || newThreshold > OBSERVATION_SIZE)
+      revert SentinelCoreLoop__InvalidComponent();
     s_highThreatAnomalyThreshold = newThreshold;
-    s_anomalyTimestamps = new uint256[](newThreshold);
     s_anomalyPointer = 0;
     emit HighThreatThresholdUpdated(newThreshold);
   }
@@ -84,13 +88,22 @@ contract SentinelCoreLoop is Ownable {
   }
 
   /**
+   * @notice Authorizes or revokes a monitor's ability to execute threat responses.
+   * @param monitor The address of the monitoring bot or service.
+   * @param status True to authorize, false to revoke.
+   */
+  function setMonitor(address monitor, bool status) external onlyOwner {
+    s_monitors[monitor] = status;
+    emit MonitorStatusUpdated(monitor, status);
+  }
+
+  /**
    * @notice Manually resets the anomaly counter.
    */
   function resetAnomalyCount() external onlyOwner {
     if (!s_coreComponentsBootstrapped) revert SentinelCoreLoop__NotBootstrapped();
     s_anomalyCount = 0;
     delete s_anomalyTimestamps;
-    s_anomalyTimestamps = new uint256[](s_highThreatAnomalyThreshold);
     s_anomalyPointer = 0;
   }
 
@@ -114,9 +127,11 @@ contract SentinelCoreLoop is Ownable {
 
   /**
    * @notice Executes an automated threat response.
-   * @dev Before executing any logic, it verifies the Quantum Guard is not frozen.
+   * @dev Accessible by authorized monitors or the owner.
    */
-  function executeThreatResponse(bytes32 threatId) external onlyOwner {
+  function executeThreatResponse(bytes32 threatId) external {
+    if (!s_monitors[msg.sender] && msg.sender != owner())
+      revert SentinelCoreLoop__UnauthorizedMonitor();
     if (!s_coreComponentsBootstrapped) revert SentinelCoreLoop__NotBootstrapped();
 
     // Security check: Verify the Quantum-Resistant layer is not in an emergency freeze.
@@ -128,11 +143,17 @@ contract SentinelCoreLoop is Ownable {
 
     // Sliding Window Anomaly Detection
     uint256 currentTimestamp = block.timestamp;
-    uint256 oldestTimestamp = s_anomalyTimestamps[s_anomalyPointer];
+    // Calculate the index of the anomaly N steps ago using bitwise wrapping
+    uint256 lookbackIndex = (s_anomalyPointer + OBSERVATION_SIZE - s_highThreatAnomalyThreshold) &
+      OBSERVATION_MASK;
+    uint256 oldestTimestamp = s_anomalyTimestamps[lookbackIndex];
 
     s_anomalyTimestamps[s_anomalyPointer] = currentTimestamp;
-    s_anomalyPointer = (s_anomalyPointer + 1) % s_highThreatAnomalyThreshold;
-    s_anomalyCount++;
+    s_anomalyPointer = (s_anomalyPointer + 1) & OBSERVATION_MASK;
+
+    if (s_anomalyCount < OBSERVATION_SIZE) {
+      s_anomalyCount++;
+    }
 
     // If the window is full and the first anomaly happened within the window duration
     if (oldestTimestamp != 0 && currentTimestamp - oldestTimestamp <= s_anomalyWindow) {
@@ -144,7 +165,6 @@ contract SentinelCoreLoop is Ownable {
       emit HighThreatCalibrationTriggered(s_anomalyCount);
       s_anomalyCount = 0;
       delete s_anomalyTimestamps;
-      s_anomalyTimestamps = new uint256[](s_highThreatAnomalyThreshold);
       s_anomalyPointer = 0;
     }
     // Gradual Expansion: Relax the window back towards s_maxAnomalyWindow if volatility drops
@@ -160,6 +180,7 @@ contract SentinelCoreLoop is Ownable {
   }
 
   function _mitigateThreat(bytes32 threatId) internal {
-    // Logic for interacting with SentinelInterceptor and AetheronBridge
+    // Notification hook for cross-chain security mesh
+    emit ThreatMitigated(threatId, block.timestamp);
   }
 }

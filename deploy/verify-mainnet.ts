@@ -38,9 +38,9 @@ async function main() {
     address: record.contracts.SentinelRewardAggregator,
     constructorArguments: [
       record.contracts.SentinelStaking,
-      '0x0000000000000000000000000000000000000000',
+      record.contracts.SentinelLiquidityMining,
       record.contracts.SentinelToken,
-      '0x0000000000000000000000000000000000000000',
+      record.contracts.SentinelReferralSystem,
     ],
   });
 
@@ -49,7 +49,7 @@ async function main() {
     address: record.contracts.SentinelInsuranceProtocol,
     constructorArguments: [
       record.contracts.SentinelCore,
-      '0x0000000000000000000000000000000000000000',
+      record.contracts.SentinelSecurityAuditor,
       process.env.OWNER_ADDRESS || '',
     ],
   });

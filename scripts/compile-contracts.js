@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-const { spawnSync } = require('node:child_process');
+import { spawnSync } from 'node:child_process';
 
 process.stdout.write('Compiling Solidity contracts with Hardhat...\n');
 
@@ -16,12 +15,10 @@ const run =
 if (run.error) {
   process.stderr.write(`${run.error.message}\n`);
   process.exitCode = 2;
-  return;
 }
 
 if (run.status === 0) {
   process.exitCode = 0;
-  return;
 }
 
 process.stderr.write(`

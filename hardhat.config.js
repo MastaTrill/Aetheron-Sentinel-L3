@@ -17,18 +17,18 @@ function getRpcUrl(envVar, fallback) {
   return url;
 }
 
-export default {
+const config = {
   plugins: [hardhatEthers, hardhatVerify, hardhatMocha, hardhatEthersChaiMatchers],
   solidity: {
     version: '0.8.28',
     settings: {
-      optimizer: { enabled: true, runs: 1000 }, // Optimized for OZ v5 tax logic & gas efficiency
+      optimizer: { enabled: true, runs: 1000 },
       metadata: { bytecodeHash: 'none' },
       evmVersion: 'cancun',
     },
   },
   mocha: {
-    timeout: 100000, // Extended for evmbench iterations
+    timeout: 100000,
   },
   networks: {
     hardhat: {
@@ -70,3 +70,5 @@ export default {
       : {}),
   },
 };
+
+export default config;

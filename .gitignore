@@ -42,3 +42,9 @@ apps/*/dist/
 .env
 .env
 .env
+
+sentinel-l3-v1.0/artifacts/
+sentinel-l3-v1.0/cache/
+sentinel-l3-v1.0/typechain-types/
+sentinel-l3-v1.0/typechain/
+node_modules/

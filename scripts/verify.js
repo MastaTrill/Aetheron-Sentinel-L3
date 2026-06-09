@@ -175,7 +175,7 @@ async function main() {
   const rewardPerSecond = BigInt(process.env.REWARD_PER_SECOND || '0');
 
   const securityAuditorAddress = addresses.SentinelSecurityAuditor || '';
-  const sentinelCoreAddress = addresses.SentinelCoreLoop || '';
+  const sentinelCoreAddress = addresses.SentinelCore || '';
 
   console.log(`Verifying contracts on network: ${getCliNetworkName()}`);
   console.log(`Owner: ${owner}\n`);

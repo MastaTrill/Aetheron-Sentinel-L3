@@ -71,13 +71,14 @@ contract SentinelAxieMonitor is Ownable {
 
     /**
      * @notice Monitor marketplace transaction
+     * @dev Only owner can submit monitored transactions
      */
     function monitorTransaction(
         address seller,
         address buyer,
         uint256 axieId,
         uint256 price
-    ) external {
+    ) external onlyOwner {
 
         AxieTransaction memory axieTx = AxieTransaction({
             seller: seller,

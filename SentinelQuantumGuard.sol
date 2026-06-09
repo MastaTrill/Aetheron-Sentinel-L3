@@ -16,11 +16,39 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
   uint256 internal s_heartbeat; // Heartbeat threshold in seconds
   uint256 internal s_emergencyThreshold; // Threshold for emergency freeze
   bool internal s_frozen;
+  address internal s_coreLoop;
   AggregatorV3Interface internal s_coherenceFeed;
+
+  // TWAC State Variables
+  uint256 private s_currentKeyEpoch;
+  mapping(address => bool) internal s_authorizedReaders;
+  mapping(address => uint256) public s_readerLastUpdate;
+  uint256 public constant GOVERNANCE_COOLDOWN = 2 days;
+  uint256 public s_coherenceAccumulator;
+  uint256 public s_lastUpdateTimestamp;
+
+  // Sliding Window Config
+  struct Observation {
+    uint256 timestamp;
+    uint256 accumulator;
+  }
+
+  uint256 public constant OBSERVATION_SIZE = 16;
+  uint256 public constant OBSERVATION_MASK = 15;
+  Observation[OBSERVATION_SIZE] public s_observations; // Circular buffer (approx 80 mins of history)
+  uint256 public s_observationIndex;
+  uint256 public constant SNAPSHOT_INTERVAL = 5 minutes;
+
+  // Security Boundaries
+  uint256 public constant MAX_HARDNESS = 8192;
+  uint256 public constant MIN_COHERENCE = 5;
 
   error SentinelQuantumGuard__Frozen();
   error SentinelQuantumGuard__StaleData();
   error SentinelQuantumGuard__InvalidOracleData();
+  error SentinelQuantumGuard__Unauthorized();
+  error SentinelQuantumGuard__CooldownActive();
+  error SentinelQuantumGuard__NotFrozen();
 
   /**
    * @dev Initializes the guard with a default coherence and starting hardness.
@@ -33,6 +61,11 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
     s_heartbeat = 1 hours; // Default heartbeat duration
     s_emergencyThreshold = 24 hours; // Default emergency threshold
     s_coherenceFeed = AggregatorV3Interface(coherenceFeed);
+    s_lastUpdateTimestamp = block.timestamp;
+
+    // Initialize first observation
+    s_observations[0] = Observation(block.timestamp, 0);
+    s_observationIndex = 1;
   }
 
   /**
@@ -46,10 +79,17 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
    * @inheritdoc ISentinelQuantumGuard
    */
   function getHardnessLevel() external view override returns (uint256) {
-    if (msg.sender != s_coreLoop) {
+    if (!s_authorizedReaders[msg.sender] && msg.sender != owner()) {
       revert SentinelQuantumGuard__Unauthorized();
     }
     return s_hardnessLevel;
+  }
+
+  /**
+   * @notice Returns the current encryption key epoch.
+   */
+  function getKeyEpoch() external view returns (uint256) {
+    return s_currentKeyEpoch;
   }
 
   /**
@@ -83,6 +123,13 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
       return;
     }
 
+    // Update TWAC Accumulator before changing s_coherenceLevel
+    uint256 timeElapsed = block.timestamp - s_lastUpdateTimestamp;
+    if (timeElapsed > 0) {
+      s_coherenceAccumulator += s_coherenceLevel * timeElapsed;
+      s_lastUpdateTimestamp = block.timestamp;
+    }
+
     // Standard operational staleness check
     if (updatedAt == 0 || answeredInRound < roundId || block.timestamp - updatedAt > s_heartbeat) {
       revert SentinelQuantumGuard__StaleData();
@@ -97,9 +144,65 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
     uint256 precision = 10 ** decimals;
 
     uint256 normalizedCoherence = uint256(coherence) / precision;
-    s_coherenceLevel = normalizedCoherence > 100 ? 100 : normalizedCoherence;
+    s_coherenceLevel = normalizedCoherence > 100
+      ? 100
+      : (normalizedCoherence < MIN_COHERENCE ? MIN_COHERENCE : normalizedCoherence);
+
+    // Record observation if interval passed
+    uint256 lastObsTime = s_observations[(s_observationIndex + OBSERVATION_MASK) & OBSERVATION_MASK]
+      .timestamp;
+    if (block.timestamp >= lastObsTime + SNAPSHOT_INTERVAL) {
+      s_observations[s_observationIndex] = Observation(block.timestamp, s_coherenceAccumulator);
+      s_observationIndex = (s_observationIndex + 1) & OBSERVATION_MASK;
+    }
 
     emit CoherenceUpdated(s_coherenceLevel);
+  }
+
+  /**
+   * @notice Returns the average coherence over the period since a provided checkpoint.
+   * @param oldAccumulator The s_coherenceAccumulator value at the start of the window.
+   * @param oldTimestamp The timestamp at the start of the window.
+   * @return The time-weighted average coherence.
+   */
+  function getTWAC(uint256 oldAccumulator, uint256 oldTimestamp) external view returns (uint256) {
+    uint256 timeElapsed = block.timestamp - oldTimestamp;
+    if (timeElapsed == 0) return s_coherenceLevel;
+    return (s_coherenceAccumulator - oldAccumulator) / timeElapsed;
+  }
+
+  /**
+   * @notice Calculates the TWAC over the last 30 minutes using binary search.
+   */
+  function get30MinTWAC() external view returns (uint256) {
+    uint256 targetTime = block.timestamp - 30 minutes;
+
+    // Binary search over the logical range [0, 15]
+    // Logical index 0 is physical index s_observationIndex (the oldest entry in the circular buffer)
+    uint256 low = 0;
+    uint256 high = OBSERVATION_MASK;
+    uint256 bestPhysIdx = s_observationIndex;
+
+    while (low <= high) {
+      uint256 mid = (low + high) / 2;
+      uint256 physMid = (s_observationIndex + mid) & OBSERVATION_MASK;
+
+      if (
+        s_observations[physMid].timestamp == 0 || s_observations[physMid].timestamp > targetTime
+      ) {
+        if (mid == 0) break;
+        high = mid - 1;
+      } else {
+        // Found a candidate timestamp <= targetTime. Look for a newer one.
+        bestPhysIdx = physMid;
+        low = mid + 1;
+      }
+    }
+
+    uint256 timeDiff = block.timestamp - s_observations[bestPhysIdx].timestamp;
+    if (timeDiff == 0) return s_coherenceLevel;
+
+    return (s_coherenceAccumulator - s_observations[bestPhysIdx].accumulator) / timeDiff;
   }
 
   /**
@@ -125,7 +228,7 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
    */
   function unfreeze() external onlyOwner {
     if (!s_frozen) {
-      revert SentinelQuantumGuard__InvalidOracleData(); // Or a custom "NotFrozen" error
+      revert SentinelQuantumGuard__NotFrozen();
     }
     s_frozen = false;
     emit EmergencyUnfreezeOccurred(block.timestamp);
@@ -140,11 +243,26 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
   }
 
   /**
-   * @notice Sets the address of the CoreLoop engine allowed to trigger security functions.
+   * @notice Authorizes or revokes an address's ability to read the hardness level.
+   * @param reader The address to modify.
+   * @param status True to authorize, false to revoke.
+   */
+  function setAuthorizedReader(address reader, bool status) external onlyOwner {
+    if (block.timestamp < s_readerLastUpdate[reader] + GOVERNANCE_COOLDOWN) {
+      revert SentinelQuantumGuard__CooldownActive();
+    }
+
+    s_authorizedReaders[reader] = status;
+    s_readerLastUpdate[reader] = block.timestamp;
+  }
+
+  /**
+   * @notice Sets the CoreLoop engine and automatically authorizes it as a reader.
    * @param coreLoop The address of the SentinelCoreLoop contract.
    */
   function setCoreLoop(address coreLoop) external onlyOwner {
     s_coreLoop = coreLoop;
+    s_authorizedReaders[coreLoop] = true;
   }
 
   /**
@@ -152,10 +270,13 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
    * @notice Restricts key rotation to the owner or the authorized CoreLoop.
    */
   function rotateEncryptionKeys() external override {
-    if (msg.sender != owner() && msg.sender != s_coreLoop) {
+    if (!s_authorizedReaders[msg.sender] && msg.sender != owner()) {
       revert SentinelQuantumGuard__Unauthorized();
     }
-    // TODO: Integrate Dilithium/Falcon key invalidation logic
+
+    // Increment epoch to invalidate signatures generated under the previous key set
+    s_currentKeyEpoch++;
+
     emit EncryptionKeysRotated(block.timestamp);
   }
 
@@ -172,11 +293,17 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
    * @notice Adjusts security parameters. Callable by owner or CoreLoop during high-threat scenarios.
    */
   function calibrateLatticeParameters() external override {
-    if (msg.sender != owner() && msg.sender != s_coreLoop) {
+    if (!s_authorizedReaders[msg.sender] && msg.sender != owner()) {
       revert SentinelQuantumGuard__Unauthorized();
     }
-    // TODO: Update s_hardnessLevel based on external entropy or threat intel
-    // s_hardnessLevel = ...;
+
+    // Increase hardness based on current instability (lower coherence = higher hardness boost)
+    uint256 instabilityFactor = 100 - s_coherenceLevel;
+    uint256 newHardness = s_hardnessLevel + ((instabilityFactor > 0) ? instabilityFactor : 10);
+
+    if (newHardness <= MAX_HARDNESS) {
+      s_hardnessLevel = newHardness;
+    }
 
     emit LatticeParametersCalibrated(s_hardnessLevel);
   }

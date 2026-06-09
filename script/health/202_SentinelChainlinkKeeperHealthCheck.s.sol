@@ -9,7 +9,7 @@ contract SentinelChainlinkKeeperHealthCheck is Script {
     address keeperAddr = vm.envAddress('SENTINEL_CHAINLINK_KEEPER');
     address coreAddr = vm.envAddress('SENTINEL_CORE');
 
-    require(SentinelChainlinkKeeper(keeperAddr).sentinelCore() == coreAddr, 'Keeper: core mismatch');
+    require(address(SentinelChainlinkKeeper(keeperAddr).sentinelCore()) == coreAddr, 'Keeper: core mismatch');
     require(SentinelChainlinkKeeper(keeperAddr).owner() != address(0), 'Keeper: owner not set');
     require(SentinelChainlinkKeeper(keeperAddr).upkeepInterval() > 0, 'Keeper: interval not set');
 
