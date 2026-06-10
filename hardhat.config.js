@@ -19,6 +19,12 @@ function getRpcUrl(envVar, fallback) {
 
 const config = {
   plugins: [hardhatEthers, hardhatVerify, hardhatMocha, hardhatEthersChaiMatchers],
+  paths: {
+    contracts: ['./contracts', '.'],
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts',
+  },
   solidity: {
     version: '0.8.28',
     settings: {
