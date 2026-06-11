@@ -17,12 +17,12 @@ def test():
         # Pinging the root to verify the secret key is accepted
         r = requests.get(URL, headers=headers)
         if r.status_code == 200:
-            print("\n✅ SUCCESS: Sentinel bridge is officially AUTHORIZED.")
+            print("\nSUCCESS: Sentinel bridge is officially AUTHORIZED.")
             print("The Nexus Lead database is now synced with the cluster.")
         else:
-            print(f"\n❌ FAILED: Status {r.status_code}. Response: {r.text}")
+            print(f"\nFAILED: Status {r.status_code}. Response: {r.text}")
     except requests.RequestException as e:
-        print(f"🚨 ERROR: {e}")
+        print(f"ERROR: {e}")
 
 
 if __name__ == "__main__":

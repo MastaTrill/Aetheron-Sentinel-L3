@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "aetheron-sentinel-l3": "file:..",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
