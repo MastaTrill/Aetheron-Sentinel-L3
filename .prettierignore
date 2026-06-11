@@ -56,3 +56,22 @@ Thumbs.db
 # Audit reports
 npm-audit-report.json
 npm-audit-prod-report.json
+
+# Vendored / third-party libraries
+lib/
+**/lib/
+
+# Imported projects
+imports/
+apps/
+
+# Generated / brand assets
+abis/
+cosmic-echo/
+
+# Misc copies / snapshots
+sentinel-l3-v1.0/
+
+# Kilo internal config
+.agents/
+.kilo/

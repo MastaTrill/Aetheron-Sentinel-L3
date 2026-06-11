@@ -2,26 +2,23 @@ import { spawnSync } from 'node:child_process';
 
 process.stdout.write('Compiling Solidity contracts with Hardhat...\n');
 
-const run =
+const result =
   process.platform === 'win32'
-    ? spawnSync('npx hardhat compile --config hardhat.config.cjs', {
+    ? spawnSync('npx hardhat compile', {
         stdio: 'inherit',
         shell: true,
       })
-    : spawnSync('npx', ['hardhat', 'compile', '--config', 'hardhat.config.cjs'], {
+    : spawnSync('npx', ['hardhat', 'compile'], {
         stdio: 'inherit',
       });
 
-if (run.error) {
-  process.stderr.write(`${run.error.message}\n`);
-  process.exitCode = 2;
+if (result.error) {
+  process.stderr.write(`${result.error.message}\n`);
+  process.exit(2);
 }
 
-if (run.status === 0) {
-  process.exitCode = 0;
-}
-
-process.stderr.write(`
+if (result.status !== 0) {
+  process.stderr.write(`
 Hardhat compile failed.
 
 If you see HH502 or HHE905 (compiler download errors), this environment is blocking
@@ -34,5 +31,5 @@ Fail-fast guidance:
 
 Until then, compile cannot proceed in this environment.
 `);
-
-process.exitCode = 2;
+  process.exit(2);
+}
