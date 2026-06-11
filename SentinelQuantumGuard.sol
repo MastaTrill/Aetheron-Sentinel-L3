@@ -325,8 +325,6 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
       s_hardnessLevel = newHardness;
     }
 
-    // Optimization: Avoid leaking the exact hardness level to the event log
-    // to prevent side-channel analysis of the current security strength.
-    emit LatticeParametersCalibrated(block.timestamp);
+    emit LatticeParametersCalibrated(s_hardnessLevel);
   }
 }

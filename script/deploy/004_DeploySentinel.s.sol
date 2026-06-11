@@ -14,7 +14,7 @@ contract DeploySentinel is Script {
     address pool = 0x2dCDEA8a708f1FDECA5e2E59d4cb70Bd2E9BdEC8;
     address owner = 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB;
 
-    LiquidityVault vault = new LiquidityVault(pool, owner);
+    new LiquidityVault(pool, owner);
 
     vm.stopBroadcast();
   }

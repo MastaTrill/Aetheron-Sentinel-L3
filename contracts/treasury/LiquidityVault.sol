@@ -25,6 +25,7 @@ contract LiquidityVault is SentinelGuard {
     error LiquidityVault__ReentrancyError();
     error InvalidPool();
     error InvalidDivergence();
+    error PriceCumulativeDecreased();
 
     bytes32 private constant REENTRANCY_GUARD_SLOT =
         0x0f2955562723049b494f6c4f34691459a933f864115e69e4f446059e666a7b67;
@@ -54,6 +55,8 @@ contract LiquidityVault is SentinelGuard {
     function _calculateHealthFactor() internal view override returns (uint256) {
         IAerodromePair pair = IAerodromePair(poolAddress);
         uint256 price0Cumulative = pair.price0CumulativeLast();
+        if (price0Cumulative < lastPrice0Cumulative) revert PriceCumulativeDecreased();
+
         uint32 currentTimestamp = pair.blockTimestampLast();
 
         if (snapshotTimestamp == 0) return BASE_DIVISOR;

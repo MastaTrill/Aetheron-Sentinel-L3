@@ -87,6 +87,13 @@ contract LiquidityVaultIntegrationTest is Test {
         vault.addLiquidity();
     }
 
+    function test_AddLiquidityRevertsWhenPriceCumulativeDecreases() public {
+        pair.setSnapshot(500 * PRICE_SCALE, 500 * PRICE_SCALE, 4000);
+
+        vm.expectRevert(LiquidityVault.PriceCumulativeDecreased.selector);
+        vault.addLiquidity();
+    }
+
     function test_UpdateSnapshotRefreshesTwapBaseline() public {
         pair.setSnapshot(4000 * PRICE_SCALE, 4000 * PRICE_SCALE, 4000);
         pair.setReserves(1e18, 1e18);
