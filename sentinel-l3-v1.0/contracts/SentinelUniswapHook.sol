@@ -40,9 +40,9 @@ contract SentinelUniswapHook {
     function updateSecurityScore(bytes32 poolId, int256 amount) external {
         uint256 score = poolSecurityScore[poolId];
         if (amount > 0) {
-            score = score > 0 ? score - 1 : 0;
-        } else {
             score = score < 100 ? score + 1 : 100;
+        } else {
+            score = score > 0 ? score - 1 : 0;
         }
         poolSecurityScore[poolId] = score;
     }

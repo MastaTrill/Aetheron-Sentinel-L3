@@ -1,28 +1,15 @@
-const { ActionProvider, CreateAction } = require("@coinbase/agentkit");
-const { z } = require("zod");
-const { ethers } = require("ethers");
+import { ActionProvider } from "@coinbase/agentkit";
+import { z } from "zod";
+import { ethers } from "ethers";
 
-/**
- * Custom Action Provider for the Sentinel L3 Interceptor.
- * Allows the Agent to trigger emergency pauses or update risk parameters.
- */
 class SentinelActionProvider extends ActionProvider {
     constructor(interceptorAddress) {
-        super("sentinel", []);
+        super("sentinel");
         this.interceptorAddress = interceptorAddress;
     }
 
-    @CreateAction({
-        name: "trigger_mitigation",
-        description: "Triggers an emergency pause on a target contract via the Sentinel Interceptor.",
-        schema: z.object({
-            txHash: z.string().describe("The transaction hash of the detected anomaly"),
-            reason: z.string().min(10).describe("The detailed reason for the emergency pause (min 10 chars)")
-        }),
-    })
     async triggerMitigation(walletProvider, args) {
         try {
-            // Logic-level validation: Restrict based on argument content
             const restrictedKeywords = ["test", "demo", "ignore"];
             if (restrictedKeywords.some(word => args.reason.toLowerCase().includes(word))) {
                 return `Action blocked: Reason contains restricted 'test' keywords. Mitigation requires a valid production threat description.`;
@@ -30,7 +17,6 @@ class SentinelActionProvider extends ActionProvider {
 
             const reasonId = ethers.id(args.txHash);
 
-            // AgentKit WalletProviders can execute arbitrary contract calls
             const txHash = await walletProvider.sendTransaction({
                 to: this.interceptorAddress,
                 data: new ethers.Interface([
@@ -44,22 +30,12 @@ class SentinelActionProvider extends ActionProvider {
         }
     }
 
-    @CreateAction({
-        name: "update_risk_threshold",
-        description: "Updates the severity threshold for the Sentinel Interceptor. Highly sensitive.",
-        schema: z.object({
-            newThreshold: z.number().min(1).max(10).describe("The new risk score threshold (1-10)"),
-            confirmHighSensitivity: z.boolean().describe("Must be true to set threshold above 9 or below 3")
-        }),
-    })
     async updateThreshold(walletProvider, args) {
         try {
-            // Runtime check: Ensure sensitivity confirmation for extreme values
             if ((args.newThreshold < 3 || args.newThreshold > 9) && !args.confirmHighSensitivity) {
                 return "Action blocked: Changing threshold to extreme values (<3 or >9) requires 'confirmHighSensitivity' to be set to true.";
             }
 
-            // Example sensitive operation
             const txHash = await walletProvider.sendTransaction({
                 to: this.interceptorAddress,
                 data: new ethers.Interface([
@@ -78,4 +54,4 @@ class SentinelActionProvider extends ActionProvider {
     }
 }
 
-module.exports = { SentinelActionProvider };
+export { SentinelActionProvider };

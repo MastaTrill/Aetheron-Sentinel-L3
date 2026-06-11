@@ -190,15 +190,11 @@ contract SentinelQuantumGuard is Ownable, ReentrancyGuard, Pausable {
         SecurityLevel newLevel,
         string calldata reason
     ) external onlyOwner {
-        require(
-            uint256(newLevel) > uint256(currentSecurityLevel),
-            "Cannot de-escalate"
-        );
-
+        SecurityLevel previousLevel = currentSecurityLevel;
         currentSecurityLevel = newLevel;
 
         // Implement security measures based on level
-        if (newLevel == SecurityLevel.CRITICAL) {
+        if (uint256(newLevel) > uint256(previousLevel)) {
             _pause();
         }
 

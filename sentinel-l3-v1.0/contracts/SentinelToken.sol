@@ -260,6 +260,7 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @param amount Amount to mint
      */
     function mint(address to, uint256 amount) external onlyOwner {
+        require(totalSupply() + amount <= TOTAL_SUPPLY, "Mint exceeds max supply");
         _mint(to, amount);
     }
 

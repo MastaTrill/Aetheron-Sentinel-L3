@@ -5,5 +5,7 @@
   "editor.tabCompletion": "on",
   "diffEditor.codeLens": true,
   "MutableAI.upsell": false,
-  "snyk.advanced.autoSelectOrganization": true,
+"snyk.advanced.autoSelectOrganization": true,
+"editor.formatOnSave": true,
+"git.alwaysShowStagedChangesResourceGroup": true,
 }

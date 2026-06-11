@@ -19,7 +19,6 @@ async function withRetry(fn, retries = 3, delay = 1000) {
     try {
       return await fn();
     } catch (error) {
-      // Only retry on network errors or 5xx server errors
       const isRetryable = !error.response || (error.response.status >= 500 && error.response.status <= 599);
       if (i === retries - 1 || !isRetryable) throw error;
       console.warn(`Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${delay}ms...`);
@@ -45,7 +44,7 @@ async function trainSentinelModel(trainingData) {
           batchSize: 32,
         },
         incentives: {
-          rewardToken: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // AETH
+          rewardToken: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           rewardAmount: '100',
         },
       },
@@ -55,7 +54,7 @@ async function trainSentinelModel(trainingData) {
           'Content-Type': 'application/json',
         },
       }
-    );
+    ));
 
     return response.data;
   } catch (error) {
@@ -81,7 +80,7 @@ async function runInference(securityData) {
           'Content-Type': 'application/json',
         },
       }
-    );
+    ));
 
     return response.data;
   } catch (error) {
@@ -101,8 +100,8 @@ async function contributeResources(resourceSpec) {
         resourceSpec,
         availability: {
           startTime: Date.now(),
-          duration: 3600000, // 1 hour
-          costPerHour: '10', // AETH tokens
+          duration: 3600000,
+          costPerHour: '10',
         },
       },
       {
@@ -111,7 +110,7 @@ async function contributeResources(resourceSpec) {
           'Content-Type': 'application/json',
         },
       }
-    );
+    ));
 
     return response.data;
   } catch (error) {
@@ -129,7 +128,7 @@ async function getTrainingStatus(trainingId) {
       headers: {
         Authorization: `Bearer ${HIVEMIND_API_KEY}`,
       },
-    });
+    }));
 
     return response.data;
   } catch (error) {
@@ -156,7 +155,7 @@ async function validatePredictions(predictions, actualEvents) {
           'Content-Type': 'application/json',
         },
       }
-    );
+    ));
 
     return response.data;
   } catch (error) {
@@ -167,16 +166,15 @@ async function validatePredictions(predictions, actualEvents) {
 
 // Example usage
 if (require.main === module) {
-  // Example training data
   const trainingData = [
     {
       features: [1000000, 0.8, 0.2, 14, 5],
-      label: 1, // Threat detected
+      label: 1,
       timestamp: Date.now(),
     },
     {
       features: [10000, 0.9, 0.1, 10, 1],
-      label: 0, // No threat
+      label: 0,
       timestamp: Date.now(),
     },
   ];
