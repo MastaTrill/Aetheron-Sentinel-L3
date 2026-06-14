@@ -28,3 +28,7 @@ _Last updated: April 28, 2026_
 ---
 
 _This roadmap is a living document. Milestones may shift as execution progresses. For the latest status, see `production_status.md`._
+
+---
+
+_For more information on our security practices, see SECURITY.md._

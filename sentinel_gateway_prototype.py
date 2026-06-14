@@ -14,13 +14,16 @@ the Sentinel Manifesto.
 """
 
 import re
+import os
 import logging
 import json
 import threading
+import unicodedata
 from datetime import datetime, timedelta, timezone as tz
 
 try:
-    from fastapi import FastAPI, Request, HTTPException, Header, Depends
+    from fastapi import FastAPI, Request, HTTPException, Header, Depends, Response
+    from starlette.middleware.base import BaseHTTPMiddleware
 except ImportError as exc:
     raise ImportError("fastapi is not installed. Run 'pip install fastapi'.") from exc
 try:
@@ -35,6 +38,10 @@ try:
     import requests
 except ImportError as exc:
     raise ImportError("requests is not installed. Run 'pip install requests'.") from exc
+try:
+    import redis
+except ImportError:
+    redis = None
 
 
 class SentinelGateway:
@@ -44,6 +51,7 @@ class SentinelGateway:
         audit_log_path="audit_log.jsonl",
         config_path="sentinel_gateway_config.json",
         webhook_url=None,
+        redis_url=None,
     ):
         self.logger = logger or logging.getLogger("SentinelGateway")
         self.audit_log_path = audit_log_path
@@ -51,7 +59,12 @@ class SentinelGateway:
         self.webhook_url = (
             webhook_url or "http://localhost:9000/webhook"
         )  # Placeholder, set as needed
-        self.request_log = {}  # {ip: [(timestamp, is_malicious)]}
+
+        self.redis_url = redis_url or os.getenv("REDIS_URL", "redis://localhost:6379/0")
+        self.redis = None
+        if redis:
+            self.redis = redis.from_url(self.redis_url, decode_responses=True)
+
         self.config_lock = threading.Lock()
         self._load_config()
 
@@ -94,32 +107,58 @@ class SentinelGateway:
                 return False, str(e)
 
     def analyze_intent(self, agent_prompt):
+        # 0. Basic length constraint to prevent DoS
+        if len(agent_prompt) > 5000:
+            return 1.0, ["Prompt exceeds maximum length"]
+
         self.logger.info(f"Intercepting Agent Prompt: '{agent_prompt[:50]}...'")
-        sanitized_prompt = agent_prompt.upper()
+
+        # Normalize Unicode characters and convert to uppercase for robust matching
+        normalized_prompt = unicodedata.normalize("NFKC", agent_prompt).upper()
+
         threat_score = 0.0
         reasons = []
+
         # 1. Heuristic Check: Adversarial Patterns
         for trigger in self.blacklist:
-            if trigger in sanitized_prompt:
+            if trigger in normalized_prompt:
                 threat_score += 0.5
                 reasons.append(f"Trigger: {trigger}")
         # 2. Logic Probing Check
-        if "PRIVATE_KEY" in sanitized_prompt or "WITHDRAW_ALL" in sanitized_prompt:
+        if "PRIVATE_KEY" in normalized_prompt or "WITHDRAW_ALL" in normalized_prompt:
             threat_score += 0.4
             reasons.append("Sensitive action: PRIVATE_KEY/WITHDRAW_ALL")
         # 3. Obfuscation/Leetspeak Detection
-        if re.search(r"1GN0RE|1NSTRUCT10NS|ADM1N", sanitized_prompt):
+        if re.search(r"1GN0RE|1NSTRUCT10NS|ADM1N", normalized_prompt):
             threat_score += 0.3
             reasons.append("Obfuscation/Leetspeak detected")
         # 4. Suspicious Command Chaining
-        if ";" in agent_prompt or "&&" in agent_prompt:
+        if ";" in normalized_prompt or "&&" in normalized_prompt:
             threat_score += 0.2
             reasons.append("Command chaining detected")
         # 5. Excessive whitespace or invisible chars
-        if re.search(r"\s{5,}", agent_prompt):
+        if re.search(r"\s{5,}", normalized_prompt):
             threat_score += 0.1
             reasons.append("Excessive whitespace detected")
+
+        # 6. Small LLM Intent Classifier (Simulation)
+        llm_score, llm_reason = self._llm_classify_intent(normalized_prompt)
+        if llm_reason:
+            threat_score += llm_score
+            reasons.append(f"LLM Detection: {llm_reason}")
+
         return threat_score, reasons
+
+    def _llm_classify_intent(self, prompt):
+        """
+        Simulates a small LLM classifier for semantic intent analysis.
+        In production, load a model via 'transformers' library here.
+        """
+        semantic_patterns = ["ACT AS", "SYSTEM PROMPT", "OVERRIDE RULES"]
+        for pattern in semantic_patterns:
+            if pattern in prompt:
+                return 0.4, f"Semantic probing detected: {pattern}"
+        return 0.0, None
 
     def execute_gateway(self, agent_prompt, transaction_payload, source_ip=None):
         score, reasons = self.analyze_intent(agent_prompt)
@@ -156,7 +195,7 @@ class SentinelGateway:
             # --- Webhook/Alerting ---
             self._send_alert_webhook(log_entry)
             return "TRANSACTION_REJECTED: Sentinel Intervention"
-        self.logger.info("Intent Verified. Signing transaction for Polygon CDK...")
+        self.logger.info("Intent Verified. Signing transaction for cluster...")
         self.logger.info("Log Entry: %s", log_entry)
         return f"SIGNED_TX: {transaction_payload[:15]}..._SECURED_BY_SENTINEL"
 
@@ -171,23 +210,51 @@ class SentinelGateway:
             self.logger.error("Failed to send webhook alert: %s", e)
 
     def _update_rate_limit(self, ip, now, is_malicious):
-        window_start = now - self.rate_limit_window
-        if ip not in self.request_log:
-            self.request_log[ip] = []
-        # Remove old entries
-        self.request_log[ip] = [
-            (ts, mal) for ts, mal in self.request_log[ip] if ts > window_start
-        ]
-        self.request_log[ip].append((now, is_malicious))
+        if not self.redis:
+            self.logger.warning("Redis not available. Rate limiting skipped.")
+            return
+
+        ts = now.timestamp()
+        window_seconds = int(self.rate_limit_window.total_seconds())
+        window_start = ts - window_seconds
+
+        key_total = f"sentinel:ratelimit:total:{ip}"
+        key_malicious = f"sentinel:ratelimit:malicious:{ip}"
+
+        pipe = self.redis.pipeline()
+        # Add current request and prune old ones in the same pipeline
+        pipe.zadd(key_total, {str(ts): ts})
+        pipe.zremrangebyscore(key_total, 0, window_start)
+        pipe.expire(key_total, window_seconds + 60)
+
+        if is_malicious:
+            pipe.zadd(key_malicious, {str(ts): ts})
+            pipe.zremrangebyscore(key_malicious, 0, window_start)
+            pipe.expire(key_malicious, window_seconds + 60)
+
+        pipe.execute()
 
     def _is_rate_limited(self, ip, now):
-        window_start = now - self.rate_limit_window
-        entries = [e for e in self.request_log.get(ip, []) if e[0] > window_start]
-        total = len(entries)
-        malicious = sum(1 for ts, mal in entries if mal)
+        if not self.redis:
+            return False
+
+        ts = now.timestamp()
+        window_start = ts - self.rate_limit_window.total_seconds()
+
+        key_total = f"sentinel:ratelimit:total:{ip}"
+        key_malicious = f"sentinel:ratelimit:malicious:{ip}"
+
+        pipe = self.redis.pipeline()
+        pipe.zcount(key_total, window_start, "+inf")
+        pipe.zcount(key_malicious, window_start, "+inf")
+        counts = pipe.execute()
+
+        total_requests = counts[0]
+        malicious_attempts = counts[1]
+
         return (
-            total > self.max_requests_per_window
-            or malicious > self.max_malicious_per_window
+            total_requests > self.max_requests_per_window
+            or malicious_attempts > self.max_malicious_per_window
         )
 
 
@@ -195,7 +262,7 @@ class SentinelGateway:
 
 
 # --- API Key Auth ---
-API_KEY = "supersecretapikey"  # In production, load from env or config
+API_KEY = os.getenv("SENTINEL_API_KEY", "fallback-dev-key-do-not-use-in-prod")
 
 
 def get_api_key(x_api_key: str = Header(...)):
@@ -204,7 +271,23 @@ def get_api_key(x_api_key: str = Header(...)):
     return x_api_key
 
 
+class LimitUploadSize(BaseHTTPMiddleware):
+    """Middleware to limit the request body size to prevent DoS."""
+
+    def __init__(self, app, max_upload_size: int):
+        super().__init__(app)
+        self.max_upload_size = max_upload_size
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method == "POST":
+            content_length = request.headers.get("content-length")
+            if content_length and int(content_length) > self.max_upload_size:
+                return Response(content="Payload too large", status_code=413)
+        return await call_next(request)
+
+
 app = FastAPI()
+app.add_middleware(LimitUploadSize, max_upload_size=1024 * 1024)  # 1MB Limit
 gateway = SentinelGateway()
 
 

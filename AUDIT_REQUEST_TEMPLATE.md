@@ -290,3 +290,7 @@ Thank you for considering this proposal.
 **Proposal Prepared By:** Aetheron Sentinel  
 **Date:** May 13, 2026  
 **Status:** Open for RFP Responses
+
+---
+
+_For more information on our security practices, see SECURITY.md._

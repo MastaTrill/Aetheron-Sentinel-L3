@@ -1,4 +1,4 @@
-﻿# Sentinel L3 – Production Status, Roadmap & Market Analysis (Grok Summary)
+﻿﻿# Sentinel L3 – Production Status, Roadmap & Market Analysis (Grok Summary)
 
 _Last updated: June 8, 2026_
 
@@ -66,5 +66,7 @@ _Last updated: June 8, 2026_
 - Ready to update with live metrics, screenshots, and case study results as soon as available.
 
 ---
+
+## _For more information on our security practices, see SECURITY.md._
 
 _This file is an up-to-date, living summary of Sentinel L3’s production status, roadmap, and competitive positioning. Update as milestones are hit or new data is released._

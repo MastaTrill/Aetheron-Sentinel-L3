@@ -37,3 +37,7 @@ Before declaring mainnet complete, replace all placeholders with objective evide
 - Update `RELEASE_NOTES_MAINNET_2026-04-27.md` with all final tx hashes and links.
 - Update `DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md` with matching references.
 - Attach workflow links and artifacts from CI proving deploy-time verification jobs.
+
+---
+
+_For more information on our security practices, see SECURITY.md._

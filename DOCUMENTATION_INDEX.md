@@ -16,6 +16,7 @@
 - **[HOW_TO_BUG_BOUNTY.md](./docs/HOW_TO_BUG_BOUNTY.md)** - Participate in our bug bounty program
 
 **Legal & Safety:**
+
 - **[TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md)** - Service terms and limitations
 - **[PRIVACY_POLICY.md](./PRIVACY_POLICY.md)** - Data collection and retention
 - **[DISCLAIMERS.md](./DISCLAIMERS.md)** - Risk acknowledgments and audit status
@@ -112,6 +113,9 @@
 - [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Incident response plan
 - [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Audit status
 - [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program
+- **[SECURITY_ADVISORY_TEMPLATE.md](./docs/SECURITY_ADVISORY_TEMPLATE.md)**: Template for vulnerability disclosures
+- **[Security Advisories Directory](./docs/advisories/)**: Archive of published security advisories
+- **[Vulnerability Disclosure Process](./docs/VULNERABILITY_DISCLOSURE_PROCESS.md)**: Formal process for handling security bugs
 
 - **README.md**: See 'Artifact Publishing & Monitoring' for ABI export, publishing, and monitoring integration notes
 

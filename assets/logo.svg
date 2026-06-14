@@ -1,0 +1,9 @@
+<svg width="200" height="200" viewBox="0 0 200 200"
+    xmlns="http://www.w3.org/2000/svg">
+    <!-- Shield Background -->
+    <path d="M100 20 L40 45 V110 C40 150 100 180 100 180 C100 180 160 150 160 110 V45 L100 20Z" fill="#1A202C" stroke="#3182CE" stroke-width="4"/>
+    <!-- Stylized Sentinel Eye -->
+    <circle cx="100" cy="90" r="35" fill="none" stroke="#63B3ED" stroke-width="3" stroke-dasharray="10,5"/>
+    <path d="M75 90 Q100 60 125 90 Q100 120 75 90" fill="none" stroke="#A3BFFA" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="100" cy="90" r="10" fill="#63B3ED"/>
+</svg>
