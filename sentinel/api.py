@@ -5,9 +5,12 @@ from .utils import calculate_threat_score
 from sentinel_gateway_prototype import get_api_key
 from supabase.sync import sync_sentinel_data
 
+router = APIRouter()
+
 class SyncRequest(BaseModel):
     data: dict
     table_name: str = "sentinel_data"
+
 
 @router.post("/sync", dependencies=[Depends(get_api_key)])
 async def sync(request: SyncRequest):
@@ -16,8 +19,6 @@ async def sync(request: SyncRequest):
         return {"status": "synced"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-router = APIRouter()
 
 class AnalyzeRequest(BaseModel):
     prompt: str

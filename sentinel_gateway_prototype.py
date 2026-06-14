@@ -45,6 +45,7 @@ except ImportError:
 
 # Import our utility functions
 from sentinel.utils import calculate_threat_score
+from supabase.sync import sync_sentinel_data
 
 # Configure structlog for JSON‑friendly logs
 structlog.configure(
@@ -160,6 +161,16 @@ class SentinelGateway:
                 f.write(json.dumps(log_entry) + "\n")
         except OSError as e:
             self.logger.error("Failed to write audit log", error=str(e))
+
+        # Sync to Supabase in a non-blocking background thread
+        try:
+            threading.Thread(
+                target=sync_sentinel_data, 
+                args=(log_entry, "audit_logs"),
+                daemon=True
+            ).start()
+        except Exception as e:
+            self.logger.error("Failed to start Supabase sync thread", error=str(e))
         # Rate limiting (fallback to in-memory if Redis unavailable)
         if not self.redis:
             # Simple in-memory rate limiting per IP
