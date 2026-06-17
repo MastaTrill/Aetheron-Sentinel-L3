@@ -202,3 +202,7 @@ Sentinel L3 represents a paradigm shift in DeFi architecture:
 _"In the quantum foam of possibility, Sentinel L3 is certainty. In the chaos of attacks, Sentinel L3 is order. In the darkness of uncertainty, Sentinel L3 is light. Sentinel L3 never sleeps, never falters, and never compromises on protection or performance."_
 
 **The Sentinel has awakened. The quantum age of DeFi begins now.** 🌟🚀
+
+---
+
+_For more information on our security practices, see SECURITY.md._

@@ -15,19 +15,26 @@ This status is documented for mainnet launch evidence and will be reviewed in ev
 
 # Aetheron Sentinel L3 - Mainnet Deployment Summary
 
-**Deployment Date:** May 4, 2026  
-**Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)  
-**Final Block:** [TBD on mainnet]  
-**Status:** Mainnet release package prepared; objective mainnet transaction evidence pending
-**Last validated:** 2026-05-15 — compilation ✅, lint ✅, preflight ✅, all scripts syntax-checked ✅
+**Deployment Date:** June 10, 2026
+**Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)
+**Final Block:** [TBD on mainnet]
+**Status:** 🚀 MAINNET EXECUTION IN PROGRESS; External Audit Phase 2 initiated.
+**Last validated:** 2026-06-10 — compilation ✅, lint ✅, preflight ✅, all scripts syntax-checked ✅
 
 ---
+
+## External Validation Tracking
+
+| Firm | Status | Report Link |
+|------|--------|-------------|
+| OpenZeppelin | Under Review | [Pending] |
+| Quantstamp | RFP Submitted | [Pending] |
 
 ## Executive Summary
 
 This file tracks mainnet release readiness. As of May 2026, the **Sentinel Core Loop v1.0** has been technically finalized and integrated with the Quantum Guard.
 
-**Latest Update:** 2026-05-18 — Core Loop implementation completed. Ready for Phase 2 (Third-party audit).
+**Latest Update:** 2026-06-10 — Transitioned to "Quiet Execution" on Mainnet. Keeper logic optimized for security response.
 The repository currently contains a completed Sepolia deployment and a finalized mainnet runbook.
 
 Primary operator references:

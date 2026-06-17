@@ -456,6 +456,17 @@ contract SentinelAMM is ReentrancyGuard, Ownable {
     }
 
     /**
+     * @notice Create a new quantum pool.
+     */
+    function createPool(
+        address token0,
+        address token1,
+        uint256 feeTier
+    ) external onlyOwner returns (uint256) {
+        return _createPool(token0, token1, feeTier);
+    }
+
+    /**
      * @dev Create new quantum pool
      */
     function _createPool(

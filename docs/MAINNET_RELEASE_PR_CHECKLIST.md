@@ -80,3 +80,6 @@ Use this checklist in the release PR during the live deployment. Fill every plac
 - [ ] Ops/deployment review complete
 - [ ] Stakeholder announcement approved
 - [ ] Go-live approved
+
+---
+_For more information on our security practices, see [SECURITY.md](SECURITY.md)._

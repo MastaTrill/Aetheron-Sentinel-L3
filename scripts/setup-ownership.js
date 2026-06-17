@@ -144,6 +144,7 @@ async function main() {
   const bridgeTokens = parseAddressList(process.env.BRIDGE_TOKEN_ADDRESSES);
   const relayers = parseAddressList(process.env.RELAYER_ADDRESSES);
   const yieldTokenAddress = process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
+  const treasuryAddress = process.env.SENTINEL_TREASURY || '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa';
   // const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
   // const tvlThreshold = ethers.parseEther(
   //   process.env.TVL_THRESHOLD_ETH || '1000',
@@ -289,6 +290,36 @@ async function main() {
     }
   } else {
     console.log('\n8. SentinelCoreLoop: skipped (no address)');
+  }
+
+  // ── 9. Treasury Handoff: transferOwnership for fee-collecting contracts ────
+  console.log('\n9. Treasury Handoff (Final Ownership Transfers) →');
+  const treasuryRouted = [
+    ['AetheronBridge', addresses.AetheronBridge],
+    ['SentinelOracleNetwork', addresses.SentinelOracleNetwork],
+    ['SentinelZKOracle', addresses.SentinelZKOracle],
+    ['SentinelAMM', addresses.SentinelAMM],
+    ['SentinelInsuranceProtocol', addresses.SentinelInsuranceProtocol],
+    ['SentinelReferralSystem', addresses.SentinelReferralSystem],
+    ['SentinelStaking', addresses.SentinelStaking],
+    ['SentinelRewardAggregator', addresses.SentinelRewardAggregator],
+    ['SentinelSecurityTokenization', addresses.SentinelSecurityTokenization],
+  ].filter(([, addr]) => addr);
+
+  for (const [name, addr] of treasuryRouted) {
+    const contractInst = contract(name, addr, owner);
+    try {
+      const currentOwner = await contractInst.owner();
+      if (currentOwner.toLowerCase() !== treasuryAddress.toLowerCase()) {
+        await call(`${name}.transferOwnership(${treasuryAddress})`, () =>
+          contractInst.transferOwnership(treasuryAddress)
+        );
+      } else {
+        console.log(`  ${name} owner already set to Treasury ℹ️`);
+      }
+    } catch (err) {
+      console.log(`  ${name}: owner() check failed or not Ownable ❌`);
+    }
   }
 
   console.log('\n✅ Ownership setup complete.\n');

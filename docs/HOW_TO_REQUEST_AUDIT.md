@@ -14,7 +14,7 @@ A smart contract audit is a comprehensive security review of your smart contract
 - **Risk report** - Detailed findings with severity levels and remediation recommendations.
 - **Remediation support** - Guidance on fixing identified issues.
 
-**Typical timeline:** 2–4 weeks (standard audit), 1–2 weeks (expedited).  
+**Typical timeline:** 2–4 weeks (standard audit), 1–2 weeks (expedited).
 **Pricing:** Professional tier ($99/month), Enterprise (custom quotes).
 
 ---
@@ -142,16 +142,16 @@ After receiving the audit report:
 
 ### What We Audit
 
-✓ Smart contract code and logic  
-✓ State management and access controls  
-✓ External protocol interactions  
+✓ Smart contract code and logic
+✓ State management and access controls
+✓ External protocol interactions
 ✓ Gas optimization opportunities
 
 ### What We Don't Audit
 
-✗ Off-chain backend systems  
-✗ Dapp frontend code (React, TypeScript)  
-✗ DevOps or deployment infrastructure  
+✗ Off-chain backend systems
+✗ Dapp frontend code (React, TypeScript)
+✗ DevOps or deployment infrastructure
 ✗ Regulatory compliance (consult a lawyer)
 
 ### Risk Disclaimer
@@ -164,14 +164,18 @@ See [DISCLAIMERS.md](DISCLAIMERS.md) for important audit limitations. **No audit
 
 Ready to get started? **Contact us:**
 
-📧 **Email:** aetheron.solana@gmail.com  
-🌐 **Contact Form:** [Sentinel L3 Dashboard](https://mastatrill.github.io/Aetheron-Sentinel-L3/#contact)  
+📧 **Email:** aetheron.solana@gmail.com
+🌐 **Contact Form:** [Sentinel L3 Dashboard](https://mastatrill.github.io/Aetheron-Sentinel-L3/#contact)
 🏆 **HackenProof:** [https://hackenproof.com](https://hackenproof.com)
 
-**Response time:** 24 hours (business days)  
+**Response time:** 24 hours (business days)
 **Questions?** Reply to your email or comment on the contact form.
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 1.0
 **Last Updated:** May 13, 2026
+
+---
+
+_For more information on our security practices, see [SECURITY.md](SECURITY.md)._

@@ -19,22 +19,22 @@ Uniswap V3 is the optimal initial venue due to:
 
 ### Initial Pool Configuration
 
-| Parameter | Value |
-|-----------|-------|
-| **Pool Pair** | SENT / WETH |
-| **Fee Tier** | 0.3% (standard) |
-| **Initial Price** | Determined by market discovery |
-| **Liquidity Range** | ±20% around initial price |
+| Parameter             | Value                                          |
+| --------------------- | ---------------------------------------------- |
+| **Pool Pair**         | SENT / WETH                                    |
+| **Fee Tier**          | 0.3% (standard)                                |
+| **Initial Price**     | Determined by market discovery                 |
+| **Liquidity Range**   | ±20% around initial price                      |
 | **Initial Liquidity** | From Ecosystem Fund allocation (250M SENT max) |
 
-### SENT/USDC Stable Pair (Phase 1b)
+### SENT/USDC Standard Pair (Phase 1b)
 
-| Parameter | Value |
-|-----------|-------|
-| **Pool Pair** | SENT / USDC |
-| **Fee Tier** | 0.05% (stable pair) |
-| **Liquidity Range** | ±5% around peg target |
-| **Purpose** | Stable onboarding for risk-averse traders |
+| Parameter           | Value                                           |
+| ------------------- | ----------------------------------------------- |
+| **Pool Pair**       | SENT / USDC                                     |
+| **Fee Tier**        | 0.3% (standard)                                 |
+| **Liquidity Range** | ±20% around market discovery price              |
+| **Purpose**         | Standard onboarding for USDC-based participants |
 
 ---
 
@@ -44,19 +44,19 @@ Uniswap V3 is the optimal initial venue due to:
 
 Deploy liquidity mining programs to bootstrap pool depth:
 
-| Pool |weekly Reward | Reward Source | Duration |
-|------|-------------|---------------|----------|
-| SENT/ETH | 200,000 SENT | Liquidity Mining allocation | 12 weeks |
-| SENT/USDC | 100,000 SENT | Liquidity Mining allocation | 12 weeks |
+| Pool      | weekly Reward | Reward Source               | Duration |
+| --------- | ------------- | --------------------------- | -------- |
+| SENT/ETH  | 200,000 SENT  | Liquidity Mining allocation | 12 weeks |
+| SENT/USDC | 100,000 SENT  | Liquidity Mining allocation | 12 weeks |
 
 ### Boost Multipliers
 
-| LP Position Size | Boost Multiplier |
-|-----------------|-----------------|
-| < 10,000 SENT equivalent | 1.0x |
-| 10,000 – 50,000 | 1.25x |
-| 50,000 – 200,000 | 1.5x |
-| > 200,000 | 2.0x |
+| LP Position Size         | Boost Multiplier |
+| ------------------------ | ---------------- |
+| < 10,000 SENT equivalent | 1.0x             |
+| 10,000 – 50,000          | 1.25x            |
+| 50,000 – 200,000         | 1.5x             |
+| > 200,000                | 2.0x             |
 
 ---
 
@@ -112,12 +112,12 @@ The 250M SENT Ecosystem Fund is managed by governance:
 
 ### Fund Allocation
 
-| Category | Allocation | Amount |
-|----------|-----------|--------|
-| DEX Liquidity | 40% | 100M SENT |
-| CEX Listings | 20% | 50M SENT |
-| Partnerships | 20% | 50M SENT |
-| Reserve | 20% | 50M SENT |
+| Category      | Allocation | Amount    |
+| ------------- | ---------- | --------- |
+| DEX Liquidity | 40%        | 100M SENT |
+| CEX Listings  | 20%        | 50M SENT  |
+| Partnerships  | 20%        | 50M SENT  |
+| Reserve       | 20%        | 50M SENT  |
 
 ### Liquidity Rebalancing
 

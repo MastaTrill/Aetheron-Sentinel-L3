@@ -222,3 +222,7 @@ The Sentinel L3 Core Loop is now:
 **Quantum Resistance**: ✅ Verified
 **Audit Readiness**: ✅ Complete
 **Production Deployment**: ✅ Ready
+
+---
+
+_For more information on our security practices, see SECURITY.md._

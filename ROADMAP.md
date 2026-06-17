@@ -12,11 +12,12 @@ _Last updated: April 28, 2026_
 - [ ] Open-source (or redacted) GitHub repo for core modules
 - [x] Announce $AETH/$AETX utility, staking, and liquidity plans — token utility implemented
 
-## Q3 2026
+## Q3 2026 (Quiet Execution Phase)
 
-- [ ] Third-party audit (Forta, OpenZeppelin, Quantstamp, etc.)
+- [🚀] Third-party audit engagement: OpenZeppelin (Under Review), Quantstamp (RFP Submitted)
+- [🚀] Mainnet Ownership Handoff to SentinelMultiSigVault
 - [ ] Post-integration case study with live metrics
-- [ ] Expand dashboard features (custom analytics, alerts, API access)
+- [🚀] Expand dashboard features (Real-time alerting, API access)
 - [ ] Community AMA and dashboard preview for $AETH holders
 
 ## Q4 2026

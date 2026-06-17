@@ -29,7 +29,7 @@ const FALLBACK_RPC = network === 'mainnet'
 const RPC = [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(isUsableRpcUrl) || FALLBACK_RPC;
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
-const TREASURY_ADDRESS = '0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1';
+const TREASURY_ADDRESS = '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa';
 const TREASURY_ADDRESS_LC = TREASURY_ADDRESS.toLowerCase();
 
 // Contracts that route treasury payouts to a dedicated address (2026-04-27 treasury routing)
@@ -37,14 +37,32 @@ const TREASURY_ROUTED = new Set([
   'AetheronBridge', // withdrawFees() pays to owner()
   'SentinelOracleNetwork', // slashOracle() pays to owner()
   'SentinelZKOracle', // slashOracle() pays to owner()
+  'SentinelAMM',
+  'SentinelInsuranceProtocol',
+  'SentinelReferralSystem',
+  'SentinelStaking',
+  'SentinelRewardAggregator',
+  'SentinelSecurityTokenization'
 ]);
 
 const OWNABLE_KEYS = [
-  'SentinelMultiSigVault',
+  'SentinelToken',
   'AetheronBridge',
+  'SentinelInterceptor',
   'RateLimiter',
   'CircuitBreaker',
-  'SentinelInterceptor',
+  'SentinelMonitor',
+  'SentinelQuantumGuard',
+  'SentinelCoreLoop',
+  'SentinelYieldMaximizer',
+  'SentinelAMM',
+  'SentinelMultiSigVault',
+  'SentinelZKOracle',
+  'SentinelInsuranceProtocol',
+  'SentinelReferralSystem',
+  'SentinelStaking',
+  'SentinelRewardAggregator',
+  'SentinelSecurityTokenization'
 ];
 
 function short(addr) {
