@@ -9,6 +9,10 @@ contract MockToken is ERC20 {
     constructor() ERC20("Mock", "MCK") {
         _mint(msg.sender, 1000000 * 1e18);
     }
+
+    function mint(address to, uint256 amount) external {
+        _mint(to, amount);
+    }
 }
 
 contract VaultHandler is Test {
@@ -19,7 +23,6 @@ contract VaultHandler is Test {
     constructor(AetheronRetainerVault _vault, MockToken _token) {
         vault = _vault;
         token = _token;
-        token.transfer(user, 10000 * 1e18);
     }
 
     function deposit(uint256 amount) public {
@@ -45,11 +48,15 @@ contract AetheronRetainerVaultInvariant is Test {
     AetheronRetainerVault public vault;
     MockToken public token;
     VaultHandler public handler;
+    address public user = address(0x1337);
 
     function setUp() public {
         token = new MockToken();
+        token.mint(address(this), 1000000 * 1e18);
         vault = new AetheronRetainerVault(address(this), address(token));
         handler = new VaultHandler(vault, token);
+        token.transfer(user, 10000 * 1e18);
+        token.transfer(address(handler), 10000 * 1e18);
 
         targetContract(address(handler));
     }

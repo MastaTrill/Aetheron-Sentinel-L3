@@ -83,7 +83,7 @@ contract LiquidityVaultIntegrationTest is Test {
         pair.setSnapshot(4000 * PRICE_SCALE, 4000 * PRICE_SCALE, 4000);
         pair.setReserves(1e18, 11e17);
 
-        vm.expectRevert(SentinelGuard.HealthFactorTooLow.selector);
+        vm.expectRevert(abi.encodeWithSelector(SentinelGuard.HealthFactorTooLow.selector, 0));
         vault.addLiquidity();
     }
 
@@ -114,7 +114,9 @@ contract LiquidityVaultIntegrationTest is Test {
     }
 
     function test_SetMaxDivergenceRejectsFullScaleValue() public {
-        vm.expectRevert(LiquidityVault.InvalidDivergence.selector);
-        vault.setMaxDivergence(vault.BASE_DIVISOR());
+        uint256 fullScale = vault.BASE_DIVISOR();
+
+        vm.expectRevert(abi.encodeWithSelector(LiquidityVault.InvalidDivergence.selector));
+        vault.setMaxDivergence(fullScale);
     }
 }
