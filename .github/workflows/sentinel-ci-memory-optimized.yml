@@ -17,7 +17,7 @@ jobs:
         # Global Environment Throttles
         env:
             # 1. Node.js/V8 Limits: Caps heap at ~6GB, forces garbage collection
-            NODE_OPTIONS: "--max-old-space-size=6144 --optimize-for-size --gc-interval=100"
+            NODE_OPTIONS: "--max-old-space-size=6144"
 
             # 2. Rust/Cargo Limits: Single-threaded build, minimal codegen parallelization
             CARGO_BUILD_JOBS: 1

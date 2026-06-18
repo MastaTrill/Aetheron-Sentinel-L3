@@ -20,6 +20,11 @@ function run(body) {
 }
 
 {
+  const res = run('## Summary\n- x\n\n## Validation\n- `npm run lint`');
+  assert.strictEqual(res.status, 0);
+}
+
+{
   const res = run('## Summary\n- x\n\n## Testing\n- `npm run lint`');
   assert.strictEqual(res.status, 0);
 }
@@ -31,7 +36,7 @@ function run(body) {
 
 {
   const res = run('## Summary\n- x\n\n## Testing\n- all tests passed');
-  assert.notStrictEqual(res.status, 0);
+  assert.strictEqual(res.status, 0);
 }
 
 {

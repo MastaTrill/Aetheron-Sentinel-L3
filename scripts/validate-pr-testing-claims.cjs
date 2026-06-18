@@ -12,16 +12,20 @@ function main() {
   const body = fs.readFileSync(filePath, 'utf8');
 
   const hasSummary = /^## Summary/m.test(body);
-  const testingMatch = body.match(/^#{2,3} Testing/m);
+  const testingMatch = body.match(/^#{2,3} (Testing|Validation)/m);
   const hasTesting = !!testingMatch;
 
   if (!hasSummary || !hasTesting) {
     process.exit(1);
   }
 
-  const testingSection = body.slice(testingMatch.index).split(/^#{1,4} /m)[0];
+  const testingSection = body.slice(testingMatch.index + testingMatch[0].length).split(/^#{1,4} /m)[0];
 
-  const hasCommands = /```bash[\s\S]*?```/.test(testingSection) || /`[^`]+`/.test(testingSection);
+  const backtick = String.fromCharCode(96);
+  const hasFencedCommands = new RegExp(backtick + backtick + backtick + 'bash[\\s\\S]*?' + backtick + backtick + backtick).test(testingSection);
+  const hasInlineCommands = new RegExp(backtick + '[^' + backtick + ']+' + backtick).test(testingSection);
+  const hasCommandLines = /(^|\n)-?\s*`?((npm|yarn|pnpm|forge|hardhat|git|node|next|eslint|prettier)\s+[^\n`]+)/m.test(testingSection);
+  const hasCommands = hasFencedCommands || hasInlineCommands || hasCommandLines;
   const hasNotRun = /not run locally/i.test(testingSection);
   const hasResults = /tests passed|all passed/i.test(testingSection);
 
