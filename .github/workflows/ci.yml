@@ -15,10 +15,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Initialize submodules
-        run: git submodule update --init --recursive
+        run: |
+          git submodule update --init --recursive
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
