@@ -9,7 +9,7 @@ function main() {
     process.exit(1);
   }
 
-  const body = fs.readFileSync(filePath, 'utf8');
+  const body = fs.readFileSync(filePath, 'utf8').replace(/&#10;/g, '\n').replace(/&#13;/g, '\r').replace(/&amp;/g, '&');
 
   const hasSummary = /^## Summary/m.test(body);
   const testingMatch = body.match(/^#{2,3} (Testing|Validation)/m);

@@ -20,6 +20,11 @@ function run(body) {
 }
 
 {
+  const res = run('## Summary&#10;- x&#10;&#10;## Validation&#10;- npm run lint');
+  assert.strictEqual(res.status, 0);
+}
+
+{
   const res = run('## Summary\n- x\n\n## Validation\n- `npm run lint`');
   assert.strictEqual(res.status, 0);
 }
