@@ -131,6 +131,19 @@
     "postcss": "^8.5.10",
     "serialize-javascript": "^7.0.5",
     "uuid": "^14.0.0",
-    "hardhat-gas-reporter": "^2.3.0"
+    "hardhat-gas-reporter": "^2.3.0",
+    "ethers": "^6.16.0",
+    "@ethersproject/abi": "^5.8.0",
+    "@ethersproject/abstract-provider": "^5.8.0",
+    "@ethersproject/abstract-signer": "^5.8.0",
+    "@ethersproject/contracts": "^5.8.0",
+    "@ethersproject/hash": "^5.8.0",
+    "@ethersproject/hdnode": "^5.8.0",
+    "@ethersproject/json-wallets": "^5.8.0",
+    "@ethersproject/providers": "^5.8.0",
+    "@ethersproject/signing-key": "^5.8.0",
+    "@ethersproject/transactions": "^5.8.0",
+    "@ethersproject/wallet": "^5.8.0",
+    "@ethersproject/wordlists": "^5.8.0"
   }
 }
