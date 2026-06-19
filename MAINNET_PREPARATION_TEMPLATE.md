@@ -179,6 +179,9 @@ node scripts/audit-allowlists.cjs > /tmp/mainnet_allowlists_$(date +%s).txt
 ### Step 9: Create Release Documentation
 
 ```bash
+# Generate automated evidence report (Transaction Hashes & Addresses)
+powershell -ExecutionPolicy Bypass -File scripts/Get-DeploymentEvidence.ps1
+
 # Update the tracked mainnet draft files in-place
 npm run mainnet:finalize
 
@@ -262,5 +265,9 @@ Related stabilization commits:
 
 ---
 
-**Template created:** 2026-04-23  
+**Template created:** 2026-04-23
 **Based on:** Sepolia deployment block 10715441
+
+---
+
+_For more information on our security practices, see SECURITY.md._

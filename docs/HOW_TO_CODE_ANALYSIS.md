@@ -1,3 +1,5 @@
+# [ !Audit ](HOW_TO_REQUEST_AUDIT.md) [ !Bounty ](HOW_TO_BUG_BOUNTY.md) [ !Home ](../README.md)
+
 # How to Use Code Analysis & Error Finding
 
 Aetheron Sentinel's Code Analysis service automatically scans your smart contracts and identifies potential vulnerabilities, bugs, and optimization opportunities. This guide explains how to use it.
@@ -21,12 +23,14 @@ Code Analysis is an automated vulnerability scanning service that combines machi
 ## When Should You Use Code Analysis?
 
 ### ✓ Recommended
+
 - During development—scan after major feature additions.
 - Before testnet deployment—catch low-hanging security issues.
 - After third-party library upgrades—ensure new dependencies are safe.
 - Regularly (monthly/quarterly)—catch regressions and new patterns.
 
 ### Use Cases
+
 - Smart contract development and security hardening.
 - Code review process augmentation.
 - Continuous integration/continuous deployment (CI/CD) pipeline integration.
@@ -68,11 +72,13 @@ Your Report (24–72 hours)
 ## Step 1: Prepare Your Code
 
 ### Organize Code for Scanning
+
 - Place all smart contracts in a single directory or GitHub repository.
 - Ensure contracts compile without errors.
 - Include `package.json` and `hardhat.config.js` (or equivalent) so we can resolve dependencies.
 
 ### File Structure Example
+
 ```
 my-protocol/
 ├── contracts/
@@ -85,6 +91,7 @@ my-protocol/
 ```
 
 ### Version Control
+
 - Commit all code to a clean git branch.
 - Ensure `.gitignore` excludes `node_modules` and compiled artifacts.
 
@@ -93,21 +100,26 @@ my-protocol/
 ## Step 2: Submit Your Code
 
 ### Option A: GitHub Repository
+
 ```bash
 # Provide us with GitHub repo link
 https://github.com/yourname/your-protocol
 ```
+
 - Ensure the repo is public or grant Aetheron access.
 - We'll clone and scan the latest `main` or `develop` branch.
 
 ### Option B: Direct Upload
+
 ```bash
 # Zip your contract directory and attach to email
 zip -r my-contracts.zip contracts/ package.json hardhat.config.js
 ```
+
 - Send to **aetheron.solana@gmail.com** with subject: "Code Analysis Request"
 
 ### Option C: Contact Form
+
 Visit the [Sentinel L3 Dashboard](https://mastatrill.github.io/Aetheron-Sentinel-L3/#contact) and select **"Code Analysis"** from the service dropdown.
 
 ---
@@ -117,18 +129,22 @@ Visit the [Sentinel L3 Dashboard](https://mastatrill.github.io/Aetheron-Sentinel
 Help us scan more effectively by providing:
 
 ### Scan Scope
+
 - Which contracts are in scope? (all, specific files, specific functions)
 - Which are dependencies vs. core contracts?
 
 ### Known Issues
+
 - Are there known vulnerabilities or limitations?
 - Anything we should ignore or deprioritize?
 
 ### Chain & EVM Version
+
 - Target blockchain? (Ethereum, Polygon, Arbitrum, etc.)
 - Solidity version? (e.g., 0.8.20)
 
 ### Sensitivity
+
 - Standard scan (all findings) or priority scan (critical/high only)?
 
 ---
@@ -138,12 +154,15 @@ Help us scan more effectively by providing:
 **Within 24–72 hours**, we'll deliver a detailed report including:
 
 ### Executive Summary
+
 - Risk scorecard (overall risk level: low, medium, high, critical)
 - Summary of findings by severity
 - Key recommendations
 
 ### Detailed Findings
+
 Each finding includes:
+
 - **Vulnerability name** (e.g., "Reentrancy via External Call")
 - **Severity** (critical, high, medium, low)
 - **Code snippet** showing the vulnerable pattern
@@ -152,6 +171,7 @@ Each finding includes:
 - **References** (CWE, OWASP, external resources)
 
 ### Example Finding
+
 ```
 FINDING: Unchecked External Call
 SEVERITY: High
@@ -167,6 +187,7 @@ REMEDIATION: Implement safe transfer pattern:
 ```
 
 ### Risk Scorecard
+
 - Total vulnerabilities by severity
 - Gas optimization opportunities
 - Best practice violations
@@ -177,21 +198,25 @@ REMEDIATION: Implement safe transfer pattern:
 ## Step 5: Act on Findings
 
 ### Prioritize by Severity
+
 1. **Critical** - Fix before testnet deployment.
 2. **High** - Fix before mainnet deployment.
 3. **Medium** - Plan fixes within 2 weeks.
 4. **Low** - Fix opportunistically or document reasoning for exceptions.
 
 ### Implement Fixes
+
 - For each finding, implement the suggested remediation.
 - Write unit tests to verify the fix.
 - Commit fixes to a new git branch.
 
 ### Re-Scan (Optional)
+
 - Re-submit updated code to verify fixes.
 - Cost: $99 per re-scan (included in Professional tier monthly).
 
 ### False Positives
+
 - Not all findings apply to your use case.
 - If you disagree with a finding, document your reasoning.
 - Our team can clarify findings via email.
@@ -201,6 +226,7 @@ REMEDIATION: Implement safe transfer pattern:
 ## Example: Detecting Reentrancy
 
 **Your code:**
+
 ```solidity
 function withdraw(uint256 amount) external {
     require(balances[msg.sender] >= amount);
@@ -211,6 +237,7 @@ function withdraw(uint256 amount) external {
 ```
 
 **Our scan output:**
+
 ```
 FINDING: Reentrancy via External Call
 SEVERITY: Critical
@@ -230,16 +257,18 @@ function withdraw(uint256 amount) external {
 ## Limitations of Automated Scanning
 
 ### What We Can Detect
+
 ✓ Known vulnerability patterns (reentrancy, overflow, access control)  
 ✓ Common code anti-patterns  
 ✓ Unsafe library usage  
-✓ Gas inefficiencies  
+✓ Gas inefficiencies
 
 ### What Requires Manual Audit
+
 ✗ Complex business logic errors  
 ✗ Architectural vulnerabilities  
 ✗ Novel attack vectors  
-✗ Protocol-specific security concerns  
+✗ Protocol-specific security concerns
 
 **For comprehensive security, combine Code Analysis with a [professional smart contract audit](HOW_TO_REQUEST_AUDIT.md).**
 
@@ -248,6 +277,7 @@ function withdraw(uint256 amount) external {
 ## Integrating into Your Workflow
 
 ### CI/CD Integration
+
 Add automated scanning to your GitHub Actions pipeline:
 
 ```yaml
@@ -265,7 +295,9 @@ jobs:
 ```
 
 ### Pre-Deployment Checklist
+
 Before mainnet deployment:
+
 - [ ] Code Analysis: 0 critical findings
 - [ ] Code Analysis: All high findings remediated
 - [ ] Unit tests: 100% coverage of critical functions
@@ -276,26 +308,30 @@ Before mainnet deployment:
 
 ## Pricing
 
-| Plan | Scans/Month | Turnaround | Cost |
-|------|-------------|-----------|------|
-| Free | 1 | 1 week | $0 |
-| Professional | 12 | 24–72h | $99/mo |
-| Enterprise | Unlimited | 12–24h | Custom |
+| Plan         | Scans/Month | Turnaround | Cost   |
+| ------------ | ----------- | ---------- | ------ |
+| Free         | 1           | 1 week     | $0     |
+| Professional | 12          | 24–72h     | $99/mo |
+| Enterprise   | Unlimited   | 12–24h     | Custom |
 
 ---
 
 ## Support & Troubleshooting
 
 ### Build Errors
+
 If your code doesn't compile, we'll note it in the report. Common issues:
+
 - Missing dependencies (add to `package.json`)
 - Wrong Solidity version (update `hardhat.config.js`)
 - Syntax errors (ensure code compiles locally first)
 
 ### Questions About Findings
+
 Reply to your scan report email with questions. Our team responds within 24 hours.
 
 ### Advanced Options
+
 - **Formal Verification** - Mathematically prove correctness of critical functions.
 - **Fuzzing** - Automated test generation to find edge cases.
 - **Custom Rules** - Define organization-specific security policies.
@@ -316,9 +352,13 @@ Ready to scan your code?
 
 📧 **Email:** aetheron.solana@gmail.com  
 🌐 **Contact Form:** [Sentinel L3 Dashboard](https://mastatrill.github.io/Aetheron-Sentinel-L3/#contact)  
-💻 **GitHub:** [Share your repo](https://github.com)  
+💻 **GitHub:** [Share your repo](https://github.com)
 
 ---
 
 **Document Version:** 1.0  
 **Last Updated:** May 13, 2026
+
+---
+
+_For more information on our security practices, see [SECURITY.md](SECURITY.md)._

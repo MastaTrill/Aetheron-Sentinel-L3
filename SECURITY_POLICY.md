@@ -47,3 +47,7 @@ In the event of an active exploit, please refer to our INCIDENT_RESPONSE.md for 
 ---
 
 _Last Updated: May 13, 2026_
+
+---
+
+_For more information on our security practices, see SECURITY.md._

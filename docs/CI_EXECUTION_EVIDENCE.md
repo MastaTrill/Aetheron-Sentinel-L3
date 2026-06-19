@@ -29,3 +29,7 @@ Configure branch protection for `main` to require:
 - `CI / Code Quality`
 
 > Note: required checks are a GitHub repository setting and cannot be enforced purely by source files.
+
+---
+
+_For more information on our security practices, see SECURITY.md._

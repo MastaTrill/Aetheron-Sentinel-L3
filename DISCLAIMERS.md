@@ -15,7 +15,7 @@ Aetheron Sentinel's smart contract audits are **advisory services only**. An aud
 
 ## 2. Third-Party Audit Status
 
-As of **May 13, 2026**, Aetheron Sentinel's smart contracts have **not yet undergone a formal third-party audit** by established security firms such as OpenZeppelin, Trail of Bits, or Quantstamp. 
+As of **May 13, 2026**, Aetheron Sentinel's smart contracts have **not yet undergone a formal third-party audit** by established security firms such as OpenZeppelin, Trail of Bits, or Quantstamp.
 
 **Current Status:**
 - ✅ Internal security review completed.
@@ -118,18 +118,18 @@ You agree to defend, indemnify, and hold harmless Aetheron Sentinel from any cla
 
 **By using Aetheron Sentinel's Services, you explicitly acknowledge and accept:**
 
-✓ Smart contracts are experimental technology with inherent risks.  
-✓ Audits are advisory; vulnerabilities may remain undetected.  
-✓ Third-party audit is not yet complete.  
-✓ You may lose funds through smart contract bugs, market volatility, or protocol failures.  
-✓ You alone bear the risk and responsibility for your use of our Services.  
+✓ Smart contracts are experimental technology with inherent risks.
+✓ Audits are advisory; vulnerabilities may remain undetected.
+✓ Third-party audit is not yet complete.
+✓ You may lose funds through smart contract bugs, market volatility, or protocol failures.
+✓ You alone bear the risk and responsibility for your use of our Services.
 
 ## 12. Report Vulnerabilities Responsibly
 
 If you discover a security vulnerability in our smart contracts or Services:
 
-- **Email:** security@aetheron.org  
-- **HackenProof Bounty:** [https://hackenproof.com](https://hackenproof.com)  
+- **Email:** security@aetheron.org
+- **HackenProof Bounty:** [https://hackenproof.com](https://hackenproof.com)
 - **Do not** disclose vulnerabilities publicly before we have 30 days to remediate.
 
 See [BUG_BOUNTY.md](BUG_BOUNTY.md) and [SECURITY.md](SECURITY.md) for full details.
@@ -142,5 +142,8 @@ For questions about these Disclaimers or our risk posture:
 
 ---
 
-**Last Reviewed:** May 13, 2026  
+---
+_For more information on our security practices, see SECURITY.md._
+
+**Last Reviewed:** May 13, 2026
 **Next Review:** August 13, 2026 (post-audit)

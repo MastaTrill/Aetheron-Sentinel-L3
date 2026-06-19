@@ -177,26 +177,46 @@ contract SentinelQuantumGuard is ISentinelQuantumGuard, Ownable {
   function get30MinTWAC() external view returns (uint256) {
     uint256 targetTime = block.timestamp - 30 minutes;
 
-    // Binary search over the logical range [0, 15]
-    // Logical index 0 is physical index s_observationIndex (the oldest entry in the circular buffer)
-    uint256 low = 0;
-    uint256 high = OBSERVATION_MASK;
+    // Constant-time (fixed step) binary search over the logical range [0, 15]
+    // This prevents timing side-channels by ensuring the same number of iterations
+    // and a data-independent execution path (fixed unrolling).
     uint256 bestPhysIdx = s_observationIndex;
+    uint256 offset = 0;
+    uint256 checkIdx;
 
-    while (low <= high) {
-      uint256 mid = (low + high) / 2;
-      uint256 physMid = (s_observationIndex + mid) & OBSERVATION_MASK;
+    // Step 1: Check logical index 8 (midpoint of 16)
+    checkIdx = (s_observationIndex + 8) & OBSERVATION_MASK;
+    if (
+      s_observations[checkIdx].timestamp != 0 && s_observations[checkIdx].timestamp <= targetTime
+    ) {
+      offset = 8;
+      bestPhysIdx = checkIdx;
+    }
 
-      if (
-        s_observations[physMid].timestamp == 0 || s_observations[physMid].timestamp > targetTime
-      ) {
-        if (mid == 0) break;
-        high = mid - 1;
-      } else {
-        // Found a candidate timestamp <= targetTime. Look for a newer one.
-        bestPhysIdx = physMid;
-        low = mid + 1;
-      }
+    // Step 2: Check 4 steps ahead of current offset
+    checkIdx = (s_observationIndex + offset + 4) & OBSERVATION_MASK;
+    if (
+      s_observations[checkIdx].timestamp != 0 && s_observations[checkIdx].timestamp <= targetTime
+    ) {
+      offset += 4;
+      bestPhysIdx = checkIdx;
+    }
+
+    // Step 3: Check 2 steps ahead
+    checkIdx = (s_observationIndex + offset + 2) & OBSERVATION_MASK;
+    if (
+      s_observations[checkIdx].timestamp != 0 && s_observations[checkIdx].timestamp <= targetTime
+    ) {
+      offset += 2;
+      bestPhysIdx = checkIdx;
+    }
+
+    // Step 4: Check 1 step ahead
+    checkIdx = (s_observationIndex + offset + 1) & OBSERVATION_MASK;
+    if (
+      s_observations[checkIdx].timestamp != 0 && s_observations[checkIdx].timestamp <= targetTime
+    ) {
+      bestPhysIdx = checkIdx;
     }
 
     uint256 timeDiff = block.timestamp - s_observations[bestPhysIdx].timestamp;

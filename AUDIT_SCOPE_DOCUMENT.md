@@ -19,6 +19,7 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
 ## Contracts in Scope
 
 ### Core & Monitoring (6 contracts)
+
 1. **SentinelCore** (`0x5C85D36529D1217189faf9E48C956d51e5de6211`)
    - Primary monitoring engine; real-time anomaly detection loop
    - Risk: Autonomous decision-making; denial-of-service attacks
@@ -44,6 +45,7 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
    - Risk: Stale data; oracle dependency; model poisoning
 
 ### Security & Control (5 contracts)
+
 7. **CircuitBreaker** (`0x1FC97c1C54914E9053EDF97C390bF9b3b77eA885`)
    - Emergency halt mechanism; graceful degradation
    - Risk: DoS on legitimate transactions; inconsistent state
@@ -65,6 +67,7 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
     - Risk: Front-running governance; time manipulation
 
 ### Governance (2 contracts)
+
 12. **SentinelGovernance** (`0x38427f04abD2a9D938674a41c6dbf592E6e953f0`)
     - DAO voting; proposal execution
     - Risk: Vote manipulation; flash loan attacks; proposal flooding
@@ -74,11 +77,13 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
     - Risk: Unlimited supply edge cases; delegation loops
 
 ### Cross-Chain & Bridges (1 contract)
+
 14. **AetheronBridge** (`0x77E4C1EbeAB0c5140dd0F3d60eBf523134DC7597`)
     - Multi-chain bridge protocol; message relay and validation
     - Risk: Bridge exploits; chain state divergence; signature validation
 
 ### Yield & Staking (4 contracts)
+
 15. **SentinelStaking** (`0x1fADa3493E662F0aDDDb84259ee30b97C6A015E3`)
     - Staking pool; dynamic APY (3–5%); yield distribution
     - Risk: Yield calculation errors; early exit penalties
@@ -96,6 +101,7 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
     - Risk: Referral loop exploits; reward calculation errors
 
 ### Privacy & Cryptography (3 contracts)
+
 19. **SentinelZKIdentity** (`0x67035285fefF86926CC83D8a214946B5A73EA21C`)
     - Zero-knowledge identity proofs (zkSNARK/zkSTARK)
     - Risk: Proof forgery; soundness violations; circuit bugs
@@ -109,6 +115,7 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
     - Risk: Guardian collusion; recovery delay exploitation
 
 ### Infrastructure (2 contracts)
+
 22. **SentinelOracleNetwork** (`0x004B5b6a2d62b7734D0Ba9138716fd4fD22d4B3F`)
     - Decentralized oracle network; price feeds and data aggregation
     - Risk: Oracle price manipulation; stale data
@@ -134,18 +141,21 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
 ## Key Security Concerns
 
 ### High Priority
+
 - **Autonomous Decision-Making:** SentinelCore and SentinelCoreLoop must be audited for safe state transitions under adversarial conditions
 - **Cross-Chain Validation:** AetheronBridge's multi-chain message validation must prevent signature spoofing and state divergence
 - **Cryptographic Soundness:** Post-quantum algorithms (Dilithium, Kyber) and ZK proofs must be formally verified
 - **Oracle Manipulation:** SentinelOracleNetwork price feeds must be resistant to flash loan attacks and cartel coordination
 
 ### Medium Priority
+
 - **Reentrancy & Race Conditions:** All external calls must be guarded; state mutations must be atomic
 - **Yield Calculation:** APY distribution and staking rewards must be mathematically sound across all edge cases
 - **Flow Control:** RateLimiter and CircuitBreaker must not create denial-of-service vectors
 - **Governance:** Voting and timelock mechanisms must resist flash loan attacks and front-running
 
 ### Low Priority
+
 - **Gas Optimization:** Review for excessive gas consumption under normal and attack scenarios
 - **Code Clarity:** Documentation and variable naming for maintainability
 - **Upgrade Paths:** Proxy patterns and upgrade safety (if applicable)
@@ -155,17 +165,20 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
 ## Testing & Evidence
 
 ### Existing Test Coverage
+
 - **Unit Tests:** 30+ test files covering individual contract functions
 - **Integration Tests:** Multi-contract interaction scenarios
 - **Smoke Tests:** Basic deployment and initialization
 - **Coverage Target:** Aiming for 90%+ line coverage
 
 ### Fuzzing & Formal Verification
+
 - Static analysis via Slither
 - Echidna property-based fuzzing (in progress)
 - Formal verification of critical state transitions (pending)
 
 ### Deployment Evidence
+
 - **Testnet:** Sepolia (ChainId 11155111) — all 26 contracts deployed and operational
 - **Mainnet:** Ready for deployment; pending third-party audit clearance
 
@@ -173,15 +186,15 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
 
 ## Attack Vectors & Mitigations
 
-| Attack Vector | Description | Mitigation |
-|---|---|---|
-| **Flash Loan** | Atomically borrow large capital to manipulate prices/voting | Oracle safeguards; voting delay; cooldown period |
-| **Front-Running** | Observer sees pending tx, submits own tx with higher gas | MEV-resistant ordering; private mempools (future) |
-| **Reentrancy** | Attacker recursively calls function before state update | Checks-Effects-Interactions pattern; OpenZeppelin guards |
-| **Oracle Failure** | Centralized price feed goes offline or is manipulated | Multiple price sources; fallback feeds; staleness checks |
-| **DoS on Critical Path** | Attacker fills RateLimiter quota; emergency halt stuck | Bypass for timelock; guardian override; degraded mode |
-| **Signature Replay** | Old signature replayed on different chain/contract | EIP-712 domain separation; nonce tracking |
-| **Cryptographic Weakness** | Post-quantum algo implementation has side-channel leak | Constant-time operations; third-party library audit |
+| Attack Vector              | Description                                                 | Mitigation                                               |
+| -------------------------- | ----------------------------------------------------------- | -------------------------------------------------------- |
+| **Flash Loan**             | Atomically borrow large capital to manipulate prices/voting | Oracle safeguards; voting delay; cooldown period         |
+| **Front-Running**          | Observer sees pending tx, submits own tx with higher gas    | MEV-resistant ordering; private mempools (future)        |
+| **Reentrancy**             | Attacker recursively calls function before state update     | Checks-Effects-Interactions pattern; OpenZeppelin guards |
+| **Oracle Failure**         | Centralized price feed goes offline or is manipulated       | Multiple price sources; fallback feeds; staleness checks |
+| **DoS on Critical Path**   | Attacker fills RateLimiter quota; emergency halt stuck      | Bypass for timelock; guardian override; degraded mode    |
+| **Signature Replay**       | Old signature replayed on different chain/contract          | EIP-712 domain separation; nonce tracking                |
+| **Cryptographic Weakness** | Post-quantum algo implementation has side-channel leak      | Constant-time operations; third-party library audit      |
 
 ---
 
@@ -223,3 +236,7 @@ This audit covers 19 core smart contracts deployed on Ethereum, designed to dete
 ---
 
 _Audit scope document prepared: May 2026. Subject to updates as development continues._
+
+---
+
+_For more information on our security practices, see SECURITY.md._
