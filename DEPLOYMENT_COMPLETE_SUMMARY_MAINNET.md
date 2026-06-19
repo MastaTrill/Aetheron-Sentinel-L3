@@ -3,11 +3,9 @@
 After comprehensive security hardening with forced dependency overrides, the following status is confirmed:
 
 - **All high-severity dependencies are secured.**
-- **npm audit reports 19 low-severity vulnerabilities** (0 high, 0 critical).
-- **Patched via overrides:** `tmp` (path traversal), `undici` (multiple CVEs), `form-data` (CRLF injection), `ws` (memory disclosure).
-- **Dependency hygiene is maintained** via automated nightly audits in CI/CD.
-- **Build and tests pass** with Node 22, Hardhat 3.x, Foundry stable.
-- **CI Status:** All 8 core workflows passing on main (`48041d2`).
+- **npm audit reports 14 low-severity vulnerabilities** (0 high, 0 critical, 0 moderate).
+- **Patched via overrides:** `tmp`, `undici`, `form-data`, `ws`, `axios`, `js-yaml`, `read-yaml-file`, `ethers`, `@ethersproject/*` (12 packages)
+- **CI Status:** All workflows passing on main (`a17454e`).
 
 **Residual Risk Statement:**
 `elliptic` (transitive dep of ethers) has no non-breaking fix. All other supply-chain risks mitigated via `overrides` in `package.json`.
