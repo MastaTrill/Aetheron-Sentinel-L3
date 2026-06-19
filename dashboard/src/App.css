@@ -180,3 +180,28 @@
     border-right-color: var(--border);
   }
 }
+
+.events-table {
+  width: 100%;
+  max-width: 800px;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+
+  th,
+  td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    background: var(--code-bg);
+    color: var(--text-h);
+    font-weight: 500;
+  }
+
+  tr:hover {
+    background: var(--social-bg);
+  }
+}

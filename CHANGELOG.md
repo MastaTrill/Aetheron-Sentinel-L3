@@ -37,3 +37,7 @@ All notable changes to Sentinel L3 will be documented here.
 ### Notes
 
 This entry reflects mainnet release preparation and Sepolia-backed deployment evidence in the repository. Final mainnet release notes remain blocked on objective Ethereum mainnet transaction evidence.
+
+---
+
+_For more information on our security practices, see SECURITY.md._

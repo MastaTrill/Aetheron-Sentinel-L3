@@ -12,12 +12,12 @@ The $SENT token is the native utility and governance powering the Aetheron Senti
 
 Stake $SENT to earn yield through a multi-tier reward system:
 
-| Tier | Min Stake | Base APY | Performance Bonus | Lock Period |
-|------|-----------|----------|-------------------|-------------|
-| Bronze | 100 SENT | 2.89% | +0.5% | 7 days |
-| Silver | 1,000 SENT | 3.50% | +1.0% | 14 days |
-| Gold | 10,000 SENT | 4.20% | +1.5% | 30 days |
-| Platinum | 50,000 SENT | 5.00% | +2.0% | 90 days |
+| Tier     | Min Stake   | Base APY | Performance Bonus | Lock Period |
+| -------- | ----------- | -------- | ----------------- | ----------- |
+| Bronze   | 100 SENT    | 2.89%    | +0.5%             | 7 days      |
+| Silver   | 1,000 SENT  | 3.50%    | +1.0%             | 14 days     |
+| Gold     | 10,000 SENT | 4.20%    | +1.5%             | 30 days     |
+| Platinum | 50,000 SENT | 5.00%    | +2.0%             | 90 days     |
 
 Rewards compound through the SentinelRewardAggregator, which combines staking, governance, referral, and security bonuses into a single optimized APY.
 
@@ -55,11 +55,11 @@ Premiums are paid in $SENT. Claims are processed parametric-style by the Sentine
 
 Build a referral network to earn additional yield:
 
-| Referral Level | Bonus APY |
-|----------------|-----------|
-| Direct (L1) | 0.5% |
-| Second-degree (L2) | 0.25% |
-| Third-degree (L3) | 0.10% |
+| Referral Level     | Bonus APY |
+| ------------------ | --------- |
+| Direct (L1)        | 0.5%      |
+| Second-degree (L2) | 0.25%     |
+| Third-degree (L3)  | 0.10%     |
 
 ### 6. Security Bounty Rewards
 
@@ -73,14 +73,14 @@ Earn $SENT by contributing to ecosystem security:
 
 ## 📊 Tokenomics
 
-| Allocation | Percentage | Amount | Purpose |
-|------------|-----------|--------|---------|
-| Staking Rewards | 20% | 200M SENT | Long-term staking incentives |
-| Liquidity Mining | 20% | 200M SENT | DEX and LP incentives |
-| Ecosystem Fund | 25% | 250M SENT | Partnerships, grants, growth |
-| Security Rewards | 15% | 150M SENT | Bug bounties, security incentives |
-| Governance Rewards | 10% | 100M SENT | Voting and participation rewards |
-| Team Allocation | 10% | 100M SENT | Vesting: 90-day cliff, 365-day linear |
+| Allocation         | Percentage | Amount    | Purpose                               |
+| ------------------ | ---------- | --------- | ------------------------------------- |
+| Staking Rewards    | 20%        | 200M SENT | Long-term staking incentives          |
+| Liquidity Mining   | 20%        | 200M SENT | DEX and LP incentives                 |
+| Ecosystem Fund     | 25%        | 250M SENT | Partnerships, grants, growth          |
+| Security Rewards   | 15%        | 150M SENT | Bug bounties, security incentives     |
+| Governance Rewards | 10%        | 100M SENT | Voting and participation rewards      |
+| Team Allocation    | 10%        | 100M SENT | Vesting: 90-day cliff, 365-day linear |
 
 **Total Supply**: 1,000,000,000 SENT (fixed, no inflation beyond initial distribution)
 
@@ -124,4 +124,8 @@ This creates a **flywheel effect** where $SENT utility and value increase togeth
 
 ---
 
-*Contract: SentinelToken (ERC-20) | Chain: Base L2 | Standard: OpenZeppelin v5.6.1*
+_Contract: SentinelToken (ERC-20) | Chain: Base L2 | Standard: OpenZeppelin v5.6.1_
+
+---
+
+_For more information on our security practices, see SECURITY.md._

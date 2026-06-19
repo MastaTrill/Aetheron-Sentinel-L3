@@ -78,6 +78,7 @@ npm run deploy:mainnet
 
 1. Update `.env.mainnet` with deployed addresses
 2. Run: `npm run mainnet:finalize`
+3. **SECURITY GATE:** Run `npm run verify:ownership` to audit control plane
 3. Fill in actual START_BLOCK when prompted
 4. Paste DEPLOYED_ADDRESSES JSON if not auto-filled
 5. Generate final summary: `DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md`
@@ -144,3 +145,6 @@ If critical issue detected post-deployment:
 **Status:** Ready for Phase 1 (testnet) and mainnet preflight once real environment values are supplied
 **Blockers:** Missing `.env` / `.env.mainnet` deployment values, especially `MAINNET_RPC_URL`
 **Next Action:** Fill real deployment env values → rerun `npm run mainnet:preflight` → deploy to Sepolia or mainnet per checklist
+
+---
+_For more information on our security practices, see SECURITY.md._

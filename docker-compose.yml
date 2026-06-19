@@ -17,8 +17,6 @@ services:
       - NODE_ENV=production
 
 secrets:
-  # In production, these are created via: 
-  # printf "0x..." | docker secret create deployer_private_key -
   deployer_private_key:
     external: true
   infura_api_key:

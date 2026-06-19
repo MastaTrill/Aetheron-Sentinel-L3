@@ -34,4 +34,8 @@
 
 ---
 
+---
+
+_For more information on our security practices, see SECURITY.md._
+
 **This checklist ensures a deterministic, mainnet-safe, and auditable launch for Aetheron Sentinel L3.**

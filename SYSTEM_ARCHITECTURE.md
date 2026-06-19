@@ -445,3 +445,6 @@
 ---
 
 **The Sentinel L3 architecture represents the most advanced, secure, and yield-optimized DeFi system ever created. Quantum-resistant, AI-powered, and unbreakable by design.** 🚀🛡️💰
+
+---
+_For more information on our security practices, see SECURITY.md._

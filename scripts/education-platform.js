@@ -163,6 +163,7 @@ class SentinelEducationPlatform {
    * Get specific course
    */
   getCourse(courseId) {
+    courseId = path.basename(courseId);
     const levels = ['beginner', 'intermediate', 'advanced'];
 
     for (const level of levels) {
@@ -179,6 +180,9 @@ class SentinelEducationPlatform {
    * Record module completion
    */
   recordModuleCompletion(courseId, moduleId, userAddress, score) {
+    courseId = path.basename(courseId);
+    moduleId = path.basename(moduleId);
+    userAddress = path.basename(userAddress);
     const progressPath = path.join(this.certificatesPath, 'progress', `${userAddress}.json`);
 
     let progress = { userAddress, completedModules: {} };
@@ -204,6 +208,8 @@ class SentinelEducationPlatform {
    * Issue certificate
    */
   issueCertificate(userAddress, courseId, finalScore) {
+    userAddress = path.basename(userAddress);
+    courseId = path.basename(courseId);
     const certificateId = `cert-${Date.now()}`;
     const certificatePath = path.join(this.certificatesPath, 'issued', `${certificateId}.json`);
 
@@ -228,6 +234,7 @@ class SentinelEducationPlatform {
    * Verify certificate
    */
   verifyCertificate(certificateId) {
+    certificateId = path.basename(certificateId);
     const certificatePath = path.join(this.certificatesPath, 'issued', `${certificateId}.json`);
 
     if (!fs.existsSync(certificatePath)) {
@@ -241,6 +248,7 @@ class SentinelEducationPlatform {
    * Get user progress
    */
   getUserProgress(userAddress) {
+    userAddress = path.basename(userAddress);
     const progressPath = path.join(this.certificatesPath, 'progress', `${userAddress}.json`);
 
     if (!fs.existsSync(progressPath)) {

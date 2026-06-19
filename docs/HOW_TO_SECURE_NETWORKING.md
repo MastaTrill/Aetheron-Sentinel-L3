@@ -12,6 +12,7 @@ Secure Networking is a quantum-resistant, encrypted protocol layer that allows s
 - **Protocol-to-Protocol Messaging** - Secure attestations, bridge confirmations, oracle updates.
 
 **Use cases:**
+
 - Bridge protocols sending encrypted cross-chain confirmations.
 - Lending protocols verifying collateral across chains without exposure.
 - DEX protocols coordinating liquidity without revealing reserves.
@@ -22,12 +23,14 @@ Secure Networking is a quantum-resistant, encrypted protocol layer that allows s
 ## When Should You Use Secure Networking?
 
 ### ✓ Good Use Cases
+
 - **Cross-chain bridges** needing secure message passing.
 - **Private financial protocols** requiring data confidentiality.
 - **Interoperability layers** coordinating between blockchains.
 - **Sensitive operator actions** (like governance multisig coordination).
 
 ### ✗ Not Recommended For
+
 - Simple token transfers (use standard bridges).
 - Public data that doesn't need privacy (use normal smart contracts).
 - High-frequency trading (ZK proofs may add latency).
@@ -44,6 +47,7 @@ Secure Networking consists of three components:
 3. **Smart Contract Integration** - On-chain verification and state updates based on encrypted inputs.
 
 **Data flow:**
+
 ```
 Protocol A (Ethereum)
     ↓ encrypt with recipient public key
@@ -109,6 +113,7 @@ function configureTrustedEndpoint(uint256 chainId, address endpoint) external on
 ```
 
 **Supported chains:**
+
 - Ethereum (mainnet: 1, testnet: 11155111 Sepolia)
 - Polygon (mainnet: 137, testnet: 80001 Mumbai)
 - Arbitrum (mainnet: 42161, testnet: 421614)
@@ -186,16 +191,19 @@ Use our telemetry dashboard to monitor encrypted message flow:
 ## Security Considerations
 
 ### Private Key Management
+
 - **Never** hardcode private keys in contracts or environment variables.
 - Use a secure key management system (Hardware Security Module, AWS KMS, or similar).
 - Rotate keys every 6–12 months.
 
 ### Message Authentication
+
 - Always verify the sender of encrypted messages.
 - Implement message nonces to prevent replay attacks.
 - Check timestamp freshness (messages older than 24 hours should be rejected).
 
 ### Quantum Safety
+
 Our encryption uses lattice-based cryptography (ML-KEM-768) resistant to quantum attacks. Even if a quantum computer breaks RSA/ECDSA in the future, your messages remain secure.
 
 ---
@@ -216,7 +224,7 @@ function syncLiquidityEncrypted(uint256 amount) external {
 function receiveSyncLiquidity(bytes memory encryptedPayload) external {
     bytes memory decrypted = encryptionLibrary.decrypt(encryptedPayload);
     (uint256 liquidity, uint256 timestamp) = abi.decode(decrypted, (uint256, uint256));
-    
+
     require(block.timestamp - timestamp < 1 days, "Message expired");
     _rebalanceLiquidity(liquidity);
 }
@@ -227,16 +235,19 @@ function receiveSyncLiquidity(bytes memory encryptedPayload) external {
 ## Troubleshooting
 
 ### Message Stuck in Relay
+
 - Check if the destination endpoint is correctly configured.
 - Verify gas fees are sufficient on destination chain.
 - Restart relay client: `npm restart sentinel:relay`
 
 ### Decryption Failing
+
 - Confirm you're using the correct private key.
 - Verify the message wasn't corrupted in transit.
 - Check the encryption library version matches.
 
 ### High Latency
+
 - Relayers may be congested; try again in 5 minutes.
 - Consider using standard bridges for non-urgent messages.
 
@@ -246,9 +257,9 @@ function receiveSyncLiquidity(bytes memory encryptedPayload) external {
 
 **Issues or questions?**
 
-📧 **Email:** aetheron.solana@gmail.com  
-🐛 **Report Issues:** [GitHub Issues](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues)  
-📊 **Monitor Status:** [Sentinel Telemetry Dashboard](https://mastatrill.github.io/Aetheron-Sentinel-L3/#telemetry)  
+📧 **Email:** aetheron.solana@gmail.com
+🐛 **Report Issues:** [GitHub Issues](https://github.com/MastaTrill/Aetheron-Sentinel-L3/issues)
+📊 **Monitor Status:** [Sentinel Telemetry Dashboard](https://mastatrill.github.io/Aetheron-Sentinel-L3/#telemetry)
 
 ---
 
@@ -258,5 +269,9 @@ See [DISCLAIMERS.md](DISCLAIMERS.md) for important limitations. Secure Networkin
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 1.0
 **Last Updated:** May 13, 2026
+
+---
+
+_For more information on our security practices, see [SECURITY.md](SECURITY.md)._

@@ -11,6 +11,8 @@ permissions:
 jobs:
   validate-pr-testing-claims:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: ""
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6

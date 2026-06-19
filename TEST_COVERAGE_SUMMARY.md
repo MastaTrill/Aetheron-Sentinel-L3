@@ -48,6 +48,8 @@
 - Line coverage tooling (`solidity-coverage`) is not yet compatible with Hardhat 3.x — it imports `hardhat/internal/constants` which is not exported in the Hardhat 3 package. Coverage will be enabled once an official Hardhat 3 coverage plugin is released.
 - All 343 Solidity tests and 5 Python tests run in CI on every push and PR to `main`.
 
+---
+_For more information on our security practices, see SECURITY.md._
 ## CI Configuration
 
 Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)

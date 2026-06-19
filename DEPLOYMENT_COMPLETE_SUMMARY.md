@@ -1,8 +1,8 @@
 # Aetheron Sentinel L3 - Sepolia Deployment Complete
 
-**Deployment Date:** April 23, 2026  
-**Network:** Sepolia (chainId 11155111)  
-**Final Block:** 10715441  
+**Deployment Date:** April 23, 2026
+**Network:** Sepolia (chainId 11155111)
+**Final Block:** 10715441
 **Status:** ✅ **FULLY OPERATIONAL - TESTNET READY**
 
 ---
@@ -13,13 +13,13 @@ The complete Sentinel L3 system has been successfully deployed to Sepolia testne
 
 ### Key Achievements
 
-✅ **27 smart contracts deployed** with verified addresses  
-✅ **Ownership verified** - All Ownable contracts owned by correct EOA  
-✅ **Governance handoff complete** - Timelock control transferred to multisig  
-✅ **Bridge relayer isolated** - Dedicated relayer active, owner EOA removed from relay path  
-✅ **Optional components wired** - CoreLoop bootstrap complete (3/5 components)  
-✅ **Role-based access locked down** - All allowlists verified  
-✅ **The Graph subgraph configured** - Event indexing ready  
+✅ **27 smart contracts deployed** with verified addresses
+✅ **Ownership verified** - All Ownable contracts owned by correct EOA
+✅ **Governance handoff complete** - Timelock control transferred to multisig
+✅ **Bridge relayer isolated** - Dedicated relayer active, owner EOA removed from relay path
+✅ **Optional components wired** - CoreLoop bootstrap complete (3/5 components)
+✅ **Role-based access locked down** - All allowlists verified
+✅ **The Graph subgraph configured** - Event indexing ready
 ✅ **Release documentation complete** - All transaction records preserved
 
 ---
@@ -252,12 +252,15 @@ For deployment issues or questions:
 
 ---
 
-**Deployment Status:** ✅ COMPLETE  
-**Go-Live Readiness:** ✅ READY FOR TESTNET TRAFFIC  
+**Deployment Status:** ✅ COMPLETE
+**Go-Live Readiness:** ✅ READY FOR TESTNET TRAFFIC
 **Mainnet Readiness:** 🔄 PENDING TESTNET VALIDATION (7+ days recommended)
 
 ---
 
-_Last Updated: April 23, 2026, Block 10715441_  
-_Owner EOA: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB_  
+_Last Updated: April 23, 2026, Block 10715441_
+_Owner EOA: 0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB_
 _Multisig: 0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994_
+
+---
+_For more information on our security practices, see [SECURITY.md](SECURITY.md)._

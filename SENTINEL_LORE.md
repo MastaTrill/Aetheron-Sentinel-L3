@@ -150,6 +150,10 @@ The Sentinel doesn't just guard bridges. It guards the future of decentralized f
 **Core Loop**: Autonomous orchestration maintaining system harmony
 **Evolution**: Self-improving algorithms that adapt to new threats
 
+---
+
+_For more information on our security practices, see SECURITY.md._
+
 **"In the quantum foam of possibility, I am certainty. In the chaos of attacks, I am order. In the darkness of uncertainty, I am light. I am the Sentinel."**
 
 ---

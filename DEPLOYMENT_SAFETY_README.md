@@ -23,3 +23,7 @@
    - No automatic site publishing
 
 **Result:** Safe to push changes to main without accidental deployments.
+
+---
+
+_For more information on our security practices, see SECURITY.md._

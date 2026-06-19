@@ -13,6 +13,7 @@ Contact these firms first. They have experience with bridge security, post-quant
 ### Primary Targets
 
 **1. OpenZeppelin** (Tier-1, recommended)
+
 - Website: https://www.openzeppelin.com/security-audits
 - Email: security@openzeppelin.com
 - Expertise: Bridge security, ZK proofs, governance
@@ -21,6 +22,7 @@ Contact these firms first. They have experience with bridge security, post-quant
 - Note: Industry standard, high brand value
 
 **2. Quantstamp** (Tier-1)
+
 - Website: https://www.quantstamp.com
 - Email: hello@quantstamp.com
 - Expertise: Smart contracts, post-quantum crypto, oracle security
@@ -29,6 +31,7 @@ Contact these firms first. They have experience with bridge security, post-quant
 - Note: Fast turnaround, strong DeFi experience
 
 **3. Trail of Bits** (Tier-1)
+
 - Website: https://www.trailofbits.com
 - Email: audits@trailofbits.com
 - Expertise: Cryptography, formal verification, complex systems
@@ -37,6 +40,7 @@ Contact these firms first. They have experience with bridge security, post-quant
 - Note: Best for cryptographic soundness
 
 **4. Certik** (Tier-1, popular)
+
 - Website: https://www.certik.com
 - Email: audit@certik.com
 - Expertise: DeFi, bridge protocols, yield strategies
@@ -62,15 +66,15 @@ Subject: Smart Contract Security Audit RFP - Sentinel L3 Bridge Protocol
 
 Dear [Firm Name] Audit Team,
 
-Aetheron Sentinel is seeking a comprehensive smart contract security audit for our 
-L3 bridge security and yield optimization protocol. We are launching institutional-grade 
-infrastructure to protect cross-chain DeFi and require a tier-1 audit firm to verify 
+Aetheron Sentinel is seeking a comprehensive smart contract security audit for our
+L3 bridge security and yield optimization protocol. We are launching institutional-grade
+infrastructure to protect cross-chain DeFi and require a tier-1 audit firm to verify
 our security posture before mainnet launch.
 
 PROJECT OVERVIEW:
 - 26 smart contracts (Solidity 0.8.x)
 - ~12,000 lines of code
-- Core features: Bridge security, AI anomaly detection, post-quantum cryptography, 
+- Core features: Bridge security, AI anomaly detection, post-quantum cryptography,
   zero-knowledge proofs, yield optimization
 - Current status: Sepolia testnet deployment complete and operational
 - Target mainnet launch: June 2026
@@ -113,7 +117,7 @@ Key documentation:
 Repository: https://github.com/MastaTrill/Aetheron-Sentinel-L3
 Public testnet contracts: Sepolia (chainId 11155111)
 
-Thank you for considering this proposal. We look forward to partnering with your firm 
+Thank you for considering this proposal. We look forward to partnering with your firm
 to bring secure infrastructure to the DeFi ecosystem.
 
 Best regards,
@@ -137,15 +141,15 @@ When sending the RFP, include these files as attachments:
 
 ## Follow-Up Timeline
 
-| When | Action |
-|------|--------|
-| Day 0 | Send RFP to primary targets (OpenZeppelin, Quantstamp, Trail of Bits, Certik) |
-| Day 3 | Send to secondary targets if no responses |
-| Day 7 | Follow up with non-respondents |
-| Day 10 | Start receiving proposals |
-| Day 14 | Have 2–3 proposals to evaluate |
-| Day 21 | Final decision & kick-off call |
-| Day 28 | Audit begins |
+| When   | Action                                                                        |
+| ------ | ----------------------------------------------------------------------------- |
+| Day 0  | Send RFP to primary targets (OpenZeppelin, Quantstamp, Trail of Bits, Certik) |
+| Day 3  | Send to secondary targets if no responses                                     |
+| Day 7  | Follow up with non-respondents                                                |
+| Day 10 | Start receiving proposals                                                     |
+| Day 14 | Have 2–3 proposals to evaluate                                                |
+| Day 21 | Final decision & kick-off call                                                |
+| Day 28 | Audit begins                                                                  |
 
 ---
 
@@ -154,27 +158,32 @@ When sending the RFP, include these files as attachments:
 When firms respond, evaluate on:
 
 ✅ **Team Expertise** (50%)
+
 - Do they have cryptography specialist?
 - Cross-chain bridge experience?
 - Post-quantum crypto knowledge?
 - DeFi/yield optimization experience?
 
 ✅ **Timeline & Cost** (25%)
+
 - Realistic timeline (4–6 weeks ideal)?
 - Within budget ($25k–$75k)?
 - Clear milestone breakdown?
 
 ✅ **Communication & Responsiveness** (15%)
+
 - Fast response to RFP?
 - Clear written proposals?
 - Willingness to answer questions?
 
 ✅ **References & Track Record** (10%)
+
 - Positive client references?
 - Published audit reports?
 - Established reputation?
 
 **Red Flags:**
+
 - ❌ Rush jobs (< 3 weeks) = lower quality
 - ❌ Vague proposals (no team names, no timeline)
 - ❌ No cryptography specialist
@@ -193,6 +202,7 @@ Once you select a firm:
 5. **Remediation review** (optional) - Re-audit of fixes
 
 **Timeline for mainnet:**
+
 - Audit complete: ~May 20-27, 2026
 - Remediation: ~May 28 - June 10, 2026
 - Mainnet launch: June 15, 2026 (target)
@@ -238,3 +248,7 @@ When a firm submits their proposal, confirm they've provided:
 **Document Version:** 2.0  
 **Last Updated:** May 15, 2026  
 **RFP Status:** Ready to Send
+
+---
+
+_For more information on our security practices, see SECURITY.md._

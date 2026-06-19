@@ -1,7 +1,7 @@
 # Sentinel L3 Smart Contract Audit Request (RFP)
 
-**Prepared by:** Aetheron Sentinel  
-**Date:** May 13, 2026  
+**Prepared by:** Aetheron Sentinel
+**Date:** May 13, 2026
 **RFP Status:** Open for Proposals
 
 ---
@@ -50,8 +50,8 @@ All contracts listed in [AUDIT_SCOPE_DOCUMENT.md](./AUDIT_SCOPE_DOCUMENT.md):
 
 ### Code Repository
 
-**Public:** https://github.com/MastaTrill/Aetheron-Sentinel-L3  
-**Branch:** `main` (production-ready)  
+**Public:** https://github.com/MastaTrill/Aetheron-Sentinel-L3
+**Branch:** `main` (production-ready)
 **Languages:** Solidity 0.8.x, Python (supporting scripts)
 
 ### Technical Stats
@@ -106,14 +106,14 @@ We expect the audit to:
 
 ## 6. Timeline & Milestones
 
-**Kick-off:** Upon engagement  
-**Code Freeze:** One week before audit start (no new commits to `main`)  
-**Audit Duration:** 4–6 weeks  
-**Interim Report:** Mid-audit progress update  
-**Final Report Delivery:** By end of audit period  
+**Kick-off:** Upon engagement
+**Code Freeze:** One week before audit start (no new commits to `main`)
+**Audit Duration:** 4–6 weeks
+**Interim Report:** Mid-audit progress update
+**Final Report Delivery:** By end of audit period
 **Remediation Review:** 2–3 weeks (follow-up if needed)
 
-**Target Mainnet Launch:** June 2026 (post-audit)
+**Target Mainnet Launch:** August 2026 (post-audit)
 
 ---
 
@@ -207,12 +207,12 @@ We are seeking auditors with:
 
 ## 11. Contact & Next Steps
 
-**Primary Contact:**  
-Name: Aetheron Sentinel  
-Email: aetheron.solana@gmail.com  
+**Primary Contact:**
+Name: Aetheron Sentinel
+Email: aetheron.solana@gmail.com
 Security Issues: security@aetheron.org
 
-**Technical Lead:**  
+**Technical Lead:**
 Available for kick-off call, architecture walkthrough, and Q&A
 
 **Response Format:**
@@ -225,7 +225,7 @@ Please provide:
 5. **References** (2–3 recent clients; optional follow-up calls)
 6. **Sample finding** (1–2 sample findings from a previous audit to assess writing quality)
 
-**Proposal Deadline:** Rolling basis  
+**Proposal Deadline:** Rolling basis
 **Expected Decision:** Within 2 weeks of proposal receipt
 
 ---
@@ -287,6 +287,10 @@ Thank you for considering this proposal.
 
 ---
 
-**Proposal Prepared By:** Aetheron Sentinel  
-**Date:** May 13, 2026  
+**Proposal Prepared By:** Aetheron Sentinel
+**Date:** May 13, 2026
 **Status:** Open for RFP Responses
+
+---
+
+_For more information on our security practices, see SECURITY.md._
