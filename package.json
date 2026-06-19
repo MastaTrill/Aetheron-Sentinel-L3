@@ -120,6 +120,7 @@
     "tmp": "^0.2.6",
     "undici": "^6.21.0",
     "cookie": "^0.7.2",
+    "immutable": "^5.1.5",
     "glob": "^11.0.4",
     "eth-gas-reporter": "^0.2.27",
     "debug": "^4.3.7",
