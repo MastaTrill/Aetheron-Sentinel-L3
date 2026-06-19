@@ -130,9 +130,9 @@ async function main() {
     // --- Simulate Key Actions (Ownership Handoff, Wiring, etc.) ---
     console.log("\n--- Executing Post-Deployment Actions ---");
 
-    // Simulate transferOwnership of SentinelCore to a MultiSig (replace with actual MultiSig address)
-    const mockMultiSigAddress = "0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994"; // From your DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md
-    const transferOwnershipTx = await sentinelCore.transferOwnership(mockMultiSigAddress);
+    // Transfer ownership of SentinelCore to the owner/multisig
+    const multiSigAddress = "0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa";
+    const transferOwnershipTx = await sentinelCore.transferOwnership(multiSigAddress);
     const transferOwnershipReceipt = await transferOwnershipTx.wait();
     console.log(`SentinelCore ownership transferred to MultiSig: ${transferOwnershipReceipt.hash}`);
     deploymentData.actions["transferOwnership to MultiSig"] = transferOwnershipReceipt.hash;
