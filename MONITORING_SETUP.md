@@ -32,6 +32,6 @@ We use a combination of GitHub Actions and Discord Webhooks for real-time alerti
 Run the following regularly to verify infrastructure health:
 
 ```bash
-npm run mainnet:verify-ownership
+npm run verify:ownership
 node scripts/verify-bridge-relayers.cjs
 ```
