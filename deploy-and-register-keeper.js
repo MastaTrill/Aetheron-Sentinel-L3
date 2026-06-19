@@ -10,19 +10,47 @@ const DEPLOYED_ADDRESSES_PATH = path.join(__dirname, "DEPLOYED_ADDRESSES.json");
 async function main() {
     const { ethers } = hre;
 
-    // network-specific addresses (Sepolia example)
-    // Link Token: https://docs.chain.link/resources/link-token-contracts
-    const LINK_TOKEN = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
-    const REGISTRAR = "0xb0E49d57C7690477839650A7fBC669777caE0331";
-    const CORE_ADDRESS = "0x5C85D36529D1217189faf9E48C956d51e5de6211";
+    // Chainlink addresses — network-aware
+    const chainId = hre.network.config.chainId;
+    const CHAINLINK_ADDRESSES = {
+        11155111: { // Sepolia
+            LINK_TOKEN: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+            REGISTRAR: "0xb0E49d57C7690477839650A7fBC669777caE0331"
+        },
+        1: { // Ethereum Mainnet
+            LINK_TOKEN: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+            REGISTRAR: "0x6593c7De001fC8542bB1703532EE1E5aA0D458fD"
+        },
+        8453: { // Base Mainnet
+            LINK_TOKEN: "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196",
+            REGISTRAR: "0x6593c7De001fC8542bB1703532EE1E5aA0D458fD"
+        }
+    };
+    const addrs = CHAINLINK_ADDRESSES[chainId];
+    if (!addrs) {
+        throw new Error(`Unsupported network chainId: ${chainId}. Add Chainlink addresses for this network.`);
+    }
+    const { LINK_TOKEN, REGISTRAR } = addrs;
+
+    // Read deployed addresses
+    if (!fs.existsSync(DEPLOYED_ADDRESSES_PATH)) {
+        throw new Error(`DEPLOYED_ADDRESSES.json not found at ${DEPLOYED_ADDRESSES_PATH}. Run orchestrator first.`);
+    }
+    const deployedAddresses = JSON.parse(fs.readFileSync(DEPLOYED_ADDRESSES_PATH, "utf8"));
+    const CORE_ADDRESS = deployedAddresses.SentinelCore || deployedAddresses.contracts?.SentinelCore?.address;
+    if (!CORE_ADDRESS) {
+        throw new Error("SentinelCore address not found in DEPLOYED_ADDRESSES.json");
+    }
 
     const [deployer] = await ethers.getSigners();
     console.log(`Executing deployment with: ${deployer.address}`);
+    console.log(`Network: ${hre.network.name} (ChainId: ${chainId})`);
+    console.log(`SentinelCore: ${CORE_ADDRESS}`);
 
     // 1. Deploy Keeper
     // Note: We pass address(0) for the forwarder initially as we'll set it after registration
     const KeeperFactory = await ethers.getContractFactory("SentinelChainlinkKeeper");
-    const keeper = await KeeperFactory.deploy(CORE_ADDRESS, ethers.ZeroAddress);
+    const keeper = await KeeperFactory.deploy(CORE_ADDRESS);
     await keeper.waitForDeployment();
     const keeperAddress = await keeper.getAddress();
     console.log(`Keeper deployed to: ${keeperAddress}`);

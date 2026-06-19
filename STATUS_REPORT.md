@@ -53,7 +53,7 @@
 ## Repository Health
 
 - **Working tree:** Clean
-- **Branches:** main (current), agate-vegetarian (worktree, clean)
+- **Branches:** main (current)
 - **Open PRs:** 20 Dependabot dependency bumps (all passing)
 - **Merged:** PR #132 (feature/sentinel-l3-foundry-security) → main
 
