@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DEPLOYMENT_DATA_PATH = path.join(__dirname, '..', '..', 'mainnet-deployment-data.json');
+const DEPLOYMENT_DATA_PATH = path.join(__dirname, '..', 'mainnet-deployment-data.json');
 
 // Chainlink Automation Config (Sepolia example - update for Mainnet)
 const LINK_TOKEN = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
@@ -45,9 +45,9 @@ async function main() {
         block: sentinelCoreReceipt.blockNumber
     };
 
-    // SentinelCoreLoop (assuming it takes SentinelCore address)
+    // SentinelCoreLoop (constructor takes single address — initialOwner)
     const SentinelCoreLoopFactory = await ethers.getContractFactory("SentinelCoreLoop");
-    const sentinelCoreLoop = await SentinelCoreLoopFactory.deploy(sentinelCoreAddress, deployer.address);
+    const sentinelCoreLoop = await SentinelCoreLoopFactory.deploy(deployer.address);
     await sentinelCoreLoop.waitForDeployment();
     const sentinelCoreLoopAddress = await sentinelCoreLoop.getAddress();
     const sentinelCoreLoopReceipt = await sentinelCoreLoop.deploymentTransaction().wait();
@@ -123,7 +123,7 @@ async function main() {
 
     deploymentData.contracts.SentinelChainlinkKeeper = {
         address: keeperAddress,
-        hash: keeper.deploymentTransaction().hash,
+        hash: keeper.deploymentTransaction()?.hash ?? "0x",
         forwarder: forwarderAddress
     };
 

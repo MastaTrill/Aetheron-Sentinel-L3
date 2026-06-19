@@ -27,3 +27,11 @@ jobs:
         run: npm run test:gas:core
         env:
           REPORT_GAS: true
+
+      - name: Upload Gas Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gas-report
+          path: gas-report.txt
+          retention-days: 30
