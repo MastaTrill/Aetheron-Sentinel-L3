@@ -240,7 +240,7 @@ pydantic_core==2.46.2
 pyee==13.0.1
 Pygments==2.20.0
 pyiceberg==0.11.1
-PyJWT==2.12.1
+PyJWT==2.13.0
 pymdown-extensions==10.21.3
 pyparsing==3.3.2
 pyroaring==1.0.4
