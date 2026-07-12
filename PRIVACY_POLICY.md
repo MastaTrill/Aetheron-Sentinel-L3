@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective Date:** May 13, 2026  
+**Effective Date:** May 13, 2026
 **Last Updated:** May 13, 2026
 
 Aetheron Sentinel ("we," "us," "our," or "Company") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, retain, and protect your personal data when you use our services, website, and contact forms.
@@ -101,9 +101,11 @@ We may update this Privacy Policy from time to time. We will notify you of mater
 
 For privacy questions or concerns, contact:
 
-**Email:** aetheron.solana@gmail.com  
+**Email:** aetheron.solana@gmail.com
 **Subject Line:** "Privacy Inquiry"
 
+---
+_For more information on our security practices, see SECURITY.md._
 ---
 
 **Acknowledgment:** By using Aetheron Sentinel's Services, you acknowledge that you have read and understand this Privacy Policy.

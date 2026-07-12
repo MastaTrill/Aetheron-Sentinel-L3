@@ -60,4 +60,8 @@ By contributing, you agree that your contributions may be incorporated under the
 
 ---
 
+_For more information on our security practices, see SECURITY.md._
+
+---
+
 _Thank you for helping build the infrastructure of unity!_

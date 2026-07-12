@@ -1,7 +1,7 @@
 # Aetheron Sentinel L3 Mainnet Release Notes (Draft)
 
-**Target Date:** 2026-05-04  
-**Network:** Ethereum Mainnet (ChainID 1) | Current repo evidence: Sepolia rehearsal (ChainID 11155111)  
+**Target Date:** 2026-05-04
+**Network:** Ethereum Mainnet (ChainID 1) | Current repo evidence: Sepolia rehearsal (ChainID 11155111)
 **Status:** Draft pending objective mainnet execution evidence
 
 > Evidence gate: this file must not be published as final until every placeholder below is replaced with Ethereum mainnet tx hashes, blocks, explorer links, and verification outputs.
@@ -193,6 +193,9 @@ Explorer base URL: `https://etherscan.io/address`
 - [site/contracts.js](./site/contracts.js)
 
 _Draft file. Finalize only after Ethereum mainnet deployment is executed and all placeholders are replaced with objective evidence._
+
+---
+_For more information on our security practices, see SECURITY.md._
 
 ---
 

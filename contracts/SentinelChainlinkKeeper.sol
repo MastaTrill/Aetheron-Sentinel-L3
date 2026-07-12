@@ -7,17 +7,24 @@ import "./SentinelCore.sol";
 contract SentinelChainlinkKeeper is Ownable {
     SentinelCore public sentinelCore;
     address public immutable sentinelCoreAddress;
+    address public forwarder;
     uint256 public lastUpkeepTime;
     uint256 public upkeepInterval = 1 hours;
     uint256 public constant MAX_PERFORM_GAS = 500000;
 
     event UpkeepPerformed(uint256 timestamp, uint256 gasUsed);
     event IntervalUpdated(uint256 newInterval);
+    event ForwarderUpdated(address indexed forwarder);
 
     constructor(address _sentinelCore) Ownable(msg.sender) {
         sentinelCore = SentinelCore(_sentinelCore);
         sentinelCoreAddress = _sentinelCore;
         lastUpkeepTime = block.timestamp;
+    }
+
+    function setForwarder(address _forwarder) external onlyOwner {
+        forwarder = _forwarder;
+        emit ForwarderUpdated(_forwarder);
     }
 
     function checkUpkeep(bytes calldata)

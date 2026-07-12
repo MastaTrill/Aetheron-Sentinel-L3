@@ -81,3 +81,7 @@ python sentinel_gateway_prototype.py
 - Set up firewall rules to restrict access
 
 ---
+
+_For more information on our security practices, see SECURITY.md._
+
+---

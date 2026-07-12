@@ -68,4 +68,9 @@ interface ISentinelQuantumGuard {
    * @dev Restrictable to authorized system components.
    */
   function getHardnessLevel() external view returns (uint256);
+
+  /**
+   * @notice Returns the timestamp of the last successful lattice calibration.
+   */
+  function lastCalibration() external view returns (uint256);
 }

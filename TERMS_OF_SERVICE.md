@@ -98,4 +98,7 @@ For questions about these Terms, contact us at:
 
 ---
 
+---
+_For more information on our security practices, see SECURITY.md._
+
 **Acknowledgment:** By using Aetheron Sentinel's Services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
