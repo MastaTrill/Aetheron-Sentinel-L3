@@ -41,6 +41,34 @@
 - [ ] Subgraph configuration ready (if using The Graph)
 - [ ] Blockexplorer URLs configured (ETHERSCAN_API_KEY set)
 
+## AI / DeFAI Security Layer (NEW - SentinelL3App + Core Agents)
+
+### Pre-Deployment AI Verification
+- [ ] TEE provider selected and SDKs integrated (Phala Cloud, Oasis ROFL/Sapphire, Intel TDX, etc.)
+- [ ] TEEAttestationVerifier contract (or extension to SentinelQuantumGuard / DilithiumVerifierWrapper) deployed and tested
+- [ ] Agent autonomy levels (0-3) defined, coded, and enforced via governance/policy engine (see AGENT_GOVERNANCE_POLICY.md)
+- [ ] All .agents/skills and SentinelL3App AI components reviewed for prompt injection resistance, policy compliance, and adversarial robustness
+- [ ] New adversarial test suite passed (ai-security-test.yml workflow green; prompt injection, poisoning, attestation forgery, policy bypass tests)
+- [ ] Model versions pinned with cryptographic attestations; model update/governance process documented
+- [ ] Fallback mechanisms fully tested (AI/TEE failure → pure rule-based L3 mode via SentinelCoreLoop / CircuitBreaker)
+- [ ] Reasoning traces, confidence scores, attestation quotes, and decision logs integrated with dashboard (Sentinel Gateway) and on-chain events
+- [ ] Human-in-the-loop (HITL) approval flows tested for Level 1/2 actions (dashboard reasoning board + sovereign handshake)
+- [ ] Behavioral monitoring, drift detection, and anomaly escalation active (SentinelMonitor + ai-feedback-loop.js + SentinelPredictiveThreatModel)
+
+### Mainnet AI-Specific
+- [ ] TEE measurements (MRENCLAVE, etc.) allowlisted and verified in on-chain TEE verifier contract
+- [ ] Agent policy registry / governance module configured with mainnet thresholds, value limits, and escalation rules
+- [ ] Emergency pause/override tested end-to-end (governance vote → Timelock → CircuitBreaker → SentinelCoreLoop downgrade of AI agents)
+- [ ] AI-specific incidents, model failures, and attestation issues covered in INCIDENT_RESPONSE.md and bug bounty scope
+- [ ] Production monitoring dashboards include dedicated AI health section (attestation success rate, drift score, escalation volume, confidence distribution)
+- [ ] Regulatory/compliance evidence package prepared (explainability traces, audit logs, human oversight records) — especially relevant if classified as high-risk AI under frameworks like EU AI Act
+
+### Post-Deployment AI Monitoring
+- [ ] AI agents run under heightened monitoring for first 48-72 hours (or first N real decisions)
+- [ ] First production AI decisions reviewed by team; policy or thresholds tuned if needed
+- [ ] Update DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md and FINAL_STATUS_REPORT.md with AI layer status and evidence
+- [ ] Quarterly governance review of DeFAI agent effectiveness, incidents, and policy updates scheduled
+
 ## Deployment Sequence
 
 ### Phase 1: Testnet Validation (Sepolia)
@@ -139,12 +167,14 @@ If critical issue detected post-deployment:
 - [MAINNET_CONFIG_GUIDE.md](./MAINNET_CONFIG_GUIDE.md) - Detailed .env configuration
 - [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](./DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) - Ownership handover steps
 - [DEPLOYMENT_SAFETY_README.md](./DEPLOYMENT_SAFETY_README.md) - Safety procedures
+- [AI_TEE_INTEGRATION.md](./docs/AI_TEE_INTEGRATION.md) - TEE for AI agents
+- [AGENT_GOVERNANCE_POLICY.md](./docs/AGENT_GOVERNANCE_POLICY.md) - Autonomy levels & policies
 
 ---
 
-**Status:** Ready for Phase 1 (testnet) and mainnet preflight once real environment values are supplied
-**Blockers:** Missing `.env` / `.env.mainnet` deployment values, especially `MAINNET_RPC_URL`
-**Next Action:** Fill real deployment env values → rerun `npm run mainnet:preflight` → deploy to Sepolia or mainnet per checklist
+**Status:** Ready for Phase 1 (testnet) and mainnet preflight once real environment values are supplied. AI/DeFAI layer docs and workflow added; full TEE integration and adversarial testing in active development.
+**Blockers:** Missing `.env` / `.env.mainnet` deployment values, especially `MAINNET_RPC_URL`. AI layer requires TEE SDK prototyping and verifier contract.
+**Next Action:** Fill real deployment env values → rerun `npm run mainnet:preflight` → deploy to Sepolia or mainnet per checklist. Track AI security tasks in Linear (AET project).
 
 ---
-_For more information on our security practices, see SECURITY.md._
+_For more information on our security practices, see SECURITY.md and the new DeFAI security docs._
