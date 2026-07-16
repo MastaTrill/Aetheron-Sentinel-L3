@@ -199,7 +199,7 @@ The following decisions have been implemented and cannot be changed without gove
    - Owner EOA is no longer an active relayer
    - Next production step: expand to a relayer pool if throughput or redundancy requirements increase
 
-3. **Treasury Address Routing:** Payout contracts now owned by dedicated treasury address `0xaFfCCF1cf9613AB10864f8577Ca830D23Aaef1e1`
+3. **Treasury Address Routing:** Payout contracts now owned by dedicated treasury address `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
    - `AetheronBridge.withdrawFees()` → treasury address (block 10745251)
    - `SentinelOracleNetwork.slashOracle()` → treasury address (block 10745264)
    - `SentinelZKOracle.slashOracle()` → treasury address (block 10745271)

@@ -4,7 +4,7 @@ import fs from 'fs';
 task("accept-ownership", "Generates a Gnosis Safe batch to accept ownership for pending contracts")
     .setAction(async (taskArgs, hre) => {
         const { ethers } = hre;
-        const treasuryAddr = process.env.SENTINEL_TREASURY || '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa';
+        const treasuryAddr = process.env.SENTINEL_TREASURY || '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa';
         const chainId = await hre.getChainId();
 
         console.log(`Generating Ownership Acceptance Batch...`);

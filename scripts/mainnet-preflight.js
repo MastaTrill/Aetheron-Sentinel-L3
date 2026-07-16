@@ -1,7 +1,9 @@
-const ethers = require('ethers');
+import dotenv from 'dotenv';
+import { ethers } from 'ethers';
+
+dotenv.config();
+dotenv.config({ path: '.env.mainnet', override: true });
 const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
-require('dotenv').config();
-require('dotenv').config({ path: '.env.mainnet', override: true });
 if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
 else delete process.env.OWNER_PRIVATE_KEY;
 
@@ -24,17 +26,15 @@ function reqAddrList(name, vals, req = false) {
 }
 
 async function main() {
-  const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim();
+  const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim().replace(/^["']|["']$/g, '');
   if (!rpcUrl) throw new Error('MAINNET_RPC_URL missing');
   if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/')) throw new Error('MAINNET_RPC_URL is a placeholder');
 
-  const pk = (process.env.OWNER_PRIVATE_KEY || '').trim();
+  const pk = (process.env.OWNER_PRIVATE_KEY || '').trim().replace(/^["']|["']$/g, '');
   if (!/^0x[0-9a-fA-F]{64}$/.test(pk)) throw new Error('OWNER_PRIVATE_KEY must be 0x + 64 hex chars (set in shell)');
 
-  // Create provider — use chainId 1 directly to skip network detection
   const provider = new ethers.JsonRpcProvider(rpcUrl, { name: 'mainnet', chainId: 1 });
 
-  // Verify RPC is reachable with a simple call
   let blockNumber;
   try {
     blockNumber = await provider.getBlockNumber();

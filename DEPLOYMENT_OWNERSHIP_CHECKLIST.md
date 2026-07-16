@@ -553,7 +553,7 @@ Rationale:
 - `SentinelZKOracle.slashOracle()` sends ETH to `owner()` on ZK misbehavior
 - Consolidating treasury control at a single non-operational address improves segregation of duties and reduces relayer/operator exposure to fund flows.
 
-Target treasury address: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB
+Target treasury address: `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
 
 Ownership transfers executed:
 

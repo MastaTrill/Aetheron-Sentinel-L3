@@ -31,6 +31,7 @@ Before deploying to mainnet, confirm:
 1. **Owner address** (final multisig or admin EOA)
    - Consolidated treasury: `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
    - All operational addresses consolidated to this address
+   - Current Sepolia: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` (test EOA)
 
 2. **Relayer wallet** (for bridge signature verification)
    - Dedicated wallet recommended for production
