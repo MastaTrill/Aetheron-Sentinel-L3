@@ -74,6 +74,36 @@ const config = {
           },
         }
       : {}),
+    ...(process.env.BASE_MAINNET_RPC_URL
+      ? {
+          base: {
+            type: 'http',
+            url: process.env.BASE_MAINNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 8453,
+          },
+        }
+      : {}),
+    ...(process.env.POLYGON_MAINNET_RPC_URL
+      ? {
+          polygon: {
+            type: 'http',
+            url: process.env.POLYGON_MAINNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 137,
+          },
+        }
+      : {}),
+    ...(process.env.ARBITRUM_MAINNET_RPC_URL
+      ? {
+          arbitrum: {
+            type: 'http',
+            url: process.env.ARBITRUM_MAINNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 42161,
+          },
+        }
+      : {}),
   },
 };
 

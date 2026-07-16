@@ -1,10 +1,6 @@
-// hre is injected globally by hardhat run
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// hre is injected by hardhat run
+const fs = require("fs");
+const path = require("path");
 
 const DEPLOYMENT_DATA_PATH = path.join(__dirname, '..', 'mainnet-deployment-data.json');
 
@@ -75,7 +71,7 @@ async function main() {
     console.log("\n--- Deploying & Registering SentinelChainlinkKeeper ---");
 
     const KeeperFactory = await ethers.getContractFactory("SentinelChainlinkKeeper");
-    const keeper = await KeeperFactory.deploy(sentinelCoreAddress, ethers.ZeroAddress);
+    const keeper = await KeeperFactory.deploy(sentinelCoreAddress);
     await keeper.waitForDeployment();
     const keeperAddress = await keeper.getAddress();
     console.log(`Keeper deployed to: ${keeperAddress}`);
@@ -140,10 +136,8 @@ async function main() {
     // Simulate initializeCoreComponents on SentinelCoreLoop
     // This would typically involve passing addresses of other deployed components
     const initializeCoreComponentsTx = await sentinelCoreLoop.initializeCoreComponents(
-        aetheronBridgeAddress, // Example: pass bridge address
-        ethers.ZeroAddress, // Placeholder for other components
-        ethers.ZeroAddress,
-        ethers.ZeroAddress
+        aetheronBridgeAddress, // Placeholder for quantumGuard
+        sentinelCoreAddress // Placeholder for yieldMaximizer
     );
     const initializeCoreComponentsReceipt = await initializeCoreComponentsTx.wait();
     console.log(`SentinelCoreLoop initialized components: ${initializeCoreComponentsReceipt.hash}`);

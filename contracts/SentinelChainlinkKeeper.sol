@@ -57,14 +57,14 @@ contract SentinelChainlinkKeeper is Ownable {
     }
 
     function _checkSentinelNeeds() internal view returns (bool) {
-        (bool active, , uint256 syncedAt) = sentinelCore.getHeartbeatState();
+        (bool active, , uint64 syncedAt) = sentinelCore.getHeartbeatState();
         if (!active) return true;
         if (block.timestamp - syncedAt > upkeepInterval) return true;
         return false;
     }
 
     function _performSentinelUpkeep() internal {
-        (bool active, uint256 currentTarget, ) = sentinelCore.getHeartbeatState();
+        (bool active, uint32 currentTarget, ) = sentinelCore.getHeartbeatState();
         if (!active) {
             sentinelCore.releaseHeartbeat(currentTarget);
         }

@@ -1,0 +1,31 @@
+{
+  "contracts": {
+    "SentinelCore": {
+      "address": "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
+      "hash": "0x4fa5c0dd6393072ce090bb9ef86980d9c276219484b322af5debd62d02d520bf",
+      "block": 106
+    },
+    "SentinelCoreLoop": {
+      "address": "0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E",
+      "hash": "0x59a7d088c01e5917a4ad99ce562eabf07c104386a590df1803859bc12a047feb",
+      "block": 107
+    },
+    "AetheronBridge": {
+      "address": "0xC9a43158891282A2B1475592D5719c001986Aaec",
+      "hash": "0x5b80be8a03792eeef2bdd366c811f1febdba52b145d099a1c4ad68f2af22f1f9",
+      "block": 108
+    },
+    "SentinelChainlinkKeeper": {
+      "address": "0x1c85638e118b37167e9298c2268758e058DdfDA0",
+      "hash": "0x9235d97565571d8033e68d09a898967150e86f68a14f4824b7a84471cb0ca1eb",
+      "forwarder": "0x0000000000000000000000000000000000000000"
+    }
+  },
+  "actions": {
+    "initializeCoreComponents": "0xadef81402a9fbef50728189df9b40c3be4382924ed777b976a35d88933d1156a"
+  },
+  "timestamp": "2026-07-16T16:57:48.662Z",
+  "network": "hardhat",
+  "chainId": 31337,
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+}
