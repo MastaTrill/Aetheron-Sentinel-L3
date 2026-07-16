@@ -129,6 +129,21 @@ Design & security documentation:
 
 ---
 
+## AI / DeFAI Security Layer (NEW)
+
+**For AI-integrated autonomous agents, TEE verifiability, and governance of DeFAI features (SentinelL3App + core L3 agents):**
+
+- **[AI_TEE_INTEGRATION.md](./docs/AI_TEE_INTEGRATION.md)** - Trusted Execution Environment integration for secure AI inference, attestation flows, verifier contracts, and fallback to rule-based L3 mode. Mitigates prompt injection, model tampering, and ensures verifiable decisions.
+- **[AGENT_GOVERNANCE_POLICY.md](./docs/AGENT_GOVERNANCE_POLICY.md)** - Autonomy levels (0-3), least-privilege policies, human-in-the-loop, behavioral monitoring, drift detection, and enforcement mechanisms for safe AI agent operation.
+- **Expanded Deployment Checklist**: See updated [DEPLOYMENT_READINESS_CHECKLIST.md](./DEPLOYMENT_READINESS_CHECKLIST.md) with dedicated "AI / DeFAI Security Layer" section covering pre-deployment verification, mainnet AI-specific items, and post-deployment monitoring.
+- **CI Workflow**: New [.github/workflows/ai-security-test.yml](./.github/workflows/ai-security-test.yml) for adversarial testing (prompt injection, poisoning, attestation forgery, policy bypass) and TEE/policy simulation.
+
+These additions harden the hybrid rule-based + AI DeFAI system while preserving core L3 security (SentinelInterceptor, CircuitBreaker, quantum guards, governance/timelock).
+
+Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_SECURITY_YIELD_SYSTEM.md for AI-specific paths. Track implementation in Linear AET tasks or new GitHub issues.
+
+---
+
 ## Artifact Locations
 
 ### Contract Addresses
@@ -260,6 +275,7 @@ Before considering deployment "fully complete":
 - [ ] All stakeholders have reviewed documentation
 - [ ] Security audit completed (see SECURITY_AUDIT_CERTIFICATION.md)
 - [ ] Mainnet preparation checklist reviewed (MAINNET_PREPARATION_TEMPLATE.md)
+- [ ] AI/DeFAI layer verified (new TEE integration, governance policy, adversarial tests)
 
 ---
 
@@ -272,6 +288,7 @@ Before considering deployment "fully complete":
 | **"How do we deploy to mainnet?"**       | Use template workflow                   | [MAINNET_PREPARATION_TEMPLATE.md](./MAINNET_PREPARATION_TEMPLATE.md)         |
 | **"Is this secure?"**                    | Review audit doc                        | [SECURITY_AUDIT_CERTIFICATION.md](./SECURITY_AUDIT_CERTIFICATION.md)         |
 | **"Who controls what?"**                 | Check checklist section 11              | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §11](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
+| **"AI agent security or TEE setup?"**    | Review new DeFAI docs                   | AI / DeFAI Security Layer section above                                      |
 
 ---
 
@@ -285,6 +302,6 @@ Before considering deployment "fully complete":
 
 ---
 
-**Last Updated:** April 23, 2026  
+**Last Updated:** July 12, 2026 (added AI/DeFAI Security Layer section)  
 **Deployment Block:** 10715441  
-**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending
+**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending | 🆕 DeFAI AI layer docs & workflow integrated
