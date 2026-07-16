@@ -1,4 +1,4 @@
-name: Sentinel L3 Mainnet Pipeline
+name: Sentinel L3 Base Mainnet Pipeline
 
 on:
   workflow_dispatch:
@@ -6,12 +6,20 @@ on:
 jobs:
   mainnet-deploy:
     runs-on: ubuntu-latest
+    environment: base-mainnet
+    concurrency:
+      group: sentinel-l3-base-mainnet
+      cancel-in-progress: false
     env:
+      DEPLOY_NETWORK: base
       BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
       OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
       BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
       DEPLOY_TAG: sentinel-l3-v1
       OWNER_ADDRESS: ${{ secrets.OWNER_ADDRESS }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -19,13 +27,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
+          cache: npm
       - name: Set up Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: '1.0.0'
       - name: Install dependencies
         run: npm ci
-      - name: Preflight
+      - name: Preflight Base mainnet
         run: npm run mainnet:preflight
       - name: Build
         run: npm run mainnet:build
@@ -42,5 +51,6 @@ jobs:
       - name: Upload deployment manifest
         uses: actions/upload-artifact@v4
         with:
-          name: deployments
+          name: deployments-base-mainnet
           path: deployments/base-mainnet.json
+          if-no-files-found: error
