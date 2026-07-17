@@ -49,6 +49,23 @@ async function propagateAlert(targetChainId, severity) {
 
     console.log(`📡 Propagating Security Alert (Severity ${severity}) to Chain ${targetChainId}...`);
 
+    // Webhook alerting (Discord/Slack)
+    const webhookUrl = process.env.SECURITY_WEBHOOK_URL;
+    if (webhookUrl) {
+        console.log('🔔 Sending webhook alert to production channels...');
+        try {
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: `🚨 **CRITICAL SECURITY ALERT** 🚨\nSeverity: ${severity}\nTarget Chain: ${targetChainId}\nAction: LayerZero Propagation Initiated.`
+                })
+            });
+        } catch (err) {
+            console.error('Webhook failure:', err.message);
+        }
+    }
+
     // Requirement: In production, call AetheronBridge.estimateAlertFee() if available
     const alertFee = process.env.PROPAGATION_FEE_WEI || ethers.parseEther('0.02');
 
