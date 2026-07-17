@@ -25,21 +25,33 @@ function reqAddrList(name, vals, req = false) {
   vals.forEach(v => reqAddr(name, v));
 }
 
+const NETWORKS = {
+  mainnet: { rpcEnv: 'MAINNET_RPC_URL', chainId: 1, name: 'mainnet', currency: 'ETH' },
+  base: { rpcEnv: 'BASE_MAINNET_RPC_URL', chainId: 8453, name: 'base', currency: 'ETH' },
+};
+
 async function main() {
-  const rpcUrl = (process.env.MAINNET_RPC_URL || '').trim().replace(/^["']|["']$/g, '');
-  if (!rpcUrl) throw new Error('MAINNET_RPC_URL missing');
-  if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/')) throw new Error('MAINNET_RPC_URL is a placeholder');
+  const networkKey = (process.env.DEPLOY_NETWORK || 'base').trim().toLowerCase();
+  const network = NETWORKS[networkKey];
+  if (!network) throw new Error(`Unsupported DEPLOY_NETWORK: ${networkKey}`);
+
+  const rpcUrl = (process.env[network.rpcEnv] || '').trim().replace(/^["']|["']$/g, '');
+  if (!rpcUrl) throw new Error(`${network.rpcEnv} missing`);
+  if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/')) throw new Error(`${network.rpcEnv} is a placeholder`);
 
   const pk = (process.env.OWNER_PRIVATE_KEY || '').trim().replace(/^["']|["']$/g, '');
   if (!/^0x[0-9a-fA-F]{64}$/.test(pk)) throw new Error('OWNER_PRIVATE_KEY must be 0x + 64 hex chars (set in shell)');
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl, { name: 'mainnet', chainId: 1 });
-
+  const provider = new ethers.JsonRpcProvider(rpcUrl, { name: network.name, chainId: network.chainId });
   let blockNumber;
   try {
+    const actualNetwork = await provider.getNetwork();
+    if (Number(actualNetwork.chainId) !== network.chainId) {
+      throw new Error(`RPC chain ID ${actualNetwork.chainId} does not match expected ${network.chainId}`);
+    }
     blockNumber = await provider.getBlockNumber();
   } catch (e) {
-    throw new Error(`Cannot reach MAINNET_RPC_URL: ${e.message}`);
+    throw new Error(`Cannot validate ${network.rpcEnv}: ${e.message}`);
   }
 
   const deployer = new ethers.Wallet(pk, provider);
@@ -47,7 +59,7 @@ async function main() {
   const balance = await provider.getBalance(deployerAddress);
   const feeData = await provider.getFeeData();
 
-  const owner = process.env.SENTINEL_OWNER || deployerAddress;
+  const owner = process.env.SENTINEL_OWNER || process.env.OWNER_ADDRESS || deployerAddress;
   const config = {
     owner,
     anomalyThreshold: Number(process.env.ANOMALY_THRESHOLD || '10'),
@@ -84,11 +96,14 @@ async function main() {
   reqAddrList('TIMELOCK_EXECUTORS', config.timelockExecutors.filter(a => a !== ethers.ZeroAddress));
   ['lpToken','stakingToken','rewardToken','yieldToken'].forEach(k => { if (config[k]) reqAddr(k.toUpperCase(), config[k]); });
 
+  if (balance === 0n) throw new Error(`Deployer ${deployerAddress} has zero ${network.currency} on ${network.name}`);
+
   console.log('MAINNET PREFLIGHT: PASS');
+  console.log('Network:', network.name, `(chainId ${network.chainId})`);
   console.log('Latest block:', blockNumber);
   console.log('Deployer:', deployerAddress);
   console.log('Owner:', config.owner);
-  console.log('Balance:', ethers.formatEther(balance), 'ETH');
+  console.log('Balance:', ethers.formatEther(balance), network.currency);
   console.log('Relayers:', config.relayers.join(', '));
   console.log('Gas:', JSON.stringify({ gasPrice: feeData.gasPrice?.toString(), maxFeePerGas: feeData.maxFeePerGas?.toString() }));
   console.log('\nNo transactions sent. All config valid.');
