@@ -2,7 +2,7 @@ console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
 let deployer; // Will be set in main()
-const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const shellOwnerKey = process.env.CI_OWNER_PRIVATE_KEY || process.env.OWNER_PRIVATE_KEY;
 const networkArgIndex = process.argv.indexOf('--network');
 const requestedNetwork =
   process.env.HARDHAT_NETWORK ||
