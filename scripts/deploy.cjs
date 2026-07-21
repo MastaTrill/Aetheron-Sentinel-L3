@@ -2,7 +2,28 @@ console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
 let deployer; // Will be set in main()
-const shellOwnerKey = process.env.CI_OWNER_PRIVATE_KEY || process.env.OWNER_PRIVATE_KEY;
+const shellOwnerKeyCandidates = [
+  ['OWNER_PRIVATE_KEY', process.env.OWNER_PRIVATE_KEY],
+  ['DEPLOYER_PRIVATE_KEY', process.env.DEPLOYER_PRIVATE_KEY],
+  ['CI_OWNER_PRIVATE_KEY', process.env.CI_OWNER_PRIVATE_KEY],
+];
+
+function normalizePrivateKey(value) {
+  let normalized = String(value || '').trim().replace(/^\uFEFF/, '');
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+
+const shellOwnerKey = shellOwnerKeyCandidates
+  .map(([, value]) => normalizePrivateKey(value))
+  .find(value => /^0x[0-9a-fA-F]{64}$/.test(value));
 const networkArgIndex = process.argv.indexOf('--network');
 const requestedNetwork =
   process.env.HARDHAT_NETWORK ||
@@ -88,14 +109,20 @@ async function getTxOverrides(provider) {
 }
 
 function requireOwnerPrivateKey() {
-  const privateKey = (shellOwnerKey || process.env.OWNER_PRIVATE_KEY || '')
-    .trim()
-    .replace(/^[\"']|[\"']$/g, '');
+  const privateKey =
+    shellOwnerKey || normalizePrivateKey(process.env.OWNER_PRIVATE_KEY);
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
+    const diagnostics = shellOwnerKeyCandidates
+      .map(([name, value]) => {
+        const normalized = normalizePrivateKey(value);
+        return `${name}:${value === undefined ? 'missing' : `invalid(length=${normalized.length})`}`;
+      })
+      .join(', ');
     throw new Error(
-      requestedNetwork === 'mainnet'
-        ? 'Mainnet deploy requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
-        : 'OWNER_PRIVATE_KEY environment variable must be set as a 0x-prefixed 32-byte hex key.'
+      (requestedNetwork === 'mainnet'
+        ? 'Mainnet deploy requires a valid shell private key. It is intentionally not read from .env.mainnet.'
+        : 'Deployment requires a 32-byte hexadecimal private key.') +
+        ` Candidate status: ${diagnostics}`
     );
   }
   return privateKey;
