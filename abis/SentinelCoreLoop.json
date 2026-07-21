@@ -11,22 +11,83 @@
     "type": "constructor"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__AlreadyBootstrapped",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__InvalidComponent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__NonCompliantEntity",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__NotBootstrapped",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__QuantumGuardFrozen",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__SecurityRiskDetected",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__UnauthorizedKeeper",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SentinelCoreLoop__UnauthorizedMonitor",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "behavior",
-        "type": "string"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "timestamp",
+        "name": "newInterval",
         "type": "uint256"
       }
     ],
-    "name": "AutonomousBehaviorTriggered",
+    "name": "CalibrationIntervalUpdated",
     "type": "event"
   },
   {
@@ -34,10 +95,17 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "cycle",
-        "type": "uint256"
-      },
+        "internalType": "address",
+        "name": "component",
+        "type": "address"
+      }
+    ],
+    "name": "ComponentExecutionFailed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
         "indexed": false,
         "internalType": "uint256",
@@ -53,18 +121,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "reason",
-        "type": "string"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "severity",
+        "name": "finalAnomalyCount",
         "type": "uint256"
       }
     ],
-    "name": "EmergencyProtocolActivated",
+    "name": "HighThreatCalibrationTriggered",
     "type": "event"
   },
   {
@@ -72,18 +134,50 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "reason",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "newThreshold",
+        "type": "uint256"
+      }
+    ],
+    "name": "HighThreatThresholdUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "initiator",
-        "type": "address"
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
       }
     ],
-    "name": "EmergencyShutdownInitiated",
+    "name": "KeeperStatusUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "monitor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "MonitorStatusUpdated",
     "type": "event"
   },
   {
@@ -110,50 +204,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Paused",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "reason",
-        "type": "string"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "severity",
+        "name": "timestamp",
         "type": "uint256"
       }
     ],
-    "name": "QuantumAlertTriggered",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "coherenceIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "entropyLevel",
-        "type": "uint256"
-      }
-    ],
-    "name": "QuantumCalibrationCompleted",
+    "name": "TelemetryReset",
     "type": "event"
   },
   {
@@ -161,138 +217,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "previousAdminRole",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "newAdminRole",
-        "type": "bytes32"
-      }
-    ],
-    "name": "RoleAdminChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "RoleGranted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "RoleRevoked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "securityScore",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "anomalyCount",
-        "type": "uint256"
-      }
-    ],
-    "name": "SecurityAuditCompleted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "component",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "contractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "SystemComponentUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "enum SentinelCoreLoop.SystemStatus",
-        "name": "previousStatus",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "enum SentinelCoreLoop.SystemStatus",
-        "name": "newStatus",
-        "type": "uint8"
-      }
-    ],
-    "name": "SystemStatusChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "bytes32",
         "name": "threatId",
         "type": "bytes32"
@@ -300,54 +224,16 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "severity",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "description",
-        "type": "string"
-      }
-    ],
-    "name": "ThreatIntercepted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Unpaused",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "optimizedAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "apyIncrease",
+        "name": "timestamp",
         "type": "uint256"
       }
     ],
-    "name": "YieldOptimizationEvent",
+    "name": "ThreatMitigated",
     "type": "event"
   },
   {
     "inputs": [],
-    "name": "CORE_LOOP_INTERVAL",
+    "name": "OBSERVATION_MASK",
     "outputs": [
       {
         "internalType": "uint256",
@@ -360,7 +246,7 @@
   },
   {
     "inputs": [],
-    "name": "CRITICAL_SECURITY_THRESHOLD",
+    "name": "OBSERVATION_SIZE",
     "outputs": [
       {
         "internalType": "uint256",
@@ -369,295 +255,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "EMERGENCY_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "GOVERNOR_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MIN_SECURITY_SCORE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MONITOR_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "OPERATOR_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "QUANTUM_CALIBRATION_INTERVAL",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "QUANTUM_ENTROPY_MINIMUM",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SECURITY_AUDIT_INTERVAL",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "_executeCoreLoopPhases",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "aetheronBridge",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "name": "autonomousBehaviors",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "name": "behaviorCooldowns",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "circuitBreaker",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "coreComponentsBootstrapped",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "coreMetrics",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "totalValueSecured",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "activeSecurityScore",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "networkHealthIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "quantumResilienceFactor",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastCoreUpdate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "anomalyCount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "successfulInterceptions",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "yieldOptimizationEvents",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "currentStatus",
-    "outputs": [
-      {
-        "internalType": "enum SentinelCoreLoop.SystemStatus",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "emergencyRecovery",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "emergencyShutdown",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "emergencySystemReset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -668,137 +265,21 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getCoreMetrics",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "totalValueSecured",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "activeSecurityScore",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "networkHealthIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "anomalyCount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "successfulInterceptions",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "yieldOptimizationEvents",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getQuantumState",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "entropy",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "coherence",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "superposition",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "signature",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "role",
+        "name": "threatId",
         "type": "bytes32"
       }
     ],
-    "name": "getRoleAdmin",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "executeThreatResponse",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "getSystemOverview",
-    "outputs": [
-      {
-        "internalType": "enum SentinelCoreLoop.SystemStatus",
-        "name": "status",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "securityScore",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "quantumCoherence",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "networkHealth",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "totalValueSecured",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "grantRole",
+    "name": "forceQuantumCalibration",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -806,62 +287,13 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
         "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "hasRole",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "sentinelInterceptorAddress",
+        "name": "quantumGuard",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "aetheronBridgeAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "quantumGuardAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "rateLimiterAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "circuitBreakerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "yieldMaximizerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "oracleNetworkAddress",
+        "name": "yieldMaximizer",
         "type": "address"
       }
     ],
@@ -871,110 +303,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "name": "lastBehaviorExecution",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastCoreLoopExecution",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastEmergencyAction",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastQuantumCalibration",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "lastSecurityAudit",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "liquidityMining",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "multiSigVault",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "oracleNetwork",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "type": "uint64"
       }
     ],
     "stateMutability": "view",
@@ -994,93 +329,21 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "paused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "performSystemHealthCheck",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "isHealthy",
-        "type": "bool"
-      },
-      {
-        "internalType": "string[]",
-        "name": "issues",
-        "type": "string[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "quantumGuard",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "quantumGuard",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "yieldMaximizer",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "quantumState",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "entropyLevel",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "coherenceIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "superpositionStrength",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "quantumSignature",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastQuantumCalibration",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "rateLimiter",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "reconfigureComponents",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1091,19 +354,215 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "resetAnomalyCount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_anomalyCount",
+    "outputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_anomalyWindow",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "account",
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_calibrationInterval",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_complianceModule",
+    "outputs": [
+      {
+        "internalType": "contract ISentinelRegulatoryCompliance",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "renounceRole",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_coreComponentsBootstrapped",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_crossChainOracle",
+    "outputs": [
+      {
+        "internalType": "contract ISentinelCrossChainSecurityOracle",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_highThreatAnomalyThreshold",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "s_keepers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_maxAnomalyWindow",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_minAnomalyWindow",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "s_monitors",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_predictiveModel",
+    "outputs": [
+      {
+        "internalType": "contract ISentinelPredictiveThreatModel",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_quantumGuard",
+    "outputs": [
+      {
+        "internalType": "contract ISentinelQuantumGuard",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_yieldMaximizer",
+    "outputs": [
+      {
+        "internalType": "contract ISentinelYieldMaximizer",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "newDecayPeriod",
+        "type": "uint64"
+      }
+    ],
+    "name": "setAnomalyDecayPeriod",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1111,70 +570,145 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "uint64",
+        "name": "newInterval",
+        "type": "uint64"
       }
     ],
-    "name": "revokeRole",
+    "name": "setCalibrationInterval",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "rewardAggregator",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "complianceModule",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "securityAuditor",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "sentinelInterceptor",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "setComplianceModule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
+        "name": "crossChainOracle",
+        "type": "address"
+      }
+    ],
+    "name": "setCrossChainOracle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "newThreshold",
+        "type": "uint32"
+      }
+    ],
+    "name": "setHighThreatThreshold",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "setKeeper",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "keepers",
+        "type": "address[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "setKeepers",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "monitor",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "setMonitor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "monitors",
+        "type": "address[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "setMonitors",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "predictiveModel",
+        "type": "address"
+      }
+    ],
+    "name": "setPredictiveModel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "component",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "contractAddress",
         "type": "address"
       }
     ],
@@ -1184,66 +718,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "stakingSystem",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "yieldMaximizer",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "interfaceId",
-        "type": "bytes4"
-      }
-    ],
-    "name": "supportsInterface",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "behavior",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "toggleAutonomousBehavior",
+    "name": "setYieldMaximizer",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalStaked",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1261,28 +745,9 @@
   },
   {
     "inputs": [],
-    "name": "validateSystemInvariants",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "isValid",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "yieldMaximizer",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "triggerQuantumKeyRotation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

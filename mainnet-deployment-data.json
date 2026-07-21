@@ -1,30 +1,30 @@
 {
   "contracts": {
     "SentinelCore": {
-      "address": "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
-      "hash": "0x4fa5c0dd6393072ce090bb9ef86980d9c276219484b322af5debd62d02d520bf",
-      "block": 106
+      "address": "0x4b6aB5F819A515382B0dEB6935D793817bB4af28",
+      "hash": "0x9a284c349a150eafa3f7282a09c35b85a99603e1b9c8cc2ad934000acafe0ba8",
+      "block": 127
     },
     "SentinelCoreLoop": {
-      "address": "0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E",
-      "hash": "0x59a7d088c01e5917a4ad99ce562eabf07c104386a590df1803859bc12a047feb",
-      "block": 107
+      "address": "0xCace1b78160AE76398F486c8a18044da0d66d86D",
+      "hash": "0x05b06b91cf306665b6c32f2f6b385c06c6ebcc568ccbffe09e9fb04645da2594",
+      "block": 128
     },
     "AetheronBridge": {
-      "address": "0xC9a43158891282A2B1475592D5719c001986Aaec",
-      "hash": "0x5b80be8a03792eeef2bdd366c811f1febdba52b145d099a1c4ad68f2af22f1f9",
-      "block": 108
+      "address": "0xD5ac451B0c50B9476107823Af206eD814a2e2580",
+      "hash": "0xe75d2c11fd30930420940e5f3d1864e572294ca1fd5f66c882f0bc2391bbd204",
+      "block": 129
     },
     "SentinelChainlinkKeeper": {
-      "address": "0x1c85638e118b37167e9298c2268758e058DdfDA0",
-      "hash": "0x9235d97565571d8033e68d09a898967150e86f68a14f4824b7a84471cb0ca1eb",
+      "address": "0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397",
+      "hash": "0xf18505c13834c0961cff27fdef320108dc6cd3242d93fbee026d76c49cf3d59a",
       "forwarder": "0x0000000000000000000000000000000000000000"
     }
   },
   "actions": {
-    "initializeCoreComponents": "0xadef81402a9fbef50728189df9b40c3be4382924ed777b976a35d88933d1156a"
+    "initializeCoreComponents": "0x10f83ec4b9bb2aebbba1496e31d5595dee3d0806ad00b3a8a979c224e638e08f"
   },
-  "timestamp": "2026-07-16T16:57:48.662Z",
+  "timestamp": "2026-07-16T19:18:24.915Z",
   "network": "hardhat",
   "chainId": 31337,
   "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"

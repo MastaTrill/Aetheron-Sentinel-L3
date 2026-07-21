@@ -14,6 +14,27 @@ interface ISentinelYieldMaximizer {
 }
 
 /**
+ * @dev Interface for Regulatory Compliance Module
+ */
+interface ISentinelRegulatoryCompliance {
+  function isCompliant(address entity, uint8 requiredLevel) external view returns (bool);
+}
+
+/**
+ * @dev Interface for Predictive Threat Model
+ */
+interface ISentinelPredictiveThreatModel {
+    function getBehavioralProfile(address entity) external view returns (uint256 trustScore, uint256 riskLevel, uint256 anomalyCount, uint8 currentState, uint256 lastActivity);
+}
+
+/**
+ * @dev Interface for Cross-Chain Security Oracle
+ */
+interface ISentinelCrossChainSecurityOracle {
+    function aggregatedMetrics() external view returns (uint256 globalThreatLevel, uint256 totalChains, uint256 activeChains, uint256 averageTrustScore, uint256 lastAggregation);
+}
+
+/**
  * @title SentinelCoreLoop
  * @dev Central coordination engine for Aetheron Sentinel.
  * Orchestrates threat detection and automated responses across the L3 infrastructure.
@@ -21,6 +42,9 @@ interface ISentinelYieldMaximizer {
 contract SentinelCoreLoop is Ownable, ReentrancyGuard {
   ISentinelQuantumGuard public s_quantumGuard;
   ISentinelYieldMaximizer public s_yieldMaximizer;
+  ISentinelRegulatoryCompliance public s_complianceModule;
+  ISentinelPredictiveThreatModel public s_predictiveModel;
+  ISentinelCrossChainSecurityOracle public s_crossChainOracle;
   bool public s_coreComponentsBootstrapped;
   uint32 public s_anomalyCount; // Packed into Slot 2
   uint32 public s_highThreatAnomalyThreshold; // Packed into Slot 2
@@ -54,6 +78,33 @@ contract SentinelCoreLoop is Ownable, ReentrancyGuard {
   error SentinelCoreLoop__InvalidComponent();
   error SentinelCoreLoop__UnauthorizedMonitor();
   error SentinelCoreLoop__UnauthorizedKeeper();
+  error SentinelCoreLoop__NonCompliantEntity();
+  error SentinelCoreLoop__SecurityRiskDetected();
+
+  modifier enforceCompliance(address entity) {
+    if (address(s_complianceModule) != address(0)) {
+      if (!s_complianceModule.isCompliant(entity, 0)) {
+        revert SentinelCoreLoop__NonCompliantEntity();
+      }
+    }
+    _;
+  }
+
+  modifier enforceSecurityModels(address entity) {
+    if (address(s_crossChainOracle) != address(0)) {
+      (uint256 globalThreatLevel, , , , ) = s_crossChainOracle.aggregatedMetrics();
+      if (globalThreatLevel > 70) {
+        revert SentinelCoreLoop__SecurityRiskDetected();
+      }
+    }
+    if (address(s_predictiveModel) != address(0)) {
+      (uint256 trustScore, , , , ) = s_predictiveModel.getBehavioralProfile(entity);
+      if (trustScore > 0 && trustScore < 300) {
+        revert SentinelCoreLoop__SecurityRiskDetected();
+      }
+    }
+    _;
+  }
 
   constructor(address initialOwner) Ownable(initialOwner) {
     s_highThreatAnomalyThreshold = 16; // Default to max buffer size for bitwise efficiency
@@ -99,6 +150,33 @@ contract SentinelCoreLoop is Ownable, ReentrancyGuard {
     if (yieldMaximizer == address(0)) revert SentinelCoreLoop__InvalidComponent();
 
     s_yieldMaximizer = ISentinelYieldMaximizer(yieldMaximizer);
+  }
+
+  /**
+   * @notice Updates the Compliance Module component.
+   * @param complianceModule The address of the new SentinelRegulatoryCompliance.
+   */
+  function setComplianceModule(address complianceModule) external onlyOwner {
+    if (complianceModule == address(0)) revert SentinelCoreLoop__InvalidComponent();
+    s_complianceModule = ISentinelRegulatoryCompliance(complianceModule);
+  }
+
+  /**
+   * @notice Updates the Predictive Threat Model component.
+   * @param predictiveModel The address of the new SentinelPredictiveThreatModel.
+   */
+  function setPredictiveModel(address predictiveModel) external onlyOwner {
+    if (predictiveModel == address(0)) revert SentinelCoreLoop__InvalidComponent();
+    s_predictiveModel = ISentinelPredictiveThreatModel(predictiveModel);
+  }
+
+  /**
+   * @notice Updates the Cross Chain Security Oracle component.
+   * @param crossChainOracle The address of the new SentinelCrossChainSecurityOracle.
+   */
+  function setCrossChainOracle(address crossChainOracle) external onlyOwner {
+    if (crossChainOracle == address(0)) revert SentinelCoreLoop__InvalidComponent();
+    s_crossChainOracle = ISentinelCrossChainSecurityOracle(crossChainOracle);
   }
 
   /**
@@ -237,7 +315,7 @@ contract SentinelCoreLoop is Ownable, ReentrancyGuard {
    * @notice Top-level orchestration loop as defined in the Whitepaper.
    * @dev This should be called by an automated keeper or SentinelCore.
    */
-  function executeCoreLoop() external nonReentrant {
+  function executeCoreLoop() external nonReentrant enforceCompliance(msg.sender) enforceSecurityModels(msg.sender) {
     if (!s_keepers[msg.sender] && msg.sender != owner())
       revert SentinelCoreLoop__UnauthorizedKeeper();
     if (!s_coreComponentsBootstrapped) revert SentinelCoreLoop__NotBootstrapped();
@@ -385,7 +463,7 @@ contract SentinelCoreLoop is Ownable, ReentrancyGuard {
    * @notice Executes an automated threat response.
    * @dev Accessible by authorized monitors or the owner.
    */
-  function executeThreatResponse(bytes32 threatId) external nonReentrant {
+  function executeThreatResponse(bytes32 threatId) external nonReentrant enforceCompliance(msg.sender) enforceSecurityModels(msg.sender) {
     if (!s_monitors[msg.sender] && msg.sender != owner())
       revert SentinelCoreLoop__UnauthorizedMonitor();
     if (!s_coreComponentsBootstrapped) revert SentinelCoreLoop__NotBootstrapped();

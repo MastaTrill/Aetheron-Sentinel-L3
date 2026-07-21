@@ -26,6 +26,107 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "AccessControlBadConfirmation",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "neededRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "AccessControlUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FailedCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "delay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minDelay",
+        "type": "uint256"
+      }
+    ],
+    "name": "TimelockInsufficientDelay",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "targets",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "payloads",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "values",
+        "type": "uint256"
+      }
+    ],
+    "name": "TimelockInvalidOperationLength",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "TimelockUnauthorizedCaller",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "predecessorId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "TimelockUnexecutedPredecessor",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "operationId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "expectedStates",
+        "type": "bytes32"
+      }
+    ],
+    "name": "TimelockUnexpectedOperationState",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -290,19 +391,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "TIMELOCK_ADMIN_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -389,6 +477,25 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getOperationState",
+    "outputs": [
+      {
+        "internalType": "enum TimelockController.OperationState",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -749,7 +856,7 @@
       },
       {
         "internalType": "address",
-        "name": "account",
+        "name": "callerConfirmation",
         "type": "address"
       }
     ],

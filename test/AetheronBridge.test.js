@@ -117,4 +117,41 @@ describe('AetheronBridge', function () {
       expect(await bridge.chainLimits(validChainId)).to.equal(limit);
     });
   });
+
+  describe('Security Oracle Integration', function () {
+    let mockOracle;
+    beforeEach(async function () {
+      const MockOracle = await ethers.getContractFactory("MockCrossChainOracle");
+      mockOracle = await MockOracle.deploy();
+      await bridge.setSecurityOracle(await mockOracle.getAddress());
+      
+      const chainId = 137;
+      await bridge.setChainLimit(chainId, ethers.parseEther('1000000'));
+    });
+
+    it('should revert bridgeTokens if global threat level is > 70', async function () {
+      await mockOracle.setGlobalThreatLevel(75);
+      await expect(
+        bridge.connect(user).bridgeTokens(
+          recipient.address,
+          ethers.parseEther('100'),
+          137,
+          await token.getAddress(),
+          { value: ethers.parseEther('0.001') }
+        )
+      ).to.be.revertedWithCustomError(bridge, 'AetheronBridge__SecurityRiskDetected');
+    });
+
+    it('should allow bridgeTokens if global threat level is <= 70', async function () {
+      await mockOracle.setGlobalThreatLevel(50);
+      await bridge.connect(user).bridgeTokens(
+        recipient.address,
+        ethers.parseEther('100'),
+        137,
+        await token.getAddress(),
+        { value: ethers.parseEther('0.001') }
+      );
+      expect(await bridge.totalTransferCount()).to.equal(1n);
+    });
+  });
 });

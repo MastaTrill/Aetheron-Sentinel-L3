@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0] — 2026-07-21
+
+### Highlights
+Base Mainnet Production Activation & Soft Launch Release
+
+### Added
+- Live Base Mainnet Deployment — Deployed and verified `SentinelCore` at `0x2102C76C6528ECf7ebBf5102495d7531E823b6B5`
+- On-chain Verification — Verified source code on Sourcify with exact match status
+- Automated Evidence Collection — Generated `MAINNET_EVIDENCE_COLLECTION.md` tracking all mainnet deployment artifacts and transaction hashes
+- Sentinel Off-Chain Gateway — Operational FastAPI gateway prototype (`sentinel_gateway_prototype.py`) with dry-run support
+- Automated AMM Yield & Threat Backtest — Validated impermanent loss bounds (-0.33%) and fee generation ($423.00) in `backtest_amm.py`
+
+---
+
 ## [Unreleased] — v0.4.0 Target: August 31, 2026
 
 ### Planned

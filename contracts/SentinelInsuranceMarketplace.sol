@@ -186,14 +186,14 @@ contract SentinelInsuranceMarketplace is Ownable, ReentrancyGuard {
             "Insufficient available liquidity"
         );
 
-    liquidityPool.totalLiquidity -= amount;
-    liquidityPool.providerBalances[msg.sender] -= amount;
-
     // Calculate and distribute rewards
     uint256 rewards = _calculateRewards(msg.sender, amount);
     if (rewards > 0) {
       liquidityPool.providerRewards[msg.sender] += rewards;
     }
+
+    liquidityPool.totalLiquidity -= amount;
+    liquidityPool.providerBalances[msg.sender] -= amount;
 
     require(paymentToken.transfer(msg.sender, amount + rewards), "Liquidity withdrawal failed");
 

@@ -45,7 +45,10 @@ except ImportError:
 
 # Import our utility functions
 from sentinel.utils import calculate_threat_score
-from supabase.sync import sync_sentinel_data
+try:
+    from supabase.sync import sync_sentinel_data
+except ImportError:
+    sync_sentinel_data = None
 
 # Configure structlog for JSON‑friendly logs
 structlog.configure(

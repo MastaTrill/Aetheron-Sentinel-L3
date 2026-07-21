@@ -5,13 +5,15 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 /**
  * @title SentinelToken
  * @notice Governance token for Aetheron Sentinel L3 with built-in reward mechanisms
  * Provides 3.0-5.0% APY through staking, governance, and security rewards
  */
-contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
+contract SentinelToken is ERC20, ERC20Permit, ERC20Votes, Ownable, Pausable, ReentrancyGuard {
     // Token distribution
     uint256 public constant TOTAL_SUPPLY = 1_000_000_000 ether; // 1B tokens
     uint256 public constant STAKING_REWARDS = 200_000_000 ether; // 20% for staking
@@ -71,9 +73,12 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
     event SecurityReward(address indexed user, uint256 amount);
     event SecurityReporterUpdated(address indexed reporter, bool status);
 
-    constructor(address initialOwner) ERC20("Aetheron Sentinel", "SENT") Ownable(initialOwner) {
+    constructor(address initialOwner) ERC20("Aetheron Sentinel", "AETH") ERC20Permit("Aetheron Sentinel") Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _mint(address(this), TOTAL_SUPPLY);
+
+        // Transfer liquidity mining allocation to the initialOwner for setup
+        _transfer(address(this), initialOwner, LIQUIDITY_MINING);
 
         // Create vesting schedules for different allocations
         _createVestingSchedule(
@@ -442,5 +447,22 @@ contract SentinelToken is ERC20, Ownable, Pausable, ReentrancyGuard {
         }
 
         return baseAPY;
+    }
+
+    // The following functions are overrides required by Solidity.
+    function _update(address from, address to, uint256 value)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._update(from, to, value);
+    }
+
+    function nonces(address owner)
+        public
+        view
+        override(ERC20Permit, Nonces)
+        returns (uint256)
+    {
+        return super.nonces(owner);
     }
 }

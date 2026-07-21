@@ -8,6 +8,16 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+interface ISentinelCrossChainSecurityOracle {
+    function aggregatedMetrics() external view returns (
+        uint256 globalThreatLevel,
+        uint256 crossChainAnomalyScore,
+        uint256 sybilAttackProbability,
+        uint256 maliciousContractDeployments,
+        uint256 darkPoolVolume
+    );
+}
+
 /**
  * @title AetheronBridge
  * @notice Quantum-resistant cross-chain bridge with security monitoring
@@ -39,6 +49,8 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
     uint256 public constant MAX_TRANSFERS_PER_USER = 10;
     uint256 public constant MAX_CHAIN_VOLUME = 1000000 ether; // 1M tokens max per chain
     uint256 public bridgeFee = 0.001 ether; // 0.1% fee
+    
+    ISentinelCrossChainSecurityOracle public securityOracle;
 
     event TokensBridged(
         address indexed sender,
@@ -66,11 +78,29 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
     event EmergencyPaused(address indexed pauser);
     event EmergencyUnpaused(address indexed unpauser);
     event RelayerUpdated(address indexed relayer, bool authorized);
+    event SecurityOracleUpdated(address indexed oracle);
+
+    error AetheronBridge__SecurityRiskDetected();
 
     constructor(address initialOwner) Ownable(initialOwner) {
         require(initialOwner != address(0), "Invalid owner");
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
+    }
+
+    modifier enforceSecurity() {
+        if (address(securityOracle) != address(0)) {
+            (uint256 globalThreatLevel, , , , ) = securityOracle.aggregatedMetrics();
+            if (globalThreatLevel > 70) {
+                revert AetheronBridge__SecurityRiskDetected();
+            }
+        }
+        _;
+    }
+
+    function setSecurityOracle(address _oracle) external onlyOwner {
+        securityOracle = ISentinelCrossChainSecurityOracle(_oracle);
+        emit SecurityOracleUpdated(_oracle);
     }
 
     /**
@@ -85,7 +115,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
         uint256 amount,
         uint256 chainId,
         address tokenAddress
-    ) external payable nonReentrant whenNotPaused {
+    ) external payable nonReentrant whenNotPaused enforceSecurity {
         require(amount > 0, "Amount must be positive");
         require(recipient != address(0), "Invalid recipient");
         require(chainId != block.chainid, "Cannot bridge to same chain");
@@ -172,7 +202,7 @@ contract AetheronBridge is Ownable, AccessControl, ReentrancyGuard, Pausable {
     function unbridgeTokens(
         bytes32 transferId,
         bytes calldata signature
-    ) external nonReentrant {
+    ) external nonReentrant enforceSecurity {
         Transfer storage transfer = transfers[transferId];
         require(!transfer.completed, "Transfer already completed");
         require(transfer.amount > 0, "Invalid transfer");

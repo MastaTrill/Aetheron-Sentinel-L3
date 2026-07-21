@@ -22,13 +22,8 @@ describe('SentinelGovernance', function () {
   }
 
   async function deployVotesToken(admin) {
-    const ERC20VotesMock = await ethers.getContractFactory('ERC20VotesMock');
-    const token = await ERC20VotesMock.deploy(
-      'GovToken',
-      'GOV',
-      admin.address,
-      ethers.parseEther('1000000')
-    );
+    const SentinelToken = await ethers.getContractFactory('SentinelToken');
+    const token = await SentinelToken.deploy(admin.address);
     await token.waitForDeployment();
     return token;
   }

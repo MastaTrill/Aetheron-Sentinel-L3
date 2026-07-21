@@ -10,6 +10,7 @@ const REGISTRAR = "0xb0E49d57C7690477839650A7fBC669777caE0331";
 const UPKEEP_GAS_LIMIT = 2000000;
 
 async function main() {
+    const hre = require("hardhat");
     const { ethers } = hre;
     const [deployer] = await ethers.getSigners();
 

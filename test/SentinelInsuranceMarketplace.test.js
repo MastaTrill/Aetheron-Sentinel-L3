@@ -13,19 +13,19 @@ describe('SentinelInsuranceMarketplace', function () {
     ({ ethers } = await network.getOrCreate());
     [owner, provider, user, user2] = await ethers.getSigners();
 
-    // Deploy a mock ERC20 token for payment
-    const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    paymentToken = await ERC20Mock.deploy(
-      'Mock AETH',
-      'mAETH',
-      owner.address,
-      ethers.parseEther('1000000')
-    );
+    // Deploy the actual AETH token for payment
+    const SentinelToken = await ethers.getContractFactory('SentinelToken');
+    paymentToken = await SentinelToken.deploy(owner.address);
     await paymentToken.waitForDeployment();
 
-    // Deploy a mock insurance pool (could be a simple contract or just use an address)
-    // For simplicity, we'll use the owner as the insurance pool address
-    insurancePool = owner.address;
+    // Deploy the actual insurance pool
+    const SentinelInsurancePool = await ethers.getContractFactory('SentinelInsurancePool');
+    const pool = await SentinelInsurancePool.deploy(
+      await paymentToken.getAddress(),
+      await paymentToken.getAddress() // Mocking payoutToken as paymentToken for simplicity
+    );
+    await pool.waitForDeployment();
+    insurancePool = await pool.getAddress();
 
     // Deploy the insurance marketplace
     const SentinelInsuranceMarketplace = await ethers.getContractFactory(

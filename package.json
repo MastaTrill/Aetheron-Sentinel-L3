@@ -22,7 +22,7 @@
     "preflight:base-sepolia": "node scripts/mainnet-preflight.js",
     "deploy:mainnet": "node orchestrator.cjs --network mainnet",
     "deploy:polygon": "node node_modules/hardhat/dist/src/cli.js run scripts/deploy.js --network polygon",
-    "deploy:base": "node orchestrator.cjs --network base",
+    "deploy:base": "hardhat run orchestrator.cjs --network base",
     "deploy:arbitrum": "node orchestrator.cjs --network arbitrum",
     "setup:ownership": "node scripts/setup-ownership.js",
     "setup:verify-tooling": "node scripts/setup-verify-tooling.js",

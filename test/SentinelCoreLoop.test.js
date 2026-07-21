@@ -118,4 +118,41 @@ describe('SentinelCoreLoop Configuration', function () {
       expect(receiptFailure.gasUsed).to.be.lt(receiptSuccess.gasUsed + 5000n);
     });
   });
+
+  describe('Security Models Integration', function () {
+    let mockOracle, mockModel;
+    
+    beforeEach(async function () {
+      // Mock Oracle
+      const MockOracle = await ethers.getContractFactory("MockCrossChainOracle");
+      mockOracle = await MockOracle.deploy();
+      
+      // Mock Model
+      const MockModel = await ethers.getContractFactory("MockPredictiveModel");
+      mockModel = await MockModel.deploy();
+
+      await coreLoop.setCrossChainOracle(mockOracle.target);
+      await coreLoop.setPredictiveModel(mockModel.target);
+      
+      await coreLoop.setKeeper(owner.address, true);
+    });
+
+    it('should revert executeCoreLoop if global threat level is high', async function () {
+      await mockOracle.setGlobalThreatLevel(71);
+      await expect(coreLoop.executeCoreLoop())
+        .to.be.revertedWithCustomError(coreLoop, 'SentinelCoreLoop__SecurityRiskDetected');
+    });
+
+    it('should revert executeCoreLoop if AI trust score is low', async function () {
+      await mockModel.setTrustScore(299);
+      await expect(coreLoop.executeCoreLoop())
+        .to.be.revertedWithCustomError(coreLoop, 'SentinelCoreLoop__SecurityRiskDetected');
+    });
+    
+    it('should succeed if threat is low and trust score is high', async function () {
+      await mockOracle.setGlobalThreatLevel(50);
+      await mockModel.setTrustScore(800);
+      await coreLoop.executeCoreLoop();
+    });
+  });
 });
