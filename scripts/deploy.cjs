@@ -88,7 +88,9 @@ async function getTxOverrides(provider) {
 }
 
 function requireOwnerPrivateKey() {
-  const privateKey = (shellOwnerKey || process.env.OWNER_PRIVATE_KEY || '').trim();
+  const privateKey = (shellOwnerKey || process.env.OWNER_PRIVATE_KEY || '')
+    .trim()
+    .replace(/^[\"']|[\"']$/g, '');
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
     throw new Error(
       requestedNetwork === 'mainnet'
