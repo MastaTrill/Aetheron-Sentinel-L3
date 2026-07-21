@@ -168,13 +168,23 @@ async function main() {
   console.log('Network:', requestedNetwork || hre.network?.name || '<active connection>');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
-  const balance = await ethers.provider.getBalance(deployerAddress);
+  let balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
 
   if (balance === 0n) {
-    throw new Error(
-      `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
-    );
+    if (requestedNetwork === 'hardhat' || hre.network?.name === 'hardhat') {
+      console.log('Local hardhat network detected. Auto-funding deployer address with 1200 simulated ETH...');
+      await ethers.provider.send('hardhat_setBalance', [
+        deployerAddress,
+        '0x100000000000000000000', // 1200 ETH
+      ]);
+      balance = await ethers.provider.getBalance(deployerAddress);
+      console.log('New Account balance:', ethers.formatEther(balance), 'ETH\n');
+    } else {
+      throw new Error(
+        `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
+      );
+    }
   }
 
   const addresses = {};
@@ -304,16 +314,16 @@ async function main() {
     const ov = await getTxOverrides(deployer.provider);
     const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
     const CANCELLER_ROLE = await timelock.CANCELLER_ROLE();
-    const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
+    const DEFAULT_ADMIN_ROLE = await timelock.DEFAULT_ADMIN_ROLE();
     await (await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)).wait();
     const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
     await (await timelock.grantRole(EXECUTOR_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.revokeRole(EXECUTOR_ROLE, deployerAddress, ov)).wait();
     console.log('   Granted PROPOSER + CANCELLER + EXECUTOR roles to SentinelGovernance, revoked deployer EXECUTOR');
-    // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
+    // Renounce deployer's DEFAULT_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
-      await (await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)).wait();
+      await (await timelock.renounceRole(DEFAULT_ADMIN_ROLE, deployerAddress, ov)).wait();
       console.log('   Renounced deployer TIMELOCK_ADMIN_ROLE (timelockAdmin is separate account)');
     }
   } else {
@@ -460,32 +470,26 @@ async function main() {
   if (deployerIsOwner) {
     console.log('\nConfiguring SentinelCoreLoop components...');
     const ov3 = await getTxOverrides(ethers.provider);
-    const coreLoopComponents = [
-      ['sentinelInterceptor', addresses.SentinelInterceptor],
-      ['aetheronBridge', addresses.AetheronBridge],
-      ['rateLimiter', addresses.RateLimiter],
-      ['circuitBreaker', addresses.CircuitBreaker],
-      ['quantumGuard', addresses.SentinelQuantumGuard],
-      ['yieldMaximizer', addresses.SentinelYieldMaximizer],
-      ['oracleNetwork', addresses.SentinelOracleNetwork],
-    ].filter(([, address]) => address);
 
-    for (const [name, address] of coreLoopComponents) {
-      await (await coreLoop.setSystemComponent(name, address, ov3)).wait();
-    }
+    // 1. Initialize core components
+    console.log('   Initializing core components (QuantumGuard + YieldMaximizer)...');
+    await (
+      await coreLoop.initializeCoreComponents(
+        addresses.SentinelQuantumGuard,
+        addresses.SentinelYieldMaximizer,
+        ov3
+      )
+    ).wait();
+
+    // 2. Set Predictive Threat Model
+    console.log('   Setting Predictive Threat Model...');
+    await (
+      await coreLoop.setPredictiveModel(addresses.SentinelPredictiveThreatModel, ov3)
+    ).wait();
   } else {
     pendingActions.push(
-      ...[
-        ['sentinelInterceptor', addresses.SentinelInterceptor],
-        ['aetheronBridge', addresses.AetheronBridge],
-        ['rateLimiter', addresses.RateLimiter],
-        ['circuitBreaker', addresses.CircuitBreaker],
-        ['quantumGuard', addresses.SentinelQuantumGuard],
-        ['yieldMaximizer', addresses.SentinelYieldMaximizer],
-        ['oracleNetwork', addresses.SentinelOracleNetwork],
-      ]
-        .filter(([, address]) => address)
-        .map(([name, address]) => `SentinelCoreLoop.setSystemComponent(${name}, ${address})`)
+      `SentinelCoreLoop.initializeCoreComponents(${addresses.SentinelQuantumGuard}, ${addresses.SentinelYieldMaximizer})`,
+      `SentinelCoreLoop.setPredictiveModel(${addresses.SentinelPredictiveThreatModel})`
     );
   }
 
