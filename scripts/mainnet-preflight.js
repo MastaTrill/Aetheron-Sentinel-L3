@@ -1,9 +1,30 @@
 import dotenv from 'dotenv';
 import { ethers } from 'ethers';
 
+const shellKeyCandidates = [
+  ['OWNER_PRIVATE_KEY', process.env.OWNER_PRIVATE_KEY],
+  ['DEPLOYER_PRIVATE_KEY', process.env.DEPLOYER_PRIVATE_KEY],
+  ['CI_OWNER_PRIVATE_KEY', process.env.CI_OWNER_PRIVATE_KEY],
+];
+
+function normalizePrivateKey(value) {
+  let normalized = String(value || '').trim().replace(/^\uFEFF/, '');
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+
 dotenv.config();
 dotenv.config({ path: '.env.mainnet', override: true });
-const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const shellOwnerKey = shellKeyCandidates
+  .map(([, value]) => normalizePrivateKey(value))
+  .find(value => /^0x[0-9a-fA-F]{64}$/.test(value));
 if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
 else delete process.env.OWNER_PRIVATE_KEY;
 
@@ -60,9 +81,16 @@ async function main() {
   if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/'))
     throw new Error(`${network.rpcEnv} is a placeholder`);
 
-  const pk = (process.env.OWNER_PRIVATE_KEY || '').trim().replace(/^["']|["']$/g, '');
-  if (!/^0x[0-9a-fA-F]{64}$/.test(pk))
-    throw new Error('OWNER_PRIVATE_KEY must be 0x + 64 hex chars (set in shell)');
+  const pk = normalizePrivateKey(process.env.OWNER_PRIVATE_KEY);
+  if (!/^0x[0-9a-fA-F]{64}$/.test(pk)) {
+    const diagnostics = shellKeyCandidates
+      .map(([name, value]) => {
+        const normalized = normalizePrivateKey(value);
+        return `${name}:${value === undefined ? 'missing' : `invalid(length=${normalized.length})`}`;
+      })
+      .join(', ');
+    throw new Error(`No valid deployment key candidate. Candidate status: ${diagnostics}`);
+  }
 
   const provider = new ethers.JsonRpcProvider(rpcUrl, {
     name: network.name,

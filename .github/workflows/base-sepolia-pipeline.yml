@@ -48,7 +48,10 @@ jobs:
       - run: forge build --sizes
       - run: forge test -vvv
       - name: Validate Base Sepolia RPC, signer, balance, and configuration
-        run: node scripts/mainnet-preflight.js | tee base-sepolia-readiness.log
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/mainnet-preflight.js | tee base-sepolia-readiness.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
