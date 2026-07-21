@@ -46,11 +46,13 @@ const config = {
             type: 'http',
             url: process.env.BASE_TESTNET_RPC_URL,
             accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 84532,
           },
           baseSepoliaBridge: {
             type: 'http',
             url: process.env.BASE_TESTNET_RPC_URL,
             accounts: [BRIDGE_PRIVATE_KEY],
+            chainId: 84532,
           },
         }
       : {}),
@@ -108,3 +110,4 @@ const config = {
 };
 
 export default config;
+
