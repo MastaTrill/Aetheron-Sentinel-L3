@@ -27,8 +27,8 @@ jobs:
     env:
       DEPLOY_NETWORK: base-sepolia
       BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
       SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
       RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
     steps:
@@ -55,8 +55,8 @@ jobs:
     environment: base-sepolia
     env:
       BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
       SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
       RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
       TRACKED_CHAIN_IDS: '84532'
