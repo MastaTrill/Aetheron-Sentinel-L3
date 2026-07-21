@@ -28,6 +28,7 @@ function reqAddrList(name, vals, req = false) {
 const NETWORKS = {
   mainnet: { rpcEnv: 'MAINNET_RPC_URL', chainId: 1, name: 'mainnet', currency: 'ETH' },
   base: { rpcEnv: 'BASE_MAINNET_RPC_URL', chainId: 8453, name: 'base', currency: 'ETH' },
+  'base-sepolia': { rpcEnv: 'BASE_TESTNET_RPC_URL', chainId: 84532, name: 'base-sepolia', currency: 'ETH' },
 };
 
 async function main() {
@@ -98,7 +99,7 @@ async function main() {
 
   if (balance === 0n) throw new Error(`Deployer ${deployerAddress} has zero ${network.currency} on ${network.name}`);
 
-  console.log('MAINNET PREFLIGHT: PASS');
+  console.log('DEPLOYMENT PREFLIGHT: PASS');
   console.log('Network:', network.name, `(chainId ${network.chainId})`);
   console.log('Latest block:', blockNumber);
   console.log('Deployer:', deployerAddress);
@@ -109,4 +110,5 @@ async function main() {
   console.log('\nNo transactions sent. All config valid.');
 }
 
-main().catch(e => { console.error('MAINNET PREFLIGHT: FAIL'); console.error(e.message); process.exitCode = 1; });
+main().catch(e => { console.error('DEPLOYMENT PREFLIGHT: FAIL'); console.error(e.message); process.exitCode = 1; });
+
