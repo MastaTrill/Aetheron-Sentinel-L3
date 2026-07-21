@@ -29,7 +29,7 @@ const FALLBACK_RPC = network === 'mainnet'
 const RPC = [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(isUsableRpcUrl) || FALLBACK_RPC;
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
-const TREASURY_ADDRESS = '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa';
+const TREASURY_ADDRESS = '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2';
 const TREASURY_ADDRESS_LC = TREASURY_ADDRESS.toLowerCase();
 
 // Contracts that route treasury payouts to a dedicated address (2026-04-27 treasury routing)

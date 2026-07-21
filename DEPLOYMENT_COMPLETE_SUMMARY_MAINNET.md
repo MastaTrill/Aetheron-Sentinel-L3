@@ -17,7 +17,7 @@ After comprehensive security hardening with forced dependency overrides, the fol
 **Deployment Date:** June 19, 2026
 **Network:** Ethereum Mainnet (target) | Current repo evidence: Sepolia rehearsal (chainId 11155111)
 **Final Block:** 1
-**Owner/Multisig:** `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
+**Owner/Multisig:** `0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2`
 **Last validated:** 2026-06-19 — compilation ✅, lint ✅, preflight ✅, all tests ✅ (365 passing), security audit ✅
 
 ---

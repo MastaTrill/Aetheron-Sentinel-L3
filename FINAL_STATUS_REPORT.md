@@ -82,7 +82,7 @@ All CI passing. All tests passing. All critical/high vulnerabilities fixed. All 
 
 ## Owner Address
 
-Set to: `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
+Set to: `0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2`
 
 Updated in:
 - `orchestrator.js` (deployment ownership transfer)
@@ -160,7 +160,7 @@ Aetheron-Sentinel-L3/
    - `BASE_MAINNET_RPC_URL`
    - `OWNER_PRIVATE_KEY`
    - `BASESCAN_API_KEY`
-   - `OWNER_ADDRESS` = `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
+   - `OWNER_ADDRESS` = `0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2`
 
 2. **Run preflight:** `npm run mainnet:preflight`
 

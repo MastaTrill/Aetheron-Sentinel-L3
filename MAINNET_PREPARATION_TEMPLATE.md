@@ -29,7 +29,7 @@ This document guides mainnet deployment using the exact same workflow validated 
 Before deploying to mainnet, confirm:
 
 1. **Owner address** (final multisig or admin EOA)
-   - Consolidated treasury: `0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa`
+    - Consolidated treasury: `0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2`
    - All operational addresses consolidated to this address
    - Current Sepolia: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` (test EOA)
 

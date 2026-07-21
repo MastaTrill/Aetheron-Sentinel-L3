@@ -144,7 +144,7 @@ async function main() {
   const bridgeTokens = parseAddressList(process.env.BRIDGE_TOKEN_ADDRESSES);
   const relayers = parseAddressList(process.env.RELAYER_ADDRESSES);
   const yieldTokenAddress = process.env.YIELD_TOKEN_ADDRESS || addresses.SentinelToken || '';
-  const treasuryAddress = process.env.SENTINEL_TREASURY || '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa';
+  const treasuryAddress = process.env.SENTINEL_TREASURY || '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2';
   // const anomalyThreshold = Number(process.env.ANOMALY_THRESHOLD || '10');
   // const tvlThreshold = ethers.parseEther(
   //   process.env.TVL_THRESHOLD_ETH || '1000',

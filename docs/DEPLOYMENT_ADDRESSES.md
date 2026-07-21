@@ -119,7 +119,7 @@ _Addresses will be populated after mainnet deployment._
 | Parameter           | Value                                        |
 | ------------------- | -------------------------------------------- |
 | **Owner EOA**       | `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` |
-| **Treasury**        | `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` |
+| **Treasury**        | `0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2` |
 | **Bridge Relayer**  | `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` |
 | **Multisig**        | `0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994` |
 | **Deployment Date** | April 23, 2026                               |

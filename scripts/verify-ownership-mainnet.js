@@ -6,7 +6,7 @@ dotenv.config({ path: '.env.mainnet' });
 
 async function main() {
     const targetOwner = process.env.SENTINEL_OWNER;
-    const treasuryAddr = process.env.SENTINEL_TREASURY || '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa';
+    const treasuryAddr = process.env.SENTINEL_TREASURY || '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2';
     const timelockAddr = process.env.SENTINEL_TIMELOCK;
     const governanceAddr = process.env.SENTINEL_GOVERNANCE;
     const addresses = JSON.parse(fs.readFileSync('./DEPLOYED_ADDRESSES.json', 'utf8'));
