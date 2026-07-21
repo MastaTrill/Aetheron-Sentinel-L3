@@ -1,0 +1,80 @@
+name: Sentinel L3 Base Sepolia Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      broadcast:
+        description: 'Deploy the full suite after readiness checks'
+        required: true
+        default: false
+        type: boolean
+      confirmation:
+        description: 'Type DEPLOY_BASE_SEPOLIA to authorize broadcast'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentinel-l3-base-sepolia
+  cancel-in-progress: false
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    environment: base-sepolia
+    env:
+      DEPLOY_NETWORK: base-sepolia
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - run: npm ci --legacy-peer-deps
+      - run: forge build --sizes
+      - run: forge test -vvv
+      - name: Validate Base Sepolia RPC, signer, balance, and configuration
+        run: node scripts/mainnet-preflight.js
+
+  deploy:
+    needs: readiness
+    if: ${{ inputs.broadcast && inputs.confirmation == 'DEPLOY_BASE_SEPOLIA' }}
+    runs-on: ubuntu-latest
+    environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
+      TRACKED_CHAIN_IDS: '84532'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Compile contracts
+        run: npm run compile
+      - name: Deploy full 27-contract suite to Base Sepolia
+        run: npm run deploy:base-sepolia | tee base-sepolia-deployment.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: base-sepolia-deployment-${{ github.run_id }}
+          path: base-sepolia-deployment.log
+          if-no-files-found: error
+
