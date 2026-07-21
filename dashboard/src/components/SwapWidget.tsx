@@ -9,6 +9,21 @@ const API_KEY = import.meta.env.VITE_UNISWAP_API_KEY || 'mock-api-key'; // Fallb
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 
+interface QuoteResponse {
+  routing: string;
+  quote: {
+    output: {
+      amount: string;
+    };
+    orderInfo: {
+      outputs: Array<{
+        startAmount: string;
+      }>;
+    };
+  };
+  [key: string]: unknown;
+}
+
 export default function SwapWidget() {
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
@@ -17,7 +32,7 @@ export default function SwapWidget() {
   const { signTypedDataAsync } = useSignTypedData();
 
   const [amountIn, setAmountIn] = useState('0.1');
-  const [quote, setQuote] = useState<Record<string, unknown> | null>(null);
+  const [quote, setQuote] = useState<QuoteResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string>('');
 
@@ -70,10 +85,10 @@ export default function SwapWidget() {
 
     try {
       // Clean quote as per Uniswap SKILL requirements
-      const cleanQuote = { ...quote };
-      const permitData = cleanQuote.permitData;
-      delete cleanQuote.permitData;
-      delete cleanQuote.permitTransaction;
+      const cleanQuote = { ...quote } as Record<string, unknown>;
+      const permitData = cleanQuote['permitData'];
+      delete cleanQuote['permitData'];
+      delete cleanQuote['permitTransaction'];
       const swapRequest: Record<string, unknown> = { ...cleanQuote };
 
       // Handle Permit2 if present for UniswapX (DUTCH_V2)

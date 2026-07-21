@@ -27,6 +27,32 @@ function App() {
   // API Access state
   const [apiKey, setApiKey] = useState<string | null>(null);
 
+  // Live Gateway Logs state
+  const [gatewayLogs, setGatewayLogs] = useState<Record<string, any>[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [fetchingLogs, setFetchingLogs] = useState(false);
+  const [logsError, setLogsError] = useState<string | null>(null);
+
+  const fetchGatewayLogs = async () => {
+    setFetchingLogs(true);
+    setLogsError(null);
+    try {
+      const response = await fetch('/api/sentinel/logs?limit=5', {
+        headers: {
+          'X-API-Key': 'fallback-dev-key-do-not-use-in-prod',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const data = await response.json();
+      setGatewayLogs(data.logs || []);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setLogsError(errMsg);
+    }
+    setFetchingLogs(false);
+  };
+
   useEffect(() => {
     async function fetchEvents() {
       setLoading(true);
@@ -125,6 +151,50 @@ function App() {
           </table>
         ) : (
           <p>No security events found. The Sentinel is watching...</p>
+        )}
+      </section>
+
+      <section id="gateway-logs" className="api-section">
+        <h2>🛡️ Live Gateway Audit Logs</h2>
+        <p>Direct API query to the Sentinel gateway threat logging database.</p>
+        <button className="btn-primary" onClick={fetchGatewayLogs} disabled={fetchingLogs}>
+          {fetchingLogs ? 'Fetching...' : 'Fetch Live Logs'}
+        </button>
+        {logsError && <p style={{ color: 'red', marginTop: '10px' }}>Error: {logsError}</p>}
+        {gatewayLogs.length > 0 ? (
+          <ul
+            className="logs-list"
+            style={{
+              marginTop: '20px',
+              textAlign: 'left',
+              background: '#111',
+              padding: '15px',
+              borderRadius: '6px',
+              listStyleType: 'none',
+            }}
+          >
+            {gatewayLogs.map((log, index) => (
+              <li
+                key={index}
+                style={{
+                  marginBottom: '10px',
+                  borderBottom: '1px solid #222',
+                  paddingBottom: '10px',
+                }}
+              >
+                <strong>[{new Date(log.timestamp).toLocaleTimeString()}]</strong> Threat Score:{' '}
+                <span style={{ color: log.score >= 0.75 ? '#ff4a4a' : '#4aff4a' }}>
+                  {log.score.toFixed(2)}
+                </span>
+                <br />
+                <em style={{ color: '#aaa' }}>Reasons:</em> {log.reasons.join(', ') || 'None'}
+                <br />
+                <code style={{ fontSize: '12px' }}>Payload: {log.prompt.slice(0, 100)}...</code>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ marginTop: '10px', color: '#666' }}>No gateway logs fetched yet.</p>
         )}
       </section>
 
