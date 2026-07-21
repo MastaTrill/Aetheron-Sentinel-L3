@@ -44,6 +44,7 @@
 ## AI / DeFAI Security Layer (NEW - SentinelL3App + Core Agents)
 
 ### Pre-Deployment AI Verification
+
 - [ ] TEE provider selected and SDKs integrated (Phala Cloud, Oasis ROFL/Sapphire, Intel TDX, etc.)
 - [ ] TEEAttestationVerifier contract (or extension to SentinelQuantumGuard / DilithiumVerifierWrapper) deployed and tested
 - [ ] Agent autonomy levels (0-3) defined, coded, and enforced via governance/policy engine (see AGENT_GOVERNANCE_POLICY.md)
@@ -56,6 +57,7 @@
 - [ ] Behavioral monitoring, drift detection, and anomaly escalation active (SentinelMonitor + ai-feedback-loop.js + SentinelPredictiveThreatModel)
 
 ### Mainnet AI-Specific
+
 - [ ] TEE measurements (MRENCLAVE, etc.) allowlisted and verified in on-chain TEE verifier contract
 - [ ] Agent policy registry / governance module configured with mainnet thresholds, value limits, and escalation rules
 - [ ] Emergency pause/override tested end-to-end (governance vote → Timelock → CircuitBreaker → SentinelCoreLoop downgrade of AI agents)
@@ -64,6 +66,7 @@
 - [ ] Regulatory/compliance evidence package prepared (explainability traces, audit logs, human oversight records) — especially relevant if classified as high-risk AI under frameworks like EU AI Act
 
 ### Post-Deployment AI Monitoring
+
 - [ ] AI agents run under heightened monitoring for first 48-72 hours (or first N real decisions)
 - [ ] First production AI decisions reviewed by team; policy or thresholds tuned if needed
 - [ ] Update DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md and FINAL_STATUS_REPORT.md with AI layer status and evidence
@@ -107,9 +110,9 @@ npm run deploy:mainnet
 1. Update `.env.mainnet` with deployed addresses
 2. Run: `npm run mainnet:finalize`
 3. **SECURITY GATE:** Run `npm run verify:ownership` to audit control plane
-3. Fill in actual START_BLOCK when prompted
-4. Paste DEPLOYED_ADDRESSES JSON if not auto-filled
-5. Generate final summary: `DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md`
+4. Fill in actual START_BLOCK when prompted
+5. Paste DEPLOYED_ADDRESSES JSON if not auto-filled
+6. Generate final summary: `DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md`
 
 ### Phase 5: Verification & Production
 
@@ -177,4 +180,5 @@ If critical issue detected post-deployment:
 **Next Action:** Fill real deployment env values → rerun `npm run mainnet:preflight` → deploy to Sepolia or mainnet per checklist. Track AI security tasks in Linear (AET project).
 
 ---
+
 _For more information on our security practices, see SECURITY.md and the new DeFAI security docs._

@@ -20,7 +20,7 @@ export default defineConfig({
       '/api/uniswap': {
         target: 'https://trade-api.gateway.uniswap.org/v1',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/uniswap/, ''),
+        rewrite: path => path.replace(/^\/api\/uniswap/, ''),
       },
     },
   },

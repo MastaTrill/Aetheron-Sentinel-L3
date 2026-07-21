@@ -27,6 +27,7 @@
 ---
 
 ### Live Deployed Contracts (Mainnet)
+
 - **Base Mainnet (8453):** `0x2102C76C6528ECf7ebBf5102495d7531E823b6B5` (Verified)
 
 ### Last updated: 2026-07-21

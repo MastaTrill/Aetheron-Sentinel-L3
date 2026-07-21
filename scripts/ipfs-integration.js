@@ -20,7 +20,9 @@ const IPFS_PROJECT_SECRET = process.env.IPFS_PROJECT_SECRET;
  */
 function getIpfsClient() {
   if (!IPFS_PROJECT_ID || !IPFS_PROJECT_SECRET) {
-    throw new Error('IPFS_PROJECT_ID and IPFS_PROJECT_SECRET must be set in environment variables.');
+    throw new Error(
+      'IPFS_PROJECT_ID and IPFS_PROJECT_SECRET must be set in environment variables.'
+    );
   }
   const auth =
     'Basic ' + Buffer.from(IPFS_PROJECT_ID + ':' + IPFS_PROJECT_SECRET).toString('base64');
@@ -50,7 +52,9 @@ async function withRetry(fn, retries = 3, delay = 1000) {
       return await fn();
     } catch (error) {
       if (i === retries - 1) throw error;
-      console.warn(`Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${delay}ms...`);
+      console.warn(
+        `Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${delay}ms...`
+      );
       await new Promise(resolve => setTimeout(resolve, delay));
       delay *= 2; // Exponential backoff
     }

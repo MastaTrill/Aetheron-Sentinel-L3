@@ -24,7 +24,9 @@ describe('SentinelToken', function () {
     it('mints total supply to the contract itself', async function () {
       const totalSupply = await token.totalSupply();
       expect(totalSupply).to.equal(ethers.parseEther('1000000000'));
-      expect(await token.balanceOf(await token.getAddress())).to.equal(ethers.parseEther('800000000'));
+      expect(await token.balanceOf(await token.getAddress())).to.equal(
+        ethers.parseEther('800000000')
+      );
     });
 
     it('sets the owner correctly', async function () {

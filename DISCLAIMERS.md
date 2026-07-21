@@ -18,6 +18,7 @@ Aetheron Sentinel's smart contract audits are **advisory services only**. An aud
 As of **May 13, 2026**, Aetheron Sentinel's smart contracts have **not yet undergone a formal third-party audit** by established security firms such as OpenZeppelin, Trail of Bits, or Quantstamp.
 
 **Current Status:**
+
 - ✅ Internal security review completed.
 - ✅ Automated vulnerability scanning completed.
 - ✅ Testnet (Sepolia) deployment and testing completed.
@@ -80,6 +81,7 @@ Smart contracts and decentralized finance (DeFi) services operate in an evolving
 - Impose tax obligations on your use of our Services.
 
 **You are responsible for:**
+
 - Understanding applicable laws in your jurisdiction.
 - Consulting a lawyer or tax advisor before using our Services.
 - Complying with all local and international regulations.
@@ -143,6 +145,7 @@ For questions about these Disclaimers or our risk posture:
 ---
 
 ---
+
 _For more information on our security practices, see SECURITY.md._
 
 **Last Reviewed:** May 13, 2026

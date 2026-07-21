@@ -48,7 +48,7 @@ async function addLiquidity() {
     FACTORY_ADDRESS,
     [
       'function createPool(address tokenA, address tokenB, uint24 fee) external returns (address pool)',
-      'function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool)'
+      'function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool)',
     ],
     deployer
   );
@@ -68,7 +68,7 @@ async function addLiquidity() {
     poolAddress,
     [
       'function initialize(uint160 sqrtPriceX96) external',
-      'function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)'
+      'function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
     ],
     deployer
   );
@@ -92,7 +92,14 @@ async function addLiquidity() {
   console.log('Minted 1M SENT to L2 address');
 
   // Get WETH and deposit 0.05 ETH
-  const weth = new Contract(WETH_ADDRESS, ['function deposit() payable', 'function approve(address spender, uint256 amount) external returns (bool)'], deployer); // ethers.Contract is fine here
+  const weth = new Contract(
+    WETH_ADDRESS,
+    [
+      'function deposit() payable',
+      'function approve(address spender, uint256 amount) external returns (bool)',
+    ],
+    deployer
+  ); // ethers.Contract is fine here
   const depositTx = await weth.deposit({ value: ethers.parseEther('0.05') });
   await depositTx.wait();
   console.log('Wrapped 0.05 ETH to WETH');
@@ -118,8 +125,10 @@ async function addLiquidity() {
     fee: 3000,
     tickLower: -60000, // Wide range for testing
     tickUpper: 60000, // Wide range for testing
-    amount0Desired: tokenAddress < WETH_ADDRESS ? ethers.parseEther('10000') : ethers.parseEther('0.01'),
-    amount1Desired: tokenAddress < WETH_ADDRESS ? ethers.parseEther('0.01') : ethers.parseEther('10000'),
+    amount0Desired:
+      tokenAddress < WETH_ADDRESS ? ethers.parseEther('10000') : ethers.parseEther('0.01'),
+    amount1Desired:
+      tokenAddress < WETH_ADDRESS ? ethers.parseEther('0.01') : ethers.parseEther('10000'),
     amount0Min: 0,
     amount1Min: 0,
     recipient: L2_ADDRESS,

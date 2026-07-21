@@ -23,10 +23,14 @@ const RPC_MAP = {
   sepolia: process.env.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
   hoodi: process.env.HOODI_RPC_URL,
 };
-const FALLBACK_RPC = network === 'mainnet'
-  ? 'https://ethereum-rpc.publicnode.com'
-  : 'https://ethereum-sepolia-rpc.publicnode.com';
-const RPC = [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(isUsableRpcUrl) || FALLBACK_RPC;
+const FALLBACK_RPC =
+  network === 'mainnet'
+    ? 'https://ethereum-rpc.publicnode.com'
+    : 'https://ethereum-sepolia-rpc.publicnode.com';
+const RPC =
+  [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(
+    isUsableRpcUrl
+  ) || FALLBACK_RPC;
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2';
@@ -42,7 +46,7 @@ const TREASURY_ROUTED = new Set([
   'SentinelReferralSystem',
   'SentinelStaking',
   'SentinelRewardAggregator',
-  'SentinelSecurityTokenization'
+  'SentinelSecurityTokenization',
 ]);
 
 const OWNABLE_KEYS = [
@@ -62,7 +66,7 @@ const OWNABLE_KEYS = [
   'SentinelReferralSystem',
   'SentinelStaking',
   'SentinelRewardAggregator',
-  'SentinelSecurityTokenization'
+  'SentinelSecurityTokenization',
 ];
 
 function short(addr) {

@@ -49,7 +49,7 @@
     "dev": "next dev",
     "build:web": "next build",
     "start": "next start",
-    "lint:web": "next lint",
+    "lint:web": "eslint src/ --config .eslintrc.json",
     "add-liquidity": "hardhat run scripts/add-liquidity.js",
     "update:site-contracts": "node scripts/update-site-contracts.js",
     "evidence:automate": "node scripts/automate-evidence.js",

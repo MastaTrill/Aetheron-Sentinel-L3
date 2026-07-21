@@ -47,7 +47,9 @@ describe('SentinelCoreLoop Sandwich Attack Simulation', function () {
   });
 
   it('should prevent unauthorized users from triggering the loop', async function () {
-    await expect(coreLoop.connect(attacker).executeCoreLoop())
-      .to.be.revertedWithCustomError(coreLoop, 'SentinelCoreLoop__UnauthorizedKeeper');
+    await expect(coreLoop.connect(attacker).executeCoreLoop()).to.be.revertedWithCustomError(
+      coreLoop,
+      'SentinelCoreLoop__UnauthorizedKeeper'
+    );
   });
 });

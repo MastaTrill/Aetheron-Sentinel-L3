@@ -17,7 +17,7 @@ export default function SwapWidget() {
   const { signTypedDataAsync } = useSignTypedData();
 
   const [amountIn, setAmountIn] = useState('0.1');
-  const [quote, setQuote] = useState<any>(null);
+  const [quote, setQuote] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string>('');
 
@@ -55,9 +55,10 @@ export default function SwapWidget() {
       const data = await response.json();
       setQuote(data);
       setStatus('Quote received.');
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setStatus(`Quote Error: ${err.message}`);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setStatus(`Quote Error: ${errMsg}`);
     }
     setLoading(false);
   };
@@ -69,28 +70,35 @@ export default function SwapWidget() {
 
     try {
       // Clean quote as per Uniswap SKILL requirements
-      const { permitData, permitTransaction, ...cleanQuote } = quote;
-      const swapRequest: any = { ...cleanQuote };
+      const cleanQuote = { ...quote };
+      const permitData = cleanQuote.permitData;
+      delete cleanQuote.permitData;
+      delete cleanQuote.permitTransaction;
+      const swapRequest: Record<string, unknown> = { ...cleanQuote };
 
       // Handle Permit2 if present for UniswapX (DUTCH_V2)
-      const isUniswapX = quote.routing === 'DUTCH_V2' || quote.routing === 'PRIORITY';
-      
+      const isUniswapX =
+        (quote as Record<string, unknown>)['routing'] === 'DUTCH_V2' ||
+        (quote as Record<string, unknown>)['routing'] === 'PRIORITY';
+
       if (isUniswapX && permitData) {
+        const pd = permitData as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         setStatus('Please sign the Permit2 message in your wallet...');
         const signature = await signTypedDataAsync({
-          domain: permitData.domain,
-          types: permitData.types,
+          domain: pd.domain,
+          types: pd.types,
           primaryType: 'PermitWitnessTransferFrom',
-          message: permitData.values,
+          message: pd.values,
         });
         swapRequest.signature = signature;
       } else if (!isUniswapX && permitData && typeof permitData === 'object') {
+        const pd = permitData as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         setStatus('Please sign the Permit2 message in your wallet...');
         const signature = await signTypedDataAsync({
-          domain: permitData.domain,
-          types: permitData.types,
+          domain: pd.domain,
+          types: pd.types,
           primaryType: 'PermitSingle',
-          message: permitData.values,
+          message: pd.values,
         });
         swapRequest.signature = signature;
         swapRequest.permitData = permitData;
@@ -120,9 +128,10 @@ export default function SwapWidget() {
       });
 
       setStatus(`Swap submitted! Tx: ${txHash.slice(0, 10)}...`);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setStatus(`Swap Error: ${err.message}`);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setStatus(`Swap Error: ${errMsg}`);
     }
     setLoading(false);
   };
@@ -130,7 +139,7 @@ export default function SwapWidget() {
   return (
     <div className="swap-widget">
       <h2>Swap via Uniswap (WETH → USDC)</h2>
-      
+
       {!isConnected ? (
         <button onClick={() => connect({ connector: injected() })} className="btn-primary">
           Connect Wallet to Swap
@@ -138,15 +147,13 @@ export default function SwapWidget() {
       ) : (
         <div className="swap-interface">
           <p>Connected: {address?.slice(0, 8)}...</p>
-          <button onClick={() => disconnect()} className="btn-secondary">Disconnect</button>
-          
+          <button onClick={() => disconnect()} className="btn-secondary">
+            Disconnect
+          </button>
+
           <div className="input-group">
             <label>You pay (WETH):</label>
-            <input 
-              type="number" 
-              value={amountIn} 
-              onChange={(e) => setAmountIn(e.target.value)} 
-            />
+            <input type="number" value={amountIn} onChange={e => setAmountIn(e.target.value)} />
           </div>
 
           <button onClick={getQuote} disabled={loading} className="btn-primary">
@@ -159,7 +166,10 @@ export default function SwapWidget() {
               {quote.routing === 'CLASSIC' ? (
                 <p>Output: {formatEther(BigInt(quote.quote.output.amount))} USDC</p>
               ) : (
-                <p>Est. Output: {formatEther(BigInt(quote.quote.orderInfo.outputs[0].startAmount))} USDC</p>
+                <p>
+                  Est. Output: {formatEther(BigInt(quote.quote.orderInfo.outputs[0].startAmount))}{' '}
+                  USDC
+                </p>
               )}
               <button onClick={executeSwap} disabled={loading} className="btn-primary success">
                 Execute Swap

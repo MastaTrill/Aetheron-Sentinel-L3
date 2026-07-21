@@ -35,15 +35,15 @@ ${JSON.stringify(data.contracts, null, 2)}
 
 let hashes = [];
 for (const [key, value] of Object.entries(data.contracts)) {
-    if (value.hash && value.hash !== "0x") hashes.push(value.hash);
+  if (value.hash && value.hash !== '0x') hashes.push(value.hash);
 }
 for (const [key, value] of Object.entries(data.actions)) {
-    if (value && value !== "0x") hashes.push(value);
+  if (value && value !== '0x') hashes.push(value);
 }
 
 report += `Total Hashes: ${hashes.length}\n`;
 for (const hash of hashes) {
-    report += `- ${hash}\n`;
+  report += `- ${hash}\n`;
 }
 
 report += `

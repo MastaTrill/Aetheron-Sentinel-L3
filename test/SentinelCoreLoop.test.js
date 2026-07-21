@@ -38,8 +38,9 @@ describe('SentinelCoreLoop Configuration', function () {
     });
 
     it('should revert if non-owner tries to update interval', async function () {
-      await expect(coreLoop.connect(other).setCalibrationInterval(3600))
-        .to.be.revertedWithCustomError(coreLoop, 'OwnableUnauthorizedAccount');
+      await expect(
+        coreLoop.connect(other).setCalibrationInterval(3600)
+      ).to.be.revertedWithCustomError(coreLoop, 'OwnableUnauthorizedAccount');
     });
   });
 
@@ -67,7 +68,10 @@ describe('SentinelCoreLoop Configuration', function () {
 
     it('batch monitor authorization should be significantly cheaper than single calls', async function () {
       const monitorCount = 5;
-      const monitors = Array.from({ length: monitorCount }, () => ethers.Wallet.createRandom().address);
+      const monitors = Array.from(
+        { length: monitorCount },
+        () => ethers.Wallet.createRandom().address
+      );
 
       // Measure Single Calls
       let totalSingleGas = 0n;
@@ -78,12 +82,17 @@ describe('SentinelCoreLoop Configuration', function () {
       }
 
       // Measure Batch Call with fresh addresses to ensure comparable SLOAD/SSTORE costs
-      const batchMonitors = Array.from({ length: monitorCount }, () => ethers.Wallet.createRandom().address);
+      const batchMonitors = Array.from(
+        { length: monitorCount },
+        () => ethers.Wallet.createRandom().address
+      );
       const txBatch = await coreLoop.setMonitors(batchMonitors, true);
       const receiptBatch = await txBatch.wait();
 
       console.log(`\tGas for ${monitorCount} single authorizations: ${totalSingleGas}`);
-      console.log(`\tGas for 1 batch authorization (${monitorCount} addresses): ${receiptBatch.gasUsed}`);
+      console.log(
+        `\tGas for 1 batch authorization (${monitorCount} addresses): ${receiptBatch.gasUsed}`
+      );
 
       expect(receiptBatch.gasUsed).to.be.lt(totalSingleGas);
     });
@@ -121,34 +130,38 @@ describe('SentinelCoreLoop Configuration', function () {
 
   describe('Security Models Integration', function () {
     let mockOracle, mockModel;
-    
+
     beforeEach(async function () {
       // Mock Oracle
-      const MockOracle = await ethers.getContractFactory("MockCrossChainOracle");
+      const MockOracle = await ethers.getContractFactory('MockCrossChainOracle');
       mockOracle = await MockOracle.deploy();
-      
+
       // Mock Model
-      const MockModel = await ethers.getContractFactory("MockPredictiveModel");
+      const MockModel = await ethers.getContractFactory('MockPredictiveModel');
       mockModel = await MockModel.deploy();
 
       await coreLoop.setCrossChainOracle(mockOracle.target);
       await coreLoop.setPredictiveModel(mockModel.target);
-      
+
       await coreLoop.setKeeper(owner.address, true);
     });
 
     it('should revert executeCoreLoop if global threat level is high', async function () {
       await mockOracle.setGlobalThreatLevel(71);
-      await expect(coreLoop.executeCoreLoop())
-        .to.be.revertedWithCustomError(coreLoop, 'SentinelCoreLoop__SecurityRiskDetected');
+      await expect(coreLoop.executeCoreLoop()).to.be.revertedWithCustomError(
+        coreLoop,
+        'SentinelCoreLoop__SecurityRiskDetected'
+      );
     });
 
     it('should revert executeCoreLoop if AI trust score is low', async function () {
       await mockModel.setTrustScore(299);
-      await expect(coreLoop.executeCoreLoop())
-        .to.be.revertedWithCustomError(coreLoop, 'SentinelCoreLoop__SecurityRiskDetected');
+      await expect(coreLoop.executeCoreLoop()).to.be.revertedWithCustomError(
+        coreLoop,
+        'SentinelCoreLoop__SecurityRiskDetected'
+      );
     });
-    
+
     it('should succeed if threat is low and trust score is high', async function () {
       await mockOracle.setGlobalThreatLevel(50);
       await mockModel.setTrustScore(800);

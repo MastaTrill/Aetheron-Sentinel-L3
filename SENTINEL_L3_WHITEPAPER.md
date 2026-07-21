@@ -1241,4 +1241,5 @@ _This whitepaper represents the comprehensive technical specification for Sentin
 **Discord:** https://discord.gg/sentinell3
 
 ---
+
 _For more information on our security practices, see SECURITY.md._

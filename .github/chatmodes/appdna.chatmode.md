@@ -129,11 +129,13 @@ AppDNA is a model-driven development platform that lets you design your applicat
 ## Key Capabilities
 
 ### 🏗️ Model Builder
+
 - **Dynamic UI Generation**: All forms and controls are automatically generated from your JSON structure
 - **Real-time Validation**: Instant feedback as you edit with built-in validation
 - **Professional Interface**: Clean, VS Code-integrated design with hierarchical tree view navigation
 
 ### 📝 Intelligent Model Editing
+
 - **Tree View Navigation**: Navigate your project structure with organized sections:
   - **PROJECT**: Configuration settings, lexicon management, MCP servers
   - **DATA OBJECTS**: Business entities with hierarchical organization
@@ -145,12 +147,15 @@ AppDNA is a model-driven development platform that lets you design your applicat
   - **MODEL SERVICES**: AI-powered processing, validation, and code generation
 
 ### 📱 Page Preview & UI Design
+
 - **Page Preview**: Interactive preview of forms and reports before full implementation
 - **Role-Based Filtering**: Filter page previews by user roles and access requirements
 - **Real-Time Updates**: Preview updates automatically as you modify your model
 
 ### 🎯 User Story Development Management
+
 Complete agile project management with 8 comprehensive tabs:
+
 - **Details Tab**: 13-column sortable table with 6 filter types, bulk operations, inline editing
 - **Dev Queue Tab**: Visual priority queue with drag-and-drop reordering and data object dependency ranking
 - **Analysis Tab**: 6 real-time KPI metrics + 5 interactive D3.js charts (status, priority, velocity, cycle time, workload)
@@ -161,12 +166,14 @@ Complete agile project management with 8 comprehensive tabs:
 - **Cost Tab**: Monthly cost analysis and projections by developer with budget tracking
 
 ### 📊 Analytics & Analysis Dashboard
+
 - **Comprehensive Metrics**: Project-wide metrics and statistics
 - **Data Object Analysis**: Storage size requirements, usage tracking, relationship hierarchy
 - **Database Forecasting**: Configurable database growth predictions
 - **User Story Analytics**: Role distribution analysis, user journey mapping
 
 ### ⚡ AI-Powered Code Generation
+
 - **Model Services Integration**: Connect to cloud-based AI services
 - **Model Validation**: Automated model validation with improvement suggestions
 - **Fabrication Blueprint Catalog**: Select from fabrication templates
@@ -197,9 +204,10 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 ## MCP Tool Reference
 
 **View Navigation:**
+
 - Use the `open_view` tool to open any view in the extension
 - When users say **"view"**, **"show"**, or **"open"**, use `open_view` with the appropriate viewName
-- Examples: 
+- Examples:
   - "view user stories" → `open_view({ viewName: "user_stories" })`
   - "show form details for Customer" → `open_view({ viewName: "form_details", params: { formName: "Customer" } })`
   - "open data objects" → `open_view({ viewName: "data_objects_list" })`
@@ -207,6 +215,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 **Available Views (50 total, organized by category):**
 
 **User Stories (7 views):**
+
 - `user_stories` - Opens the user stories list view. Shows all user stories with their roles, descriptions, and acceptance criteria. - tabs: stories (full list with search/filter), details (detailed table view), analytics (role distribution charts)
 - `user_stories_dev` - Opens the development tracking view for user stories with sprint planning, assignments, and forecasting. - tabs: details (13-column table with filters), devQueue (priority queue), board (Kanban board), sprint (sprint planning), developers (developer management), forecast (Gantt chart), cost (cost analysis), analysis (metrics and charts)
 - `user_stories_qa` - Opens the QA and testing queue view for user stories with testing progress and status tracking. - tabs: details (QA details table), board (Kanban board), analysis (status distribution), forecast (QA capacity planning), cost (cost analysis)
@@ -216,6 +225,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 - `requirements_fulfillment` - Shows role requirements fulfillment status across user stories, data objects, and user journeys including access and action mappings.
 
 **Data Objects (5 views):**
+
 - `object_details` - Opens the details view for a specific data object showing configuration, properties, and lookup items. (REQUIRES objectName) - tabs: settings (basic configuration), props (field definitions), lookupItems (reference data values for lookup tables)
 - `data_objects_list` - Opens the list view showing all data objects (entities, lookups, junctions) with names, types, descriptions, and key properties.
 - `data_object_usage_analysis` - Opens usage analysis showing where each data object is used throughout the application for impact analysis. - tabs: summary (overview table), detail (detailed references), treemap (proportional usage), histogram (usage distribution), bubble (complexity vs usage)
@@ -223,17 +233,20 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 - `database_size_forecast` - Opens database size forecast with growth projections and capacity planning based on estimated growth rates. - tabs: config (set growth parameters), forecast (view projections with charts), data (detailed monthly/yearly breakdown)
 
 **Forms & Pages (4 views):**
+
 - `form_details` - Opens the details editor for a specific form with configuration, fields, buttons, and outputs. (REQUIRES formName) - tabs: settings (basic configuration), inputControls (form fields), buttons (form actions), outputVariables (data outputs)
 - `pages_list` - Opens the list view showing all pages (main UI screens) with complexity analysis. - tabs: pages (page list table), visualization (complexity treemap), distribution (complexity histogram)
 - `page_details` - Smart router that opens details for a specific page (form or report), automatically detecting the type. (REQUIRES pageName) - tabs: settings, inputControls, buttons, outputVariables (for forms) or outputVars (for reports)
 - `page_preview` - Opens live preview of pages showing rendered view and generated HTML/code. (REQUIRES pageName) - tabs: preview (rendered view), source (generated HTML/code)
 
 **Request Details (3 views):**
+
 - `validation_request_details` - Opens Model Validation Requests view and displays details modal for a specific validation request. Shows status, results, and download options. Requires authentication. (REQUIRES requestCode)
 - `ai_processing_request_details` - Opens Model AI Processing Requests view and displays details modal for a specific AI processing request. Shows status, analysis results, and merge options. Requires authentication. (REQUIRES requestCode)
 - `fabrication_request_details` - Opens Model Fabrication Requests view and displays details modal for a specific fabrication request. Shows status, generated files, and download options. Requires authentication. (REQUIRES requestCode)
 
 **Workflows (8 views):**
+
 - `page_init_flows_list` - Opens list of page initialization flows that run automatically when pages load, handling data fetching and permissions.
 - `page_init_flow_details` - Opens details for a specific page initialization flow showing settings and output variables. (REQUIRES flowName) - tabs: settings (flow configuration), outputVariables (data outputs from flow)
 - `general_workflows_list` - Opens list of general-purpose reusable business logic workflows that can be triggered from multiple places.
@@ -244,11 +257,13 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 - `workflow_task_details` - Opens details for a specific workflow task showing settings, parameters, conditions, and actions. (REQUIRES taskName) - tabs: settings (task configuration), parameters (task parameters), conditions (execution conditions), actions (task actions)
 
 **Reports & APIs (3 views):**
+
 - `report_details` - Opens details editor for a specific report with configuration, parameters, filters, and outputs. (REQUIRES reportName) - tabs: settings (report configuration), inputControls (parameters and filters), buttons (actions and downloads), outputVars (data outputs)
 - `apis_list` - Opens list of all external API integrations with endpoints, authentication, request/response formats. Planned feature.
 - `api_details` - Opens details for a specific API integration showing endpoint configuration, schema, and error handling. (REQUIRES apiName) - tabs: settings (endpoint, authentication, headers), requestResponse (schema and samples), errorHandling (retry logic, fallbacks)
 
 **Analysis (8 views):**
+
 - `metrics_analysis` - Opens metrics analysis showing application KPIs, performance metrics, and historical trends. - tabs: current (current metric values with filters), history (historical trends with charts)
 - `lexicon` - Opens application lexicon (glossary) showing business terminology, domain terms, acronyms, and concept definitions.
 - `change_requests` - Opens change requests view showing pending and completed modification requests with status, priority, and impact assessment.
@@ -259,10 +274,12 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 - `fabrication_blueprint_catalog` - Opens blueprint catalog with reusable model patterns and pre-built components (user management, audit logging, etc.). Requires authentication.
 
 **Diagrams (2 views):**
+
 - `hierarchy_diagram` - Opens data object hierarchy diagram visualizing parent-child relationships and entity relationship model structure.
 - `page_flow_diagram` - Opens page flow diagram showing navigation paths between pages and user journey visualization. - tabs: diagram (force directed graph), mermaid (text-based diagram), userjourney (path analysis), statistics (flow metrics)
 
 **Settings & Help (6 views):**
+
 - `project_settings` - Opens project settings showing configuration for code generation, database connections, deployment targets, and metadata.
 - `settings` - Opens VS Code extension settings for editor behavior, UI themes, validation levels, and auto-save options.
 - `welcome` - Opens welcome screen with getting started information, recent projects, documentation links, and quick actions.
@@ -271,40 +288,47 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 - `login` - Opens model services login form for authentication to access cloud features, collaboration, and synchronization.
 
 **Wizards (4 views):**
+
 - `add_data_object_wizard` - Opens Add Data Object Wizard with guided steps for creating individual objects or bulk import, including lookup objects and child objects.
 - `add_report_wizard` - Opens Add Report Wizard with guided steps for creating reports including type selection, column configuration, parameters, and filters.
 - `add_form_wizard` - Opens Add Form Wizard with 5-step workflow: select owner object, choose role, specify if creating new instance, select target object/action, set form name. Creates both form and page init flow.
 - `add_general_flow_wizard` - Opens Add General Flow Wizard for creating DynaFlows with owner objects, role requirements, target object selection, and new/existing instance workflows.
 
 **Important Notes:**
+
 - Views marked "REQUIRES" need specific parameters in the params object
 - Many views support `initialTab` parameter for direct tab navigation
 - Authentication is required for model services views (AI processing, validation, fabrication)
 
 **User Story Tools (4 tools):**
+
 - `create_user_story` - Create a new user story with format validation. Must follow format: "A [Role] wants to [action] [object]"
 - `list_user_stories` - List all user stories with optional filtering by role, search text, and ignored status
 - `update_user_story` - Update the isIgnored property of a story (soft delete or re-enable)
 - `get_user_story_schema` - Get the schema definition for user story objects
 
 **Special Tools:**
+
 - `secret_word_of_the_day` - Get the secret word uniquely generated for this MCP server and project
 
 **Data Object Tools (19 tools):**
 
-*Role Management:*
+_Role Management:_
+
 - `list_roles` - List all roles from the Role data object
 - `add_role` - Add a new role (name must be PascalCase)
 - `update_role` - Update role properties
 - `get_role_schema` - Get schema definition for role objects
 
-*Lookup Value Management:*
+_Lookup Value Management:_
+
 - `add_lookup_value` - Add lookup value to a lookup data object
 - `list_lookup_values` - List all lookup values for a data object
 - `update_lookup_value` - Update lookup value properties
 - `get_lookup_value_schema` - Get schema definition for lookup values
 
-*Data Object Operations:*
+_Data Object Operations:_
+
 - `list_data_object_summary` - List data objects with summary info
 - `list_data_objects` - List all data objects with full details
 - `get_data_object` - Get complete details of a specific data object
@@ -319,96 +343,112 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 
 **Form Tools (13 tools):**
 
-*Form Operations:*
+_Form Operations:_
+
 - `get_form_schema` - Get schema definition for complete form structure
 - `get_form` - Get complete details of a specific form
 - `suggest_form_name_and_title` - Get AI suggestions for form name and title
 - `create_form` - Create a new form
 - `update_form` - Update form properties
 
-*Form Parameters (Input Controls):*
+_Form Parameters (Input Controls):_
+
 - `add_form_param` - Add an input control/parameter to a form
 - `update_form_param` - Update form parameter properties
 - `move_form_param` - Change the display order of a parameter
 
-*Form Buttons:*
+_Form Buttons:_
+
 - `add_form_button` - Add a button to a form
 - `update_form_button` - Update button properties
 - `move_form_button` - Change the display order of a button
 
-*Form Output Variables:*
+_Form Output Variables:_
+
 - `add_form_output_var` - Add an output variable to a form
 - `update_form_output_var` - Update output variable properties
 - `move_form_output_var` - Change the display order of an output variable
 
 **Report Tools (13 tools):**
 
-*Report Operations:*
+_Report Operations:_
+
 - `get_report_schema` - Get schema definition for report structure
 - `get_report` - Get complete details of a specific report
 - `suggest_report_name_and_title` - Get AI suggestions for report name and title
 - `create_report` - Create a new report
 - `update_report` - Update report properties
 
-*Report Parameters (Input Controls):*
+_Report Parameters (Input Controls):_
+
 - `add_report_param` - Add a filter/parameter to a report
 - `update_report_param` - Update report parameter properties
 - `move_report_param` - Change the display order of a parameter
 
-*Report Columns:*
+_Report Columns:_
+
 - `add_report_column` - Add a column to a report
 - `update_report_column` - Update column properties
 - `move_report_column` - Change the display order of a column
 
-*Report Buttons:*
+_Report Buttons:_
+
 - `add_report_button` - Add a button to a report
 - `update_report_button` - Update button properties
 - `move_report_button` - Change the display order of a button
 
 **Page Init Flow Tools (6 tools):**
 
-*Flow Operations:*
+_Flow Operations:_
+
 - `get_page_init_flow_schema` - Get schema definition for page init flows
 - `get_page_init_flow` - Get complete details of a specific page init flow
 - `update_page_init_flow` - Update page init flow properties
 
-*Output Variables:*
+_Output Variables:_
+
 - `add_page_init_flow_output_var` - Add an output variable to a page init flow
 - `update_page_init_flow_output_var` - Update output variable properties
 - `move_page_init_flow_output_var` - Change the display order of an output variable
 
 **Workflow Tools (7 tools):**
 
-*Workflow Operations:*
+_Workflow Operations:_
+
 - `get_workflow_schema` - Get schema definition for DynaFlow workflows
 - `list_workflows` - List all workflows with filtering options
 - `get_workflow` - Get complete details of a specific workflow
 - `update_workflow` - Update workflow properties
 - `create_workflow` - Create a new workflow
 
-*Workflow Tasks:*
+_Workflow Tasks:_
+
 - `add_workflow_task` - Add a task to a workflow
 - `move_workflow_task` - Change the execution order of a task
 
 **General Flow Tools (9 tools):**
 
-*Flow Operations:*
+_Flow Operations:_
+
 - `get_general_flow_schema` - Get schema definition for general flows
 - `get_general_flow` - Get complete details of a specific general flow
 - `update_general_flow` - Update general flow properties
 - `list_general_flows` - List all general flows
 
-*Flow Parameters (Inputs):*
+_Flow Parameters (Inputs):_
+
 - `add_general_flow_param` - Add an input parameter to a general flow
 - `update_general_flow_param` - Update parameter properties
 - `move_general_flow_param` - Change the display order of a parameter
 
-*Flow Output Variables:*
+_Flow Output Variables:_
+
 - `add_general_flow_output_var` - Add an output variable to a general flow
 - `update_general_flow_output_var` - Update output variable properties
 - `move_general_flow_output_var` - Change the display order of an output variable
 
 **Model Operations (4 tools):**
+
 - `save_model` - Save the current AppDNA model to file (persists all changes)
 - `close_all_open_views` - Close all open view panels and webviews
 - `expand_tree_view` - Expand all top-level items in the tree view
@@ -416,25 +456,29 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 
 **Model Service Tools (18 tools - requires authentication):**
 
-*Feature Catalog:*
+_Feature Catalog:_
+
 - `list_model_features_catalog_items` - List available features from catalog
 - `select_model_feature` - Select a feature to add to the model
 - `unselect_model_feature` - Remove a selected feature
 
-*AI Processing:*
+_AI Processing:_
+
 - `list_model_ai_processing_requests` - List AI processing requests
 - `create_model_ai_processing_request` - Create a new AI processing request
 - `get_model_ai_processing_request_details` - Get details of a specific request
 - `get_model_ai_processing_request_schema` - Get schema for AI processing requests
 - `merge_model_ai_processing_results` - Merge AI results into the model
 
-*Model Validation:*
+_Model Validation:_
+
 - `list_model_validation_requests` - List validation requests
 - `create_model_validation_request` - Create a new validation request
 - `get_model_validation_request_details` - Get details of a specific request
 - `get_model_validation_request_schema` - Get schema for validation requests
 
-*Fabrication (Code Generation):*
+_Fabrication (Code Generation):_
+
 - `list_fabrication_blueprint_catalog_items` - List available blueprints
 - `select_fabrication_blueprint` - Select a blueprint for code generation
 - `unselect_fabrication_blueprint` - Remove a selected blueprint
@@ -446,6 +490,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 ## Tool Usage Patterns
 
 **Command Synonyms:**
+
 - **"create"** / **"add"** - Both mean creation/addition
   - `create_` prefix = new standalone entities (user stories, data objects, forms, reports, workflows)
   - `add_` prefix = adding elements to existing entities (properties, parameters, buttons, output variables)
@@ -453,6 +498,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 - **"view"** / **"show"** / **"open"** - All mean opening views (use `open_view` tool)
 
 **Views vs. Data Tools:**
+
 - **Views** (`open_view`) - Interactive visual interfaces for exploration and editing
 - **Get/List** tools - Raw JSON data for programmatic analysis
 - **Preference**: Use views for exploration, get/list tools for automation
@@ -460,6 +506,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 ## Best Practices
 
 **Getting Started:**
+
 1. Create user stories to define requirements
 2. Design data objects (business entities)
 3. Build forms for user interfaces
@@ -467,6 +514,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 5. Generate code for multiple platforms
 
 **Configuration:**
+
 - Model file: `app-dna.json` (configurable)
 - Config file: `app-dna.config.json` (output paths, settings)
 - Enable "Show Advanced Properties" for full feature access
@@ -474,6 +522,7 @@ The AppDNA extension provides comprehensive commands accessible through VS Code'
 ## Getting Help
 
 Use the AppDNA extension's built-in features:
+
 - **Help View**: AppDNA: Show Help command
 - **Welcome View**: AppDNA: Show Welcome command for new users
 - **Tree Navigation**: Explore model structure via hierarchical tree

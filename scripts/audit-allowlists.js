@@ -28,10 +28,14 @@ const RPC_MAP = {
   sepolia: process.env.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
   hoodi: process.env.HOODI_RPC_URL,
 };
-const FALLBACK_RPC = network === 'mainnet'
-  ? 'https://ethereum-rpc.publicnode.com'
-  : 'https://ethereum-sepolia-rpc.publicnode.com';
-const RPC = [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(isUsableRpcUrl) || FALLBACK_RPC;
+const FALLBACK_RPC =
+  network === 'mainnet'
+    ? 'https://ethereum-rpc.publicnode.com'
+    : 'https://ethereum-sepolia-rpc.publicnode.com';
+const RPC =
+  [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(
+    isUsableRpcUrl
+  ) || FALLBACK_RPC;
 
 function parseAddressList(value) {
   if (!value) return [];

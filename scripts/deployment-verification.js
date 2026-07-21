@@ -35,7 +35,9 @@ async function verifyDeployment() {
 
   if (totalCount === 0) {
     console.log('⚠️ No contract addresses found in environment variables for verification.');
-    console.log('Please ensure your .env file is correctly populated with deployed contract addresses.');
+    console.log(
+      'Please ensure your .env file is correctly populated with deployed contract addresses.'
+    );
     return;
   }
 

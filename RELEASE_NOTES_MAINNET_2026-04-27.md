@@ -195,6 +195,7 @@ Explorer base URL: `https://etherscan.io/address`
 _Draft file. Finalize only after Ethereum mainnet deployment is executed and all placeholders are replaced with objective evidence._
 
 ---
+
 _For more information on our security practices, see SECURITY.md._
 
 ---

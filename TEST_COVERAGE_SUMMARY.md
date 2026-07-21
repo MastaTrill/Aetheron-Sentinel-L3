@@ -49,7 +49,9 @@
 - All 343 Solidity tests and 5 Python tests run in CI on every push and PR to `main`.
 
 ---
+
 _For more information on our security practices, see SECURITY.md._
+
 ## CI Configuration
 
 Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)

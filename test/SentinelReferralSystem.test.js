@@ -12,14 +12,16 @@ describe('SentinelReferralSystem', function () {
     [owner, user1, user2, user3] = await ethers.getSigners();
 
     const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    rewardToken = await ERC20Mock.deploy('RewardToken', 'RWD', owner.address, ethers.parseEther('1000000'));
+    rewardToken = await ERC20Mock.deploy(
+      'RewardToken',
+      'RWD',
+      owner.address,
+      ethers.parseEther('1000000')
+    );
     await rewardToken.waitForDeployment();
 
     const SentinelReferralSystem = await ethers.getContractFactory('SentinelReferralSystem');
-    referral = await SentinelReferralSystem.deploy(
-      await rewardToken.getAddress(),
-      owner.address
-    );
+    referral = await SentinelReferralSystem.deploy(await rewardToken.getAddress(), owner.address);
     await referral.waitForDeployment();
 
     // Fund the referral contract with reward tokens for bonus payouts

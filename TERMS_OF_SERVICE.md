@@ -45,15 +45,18 @@ For detailed security disclaimers and audit status, see [DISCLAIMERS.md](DISCLAI
 Aetheron Sentinel offers three service tiers:
 
 ### Starter (Free)
+
 - Community support and documentation access.
 - No service fees.
 
 ### Professional ($99/month)
+
 - Includes: Code analysis, basic audits, secure networking access.
 - Billing: Monthly subscription.
 - Cancellation: Anytime with 7 days' notice.
 
 ### Enterprise (Custom Pricing)
+
 - Dedicated support, SLA guarantees, custom audit scopes.
 - Contact: aetheron.solana@gmail.com
 
@@ -99,6 +102,7 @@ For questions about these Terms, contact us at:
 ---
 
 ---
+
 _For more information on our security practices, see SECURITY.md._
 
 **Acknowledgment:** By using Aetheron Sentinel's Services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.

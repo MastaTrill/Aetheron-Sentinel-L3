@@ -19,7 +19,7 @@ function App() {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Real-time alerting state
   const [latestAlert, setLatestAlert] = useState<SecurityEvent | null>(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -52,10 +52,10 @@ function App() {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'security_events' },
-        (payload) => {
+        payload => {
           const newEvent = payload.new as SecurityEvent;
-          setEvents((prev) => [newEvent, ...prev].slice(0, 10));
-          
+          setEvents(prev => [newEvent, ...prev].slice(0, 10));
+
           if (newEvent.risk_score > 7) {
             setLatestAlert(newEvent);
             setShowAlert(true);
@@ -81,7 +81,9 @@ function App() {
       {showAlert && latestAlert && (
         <div className="toast toast-critical">
           <h4>Critical Security Alert!</h4>
-          <p>High risk event ({latestAlert.risk_score}/10) detected on {latestAlert.chain_id}</p>
+          <p>
+            High risk event ({latestAlert.risk_score}/10) detected on {latestAlert.chain_id}
+          </p>
           <code>Tx: {latestAlert.tx_hash.slice(0, 10)}...</code>
         </div>
       )}
@@ -109,7 +111,7 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {events.map((event) => (
+              {events.map(event => (
                 <tr key={event.id}>
                   <td>{event.tx_hash.slice(0, 10)}...</td>
                   <td>{event.sender.slice(0, 8)}...</td>
@@ -129,7 +131,7 @@ function App() {
       <section id="api-access" className="api-section">
         <h2>Developer API Access</h2>
         <p>Integrate Sentinel L3 real-time alerts into your own applications.</p>
-        
+
         {!apiKey ? (
           <button className="btn-primary" onClick={generateApiKey}>
             Generate API Key
@@ -140,11 +142,13 @@ function App() {
               <span>Your API Key:</span>
               <code>{apiKey}</code>
             </div>
-            
+
             <div className="code-snippet">
               <h4>cURL Example</h4>
-              <pre><code>{`curl -X GET "https://api.sentinel-l3.io/v1/events?limit=10" \\
-  -H "Authorization: Bearer \${apiKey}"`}</code></pre>
+              <pre>
+                <code>{`curl -X GET "https://api.sentinel-l3.io/v1/events?limit=10" \\
+  -H "Authorization: Bearer \${apiKey}"`}</code>
+              </pre>
             </div>
           </div>
         )}

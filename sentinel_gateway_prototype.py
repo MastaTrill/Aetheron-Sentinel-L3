@@ -50,6 +50,17 @@ try:
 except ImportError:
     sync_sentinel_data = None
 
+# Custom Prometheus Metrics
+try:
+    from prometheus_client import Counter, Gauge
+    THREAT_ATTEMPTS = Counter("sentinel_threat_attempts_total", "Total analyzed prompts", ["status"])
+    THREAT_SCORE = Gauge("sentinel_threat_score_latest", "Latest threat analysis score")
+    BLOCKED_REASONS = Counter("sentinel_blocked_reasons_total", "Total reasons for threat blocking", ["reason"])
+except ImportError:
+    THREAT_ATTEMPTS = None
+    THREAT_SCORE = None
+    BLOCKED_REASONS = None
+
 # Configure structlog for JSON‑friendly logs
 structlog.configure(
     processors=[
@@ -149,6 +160,18 @@ class SentinelGateway:
 
     def execute_gateway(self, agent_prompt, transaction_payload, source_ip=None):
         score, reasons = self.analyze_intent(agent_prompt)
+        
+        # Populate Prometheus Metrics
+        if THREAT_SCORE is not None:
+            THREAT_SCORE.set(score)
+            status = "blocked" if score >= self.threat_threshold else "allowed"
+            THREAT_ATTEMPTS.labels(status=status).inc()
+            if score >= self.threat_threshold:
+                for reason in reasons:
+                    # Clean up reason strings to be label-friendly
+                    reason_label = reason.split(":")[0].strip()
+                    BLOCKED_REASONS.labels(reason=reason_label).inc()
+
         now = datetime.now(tz=tz.utc)
         log_entry = {
             "timestamp": now.isoformat(),
@@ -216,9 +239,62 @@ class SentinelGateway:
         return f"SIGNED_TX: {transaction_payload[:15]}..._SECURED_BY_SENTINEL"
 
     def _send_alert_webhook(self, log_entry):
+        if not self.webhook_url:
+            return
         try:
-            resp = requests.post(self.webhook_url, json=log_entry, timeout=3)
-            if resp.status_code != 200:
+            payload = log_entry
+            # Detect Discord Webhooks
+            if "discord.com/api/webhooks/" in self.webhook_url:
+                payload = {
+                    "username": "Aetheron Sentinel Node",
+                    "embeds": [{
+                        "title": "🚨 CRITICAL: Adversarial Threat Blocked",
+                        "color": 16711680, # Red
+                        "fields": [
+                            {"name": "Threat Score", "value": f"{log_entry.get('score'):.2f}", "inline": True},
+                            {"name": "Source IP", "value": log_entry.get("source_ip"), "inline": True},
+                            {"name": "Blocked Reasons", "value": ", ".join(log_entry.get("reasons", [])) or "None"},
+                            {"name": "Analyzed Payload", "value": f"```{log_entry.get('prompt')[:1000]}```"}
+                        ],
+                        "timestamp": log_entry.get("timestamp")
+                    }]
+                }
+            # Detect Slack Webhooks
+            elif "hooks.slack.com/services/" in self.webhook_url:
+                payload = {
+                    "blocks": [
+                        {
+                            "type": "header",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "🚨 Aetheron Sentinel: Malicious Attack Blocked"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {"type": "mrkdwn", "text": f"*Threat Score:*\n{log_entry.get('score'):.2f}"},
+                                {"type": "mrkdwn", "text": f"*Source IP:*\n{log_entry.get('source_ip')}"}
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": f"*Reasons:*\n{', '.join(log_entry.get('reasons', [])) or 'None'}"
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": f"*Payload:*\n```{log_entry.get('prompt')[:500]}```"
+                            }
+                        }
+                    ]
+                }
+            resp = requests.post(self.webhook_url, json=payload, timeout=3)
+            if resp.status_code not in (200, 204):
                 self.logger.warning("Webhook alert failed", status=resp.status_code, text=resp.text)
         except (requests.RequestException, ValueError) as e:
             self.logger.error("Failed to send webhook alert", error=str(e))

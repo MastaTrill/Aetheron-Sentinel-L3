@@ -1,6 +1,5 @@
-
 import { Buffer } from 'buffer';
-(globalThis as any).Buffer = Buffer;
+(globalThis as unknown as { Buffer: typeof Buffer }).Buffer = Buffer;
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

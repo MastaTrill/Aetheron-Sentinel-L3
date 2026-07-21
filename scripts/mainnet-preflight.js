@@ -8,18 +8,32 @@ if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
 else delete process.env.OWNER_PRIVATE_KEY;
 
 function parseAddressList(value) {
-  return (value || '').split(',').map(s => s.trim()).filter(Boolean);
+  return (value || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
 }
-function parseUint(v, fb) { return (v === undefined || v === null || v === '') ? fb : BigInt(v); }
-function parseBool(v, fb) { return (v === undefined || v === null || v === '') ? fb : v === 'true' || v === '1'; }
+function parseUint(v, fb) {
+  return v === undefined || v === null || v === '' ? fb : BigInt(v);
+}
+function parseBool(v, fb) {
+  return v === undefined || v === null || v === '' ? fb : v === 'true' || v === '1';
+}
 function parseChainLimits(value) {
-  return (value || '').split(',').map(s => s.trim()).filter(Boolean).map(e => {
-    const [id, lim] = e.split(':').map(s => s.trim());
-    if (!id || !lim) throw new Error(`Invalid CHAIN_LIMITS: ${e}`);
-    return { chainId: BigInt(id), limit: ethers.parseEther(lim) };
-  });
+  return (value || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map(e => {
+      const [id, lim] = e.split(':').map(s => s.trim());
+      if (!id || !lim) throw new Error(`Invalid CHAIN_LIMITS: ${e}`);
+      return { chainId: BigInt(id), limit: ethers.parseEther(lim) };
+    });
 }
-function reqAddr(name, val) { if (!val || !ethers.isAddress(val)) throw new Error(name + ' must be valid. Got: ' + (val || '<empty>')); }
+function reqAddr(name, val) {
+  if (!val || !ethers.isAddress(val))
+    throw new Error(name + ' must be valid. Got: ' + (val || '<empty>'));
+}
 function reqAddrList(name, vals, req = false) {
   if (req && vals.length === 0) throw new Error(`${name} needs at least one address`);
   vals.forEach(v => reqAddr(name, v));
@@ -28,7 +42,12 @@ function reqAddrList(name, vals, req = false) {
 const NETWORKS = {
   mainnet: { rpcEnv: 'MAINNET_RPC_URL', chainId: 1, name: 'mainnet', currency: 'ETH' },
   base: { rpcEnv: 'BASE_MAINNET_RPC_URL', chainId: 8453, name: 'base', currency: 'ETH' },
-  'base-sepolia': { rpcEnv: 'BASE_TESTNET_RPC_URL', chainId: 84532, name: 'base-sepolia', currency: 'ETH' },
+  'base-sepolia': {
+    rpcEnv: 'BASE_TESTNET_RPC_URL',
+    chainId: 84532,
+    name: 'base-sepolia',
+    currency: 'ETH',
+  },
 };
 
 async function main() {
@@ -38,17 +57,24 @@ async function main() {
 
   const rpcUrl = (process.env[network.rpcEnv] || '').trim().replace(/^["']|["']$/g, '');
   if (!rpcUrl) throw new Error(`${network.rpcEnv} missing`);
-  if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/')) throw new Error(`${network.rpcEnv} is a placeholder`);
+  if (rpcUrl.includes('YOUR_') || rpcUrl.endsWith('/v3/'))
+    throw new Error(`${network.rpcEnv} is a placeholder`);
 
   const pk = (process.env.OWNER_PRIVATE_KEY || '').trim().replace(/^["']|["']$/g, '');
-  if (!/^0x[0-9a-fA-F]{64}$/.test(pk)) throw new Error('OWNER_PRIVATE_KEY must be 0x + 64 hex chars (set in shell)');
+  if (!/^0x[0-9a-fA-F]{64}$/.test(pk))
+    throw new Error('OWNER_PRIVATE_KEY must be 0x + 64 hex chars (set in shell)');
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl, { name: network.name, chainId: network.chainId });
+  const provider = new ethers.JsonRpcProvider(rpcUrl, {
+    name: network.name,
+    chainId: network.chainId,
+  });
   let blockNumber;
   try {
     const actualNetwork = await provider.getNetwork();
     if (Number(actualNetwork.chainId) !== network.chainId) {
-      throw new Error(`RPC chain ID ${actualNetwork.chainId} does not match expected ${network.chainId}`);
+      throw new Error(
+        `RPC chain ID ${actualNetwork.chainId} does not match expected ${network.chainId}`
+      );
     }
     blockNumber = await provider.getBlockNumber();
   } catch (e) {
@@ -94,10 +120,16 @@ async function main() {
   reqAddrList('BRIDGE_TOKEN_ADDRESSES', config.bridgeTokens);
   reqAddrList('SECURITY_REPORTER_ADDRESSES', config.grantSecurityReporters);
   reqAddrList('TIMELOCK_PROPOSERS', config.timelockProposers);
-  reqAddrList('TIMELOCK_EXECUTORS', config.timelockExecutors.filter(a => a !== ethers.ZeroAddress));
-  ['lpToken','stakingToken','rewardToken','yieldToken'].forEach(k => { if (config[k]) reqAddr(k.toUpperCase(), config[k]); });
+  reqAddrList(
+    'TIMELOCK_EXECUTORS',
+    config.timelockExecutors.filter(a => a !== ethers.ZeroAddress)
+  );
+  ['lpToken', 'stakingToken', 'rewardToken', 'yieldToken'].forEach(k => {
+    if (config[k]) reqAddr(k.toUpperCase(), config[k]);
+  });
 
-  if (balance === 0n) throw new Error(`Deployer ${deployerAddress} has zero ${network.currency} on ${network.name}`);
+  if (balance === 0n)
+    throw new Error(`Deployer ${deployerAddress} has zero ${network.currency} on ${network.name}`);
 
   console.log('DEPLOYMENT PREFLIGHT: PASS');
   console.log('Network:', network.name, `(chainId ${network.chainId})`);
@@ -106,8 +138,18 @@ async function main() {
   console.log('Owner:', config.owner);
   console.log('Balance:', ethers.formatEther(balance), network.currency);
   console.log('Relayers:', config.relayers.join(', '));
-  console.log('Gas:', JSON.stringify({ gasPrice: feeData.gasPrice?.toString(), maxFeePerGas: feeData.maxFeePerGas?.toString() }));
+  console.log(
+    'Gas:',
+    JSON.stringify({
+      gasPrice: feeData.gasPrice?.toString(),
+      maxFeePerGas: feeData.maxFeePerGas?.toString(),
+    })
+  );
   console.log('\nNo transactions sent. All config valid.');
 }
 
-main().catch(e => { console.error('DEPLOYMENT PREFLIGHT: FAIL'); console.error(e.message); process.exitCode = 1; });
+main().catch(e => {
+  console.error('DEPLOYMENT PREFLIGHT: FAIL');
+  console.error(e.message);
+  process.exitCode = 1;
+});

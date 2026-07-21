@@ -20,7 +20,9 @@ class SentinelMobileApp {
     this.clients = new Map(); // userId -> WebSocket
 
     if (!this.jwtSecret) {
-      throw new Error("FATAL: JWT_SECRET environment variable is missing. Security cannot be guaranteed.");
+      throw new Error(
+        'FATAL: JWT_SECRET environment variable is missing. Security cannot be guaranteed.'
+      );
     }
 
     this.setupMiddleware();

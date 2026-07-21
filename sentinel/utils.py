@@ -58,6 +58,15 @@ def calculate_threat_score(prompt: str) -> Tuple[float, List[str]]:
     if re.search(r"\s{5,}", norm):
         score += 0.1
         reasons.append("Excessive whitespace detected")
+    # Flash loan exploit pattern
+    if any(p in norm for p in ["FLASHLOAN", "FLASH_LOAN", "BORROW_LARGE"]):
+        if any(p in norm for p in ["ARBITRAGE", "REPAY", "PRICE_MANIPULATION"]):
+            score += 0.4
+            reasons.append("Flash loan exploitation footprints detected")
+    # Reentrancy footprints
+    if any(p in norm for p in ["REENTRANCY", "RE-ENTRANCY", "MSG.SENDER.CALL", "FALLBACK_REENTRY"]):
+        score += 0.4
+        reasons.append("Reentrancy vector footprints detected")
     # LLM classifier
     llm_score, llm_reason = _llm_classify_intent(norm)
     if llm_reason:

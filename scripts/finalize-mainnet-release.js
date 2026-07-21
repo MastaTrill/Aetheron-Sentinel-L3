@@ -11,7 +11,11 @@ const DATA_JSON = path.join(__dirname, '../mainnet-deployment-data.json');
 
 function updateEnvStartBlock(startBlock, addresses) {
   if (!fs.existsSync(ENV_FILE)) {
-    fs.writeFileSync(ENV_FILE, `START_BLOCK=${startBlock}\nDEPLOYED_ADDRESSES=${JSON.stringify(addresses)}\n`, 'utf-8');
+    fs.writeFileSync(
+      ENV_FILE,
+      `START_BLOCK=${startBlock}\nDEPLOYED_ADDRESSES=${JSON.stringify(addresses)}\n`,
+      'utf-8'
+    );
     return;
   }
   let env = fs.readFileSync(ENV_FILE, 'utf-8');
@@ -31,7 +35,11 @@ function updateEnvStartBlock(startBlock, addresses) {
 
 function updateSummaryMd(startBlock, addresses) {
   if (!fs.existsSync(SUMMARY_MD)) {
-    fs.writeFileSync(SUMMARY_MD, `# Mainnet Deployment Summary\n\n**Final Block:** ${startBlock}\n\n## Deployment Addresses\n\n\`\`\`json\n${JSON.stringify(addresses, null, 2)}\n\`\`\`\n\n---\n`, 'utf-8');
+    fs.writeFileSync(
+      SUMMARY_MD,
+      `# Mainnet Deployment Summary\n\n**Final Block:** ${startBlock}\n\n## Deployment Addresses\n\n\`\`\`json\n${JSON.stringify(addresses, null, 2)}\n\`\`\`\n\n---\n`,
+      'utf-8'
+    );
     return;
   }
   let md = fs.readFileSync(SUMMARY_MD, 'utf-8');
@@ -51,7 +59,7 @@ function updateSummaryMd(startBlock, addresses) {
 
 async function main() {
   if (!fs.existsSync(DATA_JSON)) {
-    console.error("Missing mainnet-deployment-data.json");
+    console.error('Missing mainnet-deployment-data.json');
     process.exit(1);
   }
   const data = JSON.parse(fs.readFileSync(DATA_JSON, 'utf8'));
@@ -60,7 +68,7 @@ async function main() {
     SentinelCore: data.contracts.SentinelCore.address,
     SentinelCoreLoop: data.contracts.SentinelCoreLoop.address,
     AetheronBridge: data.contracts.AetheronBridge.address,
-    SentinelChainlinkKeeper: data.contracts.SentinelChainlinkKeeper.address
+    SentinelChainlinkKeeper: data.contracts.SentinelChainlinkKeeper.address,
   };
   updateEnvStartBlock(startBlock, addresses);
   updateSummaryMd(startBlock, addresses);

@@ -8,6 +8,7 @@ Aetheron Sentinel ("we," "us," "our," or "Company") is committed to protecting y
 ## 1. Information We Collect
 
 ### Contact Form & Service Requests
+
 When you submit a contact form or request our services, we collect:
 
 - **Name** - Your full name or organization name.
@@ -17,6 +18,7 @@ When you submit a contact form or request our services, we collect:
 - **Message Content** - Your specific questions or requirements.
 
 ### Website & Telemetry
+
 We collect:
 
 - **Usage Data** - Pages visited, time spent, browser type, IP address (for security purposes only).
@@ -32,6 +34,7 @@ We use your personal data solely for:
 - **Compliance** - Meeting legal obligations and maintaining audit trails.
 
 **We do not:**
+
 - Sell or rent your personal data to third parties.
 - Share your email address or company information with external companies.
 - Use your data for marketing without explicit consent.
@@ -66,15 +69,19 @@ All third parties are contractually obligated to protect your data and use it on
 ## 6. Your Rights
 
 ### Right to Access
+
 You have the right to request a copy of your personal data we hold.
 
 ### Right to Deletion
+
 You can request deletion of your personal data (subject to legal retention requirements).
 
 ### Right to Rectification
+
 You can request correction of inaccurate personal data.
 
 ### Right to Opt-Out
+
 You can opt out of non-essential communications by replying "UNSUBSCRIBE" to any email.
 
 To exercise these rights, contact: **aetheron.solana@gmail.com**
@@ -105,7 +112,7 @@ For privacy questions or concerns, contact:
 **Subject Line:** "Privacy Inquiry"
 
 ---
-_For more information on our security practices, see SECURITY.md._
----
+
+## _For more information on our security practices, see SECURITY.md._
 
 **Acknowledgment:** By using Aetheron Sentinel's Services, you acknowledge that you have read and understand this Privacy Policy.

@@ -157,8 +157,8 @@ Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_S
 
 ### Verification Scripts
 
-| Script                                                                                 | Command                                                                 | Purpose                       |
-| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- |
+| Script                                                                               | Command                                                                | Purpose                       |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------- |
 | [scripts/section7-final-sweep.js](./scripts/section7-final-sweep.js)                 | `node scripts/section7-final-sweep.js`                                 | Verify ownership + governance |
 | [scripts/audit-allowlists.js](./scripts/audit-allowlists.js)                         | `node scripts/audit-allowlists.js`                                     | Verify role allowlists        |
 | [scripts/verify-bridge-relayers.js](./scripts/verify-bridge-relayers.js)             | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.js`       | Verify bridge relayer         |

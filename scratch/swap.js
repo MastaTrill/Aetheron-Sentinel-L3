@@ -8,8 +8,12 @@ const API_KEY = process.env.UNISWAP_API_KEY || 'xadAqb0VcTfh_aQzBDlFUP7DPIfkRFYF
 const BASE_URL = 'https://trade-api.gateway.uniswap.org/v1';
 
 async function main() {
-  const privateKey = process.env.DEPLOYER_PRIVATE_KEY || '7aa0c27e2e2545d62e29f69612f6d2fa1a06fe9e9ad448dba69af4075f4aeb34';
-  const provider = new ethers.JsonRpcProvider(process.env.BASE_TESTNET_RPC_URL || 'https://sepolia.base.org');
+  const privateKey =
+    process.env.DEPLOYER_PRIVATE_KEY ||
+    '7aa0c27e2e2545d62e29f69612f6d2fa1a06fe9e9ad448dba69af4075f4aeb34';
+  const provider = new ethers.JsonRpcProvider(
+    process.env.BASE_TESTNET_RPC_URL || 'https://sepolia.base.org'
+  );
   const wallet = new ethers.Wallet(privateKey, provider);
 
   console.log('Swapper wallet address:', wallet.address);
@@ -50,14 +54,14 @@ async function main() {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': API_KEY,
-      'x-universal-router-version': '2.0'
+      'x-universal-router-version': '2.0',
     },
     body: JSON.stringify({
       walletAddress: wallet.address,
       token: WETH_ADDRESS,
       amount: amountIn,
-      chainId: 84532
-    })
+      chainId: 84532,
+    }),
   });
 
   const approvalData = await approvalRes.json();
@@ -67,7 +71,7 @@ async function main() {
       to: approvalData.approval.to,
       from: approvalData.approval.from,
       data: approvalData.approval.data,
-      value: approvalData.approval.value
+      value: approvalData.approval.value,
     });
     console.log('Approval transaction sent! Hash:', txResponse.hash);
     await txResponse.wait();
@@ -83,7 +87,7 @@ async function main() {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': API_KEY,
-      'x-universal-router-version': '2.0'
+      'x-universal-router-version': '2.0',
     },
     body: JSON.stringify({
       swapper: wallet.address,
@@ -94,8 +98,8 @@ async function main() {
       amount: amountIn,
       type: 'EXACT_INPUT',
       slippageTolerance: 0.5,
-      routingPreference: 'BEST_PRICE'
-    })
+      routingPreference: 'BEST_PRICE',
+    }),
   });
 
   const quoteData = await quoteRes.json();
@@ -111,8 +115,11 @@ async function main() {
   const { permitData, permitTransaction, ...cleanQuote } = quoteData;
   const swapRequestBody = { ...cleanQuote };
 
-  const isUniswapX = quoteData.routing === 'DUTCH_V2' || quoteData.routing === 'DUTCH_V3' || quoteData.routing === 'PRIORITY';
-  
+  const isUniswapX =
+    quoteData.routing === 'DUTCH_V2' ||
+    quoteData.routing === 'DUTCH_V3' ||
+    quoteData.routing === 'PRIORITY';
+
   if (isUniswapX) {
     console.log('UniswapX route detected. Signing the EIP-712 permit message...');
     // Sign permit message locally
@@ -143,9 +150,9 @@ async function main() {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': API_KEY,
-      'x-universal-router-version': '2.0'
+      'x-universal-router-version': '2.0',
     },
-    body: JSON.stringify(swapRequestBody)
+    body: JSON.stringify(swapRequestBody),
   });
 
   const swapData = await swapResponse.json();
@@ -167,7 +174,7 @@ async function main() {
     from: swapData.swap.from,
     data: swapData.swap.data,
     value: swapData.swap.value,
-    gasLimit: swapData.swap.gasLimit ? ethers.toBigInt(swapData.swap.gasLimit) : 500000n
+    gasLimit: swapData.swap.gasLimit ? ethers.toBigInt(swapData.swap.gasLimit) : 500000n,
   });
 
   console.log('Swap transaction sent! Hash:', tx.hash);

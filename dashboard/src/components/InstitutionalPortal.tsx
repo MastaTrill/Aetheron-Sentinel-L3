@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import SentinelZKIdentityABI from '../abis/SentinelZKIdentity.json';
 
-// Since we are mocking the deployment on the frontend dev server, 
+// Since we are mocking the deployment on the frontend dev server,
 // we will use a dummy address for the ZK Identity contract to bypass errors.
 // In a real environment, this would be injected via window.SENTINEL_CONTRACTS
 const ZK_IDENTITY_ADDRESS = '0x1234567890123456789012345678901234567890';
 
 export default function InstitutionalPortal() {
   const { address, isConnected } = useAccount();
-  
+
   // Read Identity Status from Smart Contract
   const { data: identityData, isLoading } = useReadContract({
     address: ZK_IDENTITY_ADDRESS,
@@ -19,25 +19,21 @@ export default function InstitutionalPortal() {
     query: {
       enabled: isConnected && !!address,
       retry: false, // Don't retry since it will fail on mock address
-    }
+    },
   });
 
   // Mocking state since we are using a dummy address for demo purposes
-  const [isVerified, setIsVerified] = useState(false);
+  const [internalVerified, setInternalVerified] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
 
-  useEffect(() => {
-    // If the contract call succeeds (e.g. on a real network), map the result
-    if (identityData && Array.isArray(identityData)) {
-      setIsVerified(identityData[3]); // isVerified boolean is at index 3
-    }
-  }, [identityData]);
+  const isVerified =
+    identityData && Array.isArray(identityData) ? identityData[3] : internalVerified;
 
   const handleApply = () => {
     setIsApplying(true);
     // Mocking an async ZK proof generation & transaction
     setTimeout(() => {
-      setIsVerified(true);
+      setInternalVerified(true);
       setIsApplying(false);
     }, 2500);
   };
@@ -65,15 +61,18 @@ export default function InstitutionalPortal() {
     return (
       <div className="institutional-portal unverified">
         <h2>⚠️ Unverified Entity</h2>
-        <p>Your address (<code>{address}</code>) is not linked to a verified Sentinel ZK Identity.</p>
-        <p>Access to the Institutional Client Portal is strictly gated to KYC/AML verified enterprise partners.</p>
-        
-        <button 
-          className="btn-primary" 
-          onClick={handleApply} 
-          disabled={isApplying}
-        >
-          {isApplying ? 'Generating ZK Proof & Submitting...' : 'Submit Institutional KYC/AML Application'}
+        <p>
+          Your address (<code>{address}</code>) is not linked to a verified Sentinel ZK Identity.
+        </p>
+        <p>
+          Access to the Institutional Client Portal is strictly gated to KYC/AML verified enterprise
+          partners.
+        </p>
+
+        <button className="btn-primary" onClick={handleApply} disabled={isApplying}>
+          {isApplying
+            ? 'Generating ZK Proof & Submitting...'
+            : 'Submit Institutional KYC/AML Application'}
         </button>
       </div>
     );
@@ -86,7 +85,7 @@ export default function InstitutionalPortal() {
         <h2>✅ Enterprise Dashboard Unlocked</h2>
         <span className="badge">ZK-Verified Institution</span>
       </div>
-      
+
       <div className="enterprise-metrics">
         <div className="metric-card">
           <h4>Your Trust Score</h4>
@@ -107,10 +106,12 @@ export default function InstitutionalPortal() {
         <p>Execute large block trades with zero slippage and MEV protection.</p>
         <button className="btn-secondary">Request OTC Quote</button>
       </div>
-      
+
       <div className="compliance-reports">
         <h3>Compliance & Audit Reports</h3>
-        <p>Download your monthly SOC2 and AML compliance proofs generated via zero-knowledge rollups.</p>
+        <p>
+          Download your monthly SOC2 and AML compliance proofs generated via zero-knowledge rollups.
+        </p>
         <button className="btn-secondary">Download Latest Report</button>
       </div>
     </div>

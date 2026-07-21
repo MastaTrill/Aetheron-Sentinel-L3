@@ -6,7 +6,7 @@ async function main() {
   console.log('Checking balance for', address, 'on Base Sepolia...');
   for (let i = 0; i < 60; i++) {
     const balance = await provider.getBalance(address);
-    console.log(`Current Balance (Attempt ${i+1}/60):`, ethers.formatEther(balance), 'ETH');
+    console.log(`Current Balance (Attempt ${i + 1}/60):`, ethers.formatEther(balance), 'ETH');
     if (balance > 0n) {
       console.log('🎉 ETH arrived on Base Sepolia!');
       return;

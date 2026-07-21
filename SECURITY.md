@@ -33,5 +33,5 @@ All code changes must pass our automated security pipeline before merging:
 ---
 
 _For more information on our security practices, see [SECURITY.md](SECURITY.md)._
-*Last Updated: May 13, 2026*
-*Version: 1.1 (Aligned with Bug Bounty Guide)*
+_Last Updated: May 13, 2026_
+_Version: 1.1 (Aligned with Bug Bounty Guide)_
