@@ -80,7 +80,10 @@ jobs:
       - name: Compile contracts
         run: npm run compile
       - name: Deploy full 27-contract suite to Base Sepolia
-        run: npm run deploy:base-sepolia | tee base-sepolia-deployment.log
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run deploy:base-sepolia | tee base-sepolia-deployment.log
       - name: Extract deployment manifest
         if: success()
         run: |
