@@ -23,6 +23,7 @@ concurrency:
 jobs:
   readiness:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment: base-sepolia
     env:
       DEPLOY_NETWORK: base-sepolia
@@ -46,12 +47,19 @@ jobs:
       - run: forge build --sizes
       - run: forge test -vvv
       - name: Validate Base Sepolia RPC, signer, balance, and configuration
-        run: node scripts/mainnet-preflight.js
+        run: node scripts/mainnet-preflight.js | tee base-sepolia-readiness.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: base-sepolia-readiness-${{ github.run_id }}
+          path: base-sepolia-readiness.log
+          if-no-files-found: warn
 
   deploy:
     needs: readiness
     if: ${{ inputs.broadcast && inputs.confirmation == 'DEPLOY_BASE_SEPOLIA' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: base-sepolia
     env:
       BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
@@ -62,6 +70,8 @@ jobs:
       TRACKED_CHAIN_IDS: '84532'
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
@@ -71,10 +81,39 @@ jobs:
         run: npm run compile
       - name: Deploy full 27-contract suite to Base Sepolia
         run: npm run deploy:base-sepolia | tee base-sepolia-deployment.log
+      - name: Extract deployment manifest
+        if: success()
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const log = fs.readFileSync('base-sepolia-deployment.log', 'utf8');
+          const marker = '✅ Deployment complete. Contract addresses:';
+          const envMarker = 'Environment summary:';
+          const start = log.indexOf(marker);
+          const end = log.indexOf(envMarker, start);
+          if (start < 0 || end < 0) throw new Error('Could not locate deployment addresses in log');
+          const jsonStart = log.indexOf('{', start);
+          const addressText = log.slice(jsonStart, end).trim();
+          const addresses = JSON.parse(addressText);
+          const manifest = {
+            network: 'base-sepolia',
+            chainId: 84532,
+            runId: process.env.GITHUB_RUN_ID,
+            commit: process.env.GITHUB_SHA,
+            deployedAt: new Date().toISOString(),
+            contractCount: Object.keys(addresses).length,
+            addresses,
+          };
+          fs.writeFileSync('base-sepolia-deployment-manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+          if (manifest.contractCount !== 27) {
+            throw new Error(`Expected 27 deployed contracts, found ${manifest.contractCount}`);
+          }
+          NODE
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: base-sepolia-deployment-${{ github.run_id }}
-          path: base-sepolia-deployment.log
+          path: |
+            base-sepolia-deployment.log
+            base-sepolia-deployment-manifest.json
           if-no-files-found: error
-
