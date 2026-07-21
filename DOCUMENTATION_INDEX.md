@@ -111,10 +111,9 @@
 ### Security, Audit, and Incident Response
 
 - [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Incident response plan
-- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Audit status
+- [SECURITY_AUDIT_CERTIFICATION.md](./SECURITY_AUDIT_CERTIFICATION.md): Audit status
 - [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program
 - **[SECURITY_ADVISORY_TEMPLATE.md](./docs/SECURITY_ADVISORY_TEMPLATE.md)**: Template for vulnerability disclosures
-- **[Security Advisories Directory](./docs/advisories/)**: Archive of published security advisories
 - **[Vulnerability Disclosure Process](./docs/VULNERABILITY_DISCLOSURE_PROCESS.md)**: Formal process for handling security bugs
 
 - **README.md**: See 'Artifact Publishing & Monitoring' for ABI export, publishing, and monitoring integration notes
@@ -160,10 +159,10 @@ Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_S
 
 | Script                                                                                 | Command                                                                 | Purpose                       |
 | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- |
-| [scripts/section7-final-sweep.cjs](./scripts/section7-final-sweep.cjs)                 | `node scripts/section7-final-sweep.cjs`                                 | Verify ownership + governance |
-| [scripts/audit-allowlists.cjs](./scripts/audit-allowlists.cjs)                         | `node scripts/audit-allowlists.cjs`                                     | Verify role allowlists        |
-| [scripts/verify-bridge-relayers.cjs](./scripts/verify-bridge-relayers.cjs)             | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.cjs`       | Verify bridge relayer         |
-| [scripts/generate-bridge-relayer-safe.cjs](./scripts/generate-bridge-relayer-safe.cjs) | `RELAYER_ADDRESSES=0x... node scripts/generate-bridge-relayer-safe.cjs` | Generate Safe payload         |
+| [scripts/section7-final-sweep.js](./scripts/section7-final-sweep.js)                 | `node scripts/section7-final-sweep.js`                                 | Verify ownership + governance |
+| [scripts/audit-allowlists.js](./scripts/audit-allowlists.js)                         | `node scripts/audit-allowlists.js`                                     | Verify role allowlists        |
+| [scripts/verify-bridge-relayers.js](./scripts/verify-bridge-relayers.js)             | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.js`       | Verify bridge relayer         |
+| [scripts/generate-bridge-relayer-safe.js](./scripts/generate-bridge-relayer-safe.js) | `RELAYER_ADDRESSES=0x... node scripts/generate-bridge-relayer-safe.js` | Generate Safe payload         |
 
 ### Executed Transactions (Already Mined)
 
@@ -209,9 +208,9 @@ Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_S
 → Run all three verification scripts:
 
 ```bash
-node scripts/section7-final-sweep.cjs
-node scripts/audit-allowlists.cjs
-RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify-bridge-relayers.cjs
+node scripts/section7-final-sweep.js
+node scripts/audit-allowlists.js
+RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify-bridge-relayers.js
 ```
 
 **Expected Result:** All pass. See [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §15](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
@@ -239,7 +238,7 @@ RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify
 
 ### "I need to enable a new bridge relayer"
 
-→ Use [scripts/generate-bridge-relayer-safe.cjs](./scripts/generate-bridge-relayer-safe.cjs) to create Safe payload, or see [MAINNET_PREPARATION_TEMPLATE.md §4](./MAINNET_PREPARATION_TEMPLATE.md) for manual execution.
+→ Use [scripts/generate-bridge-relayer-safe.js](./scripts/generate-bridge-relayer-safe.js) to create Safe payload, or see [MAINNET_PREPARATION_TEMPLATE.md §4](./MAINNET_PREPARATION_TEMPLATE.md) for manual execution.
 
 ### "I need to understand the production decisions"
 
