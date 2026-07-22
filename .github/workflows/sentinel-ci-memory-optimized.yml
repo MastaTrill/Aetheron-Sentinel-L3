@@ -29,7 +29,7 @@ jobs:
 
         steps:
             - name: Checkout Code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   submodules: recursive
 
@@ -53,7 +53,7 @@ jobs:
                   free -h
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: "22"
                   cache: "npm"
@@ -80,13 +80,13 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   submodules: recursive
             - name: Initialize submodules
               run: git submodule update --init --recursive
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: "22"
                   cache: "npm"
@@ -99,13 +99,13 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   submodules: recursive
             - name: Initialize submodules
               run: git submodule update --init --recursive
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: "22"
                   cache: "npm"
@@ -120,13 +120,13 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   submodules: recursive
             - name: Initialize submodules
               run: git submodule update --init --recursive
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: "22"
                   cache: "npm"
@@ -140,19 +140,20 @@ jobs:
     slither-analysis:
         needs: build
         runs-on: ubuntu-latest
-        env:
-            ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   submodules: recursive
             - name: Initialize submodules
               run: git submodule update --init --recursive
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: "22" # Consistent Node.js version
                   cache: npm
+            - uses: foundry-rs/foundry-toolchain@v1
+              with:
+                  version: v1.7.1
             - name: Install dependencies
               run: npm ci --prefer-offline --no-audit
             - name: Verify precompiled artifacts are present or build

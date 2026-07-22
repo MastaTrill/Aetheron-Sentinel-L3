@@ -1,5 +1,4 @@
 {
-  "detectors": ["all"],
-  "exclude-detectors": ["naming-convention", "uninitialized-state"],
-  "exclude-dependencies": true
+  "detectors_to_run": "all",
+  "exclude_dependencies": true
 }
