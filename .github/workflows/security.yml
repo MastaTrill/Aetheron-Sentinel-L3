@@ -1,64 +1,56 @@
-name: Full Security Scan
+name: Release Security Scan
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
 
 permissions:
   contents: read
   security-events: write
-  pull-requests: write
 
 jobs:
-  security:
+  release-policy:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run security:release-scope
+      - run: npm run security:audit
+      - run: npm run security:audit:toolchain
+
+  slither:
+    needs: release-policy
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        contract: [SentinelInterceptor, CircuitBreaker, RateLimiter]
     steps:
       - uses: actions/checkout@v6
         with:
           submodules: recursive
-
-      - name: Initialize submodules
-        run: git submodule update --init --recursive
-
       - uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build + Coverage + Gas
-        run: |
-          forge build
-          forge coverage --report lcov
-          forge test --gas-report
-
-      - name: Slither
-        run: |
-          pip install slither-analyzer
-          slither . --config slither.config.json --sarif results-slither.sarif || true
-
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v4
+          version: v1.7.1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install slither-analyzer
+      - run: forge build
+      - name: Fail on high-severity findings in the production scope
+        run: >-
+          slither contracts/${{ matrix.contract }}.sol
+          --config-file slither.config.json
+          --fail-high
+          --sarif results-${{ matrix.contract }}.sarif
+      - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: results-slither.sarif
-          category: slither
-
-      - name: PR Security Summary
-        if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            let summary = '## 🛡️ Aetheron Sentinel L3 Security Report\n\n';
-            summary += '✅ Build & Coverage: Done\n';
-            summary += '✅ Gas Report: Generated\n';
-            summary += '✅ Slither: Completed\n';
-            summary += '\nFull details → Security → Code scanning tab';
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: summary
-            });
+          sarif_file: results-${{ matrix.contract }}.sarif
+          category: slither-${{ matrix.contract }}

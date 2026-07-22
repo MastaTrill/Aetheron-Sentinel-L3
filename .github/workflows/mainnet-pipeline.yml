@@ -1,56 +1,140 @@
-name: Sentinel L3 Base Mainnet Pipeline
+name: Sentinel Guardrails Base Mainnet Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      broadcast:
+        description: 'Broadcast the reviewed, paused core release'
+        required: true
+        default: false
+        type: boolean
+      confirmation:
+        description: 'Type DEPLOY_BASE_MAINNET to authorize broadcast'
+        required: false
+        type: string
+      release_commit:
+        description: 'Exact reviewed 40-character commit to deploy'
+        required: true
+        type: string
+      release_tag:
+        description: 'Immutable audited release tag'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  deployments: read
+
+concurrency:
+  group: sentinel-guardrails-base-mainnet
+  cancel-in-progress: false
+
+env:
+  RELEASE_PROFILE: sentinel-guardrails-v1
+  DEPLOY_NETWORK: base
+  DEPLOY_ENVIRONMENT: base-mainnet
+  BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+  SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+  MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+  AUDIT_REPORT_SHA256: ${{ secrets.AUDIT_REPORT_SHA256 }}
+  BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+  MIN_DEPLOYER_BALANCE_ETH: '0.5'
+  RELEASE_COMMIT: ${{ inputs.release_commit }}
+  RELEASE_TAG: ${{ inputs.release_tag }}
+  DEPLOYMENT_MANIFEST_PATH: deployments/base-sentinel-guardrails-v1.json
 
 jobs:
-  mainnet-deploy:
+  readiness:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment: base-mainnet
-    concurrency:
-      group: sentinel-l3-base-mainnet
-      cancel-in-progress: false
-    env:
-      DEPLOY_NETWORK: base
-      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
-      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY }}
-      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-      DEPLOY_TAG: sentinel-l3-v1
-      OWNER_ADDRESS: ${{ secrets.OWNER_ADDRESS }}
-      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-      RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
         with:
-          node-version: '20.11.1'
+          fetch-depth: 0
+          submodules: recursive
+      - name: Require the checked-out commit to equal the reviewed commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ inputs.release_commit }}" = "${GITHUB_SHA}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
           cache: npm
-      - name: Set up Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: '1.0.0'
-      - name: Install dependencies
-        run: npm ci
-      - name: Preflight Base mainnet
-        run: npm run mainnet:preflight
-      - name: Build
-        run: npm run mainnet:build
-      - name: Test
-        run: npm run mainnet:test
-      - name: Simulate
+          version: v1.7.1
+      - run: npm ci --legacy-peer-deps
+      - name: Require protected deployment environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run security:deployment-environment
+      - name: Validate frozen release scope
+        run: npm run security:release-scope
+      - name: Audit release and build dependencies
+        run: |
+          npm run security:audit
+          npm run security:audit:toolchain
+      - name: Compile exact deployment artifacts
+        run: npm run compile
+      - name: Run release regression tests
+        run: npm run test:release
+      - name: Run Foundry tests with aligned compiler settings
+        run: |
+          forge build --sizes
+          forge test -vvv
+      - name: Validate RPC, signer, Safe, balance, audit, and monitors
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run mainnet:preflight | tee base-mainnet-readiness.log
+      - name: Simulate the exact deployment script
         run: npm run mainnet:simulate
-      - name: Deploy
-        run: npm run deploy:base
-      - name: Verify
-        run: npm run verify:base
-      - name: Patch
-        run: npm run patch:base
-      - name: Upload deployment manifest
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: deployments-base-mainnet
-          path: deployments/base-mainnet.json
+          name: base-mainnet-readiness-${{ github.run_id }}
+          path: |
+            base-mainnet-readiness.log
+            /tmp/sentinel-guardrails-simulation.json
+          if-no-files-found: error
+
+  deploy:
+    needs: readiness
+    if: ${{ inputs.broadcast && inputs.confirmation == 'DEPLOY_BASE_MAINNET' && inputs.release_commit == github.sha }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: base-mainnet
+    env:
+      DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run compile
+      - name: Deploy the paused non-custodial core
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run deploy:base | tee base-mainnet-deployment.log
+      - name: Verify runtime bytecode, pause state, Safe ownership, and roles
+        run: npm run verify:release:base
+      - name: Verify source on BaseScan
+        run: npm run verify:base
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: base-mainnet-deployment-${{ github.run_id }}
+          path: |
+            base-mainnet-deployment.log
+            deployments/base-sentinel-guardrails-v1.json
           if-no-files-found: error

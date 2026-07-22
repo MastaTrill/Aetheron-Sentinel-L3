@@ -112,9 +112,9 @@ jobs:
             - name: Install Dependencies
               run: npm ci --prefer-offline --no-audit
             - name: Run ESLint
-              run: npm run lint || true
-            - name: Run Prettier Check
-              run: npm run format:check || true
+              run: npm run lint
+            - name: Check release-critical formatting
+              run: npm run format:check:release
 
     security-audit:
         needs: build
@@ -133,7 +133,9 @@ jobs:
             - name: Install Dependencies
               run: npm ci --prefer-offline --no-audit
             - name: Run npm audit
-              run: npm audit --audit-level=high || true
+              run: |
+                  npm run security:audit
+                  npm run security:audit:toolchain
 
     slither-analysis:
         needs: build
@@ -159,8 +161,13 @@ jobs:
               run: |
                   sudo apt-get update && sudo apt-get install -y python3-pip
                   pip3 install slither-analyzer
-            - name: Run Slither
-              run: slither ./contracts --filter-paths 'node_modules|test|scripts' || true # Allow failure for now
+            - name: Validate release scope
+              run: npm run security:release-scope
+            - name: Run fail-closed Slither on the release scope
+              run: |
+                  for contract in SentinelInterceptor CircuitBreaker RateLimiter; do
+                    slither "contracts/${contract}.sol" --config-file slither.config.json --fail-high
+                  done
 
     ci-success:
         runs-on: ubuntu-latest
@@ -176,4 +183,3 @@ jobs:
               uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # Use a specific version for stability
               with:
                   jobs: ${{ toJSON(needs) }}
-                  allowed-failures: '["security-audit", "lint"]'

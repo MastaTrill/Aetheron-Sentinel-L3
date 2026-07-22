@@ -28,6 +28,11 @@ const networkArgIndex = process.argv.indexOf('--network');
 const requestedNetwork =
   process.env.HARDHAT_NETWORK ||
   (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
+if (['base', 'baseSepolia', 'mainnet'].includes(requestedNetwork)) {
+  throw new Error(
+    'The legacy full-suite deployer is quarantined on public networks. Use scripts/deploy-release-core.cjs.'
+  );
+}
 require('dotenv').config();
 if (requestedNetwork === 'mainnet') {
   require('dotenv').config({ path: '.env.mainnet', override: true });

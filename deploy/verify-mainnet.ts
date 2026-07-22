@@ -1,75 +1,59 @@
-import { loadManifest } from './manifest';
-import { run } from 'hardhat';
+import fs from 'node:fs';
+import hre from 'hardhat';
+import { verifyContract } from '@nomicfoundation/hardhat-verify/verify';
+
+type ContractRecord = {
+  address: string;
+  constructorArguments: unknown[];
+};
+
+type ReleaseManifest = {
+  releaseProfile: string;
+  status: string;
+  contracts: Record<string, ContractRecord>;
+};
+
+const EXPECTED_PROFILE = 'sentinel-guardrails-v1';
+const EXPECTED_CONTRACTS = ['SentinelInterceptor', 'CircuitBreaker', 'RateLimiter'];
 
 async function main() {
-  const tag = process.env.DEPLOY_TAG;
-  if (!tag) throw new Error('DEPLOY_TAG not set');
+  const manifestPath =
+    process.env.DEPLOYMENT_MANIFEST_PATH || 'deployments/base-sentinel-guardrails-v1.json';
+  if (!fs.existsSync(manifestPath)) throw new Error(`Manifest not found: ${manifestPath}`);
 
-  const manifest = loadManifest();
-  const record = manifest.find(m => m.tag === tag);
-  if (!record) throw new Error(`No manifest record for tag=${tag}`);
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as ReleaseManifest;
+  if (manifest.releaseProfile !== EXPECTED_PROFILE) {
+    throw new Error(`Unexpected release profile: ${manifest.releaseProfile}`);
+  }
+  if (manifest.status !== 'verified-paused') {
+    throw new Error(
+      `On-chain state must be verified before source verification: ${manifest.status}`
+    );
+  }
 
-  console.log(`Verifying contracts for tag=${tag}`);
+  const names = Object.keys(manifest.contracts).sort();
+  if (JSON.stringify(names) !== JSON.stringify([...EXPECTED_CONTRACTS].sort())) {
+    throw new Error(`Unexpected contract scope: ${names.join(', ')}`);
+  }
 
-  // SentinelCore
-  await run('verify:verify', {
-    address: record.contracts.SentinelCore,
-    constructorArguments: [process.env.OWNER_ADDRESS || ''],
-  });
+  for (const name of EXPECTED_CONTRACTS) {
+    const record = manifest.contracts[name];
+    console.log(`Verifying ${name} at ${record.address}`);
+    await verifyContract(
+      {
+        address: record.address,
+        constructorArgs: record.constructorArguments,
+        contract: `contracts/${name}.sol:${name}`,
+        provider: 'etherscan',
+      },
+      hre
+    );
+  }
 
-  // SentinelToken
-  await run('verify:verify', {
-    address: record.contracts.SentinelToken,
-    constructorArguments: [process.env.OWNER_ADDRESS || ''],
-  });
-
-  // SentinelStaking
-  await run('verify:verify', {
-    address: record.contracts.SentinelStaking,
-    constructorArguments: [
-      record.contracts.SentinelToken,
-      record.contracts.SentinelToken,
-      process.env.OWNER_ADDRESS || '',
-    ],
-  });
-
-  // SentinelRewardAggregator
-  await run('verify:verify', {
-    address: record.contracts.SentinelRewardAggregator,
-    constructorArguments: [
-      record.contracts.SentinelStaking,
-      record.contracts.SentinelLiquidityMining,
-      record.contracts.SentinelToken,
-      record.contracts.SentinelReferralSystem,
-    ],
-  });
-
-  // SentinelInsuranceProtocol
-  await run('verify:verify', {
-    address: record.contracts.SentinelInsuranceProtocol,
-    constructorArguments: [
-      record.contracts.SentinelCore,
-      record.contracts.SentinelSecurityAuditor,
-      process.env.OWNER_ADDRESS || '',
-    ],
-  });
-
-  // SentinelAMM
-  await run('verify:verify', {
-    address: record.contracts.SentinelAMM,
-    constructorArguments: [process.env.OWNER_ADDRESS || ''],
-  });
-
-  // AetheronBridge
-  await run('verify:verify', {
-    address: record.contracts.AetheronBridge,
-    constructorArguments: [process.env.OWNER_ADDRESS || ''],
-  });
-
-  console.log('Verification complete.');
+  console.log('Explorer source verification complete.');
 }
 
-main().catch(e => {
-  console.error(e);
-  process.exit(1);
+main().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
 });
