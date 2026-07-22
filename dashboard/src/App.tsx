@@ -173,6 +173,7 @@ function App() {
 
   useEffect(() => {
     const currentAPY = liveAPY ? Number(liveAPY) / 100 : 5;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setApyHistory(prev => [...prev.slice(1), currentAPY]);
   }, [liveAPY]);
 
@@ -793,10 +794,8 @@ function App() {
   }, []);
 
   // Real-Time L3 Block Explorer Ticker
-  const [blocks, setBlocks] = useState<Array<{ number: number; hash: string; txCount: number; validationRoot: string; status: string }>>([]);
-
-  useEffect(() => {
-    const initialBlocks = Array.from({ length: 8 }, (_, idx) => {
+  const [blocks, setBlocks] = useState<Array<{ number: number; hash: string; txCount: number; validationRoot: string; status: string }>>(() => {
+    return Array.from({ length: 8 }, (_, idx) => {
       const num = 1240500 + idx;
       return {
         number: num,
@@ -806,8 +805,7 @@ function App() {
         status: 'VALIDATED',
       };
     });
-    setBlocks(initialBlocks);
-  }, []);
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
