@@ -59,6 +59,18 @@ async function main() {
     ) {
       throw new Error('RELEASE_TAG must be an immutable audited release tag');
     }
+    if (
+      publicNetwork.auditRequired &&
+      !/^[1-9][0-9]{0,19}$/.test(process.env.BASE_SEPOLIA_RUN_ID || '')
+    ) {
+      throw new Error('BASE_SEPOLIA_RUN_ID must identify the successful rehearsal run');
+    }
+    if (
+      publicNetwork.auditRequired &&
+      !/^[0-9a-f]{64}$/i.test(process.env.BASE_SEPOLIA_MANIFEST_SHA256 || '')
+    ) {
+      throw new Error('BASE_SEPOLIA_MANIFEST_SHA256 must identify the verified rehearsal manifest');
+    }
     if (publicNetwork.auditRequired && (await provider.getCode(owner)) === '0x') {
       throw new Error('Base mainnet owner must be a deployed Safe or timelock');
     }
@@ -102,6 +114,8 @@ async function main() {
     releaseCommit: process.env.RELEASE_COMMIT || 'local-simulation',
     releaseTag: process.env.RELEASE_TAG || null,
     auditReportSha256: process.env.AUDIT_REPORT_SHA256 || null,
+    baseSepoliaRehearsalRunId: process.env.BASE_SEPOLIA_RUN_ID || null,
+    baseSepoliaRehearsalManifestSha256: process.env.BASE_SEPOLIA_MANIFEST_SHA256 || null,
     deployer: deployerAddress,
     owner,
     startedAt: new Date().toISOString(),

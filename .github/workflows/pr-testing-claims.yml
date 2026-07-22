@@ -12,22 +12,21 @@ jobs:
   validate-pr-testing-claims:
     runs-on: ubuntu-latest
     env:
-      NODE_OPTIONS: ""
+      NODE_OPTIONS: ''
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
 
       - name: Write PR body to file
-        run: |
-          cat > pr_body.md <<'EOF'
-          ${{ github.event.pull_request.body }}
-          EOF
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node -e "require('node:fs').writeFileSync('pr_body.md', process.env.PR_BODY || '')"
 
       - name: Validate testing claims
         run: node scripts/validate-pr-testing-claims.cjs pr_body.md

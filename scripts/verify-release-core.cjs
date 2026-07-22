@@ -39,6 +39,20 @@ async function main() {
     if (!/^[0-9a-f]{64}$/i.test(manifest.auditReportSha256 || '')) {
       throw new Error('Base mainnet manifest is missing the independent audit digest');
     }
+    if (!/^[1-9][0-9]{0,19}$/.test(manifest.baseSepoliaRehearsalRunId || '')) {
+      throw new Error('Base mainnet manifest is missing the Base Sepolia rehearsal run');
+    }
+    if (!/^[0-9a-f]{64}$/i.test(manifest.baseSepoliaRehearsalManifestSha256 || '')) {
+      throw new Error('Base mainnet manifest is missing the Base Sepolia rehearsal digest');
+    }
+    if (
+      process.env.BASE_SEPOLIA_MANIFEST_SHA256 &&
+      manifest.baseSepoliaRehearsalManifestSha256 !== process.env.BASE_SEPOLIA_MANIFEST_SHA256
+    ) {
+      throw new Error(
+        'Base mainnet manifest rehearsal digest does not match the validated artifact'
+      );
+    }
   }
 
   const defaultAdminRole = ethers.ZeroHash;

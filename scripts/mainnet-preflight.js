@@ -104,6 +104,12 @@ async function main() {
     if (!/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(process.env.RELEASE_TAG || '')) {
       throw new Error('RELEASE_TAG must be an immutable audited release tag');
     }
+    if (!/^[1-9][0-9]{0,19}$/.test(process.env.BASE_SEPOLIA_RUN_ID || '')) {
+      throw new Error('BASE_SEPOLIA_RUN_ID must identify the successful rehearsal run');
+    }
+    if (!/^[0-9a-fA-F]{64}$/.test(process.env.BASE_SEPOLIA_MANIFEST_SHA256 || '')) {
+      throw new Error('BASE_SEPOLIA_MANIFEST_SHA256 must identify the verified rehearsal manifest');
+    }
   }
 
   const publicNetwork = PUBLIC_NETWORKS[selected.chainId];

@@ -17,11 +17,16 @@ on:
         required: true
         type: string
       release_tag:
-        description: 'Immutable audited release tag'
+        description: 'Published immutable GitHub release tag for release_commit'
+        required: true
+        type: string
+      base_sepolia_run_id:
+        description: 'Successful Base Sepolia broadcast workflow run for release_commit'
         required: true
         type: string
 
 permissions:
+  actions: read
   contents: read
   deployments: read
 
@@ -42,10 +47,13 @@ env:
   MIN_DEPLOYER_BALANCE_ETH: '0.5'
   RELEASE_COMMIT: ${{ inputs.release_commit }}
   RELEASE_TAG: ${{ inputs.release_tag }}
+  BASE_SEPOLIA_RUN_ID: ${{ inputs.base_sepolia_run_id }}
   DEPLOYMENT_MANIFEST_PATH: deployments/base-sentinel-guardrails-v1.json
 
 jobs:
   readiness:
+    outputs:
+      rehearsal_manifest_sha256: ${{ steps.rehearsal.outputs.manifest_sha256 }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-mainnet
@@ -58,7 +66,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "${{ inputs.release_commit }}" = "${GITHUB_SHA}"
+          test "${RELEASE_COMMIT}" = "${GITHUB_SHA}"
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - uses: actions/setup-node@v6
         with:
@@ -72,6 +80,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: npm run security:deployment-environment
+      - name: Require immutable release tag to pin the reviewed commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run security:immutable-release
+      - name: Download exact Base Sepolia deployment artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: base-sepolia-deployment-${{ inputs.base_sepolia_run_id }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.base_sepolia_run_id }}
+          path: /tmp/base-sepolia-rehearsal
+      - name: Require exact successful Base Sepolia rehearsal artifact
+        id: rehearsal
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BASE_SEPOLIA_MANIFEST_PATH: /tmp/base-sepolia-rehearsal/deployments/baseSepolia-sentinel-guardrails-v1.json
+        run: npm run security:base-sepolia-rehearsal
       - name: Validate frozen release scope
         run: npm run security:release-scope
       - name: Audit release and build dependencies
@@ -109,6 +135,7 @@ jobs:
     timeout-minutes: 60
     environment: base-mainnet
     env:
+      BASE_SEPOLIA_MANIFEST_SHA256: ${{ needs.readiness.outputs.rehearsal_manifest_sha256 }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
     steps:
       - uses: actions/checkout@v6
