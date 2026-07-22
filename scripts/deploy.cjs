@@ -88,7 +88,10 @@ async function getTxOverrides(provider) {
 }
 
 function requireOwnerPrivateKey() {
-  const privateKey = (shellOwnerKey || process.env.OWNER_PRIVATE_KEY || '').trim();
+  let privateKey = (shellOwnerKey || process.env.OWNER_PRIVATE_KEY || '').trim();
+  if (!privateKey && (requestedNetwork === 'localhost' || requestedNetwork === 'hardhat' || (typeof hre !== 'undefined' && (hre.network?.name === 'hardhat' || hre.network?.name === 'localhost')))) {
+    privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+  }
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
     throw new Error(
       requestedNetwork === 'mainnet'
