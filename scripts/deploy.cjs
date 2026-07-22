@@ -467,6 +467,14 @@ async function main() {
   addresses.SentinelInsuranceProtocol = await insuranceProtocol.getAddress();
   console.log('   SentinelInsuranceProtocol:', addresses.SentinelInsuranceProtocol);
 
+  console.log('28. Deploying DecoyHoneypot...');
+  const decoyHoneypot = await deployContract('DecoyHoneypot', [
+    addresses.SentinelSecurityAuditor,
+    config.owner,
+  ]);
+  addresses.DecoyHoneypot = await decoyHoneypot.getAddress();
+  console.log('   DecoyHoneypot:', addresses.DecoyHoneypot);
+
   if (deployerIsOwner) {
     console.log('\nConfiguring SentinelCoreLoop components...');
     const ov3 = await getTxOverrides(ethers.provider);

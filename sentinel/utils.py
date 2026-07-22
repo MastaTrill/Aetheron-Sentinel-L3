@@ -67,6 +67,14 @@ def calculate_threat_score(prompt: str) -> Tuple[float, List[str]]:
     if any(p in norm for p in ["REENTRANCY", "RE-ENTRANCY", "MSG.SENDER.CALL", "FALLBACK_REENTRY"]):
         score += 0.4
         reasons.append("Reentrancy vector footprints detected")
+    # MEV / Sandwich attack patterns
+    if any(p in norm for p in ["FRONTRUN", "FRONT_RUN", "BACKRUN", "BACK_RUN", "SANDWICH_ATTACK"]):
+        score += 0.35
+        reasons.append("MEV/Sandwich attack footprints detected")
+    # Oracle Price Manipulation patterns
+    if any(p in norm for p in ["MANIPULATE_PRICE", "SKEW_RESERVES", "ORACLE_SKEW", "SPOT_PRICE_MANIPULATION"]):
+        score += 0.45
+        reasons.append("Oracle price manipulation footprints detected")
     # LLM classifier
     llm_score, llm_reason = _llm_classify_intent(norm)
     if llm_reason:

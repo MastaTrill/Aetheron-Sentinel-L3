@@ -71,6 +71,10 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
     uint256 public predictionHorizon; // Hours to predict ahead
     uint256 public learningRate; // Model learning rate (basis points)
     uint256 public modelAccuracy; // Current model accuracy (0-100)
+    
+    // Fixed-point weights and bias for on-chain ML classification
+    uint256[] public s_modelWeights;
+    uint256 public s_modelBias;
 
     // Predictive analytics data
     mapping(bytes32 => uint256[]) public patternTimeSeries;
@@ -757,5 +761,35 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
         threatMetrics["swap"] = 0;
         threatMetrics["governance"] = 0;
         threatMetrics["oracle"] = 0;
+
+        // Initialize weights for 3 features:
+        // [0] = tx value / size (scaled)
+        // [1] = gas price (scaled)
+        // [2] = interaction frequency (scaled)
+        s_modelWeights.push(500000000000000000); // 0.5
+        s_modelWeights.push(200000000000000000); // 0.2
+        s_modelWeights.push(300000000000000000); // 0.3
+        s_modelBias = 100000000000000000;       // 0.1
+    }
+
+    /**
+     * @notice Performs on-chain fixed-point ML threat risk calculation.
+     * @param features Array of transaction metrics scaled by 10**18.
+     * @return riskScore Threat score mapped to 0-1000.
+     */
+    function predictTransactionRisk(uint256[] calldata features) external view returns (uint256 riskScore) {
+        require(features.length == s_modelWeights.length, "Feature length mismatch");
+        uint256 dotProduct = 0;
+        for (uint256 i = 0; i < features.length; i++) {
+            dotProduct += (features[i] * s_modelWeights[i]) / 1e18;
+        }
+        dotProduct += s_modelBias;
+        
+        // Map to 0-1000 range using a simplified step-sigmoid logic
+        if (dotProduct >= 1e18) {
+            riskScore = 1000;
+        } else {
+            riskScore = (dotProduct * 1000) / 1e18;
+        }
     }
 }

@@ -342,4 +342,80 @@ contract SentinelCrossChainSecurityOracle is LzApp {
     address signer = ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(messageHash), signature);
     require(signer == chainConfigs[sourceChain].oracleAddress, 'Invalid signature');
   }
+
+  // CCIP configurations
+  address public s_ccipRouter;
+  address public s_circuitBreaker;
+
+  event CCIPAlertReceived(uint64 indexed sourceChainSelector, address indexed sender, bytes32 indexed alertHash, string alertType);
+
+  function setCCIPRouter(address router) external onlyOwner {
+    s_ccipRouter = router;
+  }
+
+  function setCircuitBreaker(address breaker) external onlyOwner {
+    s_circuitBreaker = breaker;
+  }
+
+  /**
+   * @notice Simulates Chainlink CCIP receive message function
+   * @param sourceChainSelector CCIP selector of source chain
+   * @param sender Address of the cross-chain sender
+   * @param payload Encoded alert data
+   */
+  function ccipReceiveAlert(
+    uint64 sourceChainSelector,
+    address sender,
+    bytes calldata payload
+  ) external {
+    if (s_ccipRouter != address(0)) {
+      require(msg.sender == s_ccipRouter, "Only router can call");
+    }
+    
+    (bytes32 alertHash, string memory alertType, uint256 threatLevel) = abi.decode(
+      payload,
+      (bytes32, string, uint256)
+    );
+
+    emit CCIPAlertReceived(sourceChainSelector, sender, alertHash, alertType);
+
+    // Trigger local circuit breaker lockdown if threatLevel is critical
+    if (threatLevel >= 80 && s_circuitBreaker != address(0)) {
+      (bool success, ) = s_circuitBreaker.call(
+        abi.encodeWithSignature("triggerEmergencyLockdown()")
+      );
+      require(success, "Failed to lock down CircuitBreaker");
+    }
+  }
+
+  /**
+   * @notice Simulates sending alert out to destination chain via CCIP
+   * @param destinationChainSelector CCIP selector of destination chain
+   * @param receiver Target oracle address on dest chain
+   * @param alertType Type of security alert
+   * @param threatLevel Current threat level
+   */
+  function ccipSendAlert(
+    uint64 destinationChainSelector,
+    address receiver,
+    string calldata alertType,
+    uint256 threatLevel
+  ) external returns (bytes32 messageId) {
+    bytes32 alertHash = keccak256(abi.encodePacked(alertType, threatLevel, block.timestamp));
+    bytes memory payload = abi.encode(alertHash, alertType, threatLevel);
+    
+    messageId = keccak256(abi.encodePacked(destinationChainSelector, receiver, payload, block.timestamp));
+    
+    if (s_ccipRouter != address(0)) {
+      (bool success, ) = s_ccipRouter.call(
+        abi.encodeWithSignature(
+          "ccipSend(uint64,address,bytes)",
+          destinationChainSelector,
+          receiver,
+          payload
+        )
+      );
+      require(success, "CCIP send call failed");
+    }
+  }
 }
