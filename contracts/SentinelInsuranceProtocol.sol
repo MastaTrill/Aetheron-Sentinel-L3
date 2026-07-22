@@ -271,7 +271,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
    * @param claimId Claim to process
    * @param approve Whether to approve the claim
    */
-  function processClaim(uint256 claimId, bool approve) external onlyOwner {
+  function processClaim(uint256 claimId, bool approve) external onlyOwner nonReentrant {
     InsuranceClaim storage claim = claims[claimId];
     require(claim.status == ClaimStatus.SUBMITTED, 'Claim not in submitted state');
 
@@ -282,11 +282,7 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
       require(pool.claimReserve >= claim.claimAmount, 'Insufficient claim reserve');
       require(address(this).balance >= claim.claimAmount, 'Insufficient contract balance');
 
-      // Pay out claim
-      (bool payOk, ) = payable(claim.claimant).call{ value: claim.claimAmount }('');
-      require(payOk, 'Claim payout failed');
-
-      // Update policy and pool
+      // Effects are committed before interacting with the claimant.
       policy.totalPaid = policy.totalPaid + claim.claimAmount;
       pool.claimReserve = pool.claimReserve - claim.claimAmount;
       pool.lockedFunds = pool.lockedFunds - claim.claimAmount;
@@ -298,6 +294,10 @@ contract SentinelInsuranceProtocol is Ownable, ReentrancyGuard {
       if (policy.totalPaid >= policy.coverageAmount) {
         policy.status = PolicyStatus.EXPIRED;
       }
+
+      // Interaction occurs last and is additionally protected by nonReentrant.
+      (bool payOk, ) = payable(claim.claimant).call{ value: claim.claimAmount }('');
+      require(payOk, 'Claim payout failed');
     } else {
       claim.status = ClaimStatus.REJECTED;
       claim.processingTime = block.timestamp;

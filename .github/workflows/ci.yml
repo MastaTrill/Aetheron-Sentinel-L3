@@ -2,9 +2,9 @@ name: CI - Build, Test & Security
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   build-and-test:
@@ -25,7 +25,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -44,12 +44,11 @@ jobs:
         run: forge test -vvv
 
   security:
-    name: Security Scan (Slither)
+    name: Release Safety Gates
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
       contents: read
-      security-events: write
 
     steps:
       - name: Checkout code
@@ -57,29 +56,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-node@v6
         with:
-          version: stable
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      - name: Install Slither
-        run: pip install slither-analyzer
-
-      - name: Build contracts for Slither
-        run: forge build
-
-      - name: Run Slither
-        run: slither contracts/ --config-file slither.config.json --sarif results.sarif || true
-
-      - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: results.sarif
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run security:release-scope
+      - run: npm run security:audit
+      - run: npm run security:audit:toolchain
+      - run: npm run test:release
