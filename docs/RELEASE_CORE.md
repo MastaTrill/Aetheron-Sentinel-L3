@@ -26,7 +26,9 @@ Legacy full-suite and one-command mainnet entry points are intentionally disable
 
 1. Protect the `base-sepolia` and `base-mainnet` GitHub environments with required
    reviewers and deployment-branch restrictions.
-2. Use separate ephemeral deployer, Safe/timelock owner, and monitor addresses.
+2. Use separate ephemeral deployer, monitor addresses, and either a Safe with at
+   least three owners and a threshold of at least two, or an OpenZeppelin timelock
+   with a minimum delay of at least 48 hours.
 3. Broadcast the exact reviewed commit through the Base Sepolia workflow, retain
    its successful deployment artifact, and supply that workflow run ID to the
    mainnet workflow. Mainnet verifies that the artifact reached `verified-paused`

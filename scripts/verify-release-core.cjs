@@ -4,6 +4,7 @@ const {
   RELEASE_CONFIG,
   assertExactContractScope,
   manifestPath,
+  validateGovernanceOwner,
   writeManifest,
 } = require('./lib/release-core.cjs');
 
@@ -33,9 +34,10 @@ async function main() {
   assertExactContractScope(Object.keys(manifest.contracts || {}));
 
   if (chainId === 8453) {
-    const ownerCode = await provider.getCode(manifest.owner);
-    if (ownerCode === '0x')
-      throw new Error('Base mainnet owner must be a deployed Safe or timelock');
+    const ownerGovernance = await validateGovernanceOwner(provider, manifest.owner, ethers);
+    if (ownerGovernance.type !== manifest.ownerGovernance?.type) {
+      throw new Error('Base mainnet governance owner does not match the deployment manifest');
+    }
     if (!/^[0-9a-f]{64}$/i.test(manifest.auditReportSha256 || '')) {
       throw new Error('Base mainnet manifest is missing the independent audit digest');
     }

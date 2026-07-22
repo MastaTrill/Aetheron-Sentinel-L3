@@ -6,6 +6,7 @@ const {
   manifestPath,
   normalizePrivateKey,
   parseAddressList,
+  validateGovernanceOwner,
   writeManifest,
 } = require('./lib/release-core.cjs');
 
@@ -30,6 +31,7 @@ async function main() {
   const networkName = publicNetwork?.name ?? 'hardhat';
   const deployerAddress = await deployer.getAddress();
   const owner = process.env.SENTINEL_OWNER || (isSimulation ? signers[1]?.address : '');
+  let ownerGovernance = null;
   if (!owner || !ethers.isAddress(owner) || owner === ethers.ZeroAddress) {
     throw new Error('SENTINEL_OWNER must be a non-zero Safe or timelock address');
   }
@@ -71,8 +73,8 @@ async function main() {
     ) {
       throw new Error('BASE_SEPOLIA_MANIFEST_SHA256 must identify the verified rehearsal manifest');
     }
-    if (publicNetwork.auditRequired && (await provider.getCode(owner)) === '0x') {
-      throw new Error('Base mainnet owner must be a deployed Safe or timelock');
+    if (publicNetwork.auditRequired) {
+      ownerGovernance = await validateGovernanceOwner(provider, owner, ethers);
     }
   }
 
@@ -118,6 +120,7 @@ async function main() {
     baseSepoliaRehearsalManifestSha256: process.env.BASE_SEPOLIA_MANIFEST_SHA256 || null,
     deployer: deployerAddress,
     owner,
+    ownerGovernance,
     startedAt: new Date().toISOString(),
     completedAt: null,
     safety: {

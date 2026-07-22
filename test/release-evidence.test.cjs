@@ -10,11 +10,61 @@ const {
   assertReleaseCommit,
   resolveTagCommit,
 } = require('../scripts/lib/immutable-release.cjs');
+const {
+  MIN_TIMELOCK_DELAY_SECONDS,
+  validateGovernanceOwner,
+} = require('../scripts/lib/release-core.cjs');
 
 const COMMIT = 'a'.repeat(40);
 const OWNER = `0x${'1'.repeat(40)}`;
 const DEPLOYER = `0x${'2'.repeat(40)}`;
 const MONITOR = `0x${'3'.repeat(40)}`;
+
+function governanceHarness(configuration) {
+  const provider = {
+    getCode: async () => configuration.code ?? '0x1234',
+    governance: configuration,
+  };
+  class Contract {
+    constructor(_address, _abi, connectedProvider) {
+      this.configuration = connectedProvider.governance;
+    }
+
+    async getOwners() {
+      if (!this.configuration.safe) throw new Error('not a Safe');
+      return this.configuration.owners;
+    }
+
+    async getThreshold() {
+      if (!this.configuration.safe) throw new Error('not a Safe');
+      return this.configuration.threshold;
+    }
+
+    async getMinDelay() {
+      if (!this.configuration.timelock) throw new Error('not a timelock');
+      return this.configuration.delay;
+    }
+
+    async PROPOSER_ROLE() {
+      if (!this.configuration.timelock) throw new Error('not a timelock');
+      return 'role:PROPOSER_ROLE';
+    }
+
+    async EXECUTOR_ROLE() {
+      if (!this.configuration.timelock) throw new Error('not a timelock');
+      return 'role:EXECUTOR_ROLE';
+    }
+  }
+  return {
+    provider,
+    ethers: {
+      Contract,
+      ZeroAddress: `0x${'0'.repeat(40)}`,
+      id: value => `role:${value}`,
+      isAddress: value => /^0x[0-9a-f]{40}$/i.test(value || ''),
+    },
+  };
+}
 
 function validRun(overrides = {}) {
   return {
@@ -160,4 +210,51 @@ test('parses and validates the downloaded deployment manifest', () => {
 test('rejects invalid downloaded deployment manifest bytes', () => {
   assert.throws(() => parseVerifiedManifest(Buffer.from('{'), COMMIT), /not valid JSON/);
   assert.throws(() => parseVerifiedManifest(Buffer.alloc(0), COMMIT), /size is invalid/);
+});
+
+test('accepts a Safe with at least three owners and a two-signature threshold', async () => {
+  const harness = governanceHarness({
+    safe: true,
+    owners: [OWNER, DEPLOYER, MONITOR],
+    threshold: 2n,
+  });
+  const result = await validateGovernanceOwner(harness.provider, OWNER, harness.ethers);
+  assert.equal(result.type, 'safe');
+  assert.equal(result.threshold, 2);
+});
+
+test('rejects an under-protected Safe', async () => {
+  const harness = governanceHarness({
+    safe: true,
+    owners: [OWNER, DEPLOYER, MONITOR],
+    threshold: 1n,
+  });
+  await assert.rejects(
+    validateGovernanceOwner(harness.provider, OWNER, harness.ethers),
+    /threshold must be at least/
+  );
+});
+
+test('accepts an OpenZeppelin timelock with a 48-hour delay', async () => {
+  const harness = governanceHarness({ timelock: true, delay: MIN_TIMELOCK_DELAY_SECONDS });
+  const result = await validateGovernanceOwner(harness.provider, OWNER, harness.ethers);
+  assert.equal(result.type, 'timelock');
+  assert.equal(result.minimumDelaySeconds, MIN_TIMELOCK_DELAY_SECONDS.toString());
+});
+
+test('rejects a short timelock or an address without bytecode', async () => {
+  const shortTimelock = governanceHarness({
+    timelock: true,
+    delay: MIN_TIMELOCK_DELAY_SECONDS - 1n,
+  });
+  await assert.rejects(
+    validateGovernanceOwner(shortTimelock.provider, OWNER, shortTimelock.ethers),
+    /delay must be at least/
+  );
+
+  const noCode = governanceHarness({ code: '0x' });
+  await assert.rejects(
+    validateGovernanceOwner(noCode.provider, OWNER, noCode.ethers),
+    /has no deployed bytecode/
+  );
 });

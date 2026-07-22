@@ -2,7 +2,13 @@ import dotenv from 'dotenv';
 import { ethers } from 'ethers';
 import releaseModule from './lib/release-core.cjs';
 
-const { PUBLIC_NETWORKS, RELEASE_CONFIG, normalizePrivateKey, parseAddressList } = releaseModule;
+const {
+  PUBLIC_NETWORKS,
+  RELEASE_CONFIG,
+  normalizePrivateKey,
+  parseAddressList,
+  validateGovernanceOwner,
+} = releaseModule;
 
 // Local files may fill missing values, but never override shell/CI secrets.
 dotenv.config();
@@ -91,10 +97,9 @@ async function main() {
     );
   }
 
+  let ownerGovernance = null;
   if (selected.chainId === 8453) {
-    const ownerCode = await provider.getCode(owner);
-    if (ownerCode === '0x')
-      throw new Error('Base mainnet owner must be a deployed Safe or timelock');
+    ownerGovernance = await validateGovernanceOwner(provider, owner, ethers);
     if (!/^[0-9a-fA-F]{64}$/.test(process.env.AUDIT_REPORT_SHA256 || '')) {
       throw new Error('AUDIT_REPORT_SHA256 must identify the independent audit report');
     }
@@ -121,6 +126,9 @@ async function main() {
   console.log(`Latest block: ${blockNumber}`);
   console.log(`Deployer: ${deployerAddress}`);
   console.log(`Final owner: ${owner}`);
+  if (ownerGovernance) {
+    console.log(`Governance owner: ${JSON.stringify(ownerGovernance)}`);
+  }
   console.log(`Balance: ${ethers.formatEther(balance)} ETH (minimum ${minimumBalanceText})`);
   console.log(`Monitors: ${monitors.join(', ')}`);
   console.log(
