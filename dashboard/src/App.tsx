@@ -938,7 +938,7 @@ function App() {
         {/* Left Side Status Indicators */}
         <div style={{ display: 'flex', gap: '20px', fontSize: '0.8rem', fontFamily: 'monospace' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', background: '#00ffaa', borderRadius: '50%', boxShadow: '0 0 8px #00ffaa' }}></span>
+            <span className="status-pulse-green" style={{ width: '8px', height: '8px', background: '#00ffaa', borderRadius: '50%', boxShadow: '0 0 8px #00ffaa' }}></span>
             <span style={{ color: '#00ffaa', fontWeight: 'bold' }}>QUANTUM CORE: ACTIVE</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
