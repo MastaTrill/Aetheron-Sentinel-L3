@@ -1,11 +1,11 @@
+import os
+import json
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 from .utils import calculate_threat_score
-from .utils import calculate_threat_score
 
 async def get_api_key_dep(api_key: str = Header(None, alias="X-API-Key")):
-    import os
     expected_api_key = os.getenv("SENTINEL_API_KEY", "fallback-dev-key-do-not-use-in-prod")
     if api_key != expected_api_key:
         raise HTTPException(status_code=401, detail="Invalid or missing API Key")
@@ -55,7 +55,7 @@ async def reset_system():
 class CopilotRequest(BaseModel):
     message: str
 
-@router.post("/copilot")
+@router.post("/chat")
 async def copilot_chat(request: CopilotRequest):
     try:
         logs = []
@@ -93,10 +93,6 @@ async def trigger_honeypot():
         return {"status": "triggered"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-import json
-import os
-
 @router.get("/logs", dependencies=[Depends(get_api_key_dep)])
 async def get_logs(limit: int = 50):
     logs = []

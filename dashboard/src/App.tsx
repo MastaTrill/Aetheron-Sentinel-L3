@@ -926,7 +926,7 @@ function App() {
       )}
 
       {/* Main Top Header Bar */}
-      <header style={{
+      <header className="cyber-header" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -953,7 +953,7 @@ function App() {
         </div>
 
         {/* Right Side Actions */}
-        <div style={{ display: 'flex', gap: '15px' }}>
+        <div className="header-actions" style={{ display: 'flex', gap: '15px' }}>
           <button className="btn-secondary" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>☁️ CLOUD SYNC</button>
           <button className="btn-primary" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>💳 CONNECT WALLET</button>
           <button className="btn-secondary" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>⚙️ EXECUTE</button>
@@ -964,7 +964,7 @@ function App() {
       <div style={{ background: '#02060d', minHeight: 'calc(100vh - 80px)', padding: '25px', boxSizing: 'border-box' }}>
         
         {/* Workspace Subheader Line */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #102a45', paddingBottom: '15px', marginBottom: '25px' }}>
+        <div className="sub-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #102a45', paddingBottom: '15px', marginBottom: '25px' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#fff', textTransform: 'uppercase' }}>APEX SECURE DEFENSIVE WORKSPACE</h2>
             <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '2px' }}>REAL-TIME INTEL CORRELATION AND ZERO-DAY AUTO-REMEDIATION WORKSPACE</div>
@@ -1024,7 +1024,7 @@ function App() {
         </div>
 
         {/* 3-Column Cyber Deck Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '25px', textAlign: 'left' }}>
+        <div className="cyber-deck" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '25px', textAlign: 'left' }}>
           
           {/* Column 1: Bounty, Metrics, Command Deck */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>

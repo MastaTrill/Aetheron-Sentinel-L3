@@ -194,3 +194,33 @@ input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:foc
   animation: neon-pulse-green 2s infinite ease-in-out;
 }
 
+/* Responsive adjustments for mobile/tablets */
+@media (max-width: 1024px) {
+  #root {
+    width: 100% !important;
+    border-inline: none !important;
+  }
+  .cyber-deck {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  .cyber-header {
+    flex-direction: column !important;
+    height: auto !important;
+    gap: 15px !important;
+    padding: 20px !important;
+    text-align: center !important;
+  }
+  .header-actions {
+    width: 100% !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+  .sub-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    text-align: center !important;
+  }
+}
+
+
