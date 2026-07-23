@@ -1,43 +1,29 @@
-name: AI Security & Adversarial Tests (DeFAI)
+name: Release Adversarial Safety Tests
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
+
+permissions:
+  contents: read
 
 jobs:
-  adversarial:
+  release-adversarial:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
         with:
-          node-version: 22
-          cache: 'npm'
-      - run: npm ci
-      - name: Run existing security & lint
-        run: |
-          npm run lint || true
-          npm run security || true
-      - name: Adversarial & AI-specific tests
-        run: |
-          # Prompt injection, model poisoning simulation, attestation forgery tests
-          node scripts/ai-risk-assessment.js --adversarial || echo "Adversarial tests completed (review output)"
-          # Extend with promptfoo, garak, or custom fuzzers for .agents/skills and SentinelL3App
-          echo "TODO: Integrate full adversarial suite for DeFAI agents (prompt injection, data poisoning, policy bypass)"
-      - name: TEE Attestation & Policy Simulation
-        run: |
-          echo "Simulating TEE attestation validation and agent governance policy checks..."
-          # Future: integrate with Phala/Oasis SDK mocks or local TEE sim
-      - name: Slither + AI-aware analysis
-        run: npx slither . --config .slither.json --checklist || true
-      - name: Upload AI security evidence
-        uses: actions/upload-artifact@v4
+          submodules: recursive
+      - uses: actions/setup-node@v6
         with:
-          name: ai-security-evidence
-          path: |
-            logs/
-            audit_log.jsonl
-            docs/*
-          retention-days: 90
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Reject simulated or placeholder production scope
+        run: npm run security:release-scope
+      - name: Compile release artifacts
+        run: npm run compile
+      - name: Exercise paused handoff and claim reentrancy regression
+        run: npm run test:release

@@ -1,10 +1,10 @@
-name: Sentinel L3 Base Sepolia Pipeline
+name: Sentinel Guardrails Base Sepolia Pipeline
 
 on:
   workflow_dispatch:
     inputs:
       broadcast:
-        description: 'Deploy the full suite after readiness checks'
+        description: 'Broadcast the reviewed, paused core release'
         required: true
         default: false
         type: boolean
@@ -15,23 +15,29 @@ on:
 
 permissions:
   contents: read
+  deployments: read
 
 concurrency:
-  group: sentinel-l3-base-sepolia
+  group: sentinel-guardrails-base-sepolia
   cancel-in-progress: false
+
+env:
+  RELEASE_PROFILE: sentinel-guardrails-v1
+  DEPLOY_NETWORK: base-sepolia
+  DEPLOY_ENVIRONMENT: base-sepolia
+  BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+  SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+  MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+  MIN_DEPLOYER_BALANCE_ETH: '0.05'
+  RELEASE_COMMIT: ${{ github.sha }}
+  DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 
 jobs:
   readiness:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-sepolia
-    env:
-      DEPLOY_NETWORK: base-sepolia
-      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
-      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-      RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -42,18 +48,41 @@ jobs:
           cache: npm
       - uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.7.1
       - run: npm ci --legacy-peer-deps
-      - run: forge build --sizes
-      - run: forge test -vvv
-      - name: Validate Base Sepolia RPC, signer, balance, and configuration
-        run: node scripts/mainnet-preflight.js | tee base-sepolia-readiness.log
+      - name: Require protected deployment environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run security:deployment-environment
+      - name: Validate frozen release scope
+        run: npm run security:release-scope
+      - name: Audit release and build dependencies
+        run: |
+          npm run security:audit
+          npm run security:audit:toolchain
+      - name: Compile exact deployment artifacts
+        run: npm run compile
+      - name: Run release regression tests
+        run: npm run test:release
+      - name: Run Foundry tests with aligned compiler settings
+        run: |
+          forge build --sizes
+          forge test -vvv
+      - name: Validate RPC, signer, owner, balance, and monitors
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run preflight:base-sepolia | tee base-sepolia-readiness.log
+      - name: Simulate the exact deployment script
+        run: npm run mainnet:simulate
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: base-sepolia-readiness-${{ github.run_id }}
-          path: base-sepolia-readiness.log
-          if-no-files-found: warn
+          path: |
+            base-sepolia-readiness.log
+            /tmp/sentinel-guardrails-simulation.json
+          if-no-files-found: error
 
   deploy:
     needs: readiness
@@ -62,12 +91,8 @@ jobs:
     timeout-minutes: 60
     environment: base-sepolia
     env:
-      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-      OWNER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.OWNER_PRIVATE_KEY || secrets.DEPLOYER_PRIVATE_KEY }}
-      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-      RELAYER_ADDRESSES: ${{ secrets.RELAYER_ADDRESSES }}
-      TRACKED_CHAIN_IDS: '84532'
+      DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
+      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -77,46 +102,21 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --legacy-peer-deps
-      - name: Compile contracts
-        run: npm run compile
-      - name: Deploy full 27-contract suite to Base Sepolia
+      - run: npm run compile
+      - name: Deploy the paused non-custodial core
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           npm run deploy:base-sepolia | tee base-sepolia-deployment.log
-      - name: Extract deployment manifest
-        if: success()
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const log = fs.readFileSync('base-sepolia-deployment.log', 'utf8');
-          const marker = '✅ Deployment complete. Contract addresses:';
-          const envMarker = 'Environment summary:';
-          const start = log.indexOf(marker);
-          const end = log.indexOf(envMarker, start);
-          if (start < 0 || end < 0) throw new Error('Could not locate deployment addresses in log');
-          const jsonStart = log.indexOf('{', start);
-          const addressText = log.slice(jsonStart, end).trim();
-          const addresses = JSON.parse(addressText);
-          const manifest = {
-            network: 'base-sepolia',
-            chainId: 84532,
-            runId: process.env.GITHUB_RUN_ID,
-            commit: process.env.GITHUB_SHA,
-            deployedAt: new Date().toISOString(),
-            contractCount: Object.keys(addresses).length,
-            addresses,
-          };
-          fs.writeFileSync('base-sepolia-deployment-manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-          if (manifest.contractCount !== 27) {
-            throw new Error(`Expected 27 deployed contracts, found ${manifest.contractCount}`);
-          }
-          NODE
+      - name: Verify runtime bytecode, pause state, ownership, and roles
+        run: npm run verify:release:base-sepolia
+      - name: Verify source on BaseScan
+        run: npm run verify:source:base-sepolia
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: base-sepolia-deployment-${{ github.run_id }}
           path: |
             base-sepolia-deployment.log
-            base-sepolia-deployment-manifest.json
+            deployments/baseSepolia-sentinel-guardrails-v1.json
           if-no-files-found: error

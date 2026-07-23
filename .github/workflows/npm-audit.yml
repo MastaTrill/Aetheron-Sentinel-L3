@@ -20,14 +20,19 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-      - name: Run npm audit (non-blocking)
-        run: npm audit --json > audit-report.json || true
+      - name: Run production dependency audit
+        shell: bash
+        run: |
+          set -o pipefail
+          npm audit --omit=dev --omit=optional --audit-level=high --json | tee audit-report.json
       - name: Upload audit report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: npm-audit-report
           path: audit-report.json
       - name: Count vulnerabilities
+        if: always()
         run: |
           node -e "
             const fs = require('fs');

@@ -3,10 +3,29 @@ import hardhatEthers from '@nomicfoundation/hardhat-ethers';
 import hardhatVerify from '@nomicfoundation/hardhat-verify';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
+import { fileURLToPath } from 'node:url';
 
-const DEPLOYER_PRIVATE_KEY =
+const LOCAL_SOLC_PATH = fileURLToPath(new URL('./node_modules/solc/soljson.js', import.meta.url));
+
+function normalizePrivateKey(value) {
+  let normalized = String(value || '')
+    .trim()
+    .replace(/^\uFEFF/, '');
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+
+const DEPLOYER_PRIVATE_KEY = normalizePrivateKey(
   process.env.DEPLOYER_PRIVATE_KEY ||
-  '0000000000000000000000000000000000000000000000000000000000000000';
+    '0000000000000000000000000000000000000000000000000000000000000000'
+);
 const BRIDGE_PRIVATE_KEY = process.env.BRIDGE_PRIVATE_KEY || DEPLOYER_PRIVATE_KEY;
 
 function getRpcUrl(envVar, fallback) {
@@ -20,13 +39,15 @@ function getRpcUrl(envVar, fallback) {
 const config = {
   plugins: [hardhatEthers, hardhatVerify, hardhatMocha, hardhatEthersChaiMatchers],
   paths: {
-    contracts: ['./contracts', '.'],
+    contracts: './contracts',
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
   },
   solidity: {
     version: '0.8.28',
+    path: LOCAL_SOLC_PATH,
+    isolated: true,
     settings: {
       optimizer: { enabled: true, runs: 1000 },
       metadata: { bytecodeHash: 'none' },
@@ -35,6 +56,11 @@ const config = {
   },
   mocha: {
     timeout: 100000,
+  },
+  verify: {
+    etherscan: {
+      apiKey: process.env.BASESCAN_API_KEY || '',
+    },
   },
   networks: {
     hardhat: {

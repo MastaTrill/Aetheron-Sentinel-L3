@@ -2,11 +2,37 @@ console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
 let deployer; // Will be set in main()
-const shellOwnerKey = process.env.OWNER_PRIVATE_KEY;
+const shellOwnerKeyCandidates = [
+  ['OWNER_PRIVATE_KEY', process.env.OWNER_PRIVATE_KEY],
+  ['DEPLOYER_PRIVATE_KEY', process.env.DEPLOYER_PRIVATE_KEY],
+  ['CI_OWNER_PRIVATE_KEY', process.env.CI_OWNER_PRIVATE_KEY],
+];
+
+function normalizePrivateKey(value) {
+  let normalized = String(value || '').trim().replace(/^\uFEFF/, '');
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+
+const shellOwnerKey = shellOwnerKeyCandidates
+  .map(([, value]) => normalizePrivateKey(value))
+  .find(value => /^0x[0-9a-fA-F]{64}$/.test(value));
 const networkArgIndex = process.argv.indexOf('--network');
 const requestedNetwork =
   process.env.HARDHAT_NETWORK ||
   (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
+if (['base', 'baseSepolia', 'mainnet'].includes(requestedNetwork)) {
+  throw new Error(
+    'The legacy full-suite deployer is quarantined on public networks. Use scripts/deploy-release-core.cjs.'
+  );
+}
 require('dotenv').config();
 if (requestedNetwork === 'mainnet') {
   require('dotenv').config({ path: '.env.mainnet', override: true });
@@ -88,15 +114,20 @@ async function getTxOverrides(provider) {
 }
 
 function requireOwnerPrivateKey() {
-  let privateKey = (shellOwnerKey || process.env.OWNER_PRIVATE_KEY || '').trim();
-  if (!privateKey && (requestedNetwork === 'localhost' || requestedNetwork === 'hardhat' || (typeof hre !== 'undefined' && (hre.network?.name === 'hardhat' || hre.network?.name === 'localhost')))) {
-    privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
-  }
+  const privateKey =
+    shellOwnerKey || normalizePrivateKey(process.env.OWNER_PRIVATE_KEY);
   if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
+    const diagnostics = shellOwnerKeyCandidates
+      .map(([name, value]) => {
+        const normalized = normalizePrivateKey(value);
+        return `${name}:${value === undefined ? 'missing' : `invalid(length=${normalized.length})`}`;
+      })
+      .join(', ');
     throw new Error(
-      requestedNetwork === 'mainnet'
-        ? 'Mainnet deploy requires OWNER_PRIVATE_KEY in the shell as a 0x-prefixed 32-byte hex key. It is intentionally not read from .env.mainnet.'
-        : 'OWNER_PRIVATE_KEY environment variable must be set as a 0x-prefixed 32-byte hex key.'
+      (requestedNetwork === 'mainnet'
+        ? 'Mainnet deploy requires a valid shell private key. It is intentionally not read from .env.mainnet.'
+        : 'Deployment requires a 32-byte hexadecimal private key.') +
+        ` Candidate status: ${diagnostics}`
     );
   }
   return privateKey;
@@ -171,23 +202,13 @@ async function main() {
   console.log('Network:', requestedNetwork || hre.network?.name || '<active connection>');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
-  let balance = await ethers.provider.getBalance(deployerAddress);
+  const balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
 
   if (balance === 0n) {
-    if (requestedNetwork === 'hardhat' || hre.network?.name === 'hardhat') {
-      console.log('Local hardhat network detected. Auto-funding deployer address with 1200 simulated ETH...');
-      await ethers.provider.send('hardhat_setBalance', [
-        deployerAddress,
-        '0x100000000000000000000', // 1200 ETH
-      ]);
-      balance = await ethers.provider.getBalance(deployerAddress);
-      console.log('New Account balance:', ethers.formatEther(balance), 'ETH\n');
-    } else {
-      throw new Error(
-        `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
-      );
-    }
+    throw new Error(
+      `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
+    );
   }
 
   const addresses = {};
@@ -317,16 +338,16 @@ async function main() {
     const ov = await getTxOverrides(deployer.provider);
     const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
     const CANCELLER_ROLE = await timelock.CANCELLER_ROLE();
-    const DEFAULT_ADMIN_ROLE = await timelock.DEFAULT_ADMIN_ROLE();
+    const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
     await (await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)).wait();
     const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
     await (await timelock.grantRole(EXECUTOR_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.revokeRole(EXECUTOR_ROLE, deployerAddress, ov)).wait();
     console.log('   Granted PROPOSER + CANCELLER + EXECUTOR roles to SentinelGovernance, revoked deployer EXECUTOR');
-    // Renounce deployer's DEFAULT_ADMIN_ROLE so timelock is fully governed
+    // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
-      await (await timelock.renounceRole(DEFAULT_ADMIN_ROLE, deployerAddress, ov)).wait();
+      await (await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)).wait();
       console.log('   Renounced deployer TIMELOCK_ADMIN_ROLE (timelockAdmin is separate account)');
     }
   } else {
@@ -470,37 +491,35 @@ async function main() {
   addresses.SentinelInsuranceProtocol = await insuranceProtocol.getAddress();
   console.log('   SentinelInsuranceProtocol:', addresses.SentinelInsuranceProtocol);
 
-  console.log('28. Deploying DecoyHoneypot...');
-  const decoyHoneypot = await deployContract('DecoyHoneypot', [
-    addresses.SentinelSecurityAuditor,
-    config.owner,
-  ]);
-  addresses.DecoyHoneypot = await decoyHoneypot.getAddress();
-  console.log('   DecoyHoneypot:', addresses.DecoyHoneypot);
-
   if (deployerIsOwner) {
     console.log('\nConfiguring SentinelCoreLoop components...');
     const ov3 = await getTxOverrides(ethers.provider);
+    const coreLoopComponents = [
+      ['sentinelInterceptor', addresses.SentinelInterceptor],
+      ['aetheronBridge', addresses.AetheronBridge],
+      ['rateLimiter', addresses.RateLimiter],
+      ['circuitBreaker', addresses.CircuitBreaker],
+      ['quantumGuard', addresses.SentinelQuantumGuard],
+      ['yieldMaximizer', addresses.SentinelYieldMaximizer],
+      ['oracleNetwork', addresses.SentinelOracleNetwork],
+    ].filter(([, address]) => address);
 
-    // 1. Initialize core components
-    console.log('   Initializing core components (QuantumGuard + YieldMaximizer)...');
-    await (
-      await coreLoop.initializeCoreComponents(
-        addresses.SentinelQuantumGuard,
-        addresses.SentinelYieldMaximizer,
-        ov3
-      )
-    ).wait();
-
-    // 2. Set Predictive Threat Model
-    console.log('   Setting Predictive Threat Model...');
-    await (
-      await coreLoop.setPredictiveModel(addresses.SentinelPredictiveThreatModel, ov3)
-    ).wait();
+    for (const [name, address] of coreLoopComponents) {
+      await (await coreLoop.setSystemComponent(name, address, ov3)).wait();
+    }
   } else {
     pendingActions.push(
-      `SentinelCoreLoop.initializeCoreComponents(${addresses.SentinelQuantumGuard}, ${addresses.SentinelYieldMaximizer})`,
-      `SentinelCoreLoop.setPredictiveModel(${addresses.SentinelPredictiveThreatModel})`
+      ...[
+        ['sentinelInterceptor', addresses.SentinelInterceptor],
+        ['aetheronBridge', addresses.AetheronBridge],
+        ['rateLimiter', addresses.RateLimiter],
+        ['circuitBreaker', addresses.CircuitBreaker],
+        ['quantumGuard', addresses.SentinelQuantumGuard],
+        ['yieldMaximizer', addresses.SentinelYieldMaximizer],
+        ['oracleNetwork', addresses.SentinelOracleNetwork],
+      ]
+        .filter(([, address]) => address)
+        .map(([name, address]) => `SentinelCoreLoop.setSystemComponent(${name}, ${address})`)
     );
   }
 
