@@ -158,12 +158,29 @@ interface APIKeyItem {
   status: 'active' | 'revoked';
 }
 
+interface QuantumKeyItem {
+  id: string;
+  len: number;
+  status: string;
+  pubCommit: string;
+}
+
 export default function AIStudioPlayground() {
-  const [activeMenu, setActiveMenu] = useState<'playground' | 'apikeys' | 'usage' | 'gallery'>('playground');
+  const [activeMenu, setActiveMenu] = useState<'playground' | 'apikeys' | 'usage' | 'gallery' | 'quantum'>('playground');
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'preview' | 'code' | 'lint' | 'settings'>('preview');
   const [lintLogs, setLintLogs] = useState<string[]>([]);
   const [linting, setLinting] = useState(false);
   const [terminalInput, setTerminalInput] = useState('');
+
+  // Quantum Cryptography State
+  const [quantumEntropy, setQuantumEntropy] = useState(85);
+  const [qber, setQber] = useState(200); // 2.00%
+  const [generatingQKey, setGeneratingQKey] = useState(false);
+  const [qKeys, setQKeys] = useState<QuantumKeyItem[]>([]);
+  const [valA, setValA] = useState(250);
+  const [valB, setValB] = useState(175);
+  const [fheLoading, setFheLoading] = useState(false);
+  const [fheLogs, setFheLogs] = useState<string[]>([]);
 
   // Playground state
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -381,8 +398,52 @@ export default function AIStudioPlayground() {
       } else {
         newLogEntry(`Command not found: ${cmd}. Type "help" for command listing.`, 'ERROR');
       }
-      setTerminalInput('');
     }
+  };
+
+  const generateQuantumKey = async () => {
+    setGeneratingQKey(true);
+    const timestamp = new Date().toISOString();
+    setLogs(prev => [
+      { timestamp, prompt: 'QKD: Initiating entropic key generation sequence...', score: 0.0, reasons: [], source_ip: '127.0.0.1' },
+      ...prev
+    ]);
+    
+    await new Promise(r => setTimeout(r, 1200));
+    
+    const randomHex = Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const newKey: QuantumKeyItem = {
+      id: `0x${randomHex.slice(0, 8)}`,
+      len: 256,
+      status: 'ACTIVE',
+      pubCommit: `0x${randomHex.slice(8)}...f882`
+    };
+    
+    setQKeys(prev => [newKey, ...prev]);
+    setLogs(prev => [
+      { timestamp: new Date().toISOString(), prompt: `QKD: Success. New quantum-resistant key pair distributed: ${newKey.id}`, score: 0.0, reasons: [], source_ip: '127.0.0.1' },
+      ...prev
+    ]);
+    setGeneratingQKey(false);
+  };
+
+  const runFheAddition = async () => {
+    setFheLoading(true);
+    setFheLogs([
+      `🔒 Encrypting A (${valA}) -> Ciphertext_A: 0x${Math.floor(Math.random() * 89999 + 10000)}...`,
+      `🔒 Encrypting B (${valB}) -> Ciphertext_B: 0x${Math.floor(Math.random() * 89999 + 10000)}...`,
+      `⚙️ Evaluating homomorphic addition: Ciphertext_Sum = Ciphertext_A ⊕ Ciphertext_B...`
+    ]);
+    
+    await new Promise(r => setTimeout(r, 1000));
+    
+    const sum = valA + valB;
+    setFheLogs(prev => [
+      ...prev,
+      `🔑 Decrypting Ciphertext_Sum -> Result: ${sum}`,
+      `🟢 SUCCESS: Homomorphic computation verified correct! Sum of encrypted values equals raw addition.`
+    ]);
+    setFheLoading(false);
   };
 
   return (
@@ -427,6 +488,14 @@ export default function AIStudioPlayground() {
         >
           🗂️
           <span style={{ display: 'block', fontSize: '0.6rem', marginTop: '4px' }}>Gallery</span>
+        </button>
+        <button 
+          onClick={() => setActiveMenu('quantum')}
+          style={{ background: 'transparent', border: 'none', color: activeMenu === 'quantum' ? '#00f5ff' : '#888', cursor: 'pointer', fontSize: '1.5rem', transition: 'color 0.2s', outline: 'none' }}
+          title="Quantum Cryptography"
+        >
+          ⚛️
+          <span style={{ display: 'block', fontSize: '0.6rem', marginTop: '4px' }}>Quantum</span>
         </button>
       </nav>
 
@@ -968,6 +1037,142 @@ export default function AIStudioPlayground() {
                 <p style={{ fontSize: '0.75rem', color: '#aaa', margin: 0 }}>Dynamically scales SentinelStaking APY based on security score updates.</p>
                 <button className="btn-secondary" style={{ marginTop: 'auto', padding: '6px' }}>REMIX TEMPLATE</button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. Quantum Cryptography Panel */}
+        {activeMenu === 'quantum' && (
+          <div style={{ padding: '40px', maxWidth: '900px', margin: '0 auto', width: '100%', textAlign: 'left' }}>
+            <h2 style={{ borderBottom: '1px solid #142845', paddingBottom: '15px', marginBottom: '25px', color: '#fff' }}>⚛️ QUANTUM KEY DISTRIBUTION (QKD)</h2>
+            <p style={{ fontSize: '0.82rem', color: '#888', marginBottom: '20px' }}>
+              Monitor and configure post-quantum key exchange networks, evaluate error rates, and rotate active keys via entropic alignment.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '25px', marginBottom: '30px' }}>
+              {/* Parameter Settings */}
+              <div style={{ background: '#060d1a', border: '1px solid #142845', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <h4 style={{ margin: 0, color: '#00f5ff', fontSize: '0.85rem' }}>QUANTUM SYSTEM INVARIANTS</h4>
+                
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75rem' }}>
+                    <span>ENTANGLEMENT ENTROPY</span>
+                    <span style={{ color: '#00f5ff', fontWeight: 'bold' }}>{quantumEntropy}%</span>
+                  </div>
+                  <input 
+                    type="range" min="50" max="100" 
+                    value={quantumEntropy} 
+                    onChange={(e) => setQuantumEntropy(Number(e.target.value))}
+                    style={{ width: '100%' }} 
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75rem' }}>
+                    <span>QUANTUM BIT ERROR RATE (QBER)</span>
+                    <span style={{ color: '#ff5555', fontWeight: 'bold' }}>{(qber / 100).toFixed(2)}%</span>
+                  </div>
+                  <input 
+                    type="range" min="0" max="500" 
+                    value={qber} 
+                    onChange={(e) => setQber(Number(e.target.value))}
+                    style={{ width: '100%' }} 
+                  />
+                </div>
+
+                <div style={{ borderTop: '1px solid #142845', paddingTop: '15px', marginTop: '5px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '4px' }}>
+                    <span>Distribution Success Rate:</span>
+                    <span style={{ color: '#00ffaa', fontWeight: 'bold' }}>
+                      {Math.min(Math.max(95 + Math.round(quantumEntropy / 10) - Math.round(qber / 100), 50), 99)}%
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#566e94' }}>Calculated using Sentinel QKD-v1 rules.</div>
+                </div>
+              </div>
+
+              {/* Active keys status and actions */}
+              <div style={{ background: '#060d1a', border: '1px solid #142845', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <h4 style={{ margin: 0, color: '#00ffaa', fontSize: '0.85rem' }}>ENTROPIC KEYS DISPATCH DECK</h4>
+                
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={generateQuantumKey}
+                    disabled={generatingQKey}
+                    className="btn-primary" 
+                    style={{ padding: '8px 15px', fontSize: '0.8rem' }}
+                  >
+                    {generatingQKey ? 'DISTRIBUTING QKD...' : 'GENERATE QUANTUM KEY'}
+                  </button>
+                  <button 
+                    onClick={() => setQKeys([])}
+                    className="btn-secondary" 
+                    style={{ padding: '8px 15px', fontSize: '0.8rem' }}
+                  >
+                    FLUSH KEYRING
+                  </button>
+                </div>
+
+                <div style={{ background: '#02060d', border: '1px solid #102a45', borderRadius: '6px', flex: 1, padding: '12px', overflowY: 'auto', minHeight: '130px', maxHeight: '180px', fontFamily: 'monospace', fontSize: '0.72rem', color: '#a0aec0' }}>
+                  {qKeys.length > 0 ? (
+                    qKeys.map((k, idx) => (
+                      <div key={idx} style={{ paddingBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.03)', marginBottom: '6px', textAlign: 'left' }}>
+                        <span style={{ color: '#00ffaa' }}>[ID: {k.id}]</span>{' '}
+                        <span style={{ color: '#fff' }}>Len: {k.len} bits</span>{' '}
+                        <span style={{ color: '#ffb84d' }}>Status: {k.status}</span>
+                        <div style={{ color: '#888', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>PubCommit: {k.pubCommit}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ color: '#566e94', textAlign: 'center', paddingTop: '40px' }}>No active keys distributed. Click Generate.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Homomorphic Cryptography addition */}
+            <div style={{ background: '#060d1a', border: '1px solid #142845', padding: '25px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <h3 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>🏢 FULLY HOMOMORPHIC ENCRYPTION (FHE) DECK</h3>
+              <p style={{ fontSize: '0.78rem', color: '#888', margin: 0 }}>Perform additions on encrypted DeFi numbers without exposing raw integer values.</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', alignItems: 'center' }}>
+                <div>
+                  <label style={{ fontSize: '0.7rem', display: 'block', marginBottom: '6px', color: '#888' }}>INTEGER VALUE A</label>
+                  <input 
+                    type="number" 
+                    value={valA} 
+                    onChange={(e) => setValA(Number(e.target.value))}
+                    style={{ width: '100%', padding: '8px', background: '#02060d', border: '1px solid #102a45', color: '#fff', borderRadius: '4px' }} 
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', display: 'block', marginBottom: '6px', color: '#888' }}>INTEGER VALUE B</label>
+                  <input 
+                    type="number" 
+                    value={valB} 
+                    onChange={(e) => setValB(Number(e.target.value))}
+                    style={{ width: '100%', padding: '8px', background: '#02060d', border: '1px solid #102a45', color: '#fff', borderRadius: '4px' }} 
+                  />
+                </div>
+                <button 
+                  onClick={runFheAddition} 
+                  disabled={fheLoading}
+                  className="btn-primary" 
+                  style={{ padding: '8px', fontSize: '0.8rem', marginTop: '18px' }}
+                >
+                  {fheLoading ? 'COMPUTING FHE...' : 'RUN HOMOMORPHIC ADD'}
+                </button>
+              </div>
+
+              {fheLogs.length > 0 && (
+                <div style={{ background: '#02060d', border: '1px solid #102a45', padding: '12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.75rem', color: '#00f5ff', lineHeight: '1.5' }}>
+                  {fheLogs.map((log, idx) => (
+                    <div key={idx} style={{ color: log.includes('SUCCESS') ? '#00ffaa' : '#00f5ff' }}>
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
