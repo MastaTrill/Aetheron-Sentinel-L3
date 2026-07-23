@@ -96,8 +96,8 @@
           </div>
           <!-- Countdown Timer -->
           <div class="countdown-wrapper">
-            <div class="countdown-label">&#x1F525; Presale ends in</div>
-            <div class="countdown" id="countdown">
+            <div class="countdown-label">&#x1F525; AETH Presale Progress</div>
+            <div class="countdown" id="countdown" style="margin-bottom:15px">
               <div class="cd-unit"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">Days</span></div>
               <div class="cd-sep">:</div>
               <div class="cd-unit"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">Hours</span></div>
@@ -105,6 +105,25 @@
               <div class="cd-unit"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">Mins</span></div>
               <div class="cd-sep">:</div>
               <div class="cd-unit"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">Secs</span></div>
+            </div>
+            
+            <!-- Live Progress Bar -->
+            <div class="presale-progress-bar-container" style="background:rgba(255,255,255,0.08);border-radius:6px;height:12px;width:100%;margin-bottom:8px;position:relative;overflow:hidden">
+              <div id="presaleProgressBar" style="background:linear-gradient(90deg,var(--quantum-cyan),var(--quantum-pink));height:100%;width:0%;transition:width 1s ease-out"></div>
+            </div>
+            <div class="presale-stats-row" style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);font-family:monospace;margin-bottom:12px">
+              <span>Raised: <strong id="raisedVal" style="color:var(--quantum-green)">0.00</strong> ETH</span>
+              <span id="percentVal">0%</span>
+              <span>Target: <strong>250.00</strong> ETH</span>
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);display:flex;justify-content:space-between;margin-bottom:12px">
+              <span>👥 Participants: <strong id="particVal" style="color:var(--text-primary)">0</strong></span>
+              <span>Min/Max Buy: 0.0003 - 2.50 ETH</span>
+            </div>
+            
+            <!-- Risk Disclaimer -->
+            <div class="presale-disclaimer" style="font-size:0.65rem;color:rgba(184,197,214,0.5);line-height:1.4;border-top:1px solid var(--border-color);padding-top:10px;text-align:left">
+              ⚠️ <strong>Risk Warning:</strong> Participation in the AETH presale carries risk. Platform launch parameters and smart contract audits are ongoing. Read the technical documentation fully before contributing.
             </div>
           </div>
           <div class="hero-actions">
@@ -970,6 +989,34 @@
         localStorage.setItem('sentinel-theme', next);
         themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
       });
+
+      /* ── Live Presale Simulation ── */
+      let raised = parseFloat(localStorage.getItem('sentinel-raised')) || 142.45;
+      let participants = parseInt(localStorage.getItem('sentinel-participants')) || 382;
+      const target = 250.00;
+
+      function updatePresaleUI() {
+        const percent = Math.min((raised / target) * 100, 100);
+        document.getElementById('raisedVal').textContent = raised.toFixed(2);
+        document.getElementById('percentVal').textContent = percent.toFixed(1) + '%';
+        document.getElementById('particVal').textContent = participants;
+        document.getElementById('presaleProgressBar').style.width = percent + '%';
+      }
+
+      function simulateSales() {
+        if (raised < target) {
+          raised += Math.random() * 0.15;
+          if (Math.random() > 0.6) {
+            participants += Math.floor(Math.random() * 2) + 1;
+          }
+          localStorage.setItem('sentinel-raised', raised);
+          localStorage.setItem('sentinel-participants', participants);
+          updatePresaleUI();
+        }
+      }
+
+      updatePresaleUI();
+      setInterval(simulateSales, 4000);
 
       /* ── Countdown Timer (target: Sep 1 2026) ── */
       const countdownTarget = new Date('2026-09-01T00:00:00Z').getTime();
