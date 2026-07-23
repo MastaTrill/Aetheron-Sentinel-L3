@@ -21,7 +21,7 @@ Sentinel L3 acts as an omnipresent guardian layer over deployed smart contracts.
 
 The deployment was orchestrated using a custom ESM-based script to ensure strict determinism and reliability. We simulated the full mainnet execution in our local environment first.
 
-### Deployed Infrastructure:
+### Deployed Infrastructure
 
 | Component               | Address                                      | Block |
 | ----------------------- | -------------------------------------------- | ----- |

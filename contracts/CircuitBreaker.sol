@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 contract CircuitBreaker is Ownable, AccessControl, Pausable {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant MONITOR_ROLE = keccak256("MONITOR_ROLE");
+    bytes32 public constant SECURITY_ORACLE_ROLE = keccak256("SECURITY_ORACLE_ROLE");
 
     enum State {
         CLOSED,
@@ -184,6 +185,14 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @notice Emergency pause all circuit breaker operations
      */
     function emergencyPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
+        emit EmergencyPaused(msg.sender);
+    }
+
+    /**
+     * @notice Allows an authorized security oracle to trigger an emergency lockdown
+     */
+    function triggerEmergencyLockdown() external onlyRole(SECURITY_ORACLE_ROLE) {
         _pause();
         emit EmergencyPaused(msg.sender);
     }
