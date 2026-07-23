@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase } from './supabase';
 import SwapWidget from './components/SwapWidget';
 import InstitutionalPortal from './components/InstitutionalPortal';
+import AIStudioPlayground from './components/AIStudioPlayground';
 import { useAccount, useReadContract } from 'wagmi';
 import CircuitBreakerABI from './abis/CircuitBreaker.json';
 import SentinelStakingABI from './abis/SentinelStaking.json';
@@ -890,7 +891,7 @@ function App() {
   };
 
   // Tabs states
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'analytics' | 'scheduled' | 'fleet'>('analytics');
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'analytics' | 'scheduled' | 'fleet' | 'studio'>('analytics');
   const [activeCopilotTab, setActiveCopilotTab] = useState<'neural' | 'fuzzing' | 'lattice'>('neural');
 
   // Interactive Exploit Curing States
@@ -1036,11 +1037,29 @@ function App() {
             >
               FLEET LOGS
             </button>
+            <button 
+              onClick={() => setActiveWorkspaceTab('studio')}
+              style={{
+                background: activeWorkspaceTab === 'studio' ? '#00f5ff' : 'transparent',
+                color: activeWorkspaceTab === 'studio' ? '#030812' : '#00f5ff',
+                border: '1px solid #00f5ff',
+                padding: '6px 15px',
+                borderRadius: '4px',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              AI PLAYGROUND (STUDIO)
+            </button>
           </div>
         </div>
 
-        {/* 3-Column Cyber Deck Layout */}
-        <div className="cyber-deck" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '25px', textAlign: 'left' }}>
+        {activeWorkspaceTab !== 'studio' ? (
+          <>
+            {/* 3-Column Cyber Deck Layout */}
+            <div className="cyber-deck" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '25px', textAlign: 'left' }}>
           
           {/* Column 1: Bounty, Metrics, Command Deck */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
@@ -1624,6 +1643,10 @@ function App() {
 
           </div>
         </div>
+      </>
+    ) : (
+      <AIStudioPlayground />
+    )}
 
       </div>
     </>
