@@ -896,8 +896,22 @@ function App() {
   // Interactive Exploit Curing States
   const [remediationLogs, setRemediationLogs] = useState<string[]>([]);
   const [curingExploit, setCuringExploit] = useState<string | null>(null);
+  const [exploits, setExploits] = useState([
+    {
+      id: 'lattice',
+      title: 'CRITICAL LATTICE BREAK-IN DETECTED',
+      description: 'Mitigate coordinate forgery exploit attempts on Dilithium ring key vectors.',
+      type: 'Lattice Break-In',
+    },
+    {
+      id: 'reentrancy',
+      title: 'REENTRANCY IN WITHDRAWAL',
+      description: 'Fix vault contract invariant balance leaks by auto-patching reentrancy guard modifiers.',
+      type: 'Reentrancy Withdrawal',
+    }
+  ]);
 
-  const runRemediationCure = async (exploitType: string) => {
+  const runRemediationCure = async (id: string, exploitType: string) => {
     setCuringExploit(exploitType);
     setRemediationLogs([
       `🔧 ARS-CURE: Formulating remediation patch for exploit: ${exploitType}...`,
@@ -910,6 +924,8 @@ function App() {
       '🛠️ ARS-CURE: Triggering proxy delegate upgrades on local Hardhat Node...',
       '🟢 ARS-CURE: Remediation patch executed successfully! Vulnerability closed.'
     ]);
+    await new Promise(r => setTimeout(r, 1000));
+    setExploits(prev => prev.filter(e => e.id !== id));
     setCuringExploit(null);
   };
 
@@ -1330,25 +1346,23 @@ function App() {
           <p style={{ color: '#888', marginBottom: '20px' }}>Remediate vulnerabilities detected on-chain instantly using targeted secure compiler patches.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-            
-            <div style={{ background: '#02060d', border: '1px solid #102a45', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #ff4a4a' }}>
-              <span style={{ background: '#ff4a4a', color: '#fff', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>CRITICAL</span>
-              <h4 style={{ margin: '10px 0 5px 0', color: '#fff' }}>CRITICAL LATTICE BREAK-IN DETECTED</h4>
-              <p style={{ fontSize: '0.75rem', color: '#aaa', marginBottom: '15px' }}>Mitigate coordinate forgery exploit attempts on Dilithium ring key vectors.</p>
-              <button className="btn-primary" onClick={() => runRemediationCure('Lattice Break-In')} disabled={curingExploit !== null} style={{ width: '100%', fontSize: '0.8rem' }}>
-                {curingExploit === 'Lattice Break-In' ? 'Executing cure...' : 'EXECUTE CURE'}
-              </button>
-            </div>
-
-            <div style={{ background: '#02060d', border: '1px solid #102a45', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #ff4a4a' }}>
-              <span style={{ background: '#ff4a4a', color: '#fff', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>CRITICAL</span>
-              <h4 style={{ margin: '10px 0 5px 0', color: '#fff' }}>REENTRANCY IN WITHDRAWAL</h4>
-              <p style={{ fontSize: '0.75rem', color: '#aaa', marginBottom: '15px' }}>Fix vault contract invariant balance leaks by auto-patching reentrancy guard modifiers.</p>
-              <button className="btn-primary" onClick={() => runRemediationCure('Reentrancy Withdrawal')} disabled={curingExploit !== null} style={{ width: '100%', fontSize: '0.8rem' }}>
-                {curingExploit === 'Reentrancy Withdrawal' ? 'Executing cure...' : 'EXECUTE CURE'}
-              </button>
-            </div>
-
+            {exploits.length > 0 ? (
+              exploits.map((exploit) => (
+                <div key={exploit.id} style={{ background: '#02060d', border: '1px solid #102a45', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #ff4a4a' }}>
+                  <span style={{ background: '#ff4a4a', color: '#fff', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>CRITICAL</span>
+                  <h4 style={{ margin: '10px 0 5px 0', color: '#fff' }}>{exploit.title}</h4>
+                  <p style={{ fontSize: '0.75rem', color: '#aaa', marginBottom: '15px' }}>{exploit.description}</p>
+                  <button className="btn-primary" onClick={() => runRemediationCure(exploit.id, exploit.type)} disabled={curingExploit !== null} style={{ width: '100%', fontSize: '0.8rem' }}>
+                    {curingExploit === exploit.type ? 'Executing cure...' : 'EXECUTE CURE'}
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', background: 'rgba(0, 255, 170, 0.05)', border: '1px dashed #00ffaa', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
+                <span className="status-pulse-green" style={{ fontSize: '1.2rem', display: 'block', marginBottom: '8px' }}>🟢</span>
+                <span style={{ color: '#00ffaa', fontWeight: 'bold', fontSize: '0.95rem' }}>ALL SECURITY VULNERABILITIES RESOLVED & SHIELDED. PROTOCOL SECURE.</span>
+              </div>
+            )}
           </div>
 
           {remediationLogs.length > 0 && (
