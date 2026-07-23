@@ -79,9 +79,13 @@ jobs:
           set -euo pipefail
           npm run preflight:base-sepolia | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
       - name: Simulate the exact deployment script
+        run: npm run mainnet:simulate
+      - name: Collect simulation evidence
+        if: always()
         run: |
-          npm run mainnet:simulate
-          cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
+          if [ -f /tmp/sentinel-guardrails-simulation.json ]; then
+            cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
