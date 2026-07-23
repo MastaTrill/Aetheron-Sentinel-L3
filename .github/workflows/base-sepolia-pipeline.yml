@@ -42,6 +42,10 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: recursive
+      - name: Initialize readiness evidence
+        run: |
+          mkdir -p artifacts/base-sepolia-readiness
+          : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
@@ -50,9 +54,10 @@ jobs:
         with:
           version: v1.7.1
       - run: npm ci --legacy-peer-deps
-      - name: Require protected deployment environment
+      - name: Validate deployment environment
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          REQUIRE_DEPLOYMENT_REVIEWERS: ${{ inputs.broadcast }}
         run: npm run security:deployment-environment
       - name: Validate frozen release scope
         run: npm run security:release-scope
@@ -72,17 +77,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm run preflight:base-sepolia | tee base-sepolia-readiness.log
+          npm run preflight:base-sepolia | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
       - name: Simulate the exact deployment script
-        run: npm run mainnet:simulate
+        run: |
+          npm run mainnet:simulate
+          cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: base-sepolia-readiness-${{ github.run_id }}
-          path: |
-            base-sepolia-readiness.log
-            /tmp/sentinel-guardrails-simulation.json
-          if-no-files-found: error
+          path: artifacts/base-sepolia-readiness
+          if-no-files-found: warn
 
   deploy:
     needs: readiness
