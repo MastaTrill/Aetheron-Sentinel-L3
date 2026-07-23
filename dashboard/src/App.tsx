@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { supabase } from './main';
+import { supabase } from './supabase';
 import SwapWidget from './components/SwapWidget';
 import InstitutionalPortal from './components/InstitutionalPortal';
 import { useAccount, useReadContract } from 'wagmi';
