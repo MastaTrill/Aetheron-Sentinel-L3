@@ -86,6 +86,13 @@ function App() {
   const [demoStatus, setDemoStatus] = useState<string>('');
   const [demoLoading, setDemoLoading] = useState(false);
 
+  // Bounty disbursement router state
+  const [showDisbursementModal, setShowDisbursementModal] = useState(false);
+  const [claimingBounty, setClaimingBounty] = useState(false);
+  const [bountyClaimed, setBountyClaimed] = useState(false);
+  const [totalEarned, setTotalEarned] = useState(1240000);
+  const [unclaimedFunds, setUnclaimedFunds] = useState(315000);
+
   const simulateDemoAttack = async (type: string) => {
     setDemoLoading(true);
     setDemoStatus('Analyzing exploit payload...');
@@ -1076,7 +1083,7 @@ function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                 <div>
                   <span style={{ fontSize: '0.75rem', color: '#888' }}>TOTAL EARNED</span>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#fff' }}>$1,240,000</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#fff' }}>${totalEarned.toLocaleString()}</div>
                 </div>
                 <div>
                   <span style={{ fontSize: '0.75rem', color: '#888' }}>GLOBAL RANK</span>
@@ -1093,10 +1100,14 @@ function App() {
               </div>
 
               <div style={{ border: '1px solid #102a45', padding: '12px', borderRadius: '6px', background: '#02060d', marginBottom: '15px' }}>
-                <span style={{ fontSize: '0.7rem', color: '#ffb84d' }}>UNCLAIMED BOUNTY FUNDS: $315,000</span>
+                <span style={{ fontSize: '0.7rem', color: '#ffb84d' }}>UNCLAIMED BOUNTY FUNDS: ${unclaimedFunds.toLocaleString()}</span>
               </div>
 
-              <button className="btn-secondary" style={{ width: '100%', padding: '8px', fontSize: '0.85rem' }}>
+              <button 
+                onClick={() => setShowDisbursementModal(true)}
+                className="btn-secondary" 
+                style={{ width: '100%', padding: '8px', fontSize: '0.85rem' }}
+              >
                 OPEN DISBURSEMENT ROUTER
               </button>
             </div>
@@ -1647,6 +1658,78 @@ function App() {
     ) : (
       <AIStudioPlayground />
     )}
+
+      {/* Disbursement Router Modal */}
+      {showDisbursementModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#091326', border: '1px solid #1e3b68', padding: '30px', borderRadius: '12px', width: '480px', textAlign: 'left', color: '#c3dae8' }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#00f5ff', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>🏆 Bounty Disbursement Router</h3>
+            
+            <p style={{ fontSize: '0.78rem', color: '#ffb84d', background: 'rgba(255,184,77,0.1)', padding: '10px', borderRadius: '6px', border: '1px solid #ffb84d', margin: '0 0 20px 0', lineHeight: '1.4' }}>
+              ⚠️ <strong>DEMO NOTE:</strong> These funds represent simulated bug bounty rewards built for Aetheron Sentinel L3 prototype demonstrations. No real USD or cryptocurrency is moved or claimed.
+            </p>
+
+            <div style={{ background: '#030812', border: '1px solid #102a45', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem' }}>
+                <span>Unclaimed Rewards:</span>
+                <span style={{ color: '#00f5ff', fontWeight: 'bold' }}>${unclaimedFunds.toLocaleString()} USD</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                <span>CCIP Route:</span>
+                <span style={{ color: '#00ffaa' }}>Hardhat Node -&gt; Chainlink CCIP Bridge</span>
+              </div>
+            </div>
+
+            {claimingBounty && (
+              <div style={{ marginBottom: '20px' }}>
+                <span style={{ display: 'block', fontSize: '0.75rem', color: '#888', marginBottom: '6px' }}>Claiming rewards via Chainlink Bridge router...</span>
+                <div style={{ height: '6px', background: '#030812', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', background: '#00f5ff', width: '100%', transition: 'width 2s ease-in-out' }}></div>
+                </div>
+              </div>
+            )}
+
+            {bountyClaimed && (
+              <div style={{ color: '#00ffaa', background: 'rgba(0,255,170,0.1)', border: '1px solid #00ffaa', padding: '10px', borderRadius: '6px', fontSize: '0.8rem', marginBottom: '20px', fontFamily: 'monospace' }}>
+                🎉 SUCCESS: Claimed $315,000 bounty rewards!
+                <br />
+                Tx Hash: 0xccip_tx_784192a
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button 
+                onClick={() => {
+                  setShowDisbursementModal(false);
+                  setBountyClaimed(false);
+                }} 
+                className="btn-secondary" 
+                style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                disabled={claimingBounty}
+              >
+                CLOSE
+              </button>
+              {unclaimedFunds > 0 && (
+                <button 
+                  onClick={async () => {
+                    setClaimingBounty(true);
+                    await new Promise(r => setTimeout(r, 2000));
+                    setClaimingBounty(false);
+                    setBountyClaimed(true);
+                    setTotalEarned(prev => prev + unclaimedFunds);
+                    setUnclaimedFunds(0);
+                  }}
+                  className="btn-primary" 
+                  disabled={claimingBounty}
+                  style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                >
+                  {claimingBounty ? 'ROUTING...' : 'CLAIM BOUNTY'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       </div>
     </>
