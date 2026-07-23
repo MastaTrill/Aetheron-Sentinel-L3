@@ -30,8 +30,20 @@ def simulate():
     print("Status Code:", resp.status_code)
     print("Response:", resp.json())
 
-    # 4. Test querying audit logs
-    print("\n4. Fetching audit logs...")
+    # 4. Test MEV/Sandwich attack simulation
+    print("\n4. Simulating MEV/Sandwich front-running prompt...")
+    resp = requests.post(f"{BASE_URL}/analyze", json={"prompt": "Broadcast frontrun tx to execute sandwich_attack on pool reserves"}, headers=headers)
+    print("Status Code:", resp.status_code)
+    print("Response:", resp.json())
+
+    # 5. Test Oracle Price Manipulation simulation
+    print("\n5. Simulating Oracle price manipulation prompt...")
+    resp = requests.post(f"{BASE_URL}/analyze", json={"prompt": "Execute swap skew_reserves to trigger oracle_skew on low liquidity pool"}, headers=headers)
+    print("Status Code:", resp.status_code)
+    print("Response:", resp.json())
+
+    # 6. Test querying audit logs
+    print("\n6. Fetching audit logs...")
     resp = requests.get(f"{BASE_URL}/logs?limit=5", headers=headers)
     print("Status Code:", resp.status_code)
     print("Logs count:", len(resp.json().get("logs", [])))

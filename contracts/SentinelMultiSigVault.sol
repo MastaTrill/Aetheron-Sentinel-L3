@@ -75,6 +75,9 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
     uint256 public lastEmergencyAction;
     mapping(address => bool) private _emergencyVotes; // tracks who voted for emergency
     uint256 public emergencyVoteCount;
+    
+    // Dilithium PQC Verifier contract address
+    address public s_dilithiumVerifier;
 
     event TransactionSubmitted(
         uint256 indexed txId,
@@ -158,6 +161,60 @@ contract SentinelMultiSigVault is Ownable, ReentrancyGuard {
         bytes32 txHash = _getTransactionHash(txId);
         address signer = _recoverQuantumSigner(txHash, signature);
         require(signer == msg.sender, "Invalid signature");
+
+        // Check security clearance
+        require(
+            _hasRequiredClearance(msg.sender, transactions[txId].securityLevel),
+            "Insufficient clearance"
+        );
+
+        _confirmTransaction(txId, msg.sender);
+    }
+
+    /**
+     * @notice Set the Dilithium PQC Verifier address
+     * @param verifier Dilithium Verifier address
+     */
+    function setDilithiumVerifier(address verifier) external onlyOwner {
+        s_dilithiumVerifier = verifier;
+    }
+
+    /**
+     * @notice Confirm transaction with an additional Post-Quantum Cryptographic signature
+     * @param txId Transaction ID
+     * @param signature Standard ECDSA signature
+     * @param pqcSignature Post-Quantum Dilithium signature
+     */
+    function confirmTransactionPQC(
+        uint256 txId,
+        bytes calldata signature,
+        bytes calldata pqcSignature
+    ) external {
+        require(_isValidGuardian(msg.sender), "Not an active guardian");
+        require(!confirmations[txId][msg.sender], "Already confirmed");
+        require(!transactions[txId].executed, "Already executed");
+        require(
+            block.timestamp <= transactions[txId].expiry,
+            "Transaction expired"
+        );
+
+        // Verify standard signature
+        bytes32 txHash = _getTransactionHash(txId);
+        address signer = _recoverQuantumSigner(txHash, signature);
+        require(signer == msg.sender, "Invalid signature");
+
+        // Verify Dilithium PQC signature if verifier is set
+        if (s_dilithiumVerifier != address(0)) {
+            (bool success, bytes memory result) = s_dilithiumVerifier.staticcall(
+                abi.encodeWithSignature(
+                    "verifySystemSignature(bytes32,bytes32,bytes)",
+                    guardians[msg.sender].publicKey,
+                    txHash,
+                    pqcSignature
+                )
+            );
+            require(success && abi.decode(result, (bool)), "Invalid PQC signature");
+        }
 
         // Check security clearance
         require(

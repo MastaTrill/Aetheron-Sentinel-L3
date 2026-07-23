@@ -7,7 +7,7 @@
   "scripts": {
     "test": "hardhat test",
     "mocha": "node node_modules/hardhat/dist/src/cli.js test test/smoke.test.js test/AetheronBridge.test.js test/CircuitBreaker.test.js test/SentinelAMM.test.js test/SentinelCore.test.js test/SentinelCoreLoop.test.js test/SentinelGovernance.test.js test/SentinelHomomorphicEncryption.test.js test/SentinelInsuranceMarketplace.test.js test/SentinelInsuranceProtocol.test.js test/SentinelInterceptor.test.js test/SentinelLiquidityMining.test.js test/SentinelMonitor.test.js test/SentinelMultiSigVault.test.js test/SentinelOracleNetwork.test.js test/SentinelPredictiveThreatModel.test.js test/SentinelQuantumGuard.test.js test/SentinelQuantumKeyDistribution.test.js test/SentinelQuantumNeural.test.js test/SentinelReferralSystem.test.js test/SentinelRewardAggregator.test.js test/SentinelSecurityAuditor.test.js test/SentinelSecurityTokenization.test.js test/SentinelSocialRecovery.test.js test/SentinelStaking.test.js test/SentinelTimelock.test.js test/SentinelToken.test.js test/SentinelYieldMaximizer.test.js test/SentinelZKIdentity.test.js test/SentinelZKOracle.test.js",
-    "test:gas": "npm run compile && node scripts/gas-analysis.js",
+    "test:gas": "npm run compile && hardhat run scripts/gas-analysis.js",
     "test:gas:core": "hardhat test test/SentinelCore.gas.test.js",
     "test:coverage": "node node_modules/hardhat/dist/src/cli.js coverage",
     "compile": "node scripts/compile-contracts.js",
@@ -19,7 +19,7 @@
     "deploy:testnet": "hardhat run scripts/deploy.js --network sepolia",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "deploy:base-sepolia": "hardhat run scripts/deploy.cjs --network baseSepolia",
-    "preflight:base-sepolia": "node scripts/mainnet-preflight.js",
+    "preflight:base-sepolia": "node scripts/mainnet-preflight.js --network base-sepolia",
     "deploy:mainnet": "node orchestrator.cjs --network mainnet",
     "deploy:polygon": "node node_modules/hardhat/dist/src/cli.js run scripts/deploy.js --network polygon",
     "deploy:base": "hardhat run orchestrator.cjs --network base",

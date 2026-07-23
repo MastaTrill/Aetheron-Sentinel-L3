@@ -51,7 +51,12 @@ const NETWORKS = {
 };
 
 async function main() {
-  const networkKey = (process.env.DEPLOY_NETWORK || 'base').trim().toLowerCase();
+  const networkArgIndex = process.argv.indexOf('--network');
+  const networkKey = (
+    (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined) ||
+    process.env.DEPLOY_NETWORK ||
+    'base'
+  ).trim().toLowerCase();
   const network = NETWORKS[networkKey];
   if (!network) throw new Error(`Unsupported DEPLOY_NETWORK: ${networkKey}`);
 

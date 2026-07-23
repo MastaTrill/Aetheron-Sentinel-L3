@@ -40,6 +40,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     TierConfig[] public tiers;
     mapping(address => StakeInfo) public stakes;
     mapping(address => uint256) public securityScore; // Performance-based scoring
+    
+    // Security auditor address for dynamic APY scaling
+    address public s_securityAuditor;
 
     // APY Enhancement Features
     uint256 public baseAPY = 289; // 2.89% base APY
@@ -255,6 +258,14 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     }
 
     /**
+     * @notice Set security auditor address for dynamic APY scaling
+     * @param securityAuditor Address of the SentinelSecurityAuditor contract
+     */
+    function setSecurityAuditor(address securityAuditor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        s_securityAuditor = securityAuditor;
+    }
+
+    /**
      * @notice Get user's current APY including bonuses
      * @param user User address
      */
@@ -267,6 +278,19 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
         uint256 uptimeBonus = uptimeBonusAPY; // Assuming 99.9% uptime
 
         uint256 totalAPY = baseTierAPY + performanceBonus + uptimeBonus;
+
+        // Dynamic Risk-Adjusted Staking Yields
+        if (s_securityAuditor != address(0)) {
+            (bool success, bytes memory data) = s_securityAuditor.staticcall(
+                abi.encodeWithSignature("securityScore()")
+            );
+            if (success && data.length == 32) {
+                uint256 score = abi.decode(data, (uint256));
+                if (score < 800) {
+                    totalAPY = (totalAPY * score) / 1000;
+                }
+            }
+        }
 
         // Cap at maximum APY
         return totalAPY > maxAPY ? maxAPY : totalAPY;
