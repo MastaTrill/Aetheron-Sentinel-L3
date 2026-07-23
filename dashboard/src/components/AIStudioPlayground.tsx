@@ -99,6 +99,51 @@ def calculate_threat_score(prompt: str) -> tuple[float, list[str]]:
 `
 };
 
+const highlightSolidity = (code: string) => {
+  const commentList: string[] = [];
+  const stringList: string[] = [];
+
+  let formatted = code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Extract comments
+  formatted = formatted.replace(/(\/\/.*?$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+    commentList.push(match);
+    return `___COMMENT_${commentList.length - 1}___`;
+  });
+
+  // Extract strings
+  formatted = formatted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+    stringList.push(match);
+    return `___STRING_${stringList.length - 1}___`;
+  });
+
+  // Highlight keywords
+  const keywords = /\b(contract|library|interface|is|function|public|private|external|internal|pure|view|returns|mapping|struct|event|emit|require|revert|if|else|for|while|return|override|virtual|constructor|payable)\b/g;
+  formatted = formatted.replace(keywords, '<span style="color:#569cd6;font-weight:bold;">$1</span>');
+
+  // Highlight types
+  const types = /\b(uint256|uint|int|bytes32|bytes4|bytes|string|bool|address|uint8|uint16|uint32|uint64|uint128)\b/g;
+  formatted = formatted.replace(types, '<span style="color:#4fc1ff;">$1</span>');
+
+  // Highlight numbers
+  formatted = formatted.replace(/\b(\d+)\b/g, '<span style="color:#b5cea8;">$1</span>');
+
+  // Put strings back
+  formatted = formatted.replace(/___STRING_(\d+)___/g, (_, index) => {
+    return `<span style="color:#ce9178;">${stringList[Number(index)]}</span>`;
+  });
+
+  // Put comments back
+  formatted = formatted.replace(/___COMMENT_(\d+)___/g, (_, index) => {
+    return `<span style="color:#6a9955;font-style:italic;">${commentList[Number(index)]}</span>`;
+  });
+
+  return <code dangerouslySetInnerHTML={{ __html: formatted }} />;
+};
+
 interface ChatMessage {
   sender: 'user' | 'assistant';
   text: string;
@@ -118,6 +163,7 @@ export default function AIStudioPlayground() {
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'preview' | 'code' | 'lint' | 'settings'>('preview');
   const [lintLogs, setLintLogs] = useState<string[]>([]);
   const [linting, setLinting] = useState(false);
+  const [terminalInput, setTerminalInput] = useState('');
 
   // Playground state
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -304,6 +350,39 @@ export default function AIStudioPlayground() {
       ]);
     }
     setLinting(false);
+  };
+
+  const handleTerminalCommand = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const cmd = terminalInput.trim().toLowerCase();
+      if (!cmd) return;
+
+      const newLogEntry = (msg: string, level = 'INFO') => {
+        const timestamp = new Date().toISOString();
+        setLogs(prev => [
+          { timestamp, prompt: `Terminal: ${terminalInput}`, score: level === 'ERROR' ? 0.8 : 0.0, reasons: [msg] },
+          ...prev
+        ]);
+      };
+
+      if (cmd === 'clear') {
+        setLogs([]);
+      } else if (cmd === 'help') {
+        newLogEntry('Available commands: help | clear | status | simulate-reentrancy | simulate-mev | run-scan', 'INFO');
+      } else if (cmd === 'status') {
+        newLogEntry('Sentinel L3 gateway: active. Sockets bound on :8000 and :5173.', 'INFO');
+      } else if (cmd === 'simulate-reentrancy') {
+        runPreviewSimulation('reentrancy');
+      } else if (cmd === 'simulate-mev') {
+        runPreviewSimulation('mev');
+      } else if (cmd === 'run-scan') {
+        runSecurityLint();
+        setActiveWorkspaceTab('lint');
+      } else {
+        newLogEntry(`Command not found: ${cmd}. Type "help" for command listing.`, 'ERROR');
+      }
+      setTerminalInput('');
+    }
   };
 
   return (
@@ -594,13 +673,11 @@ export default function AIStudioPlayground() {
                         fontFamily: 'Consolas, Monaco, monospace',
                         fontSize: '0.8rem',
                         lineHeight: '1.5',
-                        color: '#60d1fa',
+                        color: '#a9b2c3',
                         background: '#030812',
                         textAlign: 'left'
                       }}>
-                        <code>
-                          {mockFiles[activeFile]}
-                        </code>
+                        {highlightSolidity(mockFiles[activeFile])}
                       </pre>
                     </div>
                   </div>
@@ -699,21 +776,35 @@ export default function AIStudioPlayground() {
                   <span style={{ fontSize: '0.7rem', color: '#5b83ad' }}>{consoleOpen ? 'Collapse [▼]' : 'Expand [▲]'}</span>
                 </div>
 
-                {consoleOpen && (
-                  <div style={{ height: '140px', overflowY: 'auto', padding: '15px 20px', fontFamily: 'monospace', fontSize: '0.75rem', color: '#00ffaa', background: '#030812', textAlign: 'left', lineHeight: '1.6' }}>
-                    {logs.length > 0 ? (
-                      logs.map((log, idx) => (
-                        <div key={idx} style={{ marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.02)', paddingBottom: '4px' }}>
-                          <span style={{ color: '#888' }}>[{log.timestamp?.slice(11, 19)}]</span>{' '}
-                          <span style={{ color: '#ffb84d' }}>IP: {log.source_ip}</span>{' '}
-                          <span>Score: {log.score?.toFixed(2)}</span>{' '}
-                          <span style={{ color: '#38bdf8' }}>Prompt: {log.prompt}</span>{' '}
-                          {log.reasons?.length > 0 && <span style={{ color: '#ef4444' }}>({log.reasons.join(', ')})</span>}
-                        </div>
-                      ))
-                    ) : (
-                      <div style={{ color: '#5b83ad' }}>Waiting for threat activity logs...</div>
-                    )}
+                 {consoleOpen && (
+                  <div style={{ background: '#030812' }}>
+                    <div style={{ height: '140px', overflowY: 'auto', padding: '15px 20px', fontFamily: 'monospace', fontSize: '0.75rem', color: '#00ffaa', textAlign: 'left', lineHeight: '1.6' }}>
+                      {logs.length > 0 ? (
+                        logs.map((log, idx) => (
+                          <div key={idx} style={{ marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.02)', paddingBottom: '4px' }}>
+                            <span style={{ color: '#888' }}>[{log.timestamp?.slice(11, 19)}]</span>{' '}
+                            <span style={{ color: '#ffb84d' }}>IP: {log.source_ip || '127.0.0.1'}</span>{' '}
+                            <span>Score: {log.score?.toFixed(2)}</span>{' '}
+                            <span style={{ color: '#38bdf8' }}>Prompt: {log.prompt}</span>{' '}
+                            {log.reasons?.length > 0 && <span style={{ color: '#ef4444' }}>({log.reasons.join(', ')})</span>}
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ color: '#5b83ad' }}>Waiting for threat activity logs...</div>
+                      )}
+                    </div>
+                    {/* Command prompt input */}
+                    <div style={{ display: 'flex', borderTop: '1px solid #142845', background: '#02060d', padding: '6px 20px', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ color: '#00f5ff', fontFamily: 'monospace', fontSize: '0.8rem', fontWeight: 'bold' }}>sentinel-gateway$</span>
+                      <input
+                        type="text"
+                        placeholder='Type command (e.g. "help", "status", "simulate-reentrancy", "clear")...'
+                        value={terminalInput}
+                        onChange={(e) => setTerminalInput(e.target.value)}
+                        onKeyDown={handleTerminalCommand}
+                        style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#00ffaa', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
