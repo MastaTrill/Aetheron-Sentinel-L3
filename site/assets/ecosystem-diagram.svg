@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" style="background:#0a0a0a;border-radius:16px">
+  <defs>
+    <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00ffff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ff00ff" stop-opacity="0.1"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#00ffff" opacity="0.7"/>
+    </marker>
+  </defs>
+
+  <!-- Connection lines -->
+  <line x1="450" y1="210" x2="150" y2="90"  stroke="#00ffff" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="210" x2="750" y2="90"  stroke="#ff00ff" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="210" x2="150" y2="340" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="210" x2="750" y2="340" stroke="#ff6b00" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="210" x2="450" y2="60"  stroke="#a855f7" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrow)"/>
+
+  <!-- Core circle -->
+  <circle cx="450" cy="210" r="72" fill="url(#coreGrad)" stroke="#00ffff" stroke-width="2" filter="url(#glow)"/>
+  <circle cx="450" cy="210" r="56" fill="none" stroke="#ff00ff" stroke-width="1" stroke-dasharray="4,4" opacity="0.6"/>
+  <text x="450" y="204" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700" font-family="monospace">SENTINEL</text>
+  <text x="450" y="222" text-anchor="middle" fill="#00ffff" font-size="11" font-family="monospace">L3 CORE</text>
+
+  <!-- Node: Cross-Chain Bridge -->
+  <rect x="60" y="44" width="180" height="92" rx="12" fill="rgba(0,255,255,0.08)" stroke="#00ffff" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="150" y="78" text-anchor="middle" fill="#00ffff" font-size="22">🌉</text>
+  <text x="150" y="100" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600" font-family="sans-serif">Cross-Chain Bridge</text>
+  <text x="150" y="118" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="sans-serif">Quantum-secured relay</text>
+
+  <!-- Node: DeFi Protocols -->
+  <rect x="660" y="44" width="180" height="92" rx="12" fill="rgba(255,0,255,0.08)" stroke="#ff00ff" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="750" y="78" text-anchor="middle" fill="#ff00ff" font-size="22">⚡</text>
+  <text x="750" y="100" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600" font-family="sans-serif">DeFi Protocols</text>
+  <text x="750" y="118" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="sans-serif">Protected liquidity pools</text>
+
+  <!-- Node: Yield Engine -->
+  <rect x="60" y="294" width="180" height="92" rx="12" fill="rgba(0,255,136,0.08)" stroke="#00ff88" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="150" y="328" text-anchor="middle" fill="#00ff88" font-size="22">📈</text>
+  <text x="150" y="350" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600" font-family="sans-serif">Yield Engine</text>
+  <text x="150" y="368" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="sans-serif">AI-optimized 3–5% APY</text>
+
+  <!-- Node: Threat AI -->
+  <rect x="660" y="294" width="180" height="92" rx="12" fill="rgba(255,107,0,0.08)" stroke="#ff6b00" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="750" y="328" text-anchor="middle" fill="#ff6b00" font-size="22">🤖</text>
+  <text x="750" y="350" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600" font-family="sans-serif">Threat AI</text>
+  <text x="750" y="368" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="sans-serif">Real-time intercept engine</text>
+
+  <!-- Node: Governance -->
+  <rect x="340" y="8" width="220" height="40" rx="10" fill="rgba(168,85,247,0.1)" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="450" y="33" text-anchor="middle" fill="#a855f7" font-size="12" font-weight="600" font-family="sans-serif">🗳️  DAO Governance</text>
+
+  <!-- Labels on lines -->
+  <text x="285" y="138" text-anchor="middle" fill="#00ffff" font-size="9" font-family="monospace" opacity="0.8">ZK proofs</text>
+  <text x="618" y="138" text-anchor="middle" fill="#ff00ff" font-size="9" font-family="monospace" opacity="0.8">MEV shield</text>
+  <text x="285" y="290" text-anchor="middle" fill="#00ff88" font-size="9" font-family="monospace" opacity="0.8">staking rewards</text>
+  <text x="618" y="290" text-anchor="middle" fill="#ff6b00" font-size="9" font-family="monospace" opacity="0.8">threat feed</text>
+</svg>

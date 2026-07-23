@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="800" height="360" style="background:#0a0a0a;border-radius:16px">
+  <defs>
+    <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00ffff"/>
+      <stop offset="100%" stop-color="#ff00ff"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00ff88"/>
+      <stop offset="100%" stop-color="#00ffff"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <text x="40" y="30" fill="#b8c5d6" font-size="11" font-family="monospace">APY OPTIMIZATION ENGINE — SENTINEL L3</text>
+
+  <!-- Grid lines -->
+  <line x1="80" y1="60" x2="760" y2="60"  stroke="#333" stroke-width="1"/>
+  <line x1="80" y1="120" x2="760" y2="120" stroke="#333" stroke-width="1"/>
+  <line x1="80" y1="180" x2="760" y2="180" stroke="#333" stroke-width="1"/>
+  <line x1="80" y1="240" x2="760" y2="240" stroke="#333" stroke-width="1"/>
+  <line x1="80" y1="300" x2="760" y2="300" stroke="#333" stroke-width="1"/>
+
+  <!-- Y-axis labels -->
+  <text x="70" y="64"  text-anchor="end" fill="#b8c5d6" font-size="10" font-family="monospace">5.0%</text>
+  <text x="70" y="124" text-anchor="end" fill="#b8c5d6" font-size="10" font-family="monospace">4.0%</text>
+  <text x="70" y="184" text-anchor="end" fill="#b8c5d6" font-size="10" font-family="monospace">3.0%</text>
+  <text x="70" y="244" text-anchor="end" fill="#b8c5d6" font-size="10" font-family="monospace">2.0%</text>
+  <text x="70" y="304" text-anchor="end" fill="#b8c5d6" font-size="10" font-family="monospace">1.0%</text>
+
+  <!-- Bars: months -->
+  <!-- Jan -->
+  <rect x="110" y="228" width="50" height="72" rx="4" fill="url(#barGrad)" opacity="0.7" filter="url(#glow)"/>
+  <text x="135" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">Jan</text>
+
+  <!-- Feb -->
+  <rect x="190" y="204" width="50" height="96" rx="4" fill="url(#barGrad)" opacity="0.75" filter="url(#glow)"/>
+  <text x="215" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">Feb</text>
+
+  <!-- Mar -->
+  <rect x="270" y="180" width="50" height="120" rx="4" fill="url(#barGrad)" opacity="0.8" filter="url(#glow)"/>
+  <text x="295" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">Mar</text>
+
+  <!-- Apr -->
+  <rect x="350" y="156" width="50" height="144" rx="4" fill="url(#barGrad)" opacity="0.85" filter="url(#glow)"/>
+  <text x="375" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">Apr</text>
+
+  <!-- May -->
+  <rect x="430" y="132" width="50" height="168" rx="4" fill="url(#barGrad)" opacity="0.9" filter="url(#glow)"/>
+  <text x="455" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">May</text>
+
+  <!-- Jun -->
+  <rect x="510" y="96" width="50" height="204" rx="4" fill="url(#barGrad)" opacity="0.95" filter="url(#glow)"/>
+  <text x="535" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">Jun</text>
+
+  <!-- Jul -->
+  <rect x="590" y="72" width="50" height="228" rx="4" fill="url(#barGrad)" filter="url(#glow)"/>
+  <text x="615" y="316" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">Jul</text>
+
+  <!-- Trend line -->
+  <polyline points="135,228 215,204 295,180 375,156 455,132 535,96 615,72"
+    fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+
+  <!-- Data points -->
+  <circle cx="135" cy="228" r="4" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="215" cy="204" r="4" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="295" cy="180" r="4" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="375" cy="156" r="4" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="455" cy="132" r="4" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="535" cy="96"  r="4" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="615" cy="72"  r="5" fill="#00ffff" filter="url(#glow)"/>
+
+  <!-- Current APY badge -->
+  <rect x="620" y="52" width="120" height="30" rx="8" fill="rgba(0,255,136,0.15)" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="680" y="72" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="700" font-family="monospace">5.0% APY ✓</text>
+
+  <!-- Legend -->
+  <rect x="110" y="335" width="12" height="12" rx="3" fill="url(#barGrad)"/>
+  <text x="128" y="346" fill="#b8c5d6" font-size="10" font-family="sans-serif">Monthly Yield</text>
+  <line x1="230" y1="341" x2="254" y2="341" stroke="url(#lineGrad)" stroke-width="2.5"/>
+  <text x="260" y="346" fill="#b8c5d6" font-size="10" font-family="sans-serif">AI Trend</text>
+</svg>
