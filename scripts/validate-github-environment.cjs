@@ -4,6 +4,8 @@ async function main() {
   const repository = process.env.GITHUB_REPOSITORY;
   const environmentName = process.env.DEPLOY_ENVIRONMENT;
   const token = process.env.GITHUB_TOKEN;
+  const requireReviewers = process.env.REQUIRE_DEPLOYMENT_REVIEWERS !== 'false';
+
   if (!repository || !/^[^/]+\/[^/]+$/.test(repository)) {
     throw new Error('GITHUB_REPOSITORY is missing or invalid');
   }
@@ -26,9 +28,12 @@ async function main() {
     );
   }
 
-  const result = assertProtectedEnvironment(environmentName, await response.json());
+  const result = assertProtectedEnvironment(environmentName, await response.json(), {
+    requireReviewers,
+  });
   console.log('GITHUB ENVIRONMENT: PASS');
   console.log(`Environment: ${result.environmentName}`);
+  console.log(`Deployment reviewer required: ${result.requireReviewers}`);
   console.log(`Required reviewers: ${result.reviewerCount}`);
   console.log(`Deployment branch policy: ${JSON.stringify(result.branchPolicy)}`);
 }
