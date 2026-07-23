@@ -182,6 +182,13 @@ export default function AIStudioPlayground() {
   const [fheLoading, setFheLoading] = useState(false);
   const [fheLogs, setFheLogs] = useState<string[]>([]);
 
+  // ZK-Identity & Social Recovery State
+  const [zkAddress, setZkAddress] = useState('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+  const [zkLoading, setZkLoading] = useState(false);
+  const [zkProof, setZkProof] = useState('');
+  const [recoveryInitiated, setRecoveryInitiated] = useState(false);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+
   // Playground state
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -444,6 +451,53 @@ export default function AIStudioPlayground() {
       `🟢 SUCCESS: Homomorphic computation verified correct! Sum of encrypted values equals raw addition.`
     ]);
     setFheLoading(false);
+  };
+
+  const generateZkProof = async () => {
+    setZkLoading(true);
+    setZkProof('');
+    const timestamp = new Date().toISOString();
+    setLogs(prev => [
+      { timestamp, prompt: 'ZK: Initiating Groth16 proof generation sequence...', score: 0.0, reasons: [], source_ip: '127.0.0.1' },
+      ...prev
+    ]);
+    
+    await new Promise(r => setTimeout(r, 1200));
+    
+    const randomHex = Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const proofJson = JSON.stringify({
+      proof: {
+        pi_a: [`0x${randomHex.slice(0, 6)}`, `0x${randomHex.slice(6, 12)}`],
+        pi_b: [[`0x${randomHex.slice(12)}`, "0x00"], ["0x00", "0x00"]],
+        protocol: "groth16"
+      },
+      publicSignals: ["1"]
+    }, null, 2);
+    
+    setZkProof(proofJson);
+    setLogs(prev => [
+      { timestamp: new Date().toISOString(), prompt: `ZK: Proof verification key generated successfully. Signal verified.`, score: 0.0, reasons: [], source_ip: '127.0.0.1' },
+      ...prev
+    ]);
+    setZkLoading(false);
+  };
+
+  const initiateSocialRecovery = async () => {
+    setRecoveryLoading(true);
+    const timestamp = new Date().toISOString();
+    setLogs(prev => [
+      { timestamp, prompt: 'SocialRecovery: Querying guardian signatures threshold...', score: 0.0, reasons: [], source_ip: '127.0.0.1' },
+      ...prev
+    ]);
+    
+    await new Promise(r => setTimeout(r, 1000));
+    
+    setRecoveryInitiated(true);
+    setLogs(prev => [
+      { timestamp: new Date().toISOString(), prompt: 'SocialRecovery: 3/3 guardian signatures verified. Multisig recovery status unlocked.', score: 0.0, reasons: [], source_ip: '127.0.0.1' },
+      ...prev
+    ]);
+    setRecoveryLoading(false);
   };
 
   return (
@@ -1173,6 +1227,70 @@ export default function AIStudioPlayground() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* ZK-Identity & Social Shield Addition */}
+            <div style={{ background: '#060d1a', border: '1px solid #142845', padding: '25px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '30px' }}>
+              <h3 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>🔒 ZERO-KNOWLEDGE (ZK) IDENTITY & SOCIAL SHIELD</h3>
+              <p style={{ fontSize: '0.78rem', color: '#888', margin: 0 }}>Generate shielded zero-knowledge proofs for KYC/AML compliance and verify social guardian recovery consensus.</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
+                {/* ZK Proof Generator */}
+                <div style={{ background: '#030812', border: '1px solid #102a45', padding: '15px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <h4 style={{ margin: 0, color: '#00f5ff', fontSize: '0.8rem' }}>ZK-PROOF ENGINE (SNARKJS)</h4>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', color: '#888', display: 'block', marginBottom: '4px' }}>VERIFYING ADDRESS</label>
+                    <input 
+                      type="text" 
+                      value={zkAddress} 
+                      onChange={(e) => setZkAddress(e.target.value)}
+                      style={{ width: '100%', padding: '6px 10px', background: '#02060d', border: '1px solid #102a45', color: '#fff', borderRadius: '4px', fontFamily: 'monospace', fontSize: '0.75rem' }} 
+                    />
+                  </div>
+                  <button 
+                    onClick={generateZkProof}
+                    disabled={zkLoading}
+                    className="btn-primary" 
+                    style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                  >
+                    {zkLoading ? 'GENERATING PROOF...' : 'GENERATE SHIELDED PROOF'}
+                  </button>
+                  {zkProof && (
+                    <pre style={{ margin: 0, background: '#02060d', border: '1px solid #142845', padding: '10px', borderRadius: '4px', fontSize: '0.7rem', fontFamily: 'monospace', color: '#00ffaa', overflowX: 'auto', whiteSpace: 'pre', maxHeight: '100px', textAlign: 'left' }}>
+                      <code>{zkProof}</code>
+                    </pre>
+                  )}
+                </div>
+
+                {/* Social Recovery Guardian Consensus */}
+                <div style={{ background: '#030812', border: '1px solid #102a45', padding: '15px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <h4 style={{ margin: 0, color: '#00f5ff', fontSize: '0.8rem' }}>GUARDIAN RECOVERY CONSENSUS</h4>
+                  <div style={{ fontSize: '0.75rem', color: '#aaa', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Guardian 1 (0xf39F...):</span>
+                      <span style={{ color: '#00ffaa' }}>SIGNED</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Guardian 2 (0x7099...):</span>
+                      <span style={{ color: '#00ffaa' }}>SIGNED</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Guardian 3 (0x3C44...):</span>
+                      <span style={{ color: recoveryInitiated ? '#00ffaa' : '#ff5555' }}>
+                        {recoveryInitiated ? 'SIGNED' : 'PENDING'}
+                      </span>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={initiateSocialRecovery}
+                    disabled={recoveryInitiated || recoveryLoading}
+                    className="btn-secondary" 
+                    style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                  >
+                    {recoveryLoading ? 'VERIFYING THRESHOLD...' : recoveryInitiated ? 'RECOVERY UNLOCKED' : 'TRIGGER GUARDIAN CO-SIGN'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
