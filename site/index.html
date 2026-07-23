@@ -18,8 +18,7 @@
     <!-- Quantum Particle Background -->
     <div id="quantum-bg"></div>
 
-    <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
       <div class="nav-container">
         <div class="nav-logo">
           <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
@@ -30,22 +29,40 @@
         </button>
         <div class="nav-menu" id="nav-menu">
           <a href="#home" class="nav-link active">Home</a>
-          <a href="#lore" class="nav-link">Lore</a>
-          <a href="#technology" class="nav-link">Technology</a>
+          <a href="#technology" class="nav-link">Tech</a>
           <a href="#security" class="nav-link">Security</a>
+          <a href="#tokenomics" class="nav-link">Tokenomics</a>
+          <a href="#roadmap" class="nav-link">Roadmap</a>
           <a href="#yield" class="nav-link">Yield</a>
-          <a href="#telemetry" class="nav-link">Telemetry</a>
-          <a href="#ecosystem" class="nav-link">Ecosystem</a>
-          <a href="#documentation" class="nav-link">Docs</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+          <a href="#team" class="nav-link">Team</a>
           <a href="#pricing" class="nav-link">Pricing</a>
           <a href="#contact" class="nav-link">Contact</a>
         </div>
         <div class="nav-actions" id="nav-actions">
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle theme">&#9790;</button>
           <a href="https://aistudio.google.com/app/apps/800dd05f-7235-450c-8470-b340ae5a75aa?showPreview=true&showAssistant=true" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch App</a>
-          <a href="#documentation" class="btn-secondary">Documentation</a>
+          <a href="#documentation" class="btn-secondary">Docs</a>
         </div>
       </div>
     </nav>
+
+    <!-- Live Threat Ticker -->
+    <div class="threat-ticker" aria-label="Live threat feed">
+      <span class="ticker-label"><span class="ticker-dot"></span> LIVE</span>
+      <div class="ticker-track">
+        <div class="ticker-inner" id="tickerInner">
+          <span>&#x26A0; Flash Loan Attack intercepted &mdash; $4.2M saved &bull; ETH Mainnet</span>
+          <span>&#x1F6E1; MEV Sandwich blocked &mdash; 847 ETH protected &bull; Arbitrum</span>
+          <span>&#x1F512; Reentrancy exploit neutralised &mdash; Contract 0xd4f3...&bull; Base</span>
+          <span>&#x26A0; Oracle manipulation attempt detected &mdash; $1.1M secured &bull; Optimism</span>
+          <span>&#x1F6E1; Bridge drain pattern blocked &mdash; 23,000 USDC &bull; Polygon</span>
+          <span>&#x1F512; Phishing signature rejected &mdash; Wallet 0x9a2e... &bull; Base</span>
+          <span>&#x26A0; Rug pull sequence aborted &mdash; Liquidity pool protected &bull; Ethereum</span>
+          <span>&#x1F6E1; Cross-chain replay attack stopped &mdash; $680K &bull; Arbitrum</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
@@ -77,9 +94,22 @@
               <div class="metric-label">Resistance</div>
             </div>
           </div>
+          <!-- Countdown Timer -->
+          <div class="countdown-wrapper">
+            <div class="countdown-label">&#x1F525; Presale ends in</div>
+            <div class="countdown" id="countdown">
+              <div class="cd-unit"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">Days</span></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-unit"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">Hours</span></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-unit"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">Mins</span></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-unit"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">Secs</span></div>
+            </div>
+          </div>
           <div class="hero-actions">
-            <button class="btn-primary-large">Enter the Sentinel</button>
-            <button class="btn-secondary-large">Watch Demo</button>
+            <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary-large">Enter the Sentinel</a>
+            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="btn-secondary-large">&#128196; Whitepaper</a>
           </div>
         </div>
         <div class="hero-visual">
@@ -443,6 +473,252 @@
     </section>
 
     <!-- Documentation Section -->
+    <!-- ═══════════════════════════════════════════ NEW SECTIONS ═══ -->
+
+    <!-- Tokenomics Section -->
+    <section id="tokenomics" class="tokenomics">
+      <div class="container">
+        <h2 class="section-title">Tokenomics</h2>
+        <p class="section-subtitle">AETH token distribution — fair, transparent, and community-first</p>
+        <div class="tokenomics-grid">
+          <div class="tokenomics-chart-wrap">
+            <svg class="donut-chart" viewBox="0 0 200 200" width="260" height="260" aria-label="Token distribution donut chart">
+              <!-- Segments (cx=100,cy=100,r=80, circumference=502.65) -->
+              <!-- Public Sale 40% = 201.06 -->
+              <circle r="80" cx="100" cy="100" fill="none" stroke="#00ffff" stroke-width="36"
+                stroke-dasharray="201.06 301.59" stroke-dashoffset="0" />
+              <!-- Ecosystem 20% = 100.53 -->
+              <circle r="80" cx="100" cy="100" fill="none" stroke="#ff00ff" stroke-width="36"
+                stroke-dasharray="100.53 402.12" stroke-dashoffset="-201.06" />
+              <!-- Team 15% = 75.40 -->
+              <circle r="80" cx="100" cy="100" fill="none" stroke="#00ff88" stroke-width="36"
+                stroke-dasharray="75.40 427.25" stroke-dashoffset="-301.59" />
+              <!-- Treasury 15% = 75.40 -->
+              <circle r="80" cx="100" cy="100" fill="none" stroke="#ff6b00" stroke-width="36"
+                stroke-dasharray="75.40 427.25" stroke-dashoffset="-376.99" />
+              <!-- Liquidity 10% = 50.27 -->
+              <circle r="80" cx="100" cy="100" fill="none" stroke="#a855f7" stroke-width="36"
+                stroke-dasharray="50.27 452.38" stroke-dashoffset="-452.39" />
+              <text x="100" y="96" text-anchor="middle" fill="#fff" font-size="18" font-weight="700" font-family="monospace">AETH</text>
+              <text x="100" y="114" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="monospace">Token</text>
+            </svg>
+          </div>
+          <div class="tokenomics-legend">
+            <div class="token-row"><span class="token-dot" style="background:#00ffff"></span><strong>40%</strong> Public Sale — Presale on Base network</div>
+            <div class="token-row"><span class="token-dot" style="background:#ff00ff"></span><strong>20%</strong> Ecosystem — Protocol incentives &amp; rewards</div>
+            <div class="token-row"><span class="token-dot" style="background:#00ff88"></span><strong>15%</strong> Team — 12-month cliff, 24-month vest</div>
+            <div class="token-row"><span class="token-dot" style="background:#ff6b00"></span><strong>15%</strong> Treasury — DAO-controlled reserve</div>
+            <div class="token-row"><span class="token-dot" style="background:#a855f7"></span><strong>10%</strong> Liquidity — Initial DEX liquidity</div>
+            <div class="token-stats">
+              <div class="ts"><div class="ts-val">1,000,000,000</div><div class="ts-lbl">Total Supply</div></div>
+              <div class="ts"><div class="ts-val">$0.0042</div><div class="ts-lbl">Launch Price</div></div>
+              <div class="ts"><div class="ts-val">Base</div><div class="ts-lbl">Network</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section id="roadmap" class="roadmap">
+      <div class="container">
+        <h2 class="section-title">Roadmap</h2>
+        <p class="section-subtitle">Our path to securing the cross-chain future</p>
+        <div class="timeline">
+          <div class="tl-item done">
+            <div class="tl-marker">&#10003;</div>
+            <div class="tl-content">
+              <div class="tl-phase">Q1 2026 — Completed</div>
+              <h3>Foundation</h3>
+              <ul><li>Core security architecture deployed</li><li>AI threat engine v1</li><li>HackenProof bug bounty launched</li><li>GitHub open-source release</li></ul>
+            </div>
+          </div>
+          <div class="tl-item done">
+            <div class="tl-marker">&#10003;</div>
+            <div class="tl-content">
+              <div class="tl-phase">Q2 2026 — Completed</div>
+              <h3>Presale &amp; Ecosystem</h3>
+              <ul><li>AETH token presale on Base</li><li>Telemetry dashboard live</li><li>Cross-chain bridge integration (Arbitrum, Optimism)</li><li>ZK identity proof system</li></ul>
+            </div>
+          </div>
+          <div class="tl-item active">
+            <div class="tl-marker">&#9654;</div>
+            <div class="tl-content">
+              <div class="tl-phase">Q3 2026 — In Progress</div>
+              <h3>Staking &amp; Yield</h3>
+              <ul><li>AETH staking contracts live</li><li>AI-optimized yield engine v2</li><li>Mobile security app launch</li><li>DAO governance voting</li></ul>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-marker">&#9711;</div>
+            <div class="tl-content">
+              <div class="tl-phase">Q4 2026 — Planned</div>
+              <h3>Mainnet &amp; Scale</h3>
+              <ul><li>Full mainnet launch across 5 chains</li><li>Enterprise partnerships</li><li>Quantum cryptography v2 (CRYSTALS-Kyber 1024)</li><li>$10B+ TVS target</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APY Calculator Section -->
+    <section id="calculator" class="calculator">
+      <div class="container">
+        <h2 class="section-title">APY Calculator</h2>
+        <p class="section-subtitle">Estimate your yield with Sentinel's AI-optimized staking</p>
+        <div class="calc-card">
+          <div class="calc-inputs">
+            <div class="calc-group">
+              <label for="stakeAmount">Stake Amount (AETH)</label>
+              <input type="number" id="stakeAmount" placeholder="10000" min="1" value="10000" />
+            </div>
+            <div class="calc-group">
+              <label for="stakeTier">Tier</label>
+              <select id="stakeTier">
+                <option value="2.89">Basic — 2.89% APY</option>
+                <option value="3.5" selected>Pro — 3.5% APY</option>
+                <option value="5.0">Elite — 5.0% APY</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-results" id="calcResults">
+            <div class="cr-item"><div class="cr-val" id="crMonthly">--</div><div class="cr-lbl">Monthly Yield (AETH)</div></div>
+            <div class="cr-item"><div class="cr-val" id="crYearly">--</div><div class="cr-lbl">Yearly Yield (AETH)</div></div>
+            <div class="cr-item"><div class="cr-val" id="crUsd">--</div><div class="cr-lbl">Est. Yearly (USD @ $0.0042)</div></div>
+          </div>
+          <button class="btn-primary" id="calcBtn" style="margin-top:20px;width:100%">Calculate Yield &#x26A1;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section id="partners" class="partners">
+      <div class="container">
+        <h2 class="section-title">Supported Networks &amp; Partners</h2>
+        <div class="partners-grid">
+          <div class="partner-pill">&#9679; Ethereum</div>
+          <div class="partner-pill">&#9679; Base</div>
+          <div class="partner-pill">&#9679; Arbitrum</div>
+          <div class="partner-pill">&#9679; Optimism</div>
+          <div class="partner-pill">&#9679; Polygon</div>
+          <div class="partner-pill">&#9679; BNB Chain</div>
+          <div class="partner-pill">&#9679; Avalanche</div>
+          <div class="partner-pill">&#9679; Solana</div>
+          <div class="partner-pill partner-coming">&#9679; zkSync (Soon)</div>
+          <div class="partner-pill partner-coming">&#9679; Scroll (Soon)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audit Badges Section -->
+    <section id="audits" class="audits">
+      <div class="container">
+        <h2 class="section-title">Security Audits &amp; Trust</h2>
+        <div class="audit-grid">
+          <div class="audit-card">
+            <div class="audit-icon">&#128737;</div>
+            <h3>HackenProof</h3>
+            <p>Active bug bounty program. Responsible disclosure for all critical vulnerabilities.</p>
+            <a href="https://hackenproof.com" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:0.8rem;padding:8px 14px">View Program &#x2197;</a>
+          </div>
+          <div class="audit-card">
+            <div class="audit-icon">&#128274;</div>
+            <h3>Open Source</h3>
+            <p>All contracts are open source and publicly verifiable on GitHub. No hidden logic.</p>
+            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:0.8rem;padding:8px 14px">View Code &#x2197;</a>
+          </div>
+          <div class="audit-card">
+            <div class="audit-icon">&#128203;</div>
+            <h3>Security Policy</h3>
+            <p>Formal security policy and responsible disclosure process documented on GitHub.</p>
+            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:0.8rem;padding:8px 14px">Read Policy &#x2197;</a>
+          </div>
+          <div class="audit-card audit-coming">
+            <div class="audit-icon">&#128269;</div>
+            <h3>CertiK Audit</h3>
+            <p>Full smart contract audit scheduled for Q3 2026 prior to mainnet launch.</p>
+            <span class="badge-coming">Coming Q3 2026</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="team">
+      <div class="container">
+        <h2 class="section-title">The Team</h2>
+        <p class="section-subtitle">Battle-tested engineers &amp; security researchers</p>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#00ffff,#ff00ff)">MT</div>
+            <h3>MastaTrill</h3>
+            <div class="team-role">Founder &amp; Lead Engineer</div>
+            <p>Full-stack blockchain engineer specializing in cross-chain security, AI threat detection, and DeFi protocol design.</p>
+            <a href="https://github.com/MastaTrill" target="_blank" rel="noopener noreferrer" class="team-link">&#128025; GitHub</a>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#00ff88,#00ffff)">AI</div>
+            <h3>Aetheron AI</h3>
+            <div class="team-role">Autonomous Interceptor System</div>
+            <p>The Sentinel's AI core — trained on 10M+ on-chain attack patterns, operating 24/7 with sub-100ms response time.</p>
+            <span class="team-link">&#129302; Autonomous Agent</span>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#a855f7,#ff00ff)">QR</div>
+            <h3>Quantum Research</h3>
+            <div class="team-role">Cryptography Division</div>
+            <p>Specialists in post-quantum cryptography (CRYSTALS-Kyber, Dilithium) ensuring future-proof security architecture.</p>
+            <span class="team-link">&#128272; Research Division</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+      <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-list" id="faqList">
+          <div class="faq-item">
+            <button class="faq-q">What is Sentinel L3? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>Sentinel L3 is a quantum-resistant, AI-powered security layer for cross-chain DeFi. It autonomously intercepts exploits, MEV attacks, flash loans, and bridge drains before they execute.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">What is the AETH token? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>AETH is the native utility token of the Aetheron ecosystem. It is used for staking (earn 2.89–5% APY), governance voting, and accessing premium security tiers. The presale is live on Base network via <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer">aetrs.com</a>.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">How does Sentinel protect my protocol? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>Sentinel monitors all transactions touching your contracts in real-time. Using pattern-matching AI trained on 10M+ attack signatures, it intercepts malicious transactions before they confirm, protecting your users and liquidity.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Which blockchains are supported? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>Currently: Ethereum, Base, Arbitrum, Optimism, and Polygon. BNB Chain, Avalanche, and Solana are in integration. zkSync and Scroll are planned for Q4 2026.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Is the code audited? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>All smart contracts are open source on GitHub. An active HackenProof bug bounty program covers critical vulnerabilities. A formal CertiK audit is scheduled for Q3 2026 before mainnet launch.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">How do I participate in the presale? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>Visit <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer">aetrs.com</a>, connect your Web3 wallet (MetaMask, Coinbase Wallet, etc.), and purchase AETH directly on Base network. The presale price is $0.0042 per AETH.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">What are the staking rewards? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>Staking tiers: Basic (2.89% APY), Pro (3.5% APY), Elite (5.0% APY). Rewards are distributed daily and boosted by security-participation bonuses. Use our <a href="#calculator">APY Calculator</a> to estimate your returns.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Is there a whitepaper? <span class="faq-icon">+</span></button>
+            <div class="faq-a"><p>Yes — the full technical documentation is available on <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/README.md" target="_blank" rel="noopener noreferrer">GitHub</a>. A formal whitepaper PDF is in preparation and will be released alongside the CertiK audit report.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ END NEW SECTIONS ═══ -->
+
+    <!-- Documentation Section -->
+
     <section id="documentation" class="documentation">
         <div class="container">
             <h2 class="section-title">Documentation & Resources</h2>
@@ -666,4 +942,100 @@
           });
         });
       }
+    </script>
+
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-banner" id="cookieBanner">
+      <div class="cookie-content">
+        <span>🍪 We use cookies to enhance your experience and analyze site traffic. <a href="#" style="color:var(--quantum-cyan)">Learn more</a></span>
+        <div class="cookie-btns">
+          <button class="btn-primary" id="cookieAccept" style="padding:8px 18px;font-size:0.85rem">Accept</button>
+          <button class="btn-secondary" id="cookieDecline" style="padding:8px 18px;font-size:0.85rem">Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ── Dark / Light Mode Toggle ── */
+      const themeToggle = document.getElementById('themeToggle');
+      const root = document.documentElement;
+      const savedTheme = localStorage.getItem('sentinel-theme') || 'dark';
+      root.setAttribute('data-theme', savedTheme);
+      themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+      themeToggle.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('sentinel-theme', next);
+        themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+      });
+
+      /* ── Countdown Timer (target: Sep 1 2026) ── */
+      const countdownTarget = new Date('2026-09-01T00:00:00Z').getTime();
+      function updateCountdown() {
+        const now = Date.now();
+        const diff = countdownTarget - now;
+        if (diff <= 0) {
+          document.getElementById('countdown').innerHTML = '<span style="color:var(--quantum-green);font-size:1.2rem">🎉 Presale Ended!</span>';
+          return;
+        }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('cd-days').textContent  = String(d).padStart(2,'0');
+        document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+        document.getElementById('cd-mins').textContent  = String(m).padStart(2,'0');
+        document.getElementById('cd-secs').textContent  = String(s).padStart(2,'0');
+      }
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      /* ── Threat Ticker (duplicate content for seamless loop) ── */
+      const ticker = document.getElementById('tickerInner');
+      if (ticker) {
+        ticker.innerHTML += ticker.innerHTML; // duplicate for infinite scroll
+      }
+
+      /* ── FAQ Accordion ── */
+      document.querySelectorAll('.faq-q').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = btn.closest('.faq-item');
+          const isOpen = item.classList.contains('open');
+          document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+          if (!isOpen) item.classList.add('open');
+          btn.querySelector('.faq-icon').textContent = item.classList.contains('open') ? '−' : '+';
+        });
+      });
+
+      /* ── APY Calculator ── */
+      function runCalc() {
+        const amount = parseFloat(document.getElementById('stakeAmount').value) || 0;
+        const apy    = parseFloat(document.getElementById('stakeTier').value) / 100;
+        const yearly = amount * apy;
+        const monthly = yearly / 12;
+        const usd = yearly * 0.0042;
+        document.getElementById('crMonthly').textContent = monthly.toLocaleString('en-US', {maximumFractionDigits:2});
+        document.getElementById('crYearly').textContent  = yearly.toLocaleString('en-US',  {maximumFractionDigits:2});
+        document.getElementById('crUsd').textContent     = '$' + usd.toLocaleString('en-US', {maximumFractionDigits:2});
+      }
+      document.getElementById('calcBtn').addEventListener('click', runCalc);
+      document.getElementById('stakeAmount').addEventListener('input', runCalc);
+      document.getElementById('stakeTier').addEventListener('change', runCalc);
+      runCalc(); // run on load
+
+      /* ── Cookie Consent ── */
+      const banner = document.getElementById('cookieBanner');
+      if (!localStorage.getItem('sentinel-cookie')) {
+        setTimeout(() => banner.classList.add('show'), 1500);
+      }
+      document.getElementById('cookieAccept').addEventListener('click', () => {
+        localStorage.setItem('sentinel-cookie', 'accepted');
+        banner.classList.remove('show');
+      });
+      document.getElementById('cookieDecline').addEventListener('click', () => {
+        localStorage.setItem('sentinel-cookie', 'declined');
+        banner.classList.remove('show');
+      });
     </script>
