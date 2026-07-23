@@ -25,7 +25,10 @@
           <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
           <span class="logo-text">SENTINEL L3</span>
         </div>
-        <div class="nav-menu">
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="nav-menu" id="nav-menu">
           <a href="#home" class="nav-link active">Home</a>
           <a href="#lore" class="nav-link">Lore</a>
           <a href="#technology" class="nav-link">Technology</a>
@@ -34,9 +37,10 @@
           <a href="#telemetry" class="nav-link">Telemetry</a>
           <a href="#ecosystem" class="nav-link">Ecosystem</a>
           <a href="#documentation" class="nav-link">Docs</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
           <a href="#contact" class="nav-link">Contact</a>
         </div>
-        <div class="nav-actions">
+        <div class="nav-actions" id="nav-actions">
           <a href="https://aistudio.google.com/app/apps/800dd05f-7235-450c-8470-b340ae5a75aa?showPreview=true&showAssistant=true" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch App</a>
           <a href="#documentation" class="btn-secondary">Documentation</a>
         </div>
@@ -321,6 +325,54 @@
       </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+      <div class="container">
+        <h2 class="section-title">Pricing Plans</h2>
+        <div class="tech-grid">
+          <div class="tech-card">
+            <div class="tech-icon">💎</div>
+            <h3>Basic</h3>
+            <p>Essential security and yield optimization for small projects.</p>
+            <div class="price"><strong>$199/mo</strong></div>
+            <ul class="pricing-features">
+              <li>Core security</li>
+              <li>Yield boost up to 2%</li>
+              <li>Email support</li>
+            </ul>
+            <a href="#contact" class="btn-primary pricing-btn">Get Started</a>
+          </div>
+          <div class="tech-card">
+            <div class="tech-icon">🚀</div>
+            <h3>Pro</h3>
+            <div class="badge">Most Popular</div>
+            <p>Advanced AI protection, premium support, and higher limits.</p>
+            <div class="price"><strong>$799/mo</strong></div>
+            <ul class="pricing-features">
+              <li>All Basic features</li>
+              <li>AI‑driven threat detection</li>
+              <li>Priority support</li>
+              <li>Higher limits & SLA</li>
+            </ul>
+            <a href="#contact" class="btn-primary pricing-btn">Upgrade Now</a>
+          </div>
+          <div class="tech-card">
+            <div class="tech-icon">🏆</div>
+            <h3>Enterprise</h3>
+            <p>Custom solutions, dedicated account manager, and SLA guarantees.</p>
+            <div class="price"><strong>Contact for pricing</strong></div>
+            <ul class="pricing-features">
+              <li>Tailored security architecture</li>
+              <li>Dedicated integration team</li>
+              <li>Enterprise‑grade SLA</li>
+              <li>Custom pricing</li>
+            </ul>
+            <a href="#contact" class="btn-primary pricing-btn">Request Quote</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Ecosystem Section -->
     <section id="ecosystem" class="ecosystem">
       <div class="container">
@@ -491,19 +543,46 @@
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
-        <div class="footer-content">
-          <div class="footer-logo">
-            <img src="assets/sentinel-logo.svg" alt="Sentinel L3" />
-            <span>SENTINEL L3</span>
+        <div class="footer-top">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <img src="assets/sentinel-logo.svg" alt="Sentinel L3" />
+              <span class="logo-text">SENTINEL L3</span>
+            </div>
+            <p class="footer-tagline">Quantum-Resistant Bridge Guardian.<br>AI-powered security for the cross-chain future.</p>
+            <div class="footer-socials">
+              <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3" target="_blank" rel="noopener noreferrer" aria-label="GitHub">&#xe800; GitHub</a>
+              <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" aria-label="Website">&#127760; aetrs.com</a>
+              <a href="mailto:aetheron.solana@gmail.com" aria-label="Email">&#9993; Email</a>
+            </div>
           </div>
-          <div class="footer-links">
+          <div class="footer-nav">
+            <h4>Navigation</h4>
+            <a href="#home">Home</a>
+            <a href="#technology">Technology</a>
+            <a href="#security">Security</a>
+            <a href="#yield">Yield</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#contact">Contact</a>
+          </div>
+          <div class="footer-nav">
+            <h4>Legal</h4>
             <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/TERMS_OF_SERVICE.md" target="_blank" rel="noopener noreferrer">Terms of Service</a>
             <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/PRIVACY_POLICY.md" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
             <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/DISCLAIMERS.md" target="_blank" rel="noopener noreferrer">Disclaimers</a>
             <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security</a>
             <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/BUG_BOUNTY.md" target="_blank" rel="noopener noreferrer">Bug Bounty</a>
           </div>
-          <div class="footer-copyright">© 2026 Aetheron Sentinel L3. All rights reserved.</div>
+          <div class="footer-contract">
+            <h4>Contract Address</h4>
+            <p class="contract-addr" id="contractAddr" title="Click to copy">0xAETH...Base</p>
+            <p class="contract-network">&#128279; Base Network</p>
+            <a href="https://aistudio.google.com/app/apps/800dd05f-7235-450c-8470-b340ae5a75aa?showPreview=true&showAssistant=true" target="_blank" rel="noopener noreferrer" class="btn-primary" style="margin-top:12px;font-size:0.8rem;padding:8px 14px">Launch App &#x2197;</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>&copy; 2026 Aetheron Sentinel L3. All rights reserved.</span>
+          <span class="footer-status">&#x25CF; Network Status: <strong style="color:var(--quantum-green)">Operational</strong></span>
         </div>
       </div>
     </footer>
@@ -531,4 +610,60 @@
           alert('Thank you! Your request has been prepared. Please send the email from your mail client, or contact aetheron.solana@gmail.com directly.');
         }, 100);
       });
+    </script>
+
+    <script>
+      /* ── Hamburger menu ── */
+      const hamburger = document.getElementById('hamburger');
+      const navMenu   = document.getElementById('nav-menu');
+      const navActions = document.getElementById('nav-actions');
+
+      hamburger.addEventListener('click', () => {
+        const isOpen = hamburger.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+        navMenu.classList.toggle('mobile-open', isOpen);
+        navActions.classList.toggle('mobile-open', isOpen);
+      });
+
+      // Close menu when a nav link is clicked
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          hamburger.classList.remove('open');
+          navMenu.classList.remove('mobile-open');
+          navActions.classList.remove('mobile-open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      /* ── Scroll-reveal ── */
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.section-title, .tech-card, .yield-tier, .security-feature').forEach(el => {
+        el.classList.add('reveal');
+        revealObserver.observe(el);
+      });
+
+      /* ── Hero counter animation ── */
+      document.querySelectorAll('.metric-value').forEach((el, i) => {
+        setTimeout(() => el.classList.add('animate'), i * 150);
+      });
+
+      /* ── Contract address copy ── */
+      const contractEl = document.getElementById('contractAddr');
+      if (contractEl) {
+        contractEl.addEventListener('click', () => {
+          navigator.clipboard.writeText(contractEl.textContent.trim()).then(() => {
+            const orig = contractEl.textContent;
+            contractEl.textContent = '✓ Copied!';
+            setTimeout(() => { contractEl.textContent = orig; }, 1500);
+          });
+        });
+      }
     </script>
