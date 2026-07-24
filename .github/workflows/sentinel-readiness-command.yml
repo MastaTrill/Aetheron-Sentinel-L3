@@ -14,12 +14,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  readiness:
+  authorize:
     if: >-
       github.event.issue.number == 169 &&
-      github.event.issue.pull_request == null &&
-      github.event.comment.body == '/sentinel-readiness' &&
-      github.actor == github.repository_owner
+      github.event.comment.body == '/sentinel-readiness'
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.auth.outputs.allowed }}
+    steps:
+      - name: Authorize repository owner
+        id: auth
+        env:
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+            echo 'allowed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'allowed=false' >> "$GITHUB_OUTPUT"
+            echo "Ignoring readiness command from unauthorized account: $COMMENT_AUTHOR"
+          fi
+
+  readiness:
+    needs: authorize
+    if: needs.authorize.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-sepolia
