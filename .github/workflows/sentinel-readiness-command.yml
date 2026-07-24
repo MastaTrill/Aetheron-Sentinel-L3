@@ -1,19 +1,17 @@
 name: Sentinel Readiness Command
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/sentinel-readiness-command.yml'
   issue_comment:
     types: [created]
-  pull_request_target:
-    types: [opened, reopened, synchronize]
+  workflow_run:
+    workflows: ['PR Validation']
+    types: [completed]
 
 permissions:
   contents: read
   deployments: read
   issues: write
+  pull-requests: read
 
 concurrency:
   group: sentinel-readiness-command
@@ -22,12 +20,12 @@ concurrency:
 jobs:
   authorize:
     if: >-
-      github.event_name == 'push' ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.number == 169 &&
        github.event.comment.body == '/sentinel-readiness') ||
-      (github.event_name == 'pull_request_target' &&
-       github.event.pull_request.title == 'run: sentinel readiness')
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.auth.outputs.allowed }}
@@ -35,22 +33,40 @@ jobs:
       - name: Authorize trusted trigger
         id: auth
         env:
+          GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
           COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
+          WORKFLOW_RUN_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = 'push' ]; then
-            echo 'allowed=true' >> "$GITHUB_OUTPUT"
-          elif [ "$EVENT_NAME" = 'pull_request_target' ] && [ "${PR_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
-            echo 'allowed=true' >> "$GITHUB_OUTPUT"
-          elif [ "$EVENT_NAME" = 'issue_comment' ] && [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+          echo 'allowed=false' >> "$GITHUB_OUTPUT"
+
+          if [ "$EVENT_NAME" = 'issue_comment' ]; then
+            if [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+              echo 'allowed=true' >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
+
+          if [ "$EVENT_NAME" != 'workflow_run' ] || [ -z "$WORKFLOW_RUN_PR_NUMBER" ]; then
+            exit 0
+          fi
+
+          pr_json="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${WORKFLOW_RUN_PR_NUMBER}")"
+          pr_title="$(jq -r '.title' <<< "$pr_json")"
+          pr_author="$(jq -r '.user.login' <<< "$pr_json")"
+          pr_state="$(jq -r '.state' <<< "$pr_json")"
+          pr_head="$(jq -r '.head.ref' <<< "$pr_json")"
+
+          if [ "$pr_title" = 'run: sentinel readiness' ] && \
+             [ "${pr_author,,}" = "${REPOSITORY_OWNER,,}" ] && \
+             [ "$pr_state" = 'open' ] && \
+             [[ "$pr_head" == ops/run-sentinel-readiness-* ]]; then
             echo 'allowed=true' >> "$GITHUB_OUTPUT"
           else
-            echo 'allowed=false' >> "$GITHUB_OUTPUT"
-            echo 'Ignoring unauthorized readiness trigger'
+            echo "Ignoring readiness trigger from PR #${WORKFLOW_RUN_PR_NUMBER}"
           fi
 
       - name: Report readiness start
