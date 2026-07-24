@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel L3 — DAO Governance &amp; Voting Portal</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
+      .gov-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .gov-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .gov-title h1 {
+        margin: 0;
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .gov-title p {
+        margin: 6px 0 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+      .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 20px;
+      }
+      .stat-val {
+        font-size: 1.6rem;
+        font-family: monospace;
+        font-weight: bold;
+        color: var(--quantum-cyan);
+      }
+      .stat-lbl {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .proposals-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .prop-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        transition: border-color 0.3s;
+      }
+      .prop-card:hover {
+        border-color: var(--quantum-cyan);
+      }
+      .prop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 12px;
+      }
+      .prop-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .prop-badge.active {
+        background: rgba(0, 255, 255, 0.15);
+        color: var(--quantum-cyan);
+        border: 1px solid var(--quantum-cyan);
+      }
+      .prop-badge.passed {
+        background: rgba(0, 255, 136, 0.15);
+        color: var(--quantum-green);
+        border: 1px solid var(--quantum-green);
+      }
+      .prop-badge.executed {
+        background: rgba(168, 85, 247, 0.15);
+        color: #a855f7;
+        border: 1px solid #a855f7;
+      }
+      .prop-title {
+        font-size: 1.2rem;
+        margin: 0 0 8px;
+      }
+      .prop-desc {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+      .vote-bar-wrap {
+        background: var(--bg-primary);
+        border-radius: 8px;
+        height: 10px;
+        overflow: hidden;
+        display: flex;
+        margin-bottom: 8px;
+      }
+      .vb-for { background: var(--quantum-green); height: 100%; }
+      .vb-against { background: #ff0055; height: 100%; }
+      .vb-abstain { background: var(--text-secondary); height: 100%; }
+
+      .vote-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        font-family: monospace;
+      }
+      .vote-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .v-btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: #fff;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .v-btn-for:hover { border-color: var(--quantum-green); color: var(--quantum-green); }
+      .v-btn-against:hover { border-color: #ff0055; color: #ff0055; }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
+          <span class="logo-text">SENTINEL L3</span>
+        </div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="index.html#technology" class="nav-link">Tech</a>
+          <a href="mobile-app.html" class="nav-link">Mobile Guard</a>
+          <a href="governance.html" class="nav-link active">Governance</a>
+          <a href="index.html#documentation" class="nav-link">Docs</a>
+        </div>
+        <div class="nav-actions">
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Wallet</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="gov-container">
+      <div class="gov-header">
+        <div class="gov-title">
+          <h1>DAO Governance Portal</h1>
+          <p>Shape the future of cross-chain security. Vote on proposals and manage timelock parameters.</p>
+        </div>
+        <button class="btn-primary" id="btnNewProposal">+ Create Proposal</button>
+      </div>
+
+      <!-- Governance Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="myVotes">25,000 AETH</div>
+          <div class="stat-lbl">Your Voting Power</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">12,450,000</div>
+          <div class="stat-lbl">Total Quorum Reached</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--quantum-green)">48 Hours</div>
+          <div class="stat-lbl">Timelock Delay</div>
+        </div>
+      </div>
+
+      <h2 style="font-size:1.3rem;margin-bottom:20px">Active &amp; Recent Proposals</h2>
+
+      <!-- Proposals List -->
+      <div class="proposals-list">
+        <!-- Proposal 1 -->
+        <div class="prop-card">
+          <div class="prop-header">
+            <div>
+              <span class="prop-badge active">● Active Voting</span>
+              <h3 class="prop-title" style="margin-top:8px">SIP-014: Upgrade Interceptor to CRYSTALS-Kyber-1024 Encryption</h3>
+            </div>
+            <span style="font-family:monospace;font-size:0.85rem;color:var(--quantum-cyan)">Ends in 2d 14h</span>
+          </div>
+          <p class="prop-desc">
+            Upgrade the quantum-resistant signature verification threshold on Base Mainnet to CRYSTALS-Kyber-1024. Ensures post-quantum security against future lattice attack vectors.
+          </p>
+          <div class="vote-bar-wrap">
+            <div class="vb-for" style="width: 88%"></div>
+            <div class="vb-against" style="width: 9%"></div>
+            <div class="vb-abstain" style="width: 3%"></div>
+          </div>
+          <div class="vote-labels">
+            <span>FOR: 4,820,000 AETH (88%)</span>
+            <span>AGAINST: 490,000 AETH (9%)</span>
+          </div>
+          <div class="vote-btns">
+            <button class="v-btn v-btn-for" onclick="vote(1, 'FOR')">✓ Vote FOR</button>
+            <button class="v-btn v-btn-against" onclick="vote(1, 'AGAINST')">✗ Vote AGAINST</button>
+          </div>
+        </div>
+
+        <!-- Proposal 2 -->
+        <div class="prop-card">
+          <div class="prop-header">
+            <div>
+              <span class="prop-badge passed">✓ Passed</span>
+              <h3 class="prop-title" style="margin-top:8px">SIP-013: Allocate 500,000 AETH to HackenProof Bug Bounty</h3>
+            </div>
+            <span style="font-family:monospace;font-size:0.85rem;color:var(--text-secondary)">Passed Jul 20</span>
+          </div>
+          <p class="prop-desc">
+            Transfer 500,000 AETH from Treasury to HackenProof Smart Contract Bug Bounty escrow to reward security researchers for critical disclosures.
+          </p>
+          <div class="vote-bar-wrap">
+            <div class="vb-for" style="width: 94%"></div>
+            <div class="vb-against" style="width: 6%"></div>
+          </div>
+          <div class="vote-labels">
+            <span>FOR: 8,120,000 AETH (94%)</span>
+            <span>AGAINST: 520,000 AETH (6%)</span>
+          </div>
+        </div>
+
+        <!-- Proposal 3 -->
+        <div class="prop-card">
+          <div class="prop-header">
+            <div>
+              <span class="prop-badge executed">⚡ Executed</span>
+              <h3 class="prop-title" style="margin-top:8px">SIP-012: Enable Cross-Chain Staking Yield Multiplier on Arbitrum</h3>
+            </div>
+            <span style="font-family:monospace;font-size:0.85rem;color:var(--text-secondary)">Executed Jul 15</span>
+          </div>
+          <p class="prop-desc">
+            Activate the AI-optimized yield maximizer protocol on Arbitrum One for ETH/USDC liquidity pools.
+          </p>
+          <div class="vote-bar-wrap">
+            <div class="vb-for" style="width: 91%"></div>
+            <div class="vb-against" style="width: 9%"></div>
+          </div>
+          <div class="vote-labels">
+            <span>FOR: 6,400,000 AETH (91%)</span>
+            <span>AGAINST: 630,000 AETH (9%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function vote(proposalId, choice) {
+        alert(`✅ Vote Recorded! You cast ${choice} on Proposal #${proposalId} using 25,000 AETH voting power.`);
+      }
+
+      document.getElementById('btnNewProposal').addEventListener('click', () => {
+        const title = prompt('Enter Proposal Title (e.g., SIP-015: Add Optimism Vault):');
+        if (title) {
+          alert(`Proposal "${title}" submitted to Timelock queue! Review period starts immediately.`);
+        }
+      });
+    </script>
+  </body>
+</html>
