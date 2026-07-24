@@ -43,6 +43,7 @@ jobs:
         run: |
           mkdir -p artifacts/base-sepolia-readiness
           : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
+          : > artifacts/base-sepolia-readiness/key-normalization.log
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -58,6 +59,75 @@ jobs:
       - name: Install dependencies
         id: dependencies
         run: npm ci --legacy-peer-deps
+
+      - name: Canonicalize deployer key without printing it
+        id: key
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const logPath = 'artifacts/base-sepolia-readiness/key-normalization.log';
+          const fail = message => {
+            fs.appendFileSync(logPath, `KEY NORMALIZATION: FAIL\n${message}\n`);
+            throw new Error(message);
+          };
+
+          let value = String(process.env.DEPLOYER_PRIVATE_KEY || '')
+            .trim()
+            .replace(/^\uFEFF/, '');
+
+          if (!value) fail('The repository-scoped DEPLOYER_PRIVATE_KEY secret is empty.');
+
+          try {
+            const parsed = JSON.parse(value);
+            if (parsed && typeof parsed === 'object') {
+              value = String(
+                parsed.DEPLOYER_PRIVATE_KEY ||
+                  parsed.deployerPrivateKey ||
+                  parsed.privateKey ||
+                  parsed.PRIVATE_KEY ||
+                  ''
+              ).trim();
+            }
+          } catch {
+            // Non-JSON secret formats are handled below.
+          }
+
+          while (
+            value.length >= 2 &&
+            ((value.startsWith('"') && value.endsWith('"')) ||
+              (value.startsWith("'") && value.endsWith("'")))
+          ) {
+            value = value.slice(1, -1).trim();
+          }
+
+          value = value
+            .replace(/^(?:export\s+)?(?:DEPLOYER_PRIVATE_KEY|PRIVATE_KEY)\s*=\s*/i, '')
+            .trim();
+
+          while (
+            value.length >= 2 &&
+            ((value.startsWith('"') && value.endsWith('"')) ||
+              (value.startsWith("'") && value.endsWith("'")))
+          ) {
+            value = value.slice(1, -1).trim();
+          }
+
+          value = value.replace(/\s+/g, '');
+          if (/^0X[0-9a-fA-F]{64}$/.test(value)) value = `0x${value.slice(2)}`;
+          if (/^[0-9a-fA-F]{64}$/.test(value)) value = `0x${value}`;
+
+          if (!/^0x[0-9a-fA-F]{64}$/.test(value)) {
+            fail('The stored deployer key cannot be canonicalized to one 0x-prefixed 32-byte hexadecimal key.');
+          }
+
+          console.log(`::add-mask::${value}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `DEPLOYER_PRIVATE_KEY=${value}\n`);
+          fs.appendFileSync(logPath, 'KEY NORMALIZATION: PASS\nA canonical 32-byte key was loaded without printing it.\n');
+          NODE
 
       - name: Validate deployment environment configuration
         id: environment
@@ -80,28 +150,55 @@ jobs:
 
       - name: Audit release and toolchain dependencies
         id: audit
+        continue-on-error: true
+        shell: bash
         run: |
-          npm run security:audit
-          npm run security:audit:toolchain
+          set -euo pipefail
+          {
+            npm run security:audit
+            npm run security:audit:toolchain
+          } 2>&1 | tee artifacts/base-sepolia-readiness/audits.log
 
       - name: Compile exact deployment artifacts
         id: compile
-        run: npm run compile
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            npm run compile || {
+              echo 'Initial compile failed; retrying once after a short delay.'
+              sleep 5
+              npm run compile
+            }
+          } 2>&1 | tee artifacts/base-sepolia-readiness/compile.log
 
       - name: Run release regression tests
         id: release_tests
-        run: npm run test:release
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test:release 2>&1 | tee artifacts/base-sepolia-readiness/release-tests.log
 
       - name: Run Foundry build and tests
         id: foundry
+        continue-on-error: true
+        shell: bash
         run: |
-          forge build --sizes
-          forge test -vvv
+          set -euo pipefail
+          {
+            forge build --sizes
+            forge test -vvv
+          } 2>&1 | tee artifacts/base-sepolia-readiness/foundry.log
 
       - name: Simulate exact deployment
         id: simulation
         continue-on-error: true
-        run: npm run mainnet:simulate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run mainnet:simulate 2>&1 | tee artifacts/base-sepolia-readiness/simulation.log
 
       - name: Collect simulation evidence
         if: always()
@@ -136,6 +233,7 @@ jobs:
           | Gate | Outcome |
           |---|---|
           | Dependencies | `${{ steps.dependencies.outcome }}` |
+          | Key canonicalization | `${{ steps.key.outcome }}` |
           | Environment configuration | `${{ steps.environment.outcome }}` |
           | Release scope | `${{ steps.scope.outcome }}` |
           | RPC / signer / balance / provisional addresses | `${{ steps.preflight.outcome }}` |
@@ -144,5 +242,7 @@ jobs:
           | Release tests | `${{ steps.release_tests.outcome }}` |
           | Foundry | `${{ steps.foundry.outcome }}` |
           | Exact simulation | `${{ steps.simulation.outcome }}` |
+
+          The workflow artifact contains redacted diagnostic logs for every gate.
           EOF
           gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body-file /tmp/sentinel-readiness-report.md
