@@ -1,6 +1,10 @@
 name: Sentinel Readiness Command
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sentinel-readiness-command.yml'
   issue_comment:
     types: [created]
 
@@ -16,21 +20,25 @@ concurrency:
 jobs:
   authorize:
     if: >-
-      github.event.issue.number == 169 &&
-      github.event.comment.body == '/sentinel-readiness'
+      github.event_name == 'push' ||
+      (github.event.issue.number == 169 &&
+       github.event.comment.body == '/sentinel-readiness')
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.auth.outputs.allowed }}
     steps:
-      - name: Authorize repository owner
+      - name: Authorize trusted trigger
         id: auth
         env:
+          EVENT_NAME: ${{ github.event_name }}
           COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+          if [ "$EVENT_NAME" = 'push' ]; then
+            echo 'allowed=true' >> "$GITHUB_OUTPUT"
+          elif [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
             echo 'allowed=true' >> "$GITHUB_OUTPUT"
           else
             echo 'allowed=false' >> "$GITHUB_OUTPUT"
