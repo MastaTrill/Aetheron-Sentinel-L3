@@ -3,6 +3,7 @@ artifacts/
 out/
 cache/
 broadcast/
+multi-chain-deployment.json
 
 # Dependencies
 node_modules/
