@@ -28,6 +28,7 @@ jobs:
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
       SENTINEL_OWNER: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
       MONITOR_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
+      KNOWN_DEPLOYER_ADDRESS: '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2'
       MIN_DEPLOYER_BALANCE_ETH: '0.05'
       RELEASE_COMMIT: a2e61a646129bc5744e6f5f734823fb5604b58e5
       DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
@@ -44,6 +45,7 @@ jobs:
           mkdir -p artifacts/base-sepolia-readiness
           : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
           : > artifacts/base-sepolia-readiness/key-normalization.log
+          : > artifacts/base-sepolia-readiness/funding.log
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -60,7 +62,7 @@ jobs:
         id: dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Canonicalize deployer key without printing it
+      - name: Canonicalize repository deployer key without printing it
         id: key
         continue-on-error: true
         shell: bash
@@ -70,16 +72,17 @@ jobs:
           const fs = require('node:fs');
 
           const logPath = 'artifacts/base-sepolia-readiness/key-normalization.log';
-          const fail = message => {
-            fs.appendFileSync(logPath, `KEY NORMALIZATION: FAIL\n${message}\n`);
+          const raw = String(process.env.DEPLOYER_PRIVATE_KEY || '');
+          const fail = (message, metadata = {}) => {
+            fs.appendFileSync(
+              logPath,
+              `KEY NORMALIZATION: FAIL\n${message}\n${JSON.stringify(metadata)}\n`
+            );
             throw new Error(message);
           };
 
-          let value = String(process.env.DEPLOYER_PRIVATE_KEY || '')
-            .trim()
-            .replace(/^\uFEFF/, '');
-
-          if (!value) fail('The repository-scoped DEPLOYER_PRIVATE_KEY secret is empty.');
+          let value = raw.trim().replace(/^\uFEFF/, '');
+          if (!value) fail('The repository-scoped DEPLOYER_PRIVATE_KEY secret is empty.', { rawLength: raw.length });
 
           try {
             const parsed = JSON.parse(value);
@@ -96,37 +99,70 @@ jobs:
             // Non-JSON secret formats are handled below.
           }
 
-          while (
-            value.length >= 2 &&
-            ((value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'")))
-          ) {
-            value = value.slice(1, -1).trim();
-          }
+          const stripQuotes = input => {
+            let output = input;
+            while (
+              output.length >= 2 &&
+              ((output.startsWith('"') && output.endsWith('"')) ||
+                (output.startsWith("'") && output.endsWith("'")))
+            ) {
+              output = output.slice(1, -1).trim();
+            }
+            return output;
+          };
 
+          value = stripQuotes(value);
           value = value
             .replace(/^(?:export\s+)?(?:DEPLOYER_PRIVATE_KEY|PRIVATE_KEY)\s*=\s*/i, '')
             .trim();
+          value = stripQuotes(value)
+            .replace(/\\[rnt]/g, '')
+            .replace(/\s+/g, '');
 
-          while (
-            value.length >= 2 &&
-            ((value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'")))
-          ) {
-            value = value.slice(1, -1).trim();
+          const canonicalize = candidate => {
+            let output = String(candidate || '');
+            if (/^0X[0-9a-fA-F]{64}$/.test(output)) output = `0x${output.slice(2)}`;
+            if (/^[0-9a-fA-F]{64}$/.test(output)) output = `0x${output}`;
+            return output;
+          };
+
+          value = canonicalize(value);
+          const tokenMatches = raw.match(/(?<![0-9a-fA-F])(?:0[xX])?[0-9a-fA-F]{64}(?![0-9a-fA-F])/g) || [];
+          const candidates = [...new Set(tokenMatches.map(canonicalize))].filter(candidate =>
+            /^0x[0-9a-fA-F]{64}$/.test(candidate)
+          );
+
+          if (!/^0x[0-9a-fA-F]{64}$/.test(value) && candidates.length === 1) {
+            value = candidates[0];
           }
 
-          value = value.replace(/\s+/g, '');
-          if (/^0X[0-9a-fA-F]{64}$/.test(value)) value = `0x${value.slice(2)}`;
-          if (/^[0-9a-fA-F]{64}$/.test(value)) value = `0x${value}`;
-
           if (!/^0x[0-9a-fA-F]{64}$/.test(value)) {
-            fail('The stored deployer key cannot be canonicalized to one 0x-prefixed 32-byte hexadecimal key.');
+            fail('The stored repository key cannot be canonicalized to one 0x-prefixed 32-byte hexadecimal key.', {
+              rawLength: raw.length,
+              compactLength: value.length,
+              uniqueHexCandidates: candidates.length,
+            });
           }
 
           console.log(`::add-mask::${value}`);
           fs.appendFileSync(process.env.GITHUB_ENV, `DEPLOYER_PRIVATE_KEY=${value}\n`);
-          fs.appendFileSync(logPath, 'KEY NORMALIZATION: PASS\nA canonical 32-byte key was loaded without printing it.\n');
+          fs.appendFileSync(
+            logPath,
+            `KEY NORMALIZATION: PASS\nA canonical 32-byte key was loaded without printing it.\n${JSON.stringify({ rawLength: raw.length, uniqueHexCandidates: candidates.length })}\n`
+          );
+          NODE
+
+      - name: Generate masked ephemeral key for offline Hardhat gates
+        id: ephemeral_key
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const key = `0x${crypto.randomBytes(32).toString('hex')}`;
+          console.log(`::add-mask::${key}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `SIMULATION_PRIVATE_KEY=${key}\n`);
           NODE
 
       - name: Validate deployment environment configuration
@@ -140,7 +176,38 @@ jobs:
         id: scope
         run: npm run security:release-scope
 
-      - name: Validate RPC, signer, balance, and provisional public addresses
+      - name: Verify known deployer funding on Base Sepolia
+        id: funding
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE' 2>&1 | tee artifacts/base-sepolia-readiness/funding.log
+          import { JsonRpcProvider, formatEther, parseEther } from 'ethers';
+
+          const provider = new JsonRpcProvider(process.env.BASE_TESTNET_RPC_URL, {
+            name: 'base-sepolia',
+            chainId: 84532,
+          });
+          const network = await provider.getNetwork();
+          if (Number(network.chainId) !== 84532) {
+            throw new Error(`Unexpected chain ID ${network.chainId}`);
+          }
+          const address = process.env.KNOWN_DEPLOYER_ADDRESS;
+          const balance = await provider.getBalance(address);
+          const minimum = parseEther(process.env.MIN_DEPLOYER_BALANCE_ETH);
+          console.log('DEPLOYER FUNDING CHECK');
+          console.log(`Chain ID: ${network.chainId}`);
+          console.log(`Deployer: ${address}`);
+          console.log(`Balance: ${formatEther(balance)} ETH`);
+          console.log(`Minimum: ${process.env.MIN_DEPLOYER_BALANCE_ETH} ETH`);
+          if (balance < minimum) {
+            throw new Error('Known deployer balance is below the required minimum.');
+          }
+          console.log('Funding status: PASS');
+          NODE
+
+      - name: Validate repository key, signer, balance, and provisional addresses
         id: preflight
         continue-on-error: true
         shell: bash
@@ -166,10 +233,10 @@ jobs:
         run: |
           set -euo pipefail
           {
-            npm run compile || {
+            DEPLOYER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" OWNER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" npm run compile || {
               echo 'Initial compile failed; retrying once after a short delay.'
               sleep 5
-              npm run compile
+              DEPLOYER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" OWNER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" npm run compile
             }
           } 2>&1 | tee artifacts/base-sepolia-readiness/compile.log
 
@@ -179,7 +246,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm run test:release 2>&1 | tee artifacts/base-sepolia-readiness/release-tests.log
+          DEPLOYER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" OWNER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" npm run test:release 2>&1 | tee artifacts/base-sepolia-readiness/release-tests.log
 
       - name: Run Foundry build and tests
         id: foundry
@@ -192,13 +259,13 @@ jobs:
             forge test -vvv
           } 2>&1 | tee artifacts/base-sepolia-readiness/foundry.log
 
-      - name: Simulate exact deployment
+      - name: Simulate exact deployment with ephemeral signer
         id: simulation
         continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
-          npm run mainnet:simulate 2>&1 | tee artifacts/base-sepolia-readiness/simulation.log
+          DEPLOYER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" OWNER_PRIVATE_KEY="$SIMULATION_PRIVATE_KEY" npm run mainnet:simulate 2>&1 | tee artifacts/base-sepolia-readiness/simulation.log
 
       - name: Collect simulation evidence
         if: always()
@@ -222,26 +289,28 @@ jobs:
         shell: bash
         run: |
           cat > /tmp/sentinel-readiness-report.md <<'EOF'
-          ## Automated Base Sepolia readiness result — provisional public configuration
+          ## Automated Base Sepolia readiness result — isolated diagnostics
 
           - **Overall:** `${{ job.status }}`
           - **Release candidate:** `a2e61a646129bc5744e6f5f734823fb5604b58e5`
           - **Workflow run:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           - **Broadcast:** disabled; this workflow cannot send a deployment transaction
-          - **Configuration note:** public Base Sepolia RPC and previously configured public owner/monitor addresses were used because the protected environment is awaiting approval. This does not approve the owner as Safe/timelock governance.
+          - **Configuration note:** the live funding check uses the known deployer address and official public Base Sepolia RPC. Offline Hardhat gates use a fresh ephemeral signer. Actual deployment still requires the protected environment key and approved governance owner.
 
           | Gate | Outcome |
           |---|---|
           | Dependencies | `${{ steps.dependencies.outcome }}` |
-          | Key canonicalization | `${{ steps.key.outcome }}` |
+          | Repository key canonicalization | `${{ steps.key.outcome }}` |
+          | Ephemeral test key | `${{ steps.ephemeral_key.outcome }}` |
           | Environment configuration | `${{ steps.environment.outcome }}` |
           | Release scope | `${{ steps.scope.outcome }}` |
-          | RPC / signer / balance / provisional addresses | `${{ steps.preflight.outcome }}` |
+          | Known deployer funding | `${{ steps.funding.outcome }}` |
+          | Repository key / signer preflight | `${{ steps.preflight.outcome }}` |
           | Audits | `${{ steps.audit.outcome }}` |
           | Compile | `${{ steps.compile.outcome }}` |
           | Release tests | `${{ steps.release_tests.outcome }}` |
           | Foundry | `${{ steps.foundry.outcome }}` |
-          | Exact simulation | `${{ steps.simulation.outcome }}` |
+          | Exact local simulation | `${{ steps.simulation.outcome }}` |
 
           The workflow artifact contains redacted diagnostic logs for every gate.
           EOF
