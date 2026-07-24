@@ -23,35 +23,47 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY' | tee /tmp/base-balances.txt
-          import json
-          import urllib.request
+          node <<'NODE' | tee /tmp/base-balances.txt
+          const address = process.env.DEPLOYER;
+          const networks = [
+            ['Base Sepolia', 84532, 'https://sepolia.base.org'],
+            ['Base Mainnet', 8453, 'https://mainnet.base.org'],
+          ];
 
-          address = '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2'
-          networks = [
-              ('Base Sepolia', 84532, 'https://sepolia.base.org'),
-              ('Base Mainnet', 8453, 'https://mainnet.base.org'),
-          ]
+          async function rpc(url, method, params) {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'sentinel-readiness-balance-locator/1.0',
+              },
+              body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+            });
+            if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+            const payload = await response.json();
+            if (payload.error) throw new Error(`${url}: ${JSON.stringify(payload.error)}`);
+            return payload.result;
+          }
 
-          print(f'Deployer: {address}')
-          for name, expected_chain_id, url in networks:
-              def rpc(method, params):
-                  body = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': method, 'params': params}).encode()
-                  request = urllib.request.Request(url, data=body, headers={'Content-Type': 'application/json'})
-                  with urllib.request.urlopen(request, timeout=20) as response:
-                      payload = json.loads(response.read().decode())
-                  if 'error' in payload:
-                      raise RuntimeError(payload['error'])
-                  return payload['result']
-
-              chain_id = int(rpc('eth_chainId', []), 16)
-              if chain_id != expected_chain_id:
-                  raise RuntimeError(f'{name}: expected chain ID {expected_chain_id}, got {chain_id}')
-              wei = int(rpc('eth_getBalance', [address, 'latest']), 16)
-              print(f'{name} ({chain_id}): {wei / 10**18:.18f} ETH')
-          PY
+          console.log(`Deployer: ${address}`);
+          for (const [name, expectedChainId, url] of networks) {
+            try {
+              const chainId = Number(BigInt(await rpc(url, 'eth_chainId', [])));
+              if (chainId !== expectedChainId) {
+                throw new Error(`expected chain ID ${expectedChainId}, got ${chainId}`);
+              }
+              const wei = BigInt(await rpc(url, 'eth_getBalance', [address, 'latest']));
+              const whole = wei / 10n ** 18n;
+              const fraction = (wei % 10n ** 18n).toString().padStart(18, '0');
+              console.log(`${name} (${chainId}): ${whole}.${fraction} ETH`);
+            } catch (error) {
+              console.log(`${name}: QUERY FAILED — ${error.message}`);
+            }
+          }
+          NODE
 
       - name: Report balances to launch gate
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -63,7 +75,7 @@ jobs:
             echo '- **No transactions were sent.**'
             echo
             echo '```text'
-            cat /tmp/base-balances.txt
+            cat /tmp/base-balances.txt 2>/dev/null || echo 'Balance output was not produced.'
             echo '```'
           } > /tmp/balance-report.md
           gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body-file /tmp/balance-report.md
