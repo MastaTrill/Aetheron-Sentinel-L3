@@ -72,10 +72,11 @@ jobs:
 
       - name: Validate RPC, signer, balance, and provisional public addresses
         id: preflight
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
-          npm run preflight:base-sepolia | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
+          npm run preflight:base-sepolia 2>&1 | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
 
       - name: Audit release and toolchain dependencies
         id: audit
@@ -99,6 +100,7 @@ jobs:
 
       - name: Simulate exact deployment
         id: simulation
+        continue-on-error: true
         run: npm run mainnet:simulate
 
       - name: Collect simulation evidence
