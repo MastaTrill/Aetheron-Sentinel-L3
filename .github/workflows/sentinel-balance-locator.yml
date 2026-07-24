@@ -1,0 +1,69 @@
+name: Sentinel Balance Locator
+
+on:
+  pull_request:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  locate:
+    if: >-
+      github.event.pull_request.title == 'run: sentinel readiness' &&
+      github.event.pull_request.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOYER: '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2'
+    steps:
+      - name: Query Base balances
+        id: balances
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' | tee /tmp/base-balances.txt
+          import json
+          import urllib.request
+
+          address = '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2'
+          networks = [
+              ('Base Sepolia', 84532, 'https://sepolia.base.org'),
+              ('Base Mainnet', 8453, 'https://mainnet.base.org'),
+          ]
+
+          print(f'Deployer: {address}')
+          for name, expected_chain_id, url in networks:
+              def rpc(method, params):
+                  body = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': method, 'params': params}).encode()
+                  request = urllib.request.Request(url, data=body, headers={'Content-Type': 'application/json'})
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode())
+                  if 'error' in payload:
+                      raise RuntimeError(payload['error'])
+                  return payload['result']
+
+              chain_id = int(rpc('eth_chainId', []), 16)
+              if chain_id != expected_chain_id:
+                  raise RuntimeError(f'{name}: expected chain ID {expected_chain_id}, got {chain_id}')
+              wei = int(rpc('eth_getBalance', [address, 'latest']), 16)
+              print(f'{name} ({chain_id}): {wei / 10**18:.18f} ETH')
+          PY
+
+      - name: Report balances to launch gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '## Sentinel deployer balance locator'
+            echo
+            echo '- **Workflow run:** https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"
+            echo '- **No transactions were sent.**'
+            echo
+            echo '```text'
+            cat /tmp/base-balances.txt
+            echo '```'
+          } > /tmp/balance-report.md
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body-file /tmp/balance-report.md
