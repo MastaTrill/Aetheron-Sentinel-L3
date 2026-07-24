@@ -1,0 +1,145 @@
+name: Sentinel Isolated Readiness Direct
+
+on:
+  pull_request:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: read
+  deployments: read
+  issues: write
+
+concurrency:
+  group: sentinel-isolated-readiness-direct
+  cancel-in-progress: false
+
+jobs:
+  readiness:
+    if: >-
+      github.event.pull_request.title == 'run: sentinel readiness' &&
+      github.event.pull_request.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RELEASE_PROFILE: sentinel-guardrails-v1
+      DEPLOY_NETWORK: base-sepolia
+      DEPLOY_ENVIRONMENT: base-sepolia
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+      MIN_DEPLOYER_BALANCE_ETH: '0.05'
+      RELEASE_COMMIT: a2e61a646129bc5744e6f5f734823fb5604b58e5
+      DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
+    steps:
+      - name: Checkout isolated release candidate
+        uses: actions/checkout@v6
+        with:
+          ref: a2e61a646129bc5744e6f5f734823fb5604b58e5
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Initialize readiness evidence
+        run: |
+          mkdir -p artifacts/base-sepolia-readiness
+          : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.7.1
+
+      - name: Install dependencies
+        id: dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Validate deployment environment configuration
+        id: environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUIRE_DEPLOYMENT_REVIEWERS: 'false'
+        run: npm run security:deployment-environment
+
+      - name: Validate frozen release scope
+        id: scope
+        run: npm run security:release-scope
+
+      - name: Validate RPC, signer, owner, balance, and monitors
+        id: preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run preflight:base-sepolia | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
+
+      - name: Audit release and toolchain dependencies
+        id: audit
+        run: |
+          npm run security:audit
+          npm run security:audit:toolchain
+
+      - name: Compile exact deployment artifacts
+        id: compile
+        run: npm run compile
+
+      - name: Run release regression tests
+        id: release_tests
+        run: npm run test:release
+
+      - name: Run Foundry build and tests
+        id: foundry
+        run: |
+          forge build --sizes
+          forge test -vvv
+
+      - name: Simulate exact deployment
+        id: simulation
+        run: npm run mainnet:simulate
+
+      - name: Collect simulation evidence
+        if: always()
+        run: |
+          if [ -f /tmp/sentinel-guardrails-simulation.json ]; then
+            cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
+          fi
+
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-sepolia-readiness-direct-${{ github.run_id }}
+          path: artifacts/base-sepolia-readiness
+          if-no-files-found: warn
+
+      - name: Report result to launch gate
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          cat > /tmp/sentinel-readiness-report.md <<'EOF'
+          ## Automated Base Sepolia readiness result — direct secret scope
+
+          - **Overall:** `${{ job.status }}`
+          - **Release candidate:** `a2e61a646129bc5744e6f5f734823fb5604b58e5`
+          - **Workflow run:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - **Broadcast:** disabled; this workflow cannot send a deployment transaction
+
+          | Gate | Outcome |
+          |---|---|
+          | Dependencies | `${{ steps.dependencies.outcome }}` |
+          | Environment configuration | `${{ steps.environment.outcome }}` |
+          | Release scope | `${{ steps.scope.outcome }}` |
+          | RPC / signer / balance / governance | `${{ steps.preflight.outcome }}` |
+          | Audits | `${{ steps.audit.outcome }}` |
+          | Compile | `${{ steps.compile.outcome }}` |
+          | Release tests | `${{ steps.release_tests.outcome }}` |
+          | Foundry | `${{ steps.foundry.outcome }}` |
+          | Exact simulation | `${{ steps.simulation.outcome }}` |
+          EOF
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body-file /tmp/sentinel-readiness-report.md
