@@ -7,6 +7,8 @@ on:
       - '.github/workflows/sentinel-readiness-command.yml'
   issue_comment:
     types: [created]
+  pull_request_target:
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read
@@ -21,8 +23,11 @@ jobs:
   authorize:
     if: >-
       github.event_name == 'push' ||
-      (github.event.issue.number == 169 &&
-       github.event.comment.body == '/sentinel-readiness')
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.number == 169 &&
+       github.event.comment.body == '/sentinel-readiness') ||
+      (github.event_name == 'pull_request_target' &&
+       github.event.pull_request.title == 'run: sentinel readiness')
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.auth.outputs.allowed }}
@@ -32,18 +37,33 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         shell: bash
         run: |
           set -euo pipefail
           if [ "$EVENT_NAME" = 'push' ]; then
             echo 'allowed=true' >> "$GITHUB_OUTPUT"
-          elif [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+          elif [ "$EVENT_NAME" = 'pull_request_target' ] && [ "${PR_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+            echo 'allowed=true' >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = 'issue_comment' ] && [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
             echo 'allowed=true' >> "$GITHUB_OUTPUT"
           else
             echo 'allowed=false' >> "$GITHUB_OUTPUT"
-            echo "Ignoring readiness command from unauthorized account: $COMMENT_AUTHOR"
+            echo 'Ignoring unauthorized readiness trigger'
           fi
+
+      - name: Report readiness start
+        if: steps.auth.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Base Sepolia readiness started
+
+          - **Workflow run:** https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          - **Release candidate:** \`a2e61a646129bc5744e6f5f734823fb5604b58e5\`
+          - **Broadcast:** disabled"
 
   readiness:
     needs: authorize
