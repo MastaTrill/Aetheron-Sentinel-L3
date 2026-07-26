@@ -112,7 +112,7 @@ hexbytes==1.3.1
 hf-xet==1.4.3
 hpack==4.1.0
 httpcore==1.0.9
-httplib2==0.31.2
+httplib2==0.32.0
 httptools==0.7.1
 httpx==0.28.1
 huey==2.6.0
