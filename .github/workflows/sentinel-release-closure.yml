@@ -40,7 +40,7 @@ jobs:
       BASE_RPC_URL: https://base-rpc.publicnode.com
       SENTINEL_SWAP_FROM_BLOCK: '42506026'
       SENTINEL_SWAP_TO_BLOCK: '49143598'
-      SENTINEL_LOG_CHUNK: '100000'
+      SENTINEL_LOG_CHUNK: '9000'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -50,7 +50,15 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --legacy-peer-deps
       - name: Decode canonical pool swaps
-        run: node scripts/decode-sentinel-v4-swaps.mjs
+        id: decode
+        shell: bash
+        run: |
+          set +e
+          node scripts/decode-sentinel-v4-swaps.mjs > swap-decoder.log 2>&1
+          status=$?
+          cat swap-decoder.log
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit "$status"
       - name: Require both trade directions
         run: |
           node --input-type=module <<'NODE'
@@ -63,9 +71,21 @@ jobs:
           NODE
       - name: Hash decoded evidence
         run: sha256sum release-evidence/sentinel-mainnet/swaps-decoded/* | tee release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS
-      - uses: actions/upload-artifact@v4
+      - name: Upload decoded evidence
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
           name: sentinel-decoded-swap-routing
           path: release-evidence/sentinel-mainnet/swaps-decoded/
           if-no-files-found: error
           retention-days: 14
+      - name: Upload decoder diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-swap-decoder-diagnostics
+          path: |
+            swap-decoder.log
+            release-evidence/sentinel-mainnet/swaps-decoded/
+          if-no-files-found: warn
+          retention-days: 7
