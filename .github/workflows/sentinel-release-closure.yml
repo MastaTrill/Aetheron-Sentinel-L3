@@ -32,3 +32,40 @@ jobs:
           bash -n scripts/verify-sentinel-authority-reachability.sh
       - name: Validate readiness manifest
         run: node scripts/validate-sentinel-release-closure.mjs --mode=readiness
+
+  decode-historical-swaps:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      BASE_RPC_URL: https://base-rpc.publicnode.com
+      SENTINEL_SWAP_FROM_BLOCK: '42506026'
+      SENTINEL_SWAP_TO_BLOCK: '49143598'
+      SENTINEL_LOG_CHUNK: '100000'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --legacy-peer-deps
+      - name: Decode canonical pool swaps
+        run: node scripts/decode-sentinel-v4-swaps.mjs
+      - name: Require both trade directions
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const evidence = JSON.parse(readFileSync('release-evidence/sentinel-mainnet/swaps-decoded/swaps.json', 'utf8'));
+          if (evidence.swapLogCount < 1) throw new Error('No canonical swaps decoded');
+          if (evidence.buyCount < 1) throw new Error('No historical SENTINEL buy direction decoded');
+          if (evidence.sellCount < 1) throw new Error('No historical SENTINEL sell direction decoded');
+          console.log({ swapLogCount: evidence.swapLogCount, buyCount: evidence.buyCount, sellCount: evidence.sellCount });
+          NODE
+      - name: Hash decoded evidence
+        run: sha256sum release-evidence/sentinel-mainnet/swaps-decoded/* | tee release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-decoded-swap-routing
+          path: release-evidence/sentinel-mainnet/swaps-decoded/
+          if-no-files-found: error
+          retention-days: 14
