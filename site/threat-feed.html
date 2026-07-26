@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel L3 — Live Threat Intelligence Feed</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body { background: var(--bg-primary); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 60px; }
+      .feed-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+      .feed-title h1 { margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .feed-title p { margin: 6px 0 28px; color: var(--text-secondary); font-size: 0.95rem; }
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+      .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 18px; }
+      .stat-val { font-size: 1.7rem; font-family: monospace; font-weight: bold; color: var(--quantum-cyan); }
+      .stat-lbl { font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; margin-top: 4px; }
+      .feed-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+      .feed-log { display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; }
+      .feed-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-primary); animation: fadeIn 0.4s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+      .severity { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; min-width: 70px; text-align: center; }
+      .severity.critical { background: rgba(255,50,50,0.15); color: #ff5050; border: 1px solid #ff5050; }
+      .severity.high { background: rgba(255,140,0,0.15); color: #ff8c00; border: 1px solid #ff8c00; }
+      .severity.medium { background: rgba(255,220,0,0.15); color: #ffd700; border: 1px solid #ffd700; }
+      .severity.low { background: rgba(0,255,136,0.15); color: var(--quantum-green); border: 1px solid var(--quantum-green); }
+      .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--quantum-green); margin-top: 4px; flex-shrink: 0; animation: pulse 2s infinite; }
+      @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 70%{box-shadow:0 0 0 8px rgba(0,255,136,0)} }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
+          <span class="logo-text">SENTINEL L3</span>
+        </div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="governance.html" class="nav-link">Governance</a>
+          <a href="enterprise.html" class="nav-link">Enterprise</a>
+          <a href="telemetry.html" class="nav-link">Telemetry</a>
+          <a href="vaults.html" class="nav-link">Vaults</a>
+          <a href="analytics.html" class="nav-link">Analytics</a>
+          <a href="api-docs.html" class="nav-link">API Docs</a>
+          <a href="bug-bounty.html" class="nav-link">Bug Bounty</a>
+          <a href="threat-feed.html" class="nav-link active">🚨 Threat Feed</a>
+          <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
+        </div>
+        <div class="nav-actions">
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch App</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="feed-container">
+      <div class="feed-title">
+        <h1>🚨 Live Threat Intelligence Feed</h1>
+        <p>Real-time attack vector interceptions monitored by Sentinel L3 across Base Mainnet.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="totalInterceptions" style="color:var(--quantum-green)">142</div>
+          <div class="stat-lbl">Total Interceptions (30d)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">$3,240,000</div>
+          <div class="stat-lbl">Value Saved (30d)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--quantum-pink)" id="liveAlerts">0</div>
+          <div class="stat-lbl">Active Live Alerts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">42ms</div>
+          <div class="stat-lbl">Avg Response Latency</div>
+        </div>
+      </div>
+
+      <div class="feed-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+          <div class="pulse"></div>
+          <h2 style="margin:0;font-size:1.1rem;color:#fff">Live Incident Stream</h2>
+          <span style="margin-left:auto;font-size:0.75rem;color:var(--text-secondary)" id="lastUpdate">Updating...</span>
+        </div>
+        <div class="feed-log" id="feedLog"></div>
+      </div>
+    </div>
+
+    <script>
+      const events = [
+        { type:'FLASH_LOAN_ATTACK', severity:'critical', value:'$124,500', chain:'Base', hash:'0xabc1...def9', latency:'38ms' },
+        { type:'PRICE_ORACLE_MANIPULATION', severity:'high', value:'$42,200', chain:'Base', hash:'0x9fe3...ca1b', latency:'55ms' },
+        { type:'REENTRANCY_ATTEMPT', severity:'high', value:'$18,750', chain:'Base', hash:'0xcc44...8811', latency:'41ms' },
+        { type:'SANDWICH_ATTACK', severity:'medium', value:'$3,400', chain:'Base', hash:'0x77aa...1293', latency:'62ms' },
+        { type:'APPROVAL_PHISHING', severity:'low', value:'$900', chain:'Base', hash:'0x44ee...8f03', latency:'29ms' },
+        { type:'GOVERNANCE_EXPLOIT', severity:'critical', value:'$890,000', chain:'Base', hash:'0x1122...ff90', latency:'35ms' },
+        { type:'LIQUIDITY_DRAIN', severity:'high', value:'$67,200', chain:'Base', hash:'0x88bc...3300', latency:'47ms' },
+      ];
+
+      let count = 0; let liveCount = 0;
+
+      function addFeedItem(event) {
+        const log = document.getElementById('feedLog');
+        const item = document.createElement('div');
+        item.className = 'feed-item';
+        item.innerHTML = `
+          <span class="severity ${event.severity}">${event.severity}</span>
+          <div style="flex:1">
+            <div style="font-weight:600;color:#fff;font-size:0.88rem">${event.type.replace(/_/g,' ')}</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:3px">
+              Chain: ${event.chain} &nbsp;|&nbsp; Value Intercepted: <strong style="color:var(--quantum-green)">${event.value}</strong> &nbsp;|&nbsp; Latency: ${event.latency}
+            </div>
+          </div>
+          <div style="font-family:monospace;font-size:0.72rem;color:var(--text-secondary)">${event.hash}</div>`;
+        log.prepend(item);
+        if (log.children.length > 20) log.lastChild.remove();
+
+        liveCount++;
+        document.getElementById('liveAlerts').textContent = liveCount;
+        document.getElementById('totalInterceptions').textContent = 142 + count;
+        document.getElementById('lastUpdate').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      }
+
+      // Seed initial feed
+      events.slice(0,5).reverse().forEach(e => addFeedItem(e));
+      liveCount = 0; count = 0;
+
+      // Simulate live stream
+      setInterval(() => {
+        const event = events[count % events.length];
+        addFeedItem(event);
+        count++;
+      }, 3500);
+    </script>
+  </body>
+</html>
