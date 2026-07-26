@@ -8,6 +8,8 @@ on:
       - 'scripts/verify-sentinel-authority-reachability.sh'
       - 'release-evidence/sentinel-mainnet/release-closure.json'
       - 'release-evidence/sentinel-mainnet/attestations/manifest.json'
+      - 'release-evidence/sentinel-mainnet/authority-reachability*'
+      - 'release-evidence/sentinel-mainnet/swaps-decoded/**'
       - '.github/workflows/sentinel-release-closure.yml'
   workflow_dispatch:
 
@@ -32,6 +34,23 @@ jobs:
           bash -n scripts/verify-sentinel-authority-reachability.sh
       - name: Validate readiness manifest
         run: node scripts/validate-sentinel-release-closure.mjs --mode=readiness
+      - name: Verify committed evidence hashes
+        run: |
+          sha256sum -c release-evidence/sentinel-mainnet/authority-reachability.SHA256
+          sha256sum -c release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS
+      - name: Validate committed swap directions and row count
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const lines = readFileSync('release-evidence/sentinel-mainnet/swaps-decoded/transactions.csv', 'utf8').trim().split(/\r?\n/);
+          const rows = lines.slice(1);
+          const buys = rows.filter((line) => line.includes(',buy-sentinel-with-weth,')).length;
+          const sells = rows.filter((line) => line.includes(',sell-sentinel-for-weth,')).length;
+          if (rows.length !== 54) throw new Error(`Expected 54 swap rows, found ${rows.length}`);
+          if (buys !== 2) throw new Error(`Expected 2 buy rows, found ${buys}`);
+          if (sells !== 52) throw new Error(`Expected 52 sell rows, found ${sells}`);
+          console.log({ rows: rows.length, buys, sells });
+          NODE
 
   authority-reachability:
     runs-on: ubuntu-24.04
@@ -47,19 +66,17 @@ jobs:
           set -o pipefail
           mkdir -p release-evidence/sentinel-mainnet
           bash scripts/verify-sentinel-authority-reachability.sh \
-            | tee release-evidence/sentinel-mainnet/authority-reachability.txt
-      - name: Hash authority evidence
-        run: sha256sum release-evidence/sentinel-mainnet/authority-reachability.txt | tee release-evidence/sentinel-mainnet/authority-reachability.SHA256
-      - uses: actions/upload-artifact@v4
+            | tee /tmp/authority-reachability-current.txt
+      - name: Upload current authority evidence
+        uses: actions/upload-artifact@v4
         with:
-          name: sentinel-authority-reachability
-          path: |
-            release-evidence/sentinel-mainnet/authority-reachability.txt
-            release-evidence/sentinel-mainnet/authority-reachability.SHA256
+          name: sentinel-authority-reachability-current
+          path: /tmp/authority-reachability-current.txt
           if-no-files-found: error
           retention-days: 14
 
   decode-historical-swaps:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
