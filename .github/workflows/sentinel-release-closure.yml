@@ -38,7 +38,7 @@ jobs:
     timeout-minutes: 10
     env:
       BASE_RPC_URL: https://base-rpc.publicnode.com
-      SENTINEL_SNAPSHOT_BLOCK: '49143598'
+      SENTINEL_SNAPSHOT_BLOCK: latest
     steps:
       - uses: actions/checkout@v6
       - uses: foundry-rs/foundry-toolchain@v1
