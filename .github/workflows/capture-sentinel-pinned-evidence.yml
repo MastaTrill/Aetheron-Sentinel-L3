@@ -29,11 +29,19 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
+      - name: Capture one Base block
+        id: snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          BLOCK="$(cast block-number --rpc-url https://base-rpc.publicnode.com)"
+          echo "block=$BLOCK" >> "$GITHUB_OUTPUT"
+
       - name: Generate block-pinned evidence
         shell: bash
         env:
           BASE_RPC_URL: https://base-rpc.publicnode.com
-          SENTINEL_SNAPSHOT_BLOCK: 49143277
+          SENTINEL_SNAPSHOT_BLOCK: ${{ steps.snapshot.outputs.block }}
         run: |
           set -euo pipefail
           OUT="release-evidence/sentinel-mainnet/second-rpc"
