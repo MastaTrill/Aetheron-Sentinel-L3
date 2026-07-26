@@ -1,6 +1,13 @@
 name: Capture Pinned SENTINEL Evidence
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - scripts/verify-canonical-token.sh
+      - scripts/verify-canonical-v4-state.sh
+      - .github/workflows/capture-sentinel-pinned-evidence.yml
   push:
     branches:
       - evidence/sentinel-second-rpc
