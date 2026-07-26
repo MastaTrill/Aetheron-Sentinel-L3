@@ -587,6 +587,18 @@
                 <span>Recent Swap Activity:</span>
                 <span style="font-size:0.75rem;font-family:monospace;color:var(--quantum-pink)">Jul 19, 2026 • 5:05 AM</span>
               </div>
+
+              <!-- Base Mainnet Contract Verified Badge -->
+              <div style="margin-top:16px;padding:12px;background:rgba(0,255,255,0.05);border:1px dashed var(--quantum-cyan);border-radius:8px;font-size:0.78rem">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <span style="color:var(--quantum-cyan);font-weight:bold">🔵 Base Mainnet Token Address</span>
+                  <a href="https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3" target="_blank" rel="noopener noreferrer" style="color:var(--quantum-pink);text-decoration:none">View BaseScan ↗</a>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-primary);padding:8px 10px;border-radius:6px;font-family:monospace;color:#fff">
+                  <span id="baseContractAddr">0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3</span>
+                  <button id="copyBaseBtn" style="background:none;border:none;color:var(--quantum-cyan);cursor:pointer;font-size:0.85rem" title="Copy Address">📋 Copy</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1013,6 +1025,14 @@
             const orig = contractEl.textContent;
             contractEl.textContent = '✓ Copied!';
             setTimeout(() => { contractEl.textContent = orig; }, 1500);
+          });
+        });
+      const copyBaseBtn = document.getElementById('copyBaseBtn');
+      if (copyBaseBtn) {
+        copyBaseBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText('0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3').then(() => {
+            copyBaseBtn.textContent = '✓ Copied!';
+            setTimeout(() => { copyBaseBtn.textContent = '📋 Copy'; }, 1500);
           });
         });
       }
