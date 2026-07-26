@@ -33,6 +33,31 @@ jobs:
       - name: Validate readiness manifest
         run: node scripts/validate-sentinel-release-closure.mjs --mode=readiness
 
+  authority-reachability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      BASE_RPC_URL: https://base-rpc.publicnode.com
+      SENTINEL_SNAPSHOT_BLOCK: '49143598'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Simulate authority paths without broadcasting
+        run: |
+          mkdir -p release-evidence/sentinel-mainnet
+          bash scripts/verify-sentinel-authority-reachability.sh \
+            | tee release-evidence/sentinel-mainnet/authority-reachability.txt
+      - name: Hash authority evidence
+        run: sha256sum release-evidence/sentinel-mainnet/authority-reachability.txt | tee release-evidence/sentinel-mainnet/authority-reachability.SHA256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-authority-reachability
+          path: |
+            release-evidence/sentinel-mainnet/authority-reachability.txt
+            release-evidence/sentinel-mainnet/authority-reachability.SHA256
+          if-no-files-found: error
+          retention-days: 14
+
   decode-historical-swaps:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
