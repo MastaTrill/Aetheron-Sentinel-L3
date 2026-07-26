@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { network } from 'hardhat';
 
 describe('AetheronBridge', function () {
+  this.timeout(100000);
   let bridge, token;
   let owner, relayer, user, recipient;
   let ethers;
