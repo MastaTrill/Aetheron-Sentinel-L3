@@ -1,7 +1,7 @@
 Canonical SENTINEL token verification
 =====================================
-capturedAtUtc:     2026-07-26T14:25:02Z
-blockNumber:       49143277
+capturedAtUtc:     2026-07-26T14:35:44Z
+blockNumber:       49143598
 chainId:           8453
 address:           0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
 name:              "SENTINEL"
