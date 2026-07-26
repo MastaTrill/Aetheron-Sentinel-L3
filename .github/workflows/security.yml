@@ -21,7 +21,16 @@ jobs:
           cache: npm
       - run: npm ci --legacy-peer-deps
       - run: npm run security:release-scope
-      - run: npm run security:audit
+      - name: Run production dependency audit
+        run: npm audit --omit=dev --omit=optional --audit-level=high --json > npm-audit-production.json
+      - name: Upload production dependency audit
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: npm-audit-production
+          path: npm-audit-production.json
+          if-no-files-found: error
+          retention-days: 7
       - run: npm run security:audit:toolchain
 
   slither:
