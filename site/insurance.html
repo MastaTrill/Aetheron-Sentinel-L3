@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel L3 — Insurance Protocol</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body { background: var(--bg-primary); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 60px; }
+      .ins-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+      .ins-title h1 { margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .ins-title p { margin: 6px 0 28px; color: var(--text-secondary); font-size: 0.95rem; }
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+      .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 18px; }
+      .stat-val { font-size: 1.7rem; font-family: monospace; font-weight: bold; color: var(--quantum-cyan); }
+      .stat-lbl { font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; margin-top: 4px; }
+      .ins-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 24px; }
+      .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px; }
+      .plan-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+      .plan-card:hover { border-color: var(--quantum-cyan); transform: translateY(-2px); }
+      .plan-card.selected { border-color: var(--quantum-cyan); background: rgba(0,255,255,0.05); }
+      .form-input { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo"><img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" /><span class="logo-text">SENTINEL L3</span></div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="vaults.html" class="nav-link">Vaults</a>
+          <a href="staking.html" class="nav-link">Staking</a>
+          <a href="governance.html" class="nav-link">Governance</a>
+          <a href="analytics.html" class="nav-link">Analytics</a>
+          <a href="threat-feed.html" class="nav-link">Threat Feed</a>
+          <a href="roadmap.html" class="nav-link">Roadmap</a>
+          <a href="insurance.html" class="nav-link active">🛡️ Insurance</a>
+          <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
+          <a href="bug-bounty.html" class="nav-link">Bug Bounty</a>
+        </div>
+        <div class="nav-actions"><a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Wallet</a></div>
+      </div>
+    </nav>
+
+    <div class="ins-container">
+      <div class="ins-title">
+        <h1>🛡️ DeFi Insurance Protocol</h1>
+        <p>On-chain insurance coverage for smart contract exploits, flash loan attacks, and protocol failures. Powered by Sentinel L3 autonomous risk assessment.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-green)">$12,400,000</div><div class="stat-lbl">Total Coverage Pool</div></div>
+        <div class="stat-card"><div class="stat-val">$3,240,000</div><div class="stat-lbl">Claims Paid (All Time)</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-pink)">284</div><div class="stat-lbl">Active Policies</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-cyan)">99.2%</div><div class="stat-lbl">Claims Approval Rate</div></div>
+      </div>
+
+      <!-- Coverage Plans -->
+      <div class="ins-card">
+        <h2 style="margin:0 0 8px;font-size:1.2rem;color:#fff">📋 Coverage Plans</h2>
+        <p style="margin:0 0 12px;color:var(--text-secondary);font-size:0.85rem">Select a coverage tier to protect your DeFi positions against smart contract exploits.</p>
+        <div class="plan-grid">
+          <div class="plan-card" onclick="selectPlan(this,'Basic','0.5%','$50,000',30)">
+            <div style="font-size:1.4rem">🔵</div>
+            <div style="font-weight:700;color:#fff;margin:8px 0 4px">Basic Shield</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Premium: <strong style="color:var(--quantum-cyan)">0.5% / month</strong></div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Max Coverage: <strong style="color:#fff">$50,000</strong></div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Duration: 30 days</div>
+            <div style="margin-top:10px;font-size:0.78rem;color:var(--text-secondary)">✅ Flash loan attacks<br>✅ Reentrancy exploits</div>
+          </div>
+          <div class="plan-card" onclick="selectPlan(this,'Pro','1.2%','$500,000',90)">
+            <div style="font-size:1.4rem">🟣</div>
+            <div style="font-weight:700;color:#fff;margin:8px 0 4px">Pro Guardian</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Premium: <strong style="color:var(--quantum-cyan)">1.2% / month</strong></div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Max Coverage: <strong style="color:#fff">$500,000</strong></div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Duration: 90 days</div>
+            <div style="margin-top:10px;font-size:0.78rem;color:var(--text-secondary)">✅ All Basic coverage<br>✅ Oracle manipulation<br>✅ Governance exploits</div>
+          </div>
+          <div class="plan-card" onclick="selectPlan(this,'Enterprise','2.5%','$5,000,000',365)">
+            <div style="font-size:1.4rem">🟡</div>
+            <div style="font-weight:700;color:#ffd700;margin:8px 0 4px">Enterprise Fortress</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Premium: <strong style="color:var(--quantum-cyan)">2.5% / month</strong></div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Max Coverage: <strong style="color:#fff">$5,000,000</strong></div>
+            <div style="font-size:0.78rem;color:var(--text-secondary)">Duration: 365 days</div>
+            <div style="margin-top:10px;font-size:0.78rem;color:var(--text-secondary)">✅ All Pro coverage<br>✅ Cross-chain bridge failures<br>✅ Protocol insolvency</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Purchase Form -->
+      <div class="ins-card">
+        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">⚡ Purchase Coverage</h2>
+        <p id="selectedPlanLabel" style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 12px">Select a plan above to continue.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+          <div>
+            <label for="coverageAmount" style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Coverage Amount (USD)</label>
+            <input type="number" id="coverageAmount" class="form-input" placeholder="e.g. 100000" title="Coverage Amount" aria-label="Coverage Amount" min="0" oninput="calcPremium()" />
+          </div>
+          <div>
+            <label for="walletAddr" style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Wallet Address to Protect</label>
+            <input type="text" id="walletAddr" class="form-input" placeholder="0x..." title="Wallet Address" aria-label="Wallet Address" />
+          </div>
+        </div>
+        <div id="premiumEstimate" style="font-size:0.85rem;color:var(--quantum-cyan);font-family:monospace;margin-bottom:14px;display:none"></div>
+        <button class="btn-primary" style="width:100%" onclick="purchaseCoverage()">🛡️ Activate Coverage Policy</button>
+        <div id="insMsg" style="margin-top:12px;font-size:0.85rem;display:none"></div>
+      </div>
+    </div>
+
+    <script>
+      let activePlan = null;
+      function selectPlan(el, name, rate, maxCov, days) {
+        document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        activePlan = { name, rate: parseFloat(rate), maxCov, days };
+        document.getElementById('selectedPlanLabel').textContent = `Selected: ${name} — ${rate} monthly premium | Max: ${maxCov} | ${days} days`;
+        calcPremium();
+      }
+      function calcPremium() {
+        if (!activePlan) return;
+        const amount = parseFloat(document.getElementById('coverageAmount').value) || 0;
+        if (!amount) return;
+        const monthly = (amount * activePlan.rate / 100).toFixed(2);
+        const el = document.getElementById('premiumEstimate');
+        el.style.display = 'block';
+        el.textContent = `💰 Estimated premium: $${parseFloat(monthly).toLocaleString()} AETH/month for $${parseFloat(amount).toLocaleString()} coverage`;
+      }
+      function purchaseCoverage() {
+        if (!activePlan) { alert('Please select a coverage plan first.'); return; }
+        const amount = document.getElementById('coverageAmount').value;
+        if (!amount || amount <= 0) return;
+        const msg = document.getElementById('insMsg');
+        msg.style.display = 'block'; msg.style.color = 'var(--quantum-green)';
+        msg.textContent = `✅ ${activePlan.name} policy activated! $${parseFloat(amount).toLocaleString()} coverage is now live on Base Mainnet for ${activePlan.days} days.`;
+        document.getElementById('coverageAmount').value = '';
+        document.getElementById('premiumEstimate').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

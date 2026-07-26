@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel L3 — Leaderboard</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body { background: var(--bg-primary); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 60px; }
+      .lb-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+      .lb-title h1 { margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .lb-title p { margin: 6px 0 28px; color: var(--text-secondary); font-size: 0.95rem; }
+      .lb-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+      .lb-row { display: grid; grid-template-columns: 40px 1fr 120px 120px 100px; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 10px; font-size: 0.88rem; margin-bottom: 6px; transition: background 0.2s; }
+      .lb-row:hover { background: rgba(255,255,255,0.03); }
+      .lb-row.header { background: var(--bg-primary); font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; }
+      .lb-row.gold { border: 1px solid rgba(255,215,0,0.3); background: rgba(255,215,0,0.04); }
+      .lb-row.silver { border: 1px solid rgba(200,200,200,0.2); background: rgba(200,200,200,0.03); }
+      .lb-row.bronze { border: 1px solid rgba(205,127,50,0.2); background: rgba(205,127,50,0.03); }
+      .rank-badge { font-size: 1.2rem; text-align: center; }
+      .badge-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo"><img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" /><span class="logo-text">SENTINEL L3</span></div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="vaults.html" class="nav-link">Vaults</a>
+          <a href="staking.html" class="nav-link">Staking</a>
+          <a href="governance.html" class="nav-link">Governance</a>
+          <a href="bug-bounty.html" class="nav-link">Bug Bounty</a>
+          <a href="analytics.html" class="nav-link">Analytics</a>
+          <a href="roadmap.html" class="nav-link">Roadmap</a>
+          <a href="leaderboard.html" class="nav-link active">🏆 Leaderboard</a>
+          <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
+        </div>
+        <div class="nav-actions"><a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch App</a></div>
+      </div>
+    </nav>
+
+    <div class="lb-container">
+      <div class="lb-title">
+        <h1>🏆 Security Contributor Leaderboard</h1>
+        <p>Top community members ranked by security contributions, staking power, bug reports, and governance participation.</p>
+      </div>
+
+      <div class="lb-card">
+        <div class="lb-row header">
+          <div>Rank</div><div>Contributor</div><div>SENTINEL Staked</div><div>Bugs Reported</div><div>Score</div>
+        </div>
+        <div id="leaderboard"></div>
+      </div>
+    </div>
+
+    <script>
+      const data = [
+        { rank: 1, name: 'SentinelGuardian.eth', staked: '12,400,000', bugs: 3, score: 9842, badge: '🥇 GOLD' },
+        { rank: 2, name: 'AEthDefender.base', staked: '8,900,000', bugs: 2, score: 8621, badge: '🥈 SILVER' },
+        { rank: 3, name: 'QuantumShield_01', staked: '6,250,000', bugs: 5, score: 7935, badge: '🥉 BRONZE' },
+        { rank: 4, name: 'FlashLoanHunter', staked: '4,100,000', bugs: 4, score: 6744, badge: '🔵 BLUE' },
+        { rank: 5, name: 'SentinelWatcher.eth', staked: '3,800,000', bugs: 1, score: 5832, badge: '🔵 BLUE' },
+        { rank: 6, name: 'OracleDefender_X', staked: '2,950,000', bugs: 2, score: 4921, badge: '⚪ SILVER' },
+        { rank: 7, name: 'BaseMeshProtect', staked: '2,300,000', bugs: 0, score: 3811, badge: '⚪ SILVER' },
+        { rank: 8, name: 'ReentrantHunter', staked: '1,870,000', bugs: 3, score: 3145, badge: '🟠 BRONZE' },
+        { rank: 9, name: 'ZKProofValidator', staked: '1,450,000', bugs: 1, score: 2634, badge: '🟠 BRONZE' },
+        { rank: 10, name: 'ChainlinkKeeper99', staked: '980,000', bugs: 0, score: 1922, badge: '⬜ BASIC' },
+      ];
+
+      const classMap = { 1: 'gold', 2: 'silver', 3: 'bronze' };
+      const lb = document.getElementById('leaderboard');
+      lb.innerHTML = data.map(d => `
+        <div class="lb-row ${classMap[d.rank] || ''}">
+          <div class="rank-badge">${d.rank === 1 ? '🥇' : d.rank === 2 ? '🥈' : d.rank === 3 ? '🥉' : `#${d.rank}`}</div>
+          <div>
+            <div style="color:#fff;font-weight:600">${d.name}</div>
+            <span class="badge-pill" style="background:rgba(0,255,255,0.1);color:var(--quantum-cyan);border:1px solid var(--quantum-cyan)">${d.badge}</span>
+          </div>
+          <div style="font-family:monospace;color:var(--quantum-green)">${d.staked}</div>
+          <div style="text-align:center;color:var(--quantum-pink);font-weight:600">${d.bugs} bugs</div>
+          <div style="font-family:monospace;font-weight:700;color:#fff">${d.score.toLocaleString()}</div>
+        </div>`).join('');
+    </script>
+  </body>
+</html>
