@@ -62,15 +62,15 @@ EOF
 echo
 echo "runtimeBytecodeHashes:"
 for LABEL_ADDRESS in \
-  "token:$TOKEN" \
-  "airlock:$AIRLOCK" \
-  "initializer:$INITIALIZER" \
-  "hook:$HOOK" \
-  "poolManager:$POOL_MANAGER"; do
+  "tokenRuntimeBytecodeHash:$TOKEN" \
+  "airlockRuntimeBytecodeHash:$AIRLOCK" \
+  "initializerRuntimeBytecodeHash:$INITIALIZER" \
+  "hookRuntimeBytecodeHash:$HOOK" \
+  "poolManagerRuntimeBytecodeHash:$POOL_MANAGER"; do
   LABEL="${LABEL_ADDRESS%%:*}"
   ADDRESS="${LABEL_ADDRESS#*:}"
   HASH="$(cast code "$ADDRESS" --rpc-url "$RPC_URL" --block "$SNAPSHOT_BLOCK" | cast keccak)"
-  printf '%-14s %s\n' "$LABEL:" "$HASH"
+  printf '%-34s %s\n' "$LABEL:" "$HASH"
 done
 
 echo
