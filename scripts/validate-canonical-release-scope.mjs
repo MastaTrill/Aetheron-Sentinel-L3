@@ -11,6 +11,9 @@ const allowedExtensions = new Set(['.yml', '.yaml', '.json', '.js', '.cjs', '.mj
 const allowDeprecatedReferences = new Set([
   'sentinel-l3-v1.0/README_DEPRECATED.md',
   'PROJECT_STATUS.md',
+  '.github/workflows/canonical-release-scope.yml',
+  'scripts/validate-canonical-release-scope.mjs',
+  'docs/OPERATIONAL_ACTIONS_REQUIRED.md',
 ]);
 
 function walk(dir) {
