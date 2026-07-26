@@ -1,0 +1,35 @@
+{
+  "chainId": 8453,
+  "network": "Base Mainnet",
+  "purpose": "Transfer canonical SENTINEL token ownership",
+  "status": "UNSIGNED_REQUIRES_OWNER_SIGNATURE",
+  "token": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+  "intendedNewOwner": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+  "verification": {
+    "addressSyntax": "valid",
+    "deployedContractOrSafe": "not independently confirmed",
+    "requiredBeforeSigning": [
+      "Confirm this is the intended treasury/governance address",
+      "Confirm the address is deployed on Base if it is meant to be a Safe",
+      "Verify Safe owners and threshold using the official Safe interface",
+      "Simulate the transaction before execution"
+    ]
+  },
+  "transaction": {
+    "to": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+    "value": "0",
+    "operation": 0,
+    "method": "transferOwnership(address)",
+    "arguments": [
+      "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2"
+    ],
+    "data": "0xf2fde38b00000000000000000000000015b9f8ecedafd69eb1dd93e51fe522690bf6b7c2"
+  },
+  "postExecutionChecks": [
+    "Read owner() from the token and confirm it equals the intended new owner",
+    "Record the transaction hash in deployments/base-mainnet.json",
+    "Confirm the former owner can no longer call onlyOwner functions",
+    "Do not renounce ownership until governance and incident response are finalized"
+  ],
+  "security": "Never commit or share private keys, seed phrases, or signer secrets."
+}

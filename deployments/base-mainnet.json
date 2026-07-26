@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "network": {
+    "name": "Base Mainnet",
+    "chainId": 8453,
+    "explorer": "https://basescan.org"
+  },
+  "tokens": {
+    "sentinel": {
+      "canonical": true,
+      "address": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+      "name": "SENTINEL",
+      "symbol": "SENTINEL",
+      "decimals": 18,
+      "displayedMaxSupply": "100000000000000000000000000000",
+      "implementationName": "DERC20",
+      "proxy": false,
+      "sourceVerified": true,
+      "compiler": "v0.8.26+commit.8a97fa7a",
+      "explorerUrl": "https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+      "deploymentTx": null,
+      "deployer": null,
+      "owner": null,
+      "pool": null,
+      "poolUnlocked": null,
+      "yearlyMintRateWad": null,
+      "vestingStart": null,
+      "vestingDuration": null,
+      "tokenURI": null,
+      "status": "canonical-pending-governance-hardening",
+      "notes": [
+        "Runtime values marked null must be populated by scripts/verify-canonical-token.sh before production launch.",
+        "The repository contract contracts/SentinelToken.sol is not the source used for this deployed address and must not be represented as such.",
+        "Do not announce public trading, liquidity lock, ownership renunciation, or multisig control until each fact is verified on-chain."
+      ]
+    }
+  }
+}
