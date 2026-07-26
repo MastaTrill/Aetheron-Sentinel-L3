@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel L3 — Cross-Chain Security Telemetry</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
+      .tel-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .tel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .tel-title h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .tel-title p {
+        margin: 6px 0 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+      .chain-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .chain-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .chain-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: var(--quantum-cyan);
+      }
+      .chain-card.base::before { background: #0052ff; }
+      .chain-card.arbitrum::before { background: #28a0f0; }
+      .chain-card.polygon::before { background: #8247e5; }
+      .chain-card.optimism::before { background: #ff0420; }
+
+      .chain-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .chain-name {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #fff;
+      }
+      .chain-status {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-weight: bold;
+        background: rgba(0,255,136,0.15);
+        color: var(--quantum-green);
+        border: 1px solid var(--quantum-green);
+      }
+      .metric-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        margin-top: 8px;
+        color: var(--text-secondary);
+      }
+      .metric-val {
+        font-family: monospace;
+        color: #fff;
+        font-weight: bold;
+      }
+      .stream-panel {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+      }
+      .log-feed {
+        background: var(--bg-primary);
+        border-radius: 10px;
+        padding: 16px;
+        font-family: monospace;
+        font-size: 0.82rem;
+        height: 240px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+      }
+      .log-entry {
+        margin-bottom: 8px;
+        display: flex;
+        gap: 12px;
+      }
+      .log-time { color: var(--text-secondary); }
+      .log-chain { color: var(--quantum-cyan); font-weight: bold; }
+      .log-msg { color: #fff; }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
+          <span class="logo-text">SENTINEL L3</span>
+        </div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="index.html#technology" class="nav-link">Tech</a>
+          <a href="mobile-app.html" class="nav-link">Mobile Guard</a>
+          <a href="governance.html" class="nav-link">Governance</a>
+          <a href="enterprise.html" class="nav-link">Enterprise</a>
+          <a href="referral.html" class="nav-link">Referrals</a>
+          <a href="telemetry.html" class="nav-link active">Telemetry</a>
+          <a href="quantum.html" class="nav-link">Quantum</a>
+          <a href="index.html#documentation" class="nav-link">Docs</a>
+        </div>
+        <div class="nav-actions">
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Oracle</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="tel-container">
+      <div class="tel-header">
+        <div class="tel-title">
+          <h1>Cross-Chain Security Telemetry</h1>
+          <p>Real-time oracle telemetry, inter-chain state verification, and health monitoring.</p>
+        </div>
+        <button class="btn-primary" onclick="refreshTelemetry()">🔄 Refresh Feeds</button>
+      </div>
+
+      <!-- Chain Cards Grid -->
+      <div class="chain-grid">
+        <div class="chain-card base">
+          <div class="chain-header">
+            <span class="chain-name">🔵 Base Mainnet</span>
+            <span class="chain-status">HEALTHY</span>
+          </div>
+          <div class="metric-row"><span>Block Height</span><span class="metric-val">#44,548,192</span></div>
+          <div class="metric-row"><span>Health Score</span><span class="metric-val" style="color:var(--quantum-green)">99.8%</span></div>
+          <div class="metric-row"><span>Response Latency</span><span class="metric-val">38 ms</span></div>
+        </div>
+
+        <div class="chain-card arbitrum">
+          <div class="chain-header">
+            <span class="chain-name">🔷 Arbitrum One</span>
+            <span class="chain-status">HEALTHY</span>
+          </div>
+          <div class="metric-row"><span>Block Height</span><span class="metric-val">#210,942,011</span></div>
+          <div class="metric-row"><span>Health Score</span><span class="metric-val" style="color:var(--quantum-green)">99.5%</span></div>
+          <div class="metric-row"><span>Response Latency</span><span class="metric-val">45 ms</span></div>
+        </div>
+
+        <div class="chain-card polygon">
+          <div class="chain-header">
+            <span class="chain-name">💜 Polygon POS</span>
+            <span class="chain-status">HEALTHY</span>
+          </div>
+          <div class="metric-row"><span>Block Height</span><span class="metric-val">#58,419,002</span></div>
+          <div class="metric-row"><span>Health Score</span><span class="metric-val" style="color:var(--quantum-green)">99.2%</span></div>
+          <div class="metric-row"><span>Response Latency</span><span class="metric-val">52 ms</span></div>
+        </div>
+
+        <div class="chain-card optimism">
+          <div class="chain-header">
+            <span class="chain-name">🔴 Optimism Mainnet</span>
+            <span class="chain-status">HEALTHY</span>
+          </div>
+          <div class="metric-row"><span>Block Height</span><span class="metric-val">#122,810,443</span></div>
+          <div class="metric-row"><span>Health Score</span><span class="metric-val" style="color:var(--quantum-green)">99.6%</span></div>
+          <div class="metric-row"><span>Response Latency</span><span class="metric-val">41 ms</span></div>
+        </div>
+      </div>
+
+      <!-- Live Stream Feed -->
+      <div class="stream-panel">
+        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">📡 Real-Time Telemetry Event Stream</h2>
+        <div class="log-feed" id="logFeed">
+          <div class="log-entry">
+            <span class="log-time">[04:22:01]</span>
+            <span class="log-chain">BASE:</span>
+            <span class="log-msg">Oracle heartbeat verified. State root match: 0x7a89f...01</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">[04:21:58]</span>
+            <span class="log-chain">ARBITRUM:</span>
+            <span class="log-msg">Liquidity vault TWAP baseline verified healthy (+0.01% divergence).</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">[04:21:55]</span>
+            <span class="log-chain">POLYGON:</span>
+            <span class="log-msg">Circuit breaker test pulse passed in 48 ms.</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">[04:21:50]</span>
+            <span class="log-chain">OPTIMISM:</span>
+            <span class="log-msg">Cross-chain message proof validated via SentinelZKOracle.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function refreshTelemetry() {
+        const feed = document.getElementById('logFeed');
+        const now = new Date().toTimeString().split(' ')[0];
+        const newLog = document.createElement('div');
+        newLog.className = 'log-entry';
+        newLog.innerHTML = `<span class="log-time">[${now}]</span><span class="log-chain">BASE:</span><span class="log-msg">Manual telemetry sync requested. All 5 cross-chain nodes reported healthy state.</span>`;
+        feed.insertBefore(newLog, feed.firstChild);
+      }
+    </script>
+  </body>
+</html>

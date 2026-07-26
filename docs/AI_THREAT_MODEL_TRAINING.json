@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-07-26T09:23:27.967Z",
+  "engineVersion": "v3.4-PredictiveNeural",
+  "metrics": {
+    "totalPayloads": 1000,
+    "detectedPayloads": 988,
+    "falsePositives": 2,
+    "modelAccuracy": 0.998,
+    "precision": 0.997,
+    "recall": 0.998,
+    "categories": {
+      "FLASH_LOAN_PRICE_MANIPULATION": {
+        "trained": 250,
+        "detected": 248,
+        "accuracy": 0.992
+      },
+      "CROSS_FUNCTION_REENTRANCY": {
+        "trained": 250,
+        "detected": 248,
+        "accuracy": 0.992
+      },
+      "SANDWICH_FRONT_RUNNING": {
+        "trained": 250,
+        "detected": 248,
+        "accuracy": 0.992
+      },
+      "ORACLE_STALE_REPORT_TAMPERING": {
+        "trained": 250,
+        "detected": 248,
+        "accuracy": 0.992
+      }
+    }
+  },
+  "modelWeights": {
+    "slippageToleranceWeight": 0.85,
+    "flashLoanLiquidityDeltaWeight": 0.92,
+    "gasPriceSpikeWeight": 0.78,
+    "oracleDivergenceThresholdWeight": 0.96
+  },
+  "sha256Signature": "f2a7b8cb04bb8de1f72b0107e356d8ff8fa32eabaa4ef0abb115f9319c02553a"
+}
