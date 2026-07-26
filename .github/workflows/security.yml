@@ -36,10 +36,6 @@ jobs:
   slither:
     needs: release-policy
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        contract: [SentinelInterceptor, CircuitBreaker, RateLimiter]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -50,16 +46,44 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - run: pip install slither-analyzer
-      - run: forge build
-      - name: Fail on high-severity findings in the production scope
+          cache: pip
+      - name: Install Slither once
+        run: pip install slither-analyzer
+      - name: Build release contracts once
+        run: forge build
+      - name: Scan SentinelInterceptor
         run: >-
-          slither contracts/${{ matrix.contract }}.sol
+          slither contracts/SentinelInterceptor.sol
           --config-file slither.config.json
           --fail-high
-          --sarif results-${{ matrix.contract }}.sarif
-      - uses: github/codeql-action/upload-sarif@v4
+          --sarif results-SentinelInterceptor.sarif
+      - name: Scan CircuitBreaker
+        run: >-
+          slither contracts/CircuitBreaker.sol
+          --config-file slither.config.json
+          --fail-high
+          --sarif results-CircuitBreaker.sarif
+      - name: Scan RateLimiter
+        run: >-
+          slither contracts/RateLimiter.sol
+          --config-file slither.config.json
+          --fail-high
+          --sarif results-RateLimiter.sarif
+      - name: Upload SentinelInterceptor SARIF
         if: always()
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: results-${{ matrix.contract }}.sarif
-          category: slither-${{ matrix.contract }}
+          sarif_file: results-SentinelInterceptor.sarif
+          category: slither-SentinelInterceptor
+      - name: Upload CircuitBreaker SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results-CircuitBreaker.sarif
+          category: slither-CircuitBreaker
+      - name: Upload RateLimiter SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results-RateLimiter.sarif
+          category: slither-RateLimiter
