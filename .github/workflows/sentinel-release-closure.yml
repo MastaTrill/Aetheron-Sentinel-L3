@@ -1,0 +1,34 @@
+name: Sentinel Release Closure
+
+on:
+  pull_request:
+    paths:
+      - 'docs/SENTINEL_*.md'
+      - 'scripts/*sentinel*.mjs'
+      - 'scripts/verify-sentinel-authority-reachability.sh'
+      - 'release-evidence/sentinel-mainnet/release-closure.json'
+      - 'release-evidence/sentinel-mainnet/attestations/manifest.json'
+      - '.github/workflows/sentinel-release-closure.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-release-closure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Syntax-check release scripts
+        run: |
+          node --check scripts/decode-sentinel-v4-swaps.mjs
+          node --check scripts/verify-sentinel-smoke-test.mjs
+          node --check scripts/verify-beneficiary-attestations.mjs
+          node --check scripts/validate-sentinel-release-closure.mjs
+          bash -n scripts/verify-sentinel-authority-reachability.sh
+      - name: Validate readiness manifest
+        run: node scripts/validate-sentinel-release-closure.mjs --mode=readiness
