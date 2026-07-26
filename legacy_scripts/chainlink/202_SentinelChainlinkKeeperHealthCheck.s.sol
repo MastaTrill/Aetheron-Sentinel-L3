@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+// HISTORICAL ONLY.
+// This script depends on the deprecated sentinel-l3-v1.0 tree and must not be
+// used by active release workflows.
+
 import 'forge-std/Script.sol';
 import { SentinelChainlinkKeeper } from '../../sentinel-l3-v1.0/contracts/SentinelChainlinkKeeper.sol';
 

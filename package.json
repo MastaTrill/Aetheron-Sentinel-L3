@@ -141,7 +141,7 @@
     "eth-gas-reporter": "^0.2.27",
     "debug": "^4.3.7",
     "diff": "^5.2.1",
-    "postcss": "^8.5.10",
+    "postcss": "8.5.18",
     "serialize-javascript": "^7.0.5",
     "uuid": "^14.0.0",
     "hardhat-gas-reporter": "^2.3.0",

@@ -21,10 +21,20 @@ jobs:
         with:
           node-version: 22
       - name: Validate release scope and deprecated tree isolation
-        run: node scripts/validate-release-scope.mjs
+        run: node scripts/validate-release-scope.cjs
       - name: Validate deployment gate in readiness mode
         env:
           DEPLOYMENT_MODE: readiness
         run: node scripts/check-base-deployment-readiness.mjs
       - name: Scan tracked files for potential secrets
+        env:
+          SECRET_SCAN_REPORT_PATH: tracked-secret-scan.txt
         run: node scripts/scan-tracked-secrets.mjs
+      - name: Upload redacted tracked-secret scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracked-secret-scan-report
+          path: tracked-secret-scan.txt
+          if-no-files-found: error
+          retention-days: 14
