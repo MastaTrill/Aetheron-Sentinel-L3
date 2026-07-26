@@ -51,5 +51,8 @@ jobs:
       - name: Train AI Threat Model Simulation
         run: node scripts/train-threat-model.cjs
 
+      - name: Install Dashboard Dependencies
+        run: npm --prefix dashboard ci --legacy-peer-deps
+
       - name: Build Dashboard Frontend
         run: npm --prefix dashboard run build
