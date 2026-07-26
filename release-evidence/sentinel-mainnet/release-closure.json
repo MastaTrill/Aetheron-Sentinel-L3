@@ -8,7 +8,13 @@
     "release-evidence/sentinel-mainnet/second-rpc/v4-state.txt",
     "release-evidence/sentinel-mainnet/beneficiary-audit/accounting-state.txt",
     "release-evidence/sentinel-mainnet/beneficiary-audit/control-classification.txt",
-    "release-evidence/sentinel-mainnet/beneficiary-audit/controller-inventory.txt"
+    "release-evidence/sentinel-mainnet/beneficiary-audit/controller-inventory.txt",
+    "release-evidence/sentinel-mainnet/authority-reachability.txt",
+    "release-evidence/sentinel-mainnet/authority-reachability.SHA256",
+    "release-evidence/sentinel-mainnet/swaps-decoded/transactions.csv",
+    "release-evidence/sentinel-mainnet/swaps-decoded/routing-summary.md",
+    "release-evidence/sentinel-mainnet/swaps-decoded/PROVENANCE.json",
+    "release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS"
   ],
   "gates": {
     "correctedReleaseModel": {
@@ -29,15 +35,24 @@
     },
     "authorityReachability": {
       "status": "complete",
-      "evidence": ["docs/SENTINEL_AUTHORITY_REACHABILITY.md"]
+      "evidence": [
+        "docs/SENTINEL_AUTHORITY_REACHABILITY.md",
+        "release-evidence/sentinel-mainnet/authority-reachability.txt",
+        "release-evidence/sentinel-mainnet/authority-reachability.SHA256"
+      ]
     },
     "architectureDecision": {
       "status": "complete",
       "evidence": ["docs/SENTINEL_ARCHITECTURE_DECISION.md"]
     },
     "decodedSwapRoutingEvidence": {
-      "status": "pending",
-      "evidence": ["release-evidence/sentinel-mainnet/swaps-decoded/swaps.json", "release-evidence/sentinel-mainnet/swaps-decoded/routing-summary.md"]
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/swaps-decoded/transactions.csv",
+        "release-evidence/sentinel-mainnet/swaps-decoded/routing-summary.md",
+        "release-evidence/sentinel-mainnet/swaps-decoded/PROVENANCE.json",
+        "release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS"
+      ]
     },
     "beneficiaryControlAttestations": {
       "status": "pending",
