@@ -212,14 +212,14 @@
           <div class="ent-panel">
             <h2 class="panel-title">🔔 Webhook &amp; PagerDuty Alert Router</h2>
             <div class="webhook-form">
-              <label style="font-size:0.8rem;color:var(--text-secondary)">Discord Webhook URL</label>
-              <input type="text" class="webhook-input" value="https://discord.com/api/webhooks/sentinel-alerts-prod" />
+              <label for="discordWebhook" style="font-size:0.8rem;color:var(--text-secondary)">Discord Webhook URL</label>
+              <input type="text" id="discordWebhook" name="discordWebhook" class="webhook-input" title="Discord Webhook URL" placeholder="https://discord.com/api/webhooks/..." value="https://discord.com/api/webhooks/sentinel-alerts-prod" />
               
-              <label style="font-size:0.8rem;color:var(--text-secondary)">Slack Webhook URL</label>
-              <input type="text" class="webhook-input" value="https://hooks.slack.com/services/sentinel/security-team" />
+              <label for="slackWebhook" style="font-size:0.8rem;color:var(--text-secondary)">Slack Webhook URL</label>
+              <input type="text" id="slackWebhook" name="slackWebhook" class="webhook-input" title="Slack Webhook URL" placeholder="https://hooks.slack.com/services/..." value="https://hooks.slack.com/services/sentinel/security-team" />
               
-              <label style="font-size:0.8rem;color:var(--text-secondary)">PagerDuty Integration Key</label>
-              <input type="text" class="webhook-input" value="pd-sec-key-9940218841-prod" />
+              <label for="pagerdutyKey" style="font-size:0.8rem;color:var(--text-secondary)">PagerDuty Integration Key</label>
+              <input type="text" id="pagerdutyKey" name="pagerdutyKey" class="webhook-input" title="PagerDuty Integration Key" placeholder="pd-sec-key-..." value="pd-sec-key-9940218841-prod" />
 
               <button class="btn-primary" style="margin-top:10px" onclick="saveWebhooks()">💾 Save Alert Configuration</button>
             </div>

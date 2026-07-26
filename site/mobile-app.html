@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sentinel Mobile Security Guardian</title>
     <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/sentinel-logo.svg" />
     <meta name="theme-color" content="#00ffff" />
     <link rel="stylesheet" href="styles.css" />
     <style>
@@ -19,6 +20,7 @@
         position: sticky;
         top: 0;
         background: rgba(10, 10, 10, 0.95);
+        -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
         padding: 16px 20px;
         border-bottom: 1px solid #1a1a1a;
@@ -141,6 +143,7 @@
         left: 0;
         right: 0;
         background: rgba(10,10,10,0.95);
+        -webkit-backdrop-filter: blur(12px);
         backdrop-filter: blur(12px);
         border-top: 1px solid var(--border-color);
         display: flex;
