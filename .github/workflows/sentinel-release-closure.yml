@@ -44,6 +44,7 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Simulate authority paths without broadcasting
         run: |
+          set -o pipefail
           mkdir -p release-evidence/sentinel-mainnet
           bash scripts/verify-sentinel-authority-reachability.sh \
             | tee release-evidence/sentinel-mainnet/authority-reachability.txt
