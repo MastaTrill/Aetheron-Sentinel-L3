@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "workflowRunId": 30221508418,
+  "workflowHeadSha": "6f9adc1130a828c479b85ff99b5cdb3ae2968e68",
+  "artifactName": "sentinel-decoded-swap-routing",
+  "artifactDigest": "sha256:58bd9f43f6b4cf661ece9ceebfa426d044f3b72787d950f640de4fd19144be69",
+  "fullArtifactSwapsJsonSha256": "16b4d4cccc9f2ed6e154fad7df8b4f6e1f4ba91f6ccc095441fd47743e2fe91a",
+  "committedEvidenceFormat": "CSV projection of all 54 decoded rows plus routing summary",
+  "swapLogCount": 54,
+  "buyCount": 2,
+  "sellCount": 52,
+  "fromBlock": 42506026,
+  "toBlock": 49143598
+}
