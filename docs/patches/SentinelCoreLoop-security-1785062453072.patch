@@ -1,0 +1,6 @@
+--- a/contracts/SentinelCoreLoop.sol
++++ b/contracts/SentinelCoreLoop.sol
+@@ Sentinel L3 Auto-Patch: 1 security issue(s) detected @@
+
+# [MEDIUM] Missing Zero Address Validation
+# Fix: Add `require(addr != address(0), "Zero address")` guard.

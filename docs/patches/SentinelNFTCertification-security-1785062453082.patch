@@ -1,0 +1,6 @@
+--- a/contracts/SentinelNFTCertification.sol
++++ b/contracts/SentinelNFTCertification.sol
+@@ Sentinel L3 Auto-Patch: 1 security issue(s) detected @@
+
+# [HIGH] Unchecked ERC20 Transfer Return Value
+# Fix: Use OpenZeppelin SafeERC20 `safeTransfer` instead of raw `transfer`.
