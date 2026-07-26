@@ -11,14 +11,16 @@ const requestedToBlock = process.env.SENTINEL_SWAP_TO_BLOCK;
 const INITIAL_CHUNK = Number(process.env.SENTINEL_LOG_CHUNK ?? '9000');
 const MIN_CHUNK = Number(process.env.SENTINEL_LOG_MIN_CHUNK ?? '500');
 const CONCURRENCY = Number(process.env.SENTINEL_LOG_CONCURRENCY ?? '4');
+const TRANSACTION_CONCURRENCY = Number(process.env.SENTINEL_TX_CONCURRENCY ?? '5');
 const OUTPUT_DIR = process.env.SENTINEL_SWAP_OUTPUT_DIR ?? 'release-evidence/sentinel-mainnet/swaps-decoded';
 
 if (!Number.isSafeInteger(FROM_BLOCK) || FROM_BLOCK < 0) throw new Error('Invalid SENTINEL_SWAP_FROM_BLOCK');
 if (!Number.isSafeInteger(INITIAL_CHUNK) || INITIAL_CHUNK < MIN_CHUNK) throw new Error('Invalid SENTINEL_LOG_CHUNK');
 if (!Number.isSafeInteger(MIN_CHUNK) || MIN_CHUNK < 1) throw new Error('Invalid SENTINEL_LOG_MIN_CHUNK');
 if (!Number.isSafeInteger(CONCURRENCY) || CONCURRENCY < 1 || CONCURRENCY > 12) throw new Error('Invalid SENTINEL_LOG_CONCURRENCY');
+if (!Number.isSafeInteger(TRANSACTION_CONCURRENCY) || TRANSACTION_CONCURRENCY < 1 || TRANSACTION_CONCURRENCY > 10) throw new Error('Invalid SENTINEL_TX_CONCURRENCY');
 
-const provider = new JsonRpcProvider(RPC_URL, 8453, { staticNetwork: true });
+const provider = new JsonRpcProvider(RPC_URL, 8453, { staticNetwork: true, batchMaxCount: 1 });
 const iface = new Interface([
   'event Swap(bytes32 indexed id,address indexed sender,int128 amount0,int128 amount1,uint160 sqrtPriceX96,uint128 liquidity,int24 tick,uint24 fee)',
 ]);
@@ -64,7 +66,7 @@ for (let cursor = FROM_BLOCK; cursor <= toBlock; cursor += INITIAL_CHUNK) {
 let nextRange = 0;
 let completedRanges = 0;
 const collectedLogs = [];
-async function worker() {
+async function rangeWorker() {
   while (true) {
     const index = nextRange;
     nextRange += 1;
@@ -79,14 +81,27 @@ async function worker() {
   }
 }
 
-await Promise.all(Array.from({ length: Math.min(CONCURRENCY, ranges.length) }, () => worker()));
+await Promise.all(Array.from({ length: Math.min(CONCURRENCY, ranges.length) }, () => rangeWorker()));
 const logMap = new Map();
 for (const log of collectedLogs) logMap.set(`${log.transactionHash}:${log.index}`, log);
 const logs = [...logMap.values()].sort((a, b) => a.blockNumber - b.blockNumber || a.index - b.index);
 
 const transactionHashes = [...new Set(logs.map((log) => log.transactionHash))];
-const transactions = await Promise.all(transactionHashes.map((hash) => provider.getTransaction(hash)));
-const transactionMap = new Map(transactionHashes.map((hash, index) => [hash, transactions[index]]));
+const transactionMap = new Map();
+let nextTransaction = 0;
+async function transactionWorker() {
+  while (true) {
+    const index = nextTransaction;
+    nextTransaction += 1;
+    if (index >= transactionHashes.length) return;
+    const hash = transactionHashes[index];
+    transactionMap.set(hash, await provider.getTransaction(hash));
+  }
+}
+await Promise.all(Array.from(
+  { length: Math.min(TRANSACTION_CONCURRENCY, transactionHashes.length) },
+  () => transactionWorker(),
+));
 
 const decoded = [];
 for (const log of logs) {
@@ -134,7 +149,8 @@ const summary = {
   fromBlock: FROM_BLOCK,
   toBlock,
   chunkSize: INITIAL_CHUNK,
-  concurrency: CONCURRENCY,
+  logConcurrency: CONCURRENCY,
+  transactionConcurrency: TRANSACTION_CONCURRENCY,
   swapLogCount: decoded.length,
   buyCount: buys,
   sellCount: sells,
