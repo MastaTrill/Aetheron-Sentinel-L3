@@ -23,10 +23,13 @@ CHAIN_ID="$(cast chain-id --rpc-url "$RPC_URL")"
   exit 1
 }
 
+SNAPSHOT_BLOCK="${SENTINEL_SNAPSHOT_BLOCK:-$(cast block-number --rpc-url "$RPC_URL")}"
+UTC_TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
 for ADDRESS in "$TOKEN" "$AIRLOCK" "$INITIALIZER" "$HOOK" "$POOL_MANAGER"; do
-  CODE="$(cast code "$ADDRESS" --rpc-url "$RPC_URL")"
+  CODE="$(cast code "$ADDRESS" --rpc-url "$RPC_URL" --block "$SNAPSHOT_BLOCK")"
   [[ "$CODE" != "0x" ]] || {
-    echo "ERROR: No bytecode at $ADDRESS" >&2
+    echo "ERROR: No bytecode at $ADDRESS at block $SNAPSHOT_BLOCK" >&2
     exit 1
   }
 done
@@ -42,40 +45,37 @@ POOL_KEY_ENCODED="$(
 )"
 POOL_ID="$(cast keccak "$POOL_KEY_ENCODED")"
 
-UTC_TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-BLOCK_NUMBER="$(cast block-number --rpc-url "$RPC_URL")"
-
 cat <<EOF
 Canonical SENTINEL controller and V4 verification
 ==================================================
-utcTimestamp:     $UTC_TIMESTAMP
-blockNumber:      $BLOCK_NUMBER
-chainId:          $CHAIN_ID
-token:            $TOKEN
-airlock:          $AIRLOCK
-initializer:      $INITIALIZER
-hook:             $HOOK
-poolManager:      $POOL_MANAGER
-poolId:           $POOL_ID
+capturedAtUtc:     $UTC_TIMESTAMP
+blockNumber:       $SNAPSHOT_BLOCK
+chainId:           $CHAIN_ID
+token:             $TOKEN
+airlock:           $AIRLOCK
+initializer:       $INITIALIZER
+hook:              $HOOK
+poolManager:       $POOL_MANAGER
+poolId:            $POOL_ID
 EOF
 
 echo
 echo "runtimeBytecodeHashes:"
 for LABEL_ADDRESS in \
-  "token:$TOKEN" \
-  "airlock:$AIRLOCK" \
-  "initializer:$INITIALIZER" \
-  "hook:$HOOK" \
-  "poolManager:$POOL_MANAGER"; do
+  "tokenRuntimeBytecodeHash:$TOKEN" \
+  "airlockRuntimeBytecodeHash:$AIRLOCK" \
+  "initializerRuntimeBytecodeHash:$INITIALIZER" \
+  "hookRuntimeBytecodeHash:$HOOK" \
+  "poolManagerRuntimeBytecodeHash:$POOL_MANAGER"; do
   LABEL="${LABEL_ADDRESS%%:*}"
   ADDRESS="${LABEL_ADDRESS#*:}"
-  HASH="$(cast code "$ADDRESS" --rpc-url "$RPC_URL" | cast keccak)"
-  printf '%-14s %s\n' "$LABEL:" "$HASH"
+  HASH="$(cast code "$ADDRESS" --rpc-url "$RPC_URL" --block "$SNAPSHOT_BLOCK" | cast keccak)"
+  printf '%-34s %s\n' "$LABEL:" "$HASH"
 done
 
 echo
 echo "airlockOwner:"
-cast call "$AIRLOCK" "owner()(address)" --rpc-url "$RPC_URL"
+cast call "$AIRLOCK" "owner()(address)" --rpc-url "$RPC_URL" --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "airlockAssetData:"
@@ -83,7 +83,8 @@ echo "order: numeraire, timelock, governance, migrator, initializer, pool, migra
 cast call "$AIRLOCK" \
   "getAssetData(address)(address,address,address,address,address,address,address,uint256,uint256,address)" \
   "$TOKEN" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "initializerState:"
@@ -91,28 +92,32 @@ echo "order: numeraire, rawStatus, poolKey, currentTick"
 cast call "$INITIALIZER" \
   "getState(address)(address,uint8,(address,address,uint24,int24,address),int24)" \
   "$TOKEN" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "beneficiaries:"
 cast call "$INITIALIZER" \
   "getBeneficiaries(address)((address,uint96)[])" \
   "$TOKEN" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "positions:"
 cast call "$INITIALIZER" \
   "getPositions(address)((int24,int24,uint128,bytes32)[])" \
   "$TOKEN" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "verifiedPoolKey:"
 cast call "$INITIALIZER" \
   "getPoolKey(bytes32)(address,address,uint24,int24,address)" \
   "$POOL_ID" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "feeSchedule:"
@@ -120,29 +125,33 @@ echo "order: startingTime, startFee, endFee, lastFee, durationSeconds"
 cast call "$HOOK" \
   "getFeeScheduleOf(bytes32)(uint32,uint24,uint24,uint24,uint32)" \
   "$POOL_ID" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "cumulatedFees0:"
 cast call "$INITIALIZER" \
   "getCumulatedFees0(bytes32)(uint256)" \
   "$POOL_ID" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "cumulatedFees1:"
 cast call "$INITIALIZER" \
   "getCumulatedFees1(bytes32)(uint256)" \
   "$POOL_ID" \
-  --rpc-url "$RPC_URL"
+  --rpc-url "$RPC_URL" \
+  --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "hookInitializer:"
-cast call "$HOOK" "INITIALIZER()(address)" --rpc-url "$RPC_URL"
+cast call "$HOOK" "INITIALIZER()(address)" --rpc-url "$RPC_URL" --block "$SNAPSHOT_BLOCK"
 
 echo
 echo "hookPoolManager:"
-cast call "$HOOK" "poolManager()(address)" --rpc-url "$RPC_URL"
+cast call "$HOOK" "poolManager()(address)" --rpc-url "$RPC_URL" --block "$SNAPSHOT_BLOCK"
 
 echo
+echo "NOTICE: Every bytecode and state read above is pinned to block $SNAPSHOT_BLOCK."
 echo "NOTICE: This script is read-only and does not prove swap availability, beneficiary identity, migration safety, or release approval."
