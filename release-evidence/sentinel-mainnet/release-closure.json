@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "chainId": 8453,
+  "token": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+  "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
+  "requiredEvidenceFiles": [
+    "release-evidence/sentinel-mainnet/second-rpc/token-state.txt",
+    "release-evidence/sentinel-mainnet/second-rpc/v4-state.txt",
+    "release-evidence/sentinel-mainnet/beneficiary-audit/accounting-state.txt",
+    "release-evidence/sentinel-mainnet/beneficiary-audit/control-classification.txt",
+    "release-evidence/sentinel-mainnet/beneficiary-audit/controller-inventory.txt",
+    "release-evidence/sentinel-mainnet/authority-reachability.txt",
+    "release-evidence/sentinel-mainnet/authority-reachability.SHA256",
+    "release-evidence/sentinel-mainnet/swaps-decoded/transactions.csv",
+    "release-evidence/sentinel-mainnet/swaps-decoded/routing-summary.md",
+    "release-evidence/sentinel-mainnet/swaps-decoded/PROVENANCE.json",
+    "release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS"
+  ],
+  "gates": {
+    "correctedReleaseModel": {
+      "status": "complete",
+      "evidence": ["docs/RELEASE_EXECUTION.md"]
+    },
+    "independentRpcReproduction": {
+      "status": "complete",
+      "evidence": ["release-evidence/sentinel-mainnet/second-rpc/SHA256SUMS"]
+    },
+    "externalSourceAndBytecode": {
+      "status": "complete",
+      "evidence": ["docs/SENTINEL_TOKEN_MAINNET.md"]
+    },
+    "poolFeeAndMigrationSemantics": {
+      "status": "complete",
+      "evidence": ["release-evidence/sentinel-mainnet/beneficiary-audit/accounting-state.txt"]
+    },
+    "authorityReachability": {
+      "status": "complete",
+      "evidence": [
+        "docs/SENTINEL_AUTHORITY_REACHABILITY.md",
+        "release-evidence/sentinel-mainnet/authority-reachability.txt",
+        "release-evidence/sentinel-mainnet/authority-reachability.SHA256"
+      ]
+    },
+    "architectureDecision": {
+      "status": "complete",
+      "evidence": ["docs/SENTINEL_ARCHITECTURE_DECISION.md"]
+    },
+    "decodedSwapRoutingEvidence": {
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/swaps-decoded/transactions.csv",
+        "release-evidence/sentinel-mainnet/swaps-decoded/routing-summary.md",
+        "release-evidence/sentinel-mainnet/swaps-decoded/PROVENANCE.json",
+        "release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS"
+      ]
+    },
+    "beneficiaryControlAttestations": {
+      "status": "pending",
+      "evidence": ["release-evidence/sentinel-mainnet/attestations/manifest.json"]
+    },
+    "authorizedBuySellSmokeTest": {
+      "status": "pending",
+      "evidence": ["release-evidence/sentinel-mainnet/smoke-test/smoke-test-receipts.json"]
+    },
+    "independentSecuritySignoff": {
+      "status": "pending",
+      "evidence": ["release-evidence/sentinel-mainnet/independent-review/signoff.md"]
+    }
+  }
+}
