@@ -1,0 +1,32 @@
+name: Canonical SENTINEL Live State
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/canonical-token-state.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Read canonical token state
+        env:
+          BASE_RPC_URL: https://mainnet.base.org
+        run: |
+          mkdir -p evidence
+          bash scripts/verify-canonical-token.sh | tee evidence/canonical-token-state.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: canonical-token-state
+          path: evidence/canonical-token-state.txt
+          retention-days: 90

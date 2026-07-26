@@ -14,6 +14,7 @@
 ## 📌 Table of Contents
 
 - [Overview](#overview)
+- [Canonical SENTINEL Token](#canonical-sentinel-token)
 - [🚀 Getting Started](#-getting-started)
 - [🛠 Development](#-development)
 - [🛡️ Security](#-security)
@@ -22,7 +23,7 @@
 
 ## Overview
 
-Aetheron Sentinel L3 is a comprehensive security and automation suite for the $SENT ecosystem. It provides automated liquidity management for concentrated liquidity pools, advanced code analysis for smart contracts, a robust security infrastructure, **and verifiable AI agents for DeFAI (Decentralized Finance + AI) with TEE-protected inference and clear autonomy governance**.
+Aetheron Sentinel L3 is a comprehensive security and automation suite for the SENTINEL ecosystem. It provides automated liquidity management for concentrated liquidity pools, advanced code analysis for smart contracts, a robust security infrastructure, **and verifiable AI agents for DeFAI (Decentralized Finance + AI) with TEE-protected inference and clear autonomy governance**.
 
 ### Key Features
 
@@ -31,6 +32,19 @@ Aetheron Sentinel L3 is a comprehensive security and automation suite for the $S
 - **Security Audits**: Professional manual review of smart contract logic and architecture.
 - **Bug Bounty Program**: Incentivized community-led security research.
 - **Verifiable DeFAI AI Agents**: TEE-secured inference (Phala/Oasis/Intel TDX), attestation flows, policy-enforced autonomy levels (0-3), human-in-the-loop, drift monitoring, and seamless fallback to rule-based L3 security (SentinelInterceptor, CircuitBreaker, quantum guards).
+
+## Canonical SENTINEL Token
+
+The canonical Aetheron Sentinel L3 ecosystem token is deployed on Base Mainnet:
+
+- **Contract:** [`0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`](https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3)
+- **Network:** Base Mainnet (`8453`)
+- **On-chain name/symbol:** `SENTINEL` / `SENTINEL`
+- **Deployment manifest:** [`deployments/base-mainnet.json`](deployments/base-mainnet.json)
+- **Security and governance plan:** [`docs/SENTINEL_TOKEN_MAINNET.md`](docs/SENTINEL_TOKEN_MAINNET.md)
+- **Verification:** `BASE_RPC_URL=https://mainnet.base.org bash scripts/verify-canonical-token.sh`
+
+> **Release status:** Canonical, pending governance hardening and launch evidence. The separate `contracts/SentinelToken.sol` design is not the verified source for this deployed address and must not be represented as the live token.
 
 ## 🚀 Getting Started
 
@@ -83,5 +97,5 @@ See the dedicated docs in the Documentation Index for implementation details, in
 
 ---
 
-**Document Version:** 1.1 (DeFAI AI additions)  
-**Last Updated:** July 12, 2026
+**Document Version:** 1.2 (canonical token release controls)  
+**Last Updated:** July 26, 2026

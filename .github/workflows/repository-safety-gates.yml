@@ -1,0 +1,30 @@
+name: Repository Safety Gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safety-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate release scope and deprecated tree isolation
+        run: node scripts/validate-release-scope.mjs
+      - name: Validate deployment gate in readiness mode
+        env:
+          DEPLOYMENT_MODE: readiness
+        run: node scripts/check-base-deployment-readiness.mjs
+      - name: Scan tracked files for potential secrets
+        run: node scripts/scan-tracked-secrets.mjs
