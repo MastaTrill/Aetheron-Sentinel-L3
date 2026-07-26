@@ -1,7 +1,7 @@
 Canonical SENTINEL controller and V4 verification
 ==================================================
-capturedAtUtc:     2026-07-26T14:25:06Z
-blockNumber:       49143277
+capturedAtUtc:     2026-07-26T14:35:49Z
+blockNumber:       49143598
 chainId:           8453
 token:             0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
 airlock:           0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12
@@ -11,11 +11,11 @@ poolManager:       0x498581fF718922c3f8e6A244956aF099B2652b2b
 poolId:            0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d
 
 runtimeBytecodeHashes:
-token:         0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672
-airlock:       0x5f38c6f76f62855999df836052fccdc14befc7c067105e727f26ee3f42543acc
-initializer:   0x29352cb39d5fa105ed35e852b518094c7900697236bfdcebafb583e2ddc18201
-hook:          0x317314fa00365686fa78baafcd62d23ca4383b7d01a704ef5c600b8f8548e897
-poolManager:   0x83b2af6e9f3158defc2811cbcb0db71ecf8b2ba2abea39c39e370ac5c6f43eb6
+tokenRuntimeBytecodeHash:          0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672
+airlockRuntimeBytecodeHash:        0x5f38c6f76f62855999df836052fccdc14befc7c067105e727f26ee3f42543acc
+initializerRuntimeBytecodeHash:    0x29352cb39d5fa105ed35e852b518094c7900697236bfdcebafb583e2ddc18201
+hookRuntimeBytecodeHash:           0x317314fa00365686fa78baafcd62d23ca4383b7d01a704ef5c600b8f8548e897
+poolManagerRuntimeBytecodeHash:    0x83b2af6e9f3158defc2811cbcb0db71ecf8b2ba2abea39c39e370ac5c6f43eb6
 
 airlockOwner:
 0x21E2ce70511e4FE542a97708e89520471DAa7A66
@@ -73,5 +73,5 @@ hookInitializer:
 hookPoolManager:
 0x498581fF718922c3f8e6A244956aF099B2652b2b
 
-NOTICE: Every bytecode and state read above is pinned to block 49143277.
+NOTICE: Every bytecode and state read above is pinned to block 49143598.
 NOTICE: This script is read-only and does not prove swap availability, beneficiary identity, migration safety, or release approval.
