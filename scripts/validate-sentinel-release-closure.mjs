@@ -11,6 +11,15 @@ const failures = [];
 const pending = [];
 const CANONICAL_TOKEN = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
 const CANONICAL_POOL_ID = '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d';
+const ETH_SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
+const PLACEHOLDER_PATTERN = /^(?:0x)?(?:0+|f+|deadbeef|cafebabe|1234(?:5678)?|todo|tbd|placeholder)$/i;
+
+function isValidSignature(value) {
+  if (typeof value !== 'string' || !ETH_SIGNATURE_PATTERN.test(value)) return false;
+  const body = value.slice(2).toLowerCase();
+  if (/^(.)\1+$/.test(body)) return false;
+  return !PLACEHOLDER_PATTERN.test(value);
+}
 
 async function readJson(file, label) {
   try {
@@ -50,7 +59,7 @@ if (mode === 'final') {
         for (const entry of attestations.attestations) {
           if (entry.status !== 'signed') failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: attestation is not signed`);
           if (typeof entry.message !== 'string' || entry.message.length < 80) failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: message is missing or too short`);
-          if (typeof entry.signature !== 'string' || !entry.signature.startsWith('0x') || entry.signature.length < 10) failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: signature is missing or malformed`);
+          if (!isValidSignature(entry.signature)) failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: signature must be a non-placeholder 65-byte Ethereum signature`);
         }
       }
     }
@@ -66,6 +75,8 @@ if (mode === 'final') {
       if (authorization.chainId !== 8453) failures.push('authorizedBuySellSmokeTest: authorization chainId mismatch');
       if (authorization.token?.toLowerCase() !== CANONICAL_TOKEN) failures.push('authorizedBuySellSmokeTest: authorization token mismatch');
       if (authorization.poolId?.toLowerCase() !== CANONICAL_POOL_ID) failures.push('authorizedBuySellSmokeTest: authorization poolId mismatch');
+      if (!/^0x[0-9a-f]{64}$/i.test(authorization.buyTransactionHash ?? '')) failures.push('authorizedBuySellSmokeTest: authorization buy transaction hash is malformed');
+      if (!/^0x[0-9a-f]{64}$/i.test(authorization.sellTransactionHash ?? '')) failures.push('authorizedBuySellSmokeTest: authorization sell transaction hash is malformed');
     }
 
     if (receipts) {
@@ -77,8 +88,8 @@ if (mode === 'final') {
       if (!/^0x[0-9a-f]{64}$/i.test(receipts.sell?.transactionHash ?? '')) failures.push('authorizedBuySellSmokeTest: sell transaction hash is malformed');
       if (receipts.buy?.signer?.toLowerCase() !== receipts.sell?.signer?.toLowerCase()) failures.push('authorizedBuySellSmokeTest: buy and sell signers differ');
       if (authorization?.testWallet && receipts.buy?.signer?.toLowerCase() !== authorization.testWallet.toLowerCase()) failures.push('authorizedBuySellSmokeTest: receipt signer differs from authorized wallet');
-      if (authorization?.buyTransactionHash && receipts.buy?.transactionHash?.toLowerCase() !== authorization.buyTransactionHash.toLowerCase()) failures.push('authorizedBuySellSmokeTest: buy hash differs from authorization');
-      if (authorization?.sellTransactionHash && receipts.sell?.transactionHash?.toLowerCase() !== authorization.sellTransactionHash.toLowerCase()) failures.push('authorizedBuySellSmokeTest: sell hash differs from authorization');
+      if (authorization?.buyTransactionHash?.toLowerCase() !== receipts.buy?.transactionHash?.toLowerCase()) failures.push('authorizedBuySellSmokeTest: buy hash differs from authorization');
+      if (authorization?.sellTransactionHash?.toLowerCase() !== receipts.sell?.transactionHash?.toLowerCase()) failures.push('authorizedBuySellSmokeTest: sell hash differs from authorization');
     }
   }
 
@@ -92,7 +103,7 @@ if (mode === 'final') {
       if (typeof signoff.reviewerName !== 'string' || signoff.reviewerName.trim().length < 2) failures.push('independentSecuritySignoff: reviewerName is missing');
       if (typeof signoff.independenceStatement !== 'string' || signoff.independenceStatement.trim().length < 40) failures.push('independentSecuritySignoff: independenceStatement is missing or too short');
       if (!Array.isArray(signoff.evidenceReviewed) || signoff.evidenceReviewed.length < 5) failures.push('independentSecuritySignoff: evidenceReviewed is incomplete');
-      if (typeof signoff.signatureReference !== 'string' || signoff.signatureReference.trim().length < 8) failures.push('independentSecuritySignoff: signatureReference is missing');
+      if (typeof signoff.signatureReference !== 'string' || signoff.signatureReference.trim().length < 8 || PLACEHOLDER_PATTERN.test(signoff.signatureReference.trim())) failures.push('independentSecuritySignoff: signatureReference is missing or placeholder-like');
     }
   }
 }
