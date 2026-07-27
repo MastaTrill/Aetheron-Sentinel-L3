@@ -28,7 +28,7 @@ contract SentinelMultiSigTimelock is Ownable, ReentrancyGuard {
     mapping(bytes32 => Proposal) public proposals;
     address[] public guardians;
     mapping(address => bool) public isGuardian;
-    uint256 public requiredSignatures;
+    uint256 public immutable requiredSignatures;
     uint256 public proposalCount;
 
     event ProposalQueued(bytes32 indexed proposalId, address target, uint256 eta);

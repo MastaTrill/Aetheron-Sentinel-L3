@@ -58,7 +58,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
     uint256 public constant REQUEST_EXPIRY = 7 days;
 
     // ZK Identity integration
-    address public zkIdentityContract;
+    address public immutable zkIdentityContract;
 
     event RecoveryConfigured(
         address indexed account,

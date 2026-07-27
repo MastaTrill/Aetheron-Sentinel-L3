@@ -56,7 +56,7 @@ contract SentinelReferralSystem is Ownable, ReentrancyGuard, Pausable {
     mapping(address => uint256) public lastActivityReset;
 
     // Reward distribution
-    address public rewardToken;
+    address public immutable rewardToken;
     uint256 public totalRewardsDistributed;
 
     event UserRegistered(address indexed user, address indexed referrer);

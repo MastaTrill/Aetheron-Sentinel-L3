@@ -11,10 +11,10 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  */
 contract SentinelRewardAggregator is Ownable, ReentrancyGuard {
     // System contracts
-    address public stakingContract;
-    address public liquidityMiningContract;
-    address public governanceTokenContract;
-    address public referralSystemContract;
+    address public immutable stakingContract;
+    address public immutable liquidityMiningContract;
+    address public immutable governanceTokenContract;
+    address public immutable referralSystemContract;
 
     struct UserRewards {
         uint256 stakingRewards;

@@ -17,8 +17,8 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     bytes32 public constant REWARD_DISTRIBUTOR_ROLE =
         keccak256("REWARD_DISTRIBUTOR_ROLE");
 
-    IERC20 public lpToken; // Bridge LP token
-    IERC20 public rewardToken;
+    IERC20 public immutable lpToken; // Bridge LP token
+    IERC20 public immutable rewardToken;
 
     struct MiningPosition {
         uint256 amount;
@@ -46,9 +46,9 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
     // APY Enhancement Features
     uint256 public constant MAX_APY = 500; // 5.0%
     uint256 public constant BASE_APY = 300; // 3.0% base
-    uint256 public bridgeFeeShareAPY = 100; // 1.0% from bridge fees
-    uint256 public securityRewardAPY = 75; // 0.75% from security bonuses
-    uint256 public referralAPY = 25; // 0.25% referral rewards
+    uint256 public constant bridgeFeeShareAPY = 100; // 1.0% from bridge fees
+    uint256 public constant securityRewardAPY = 75; // 0.75% from security bonuses
+    uint256 public constant referralAPY = 25; // 0.25% referral rewards
 
     // Boost multipliers
     uint256 public constant BRONZE_MULTIPLIER = 110; // 1.1x for 1000+ LP tokens
@@ -58,8 +58,8 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
 
     // Reward tracking
     uint256 public totalAllocPoint;
-    uint256 public rewardPerSecond;
-    uint256 public startTime;
+    uint256 public immutable rewardPerSecond;
+    uint256 public immutable startTime;
 
     // Fee sharing from bridge
     uint256 public totalFeeShare;

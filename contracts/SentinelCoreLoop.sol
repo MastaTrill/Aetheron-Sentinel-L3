@@ -52,14 +52,14 @@ contract SentinelCoreLoop is Ownable, ReentrancyGuard {
   uint64 private s_windowStartTimestamp; // Packed into Slot 2
   // Slot 2: 4+4+4+8+1 = 21 bytes used. 11 bytes free.
   uint64 public s_anomalyWindow; // Packed into Slot 3 (uint64)
-  uint64 public s_minAnomalyWindow; // Packed into Slot 3 (uint64)
+  uint64 public immutable s_minAnomalyWindow; // Packed into Slot 3 (uint64)
   uint64 public s_maxAnomalyWindow; // Packed into Slot 3 (uint64)
   uint256 public constant OBSERVATION_SIZE = 16;
   uint256 public constant OBSERVATION_MASK = 15;
   uint256[OBSERVATION_SIZE] private s_anomalyTimestamps;
   uint64 public s_calibrationInterval; // Packed into Slot 3 (uint64)
   // Slot 3: 8+8+8+8 = 32 bytes used. Slot 3 fully packed.
-  uint64 public lastSecurityAudit; // Slot 4 (uint64)
+  uint64 public constant lastSecurityAudit = 0; // Slot 4 (uint64)
   mapping(address => bool) public s_monitors;
   mapping(address => bool) public s_keepers;
 

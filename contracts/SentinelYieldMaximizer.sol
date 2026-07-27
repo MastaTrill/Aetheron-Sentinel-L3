@@ -48,8 +48,8 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     // AI-like optimization parameters
     uint256 public volatilityIndex; // Market volatility measure
     uint256 public riskTolerance; // System risk tolerance (1-10)
-    uint256 public yieldPredictionHorizon; // Hours to predict yield
-    uint256 public rebalanceThreshold; // Min change to trigger rebalance (%)
+    uint256 public immutable yieldPredictionHorizon; // Hours to predict yield
+    uint256 public immutable rebalanceThreshold; // Min change to trigger rebalance (%)
 
     // Performance tracking
     uint256 public totalValueLocked;
@@ -58,8 +58,8 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     uint256 public strategyCount;
 
     // Auto-compounding system
-    bool public autoCompoundEnabled;
-    uint256 public compoundFrequency; // Hours between compounds
+    bool public immutable autoCompoundEnabled;
+    uint256 public immutable compoundFrequency; // Hours between compounds
     uint256 public lastCompoundTime;
 
     // Token used for yield deposits/withdrawals

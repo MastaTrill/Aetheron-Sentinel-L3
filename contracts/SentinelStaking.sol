@@ -17,8 +17,8 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     bytes32 public constant REWARD_MANAGER_ROLE =
         keccak256("REWARD_MANAGER_ROLE");
 
-    IERC20 public stakingToken;
-    IERC20 public rewardToken;
+    IERC20 public immutable stakingToken;
+    IERC20 public immutable rewardToken;
 
     struct StakeInfo {
         uint256 amount;
@@ -45,10 +45,10 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     address public s_securityAuditor;
 
     // APY Enhancement Features
-    uint256 public baseAPY = 289; // 2.89% base APY
-    uint256 public maxAPY = 500; // 5.0% max APY
-    uint256 public securityBonusAPY = 100; // 1.0% bonus for security participation
-    uint256 public referralBonusAPY = 50; // 0.5% bonus for referrals
+    uint256 public constant baseAPY = 289; // 2.89% base APY
+    uint256 public constant maxAPY = 500; // 5.0% max APY
+    uint256 public constant securityBonusAPY = 100; // 1.0% bonus for security participation
+    uint256 public constant referralBonusAPY = 50; // 0.5% bonus for referrals
 
     // Reward tracking
     uint256 public totalStaked;
@@ -58,9 +58,9 @@ contract SentinelStaking is ReentrancyGuard, AccessControl, Pausable {
     mapping(address => uint256) public userRewardPerTokenPaid;
 
     // Performance-based rewards
-    uint256 public anomalyReportBonus = 10 ether; // Reward per valid anomaly report
-    uint256 public bridgeSecurityBonus = 50 ether; // Reward per security incident prevented
-    uint256 public uptimeBonusAPY = 25; // 0.25% for 99.9% uptime
+    uint256 public constant anomalyReportBonus = 10 ether; // Reward per valid anomaly report
+    uint256 public constant bridgeSecurityBonus = 50 ether; // Reward per security incident prevented
+    uint256 public constant uptimeBonusAPY = 25; // 0.25% for 99.9% uptime
 
     event Staked(address indexed user, uint256 amount, uint256 tier);
     event Unstaked(address indexed user, uint256 amount, uint256 rewards);
