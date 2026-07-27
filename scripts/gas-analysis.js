@@ -29,6 +29,17 @@ async function analyzeGasUsage() {
   const ownerAddress = owner.address;
   const mockAddress = '0x0000000000000000000000000000000000000001';
 
+  // Pre-deploy real contracts needed as constructor args for SentinelGovernance
+  const TokenFactory = await ethers.getContractFactory('SentinelToken');
+  const govToken = await TokenFactory.deploy(ownerAddress);
+  await govToken.waitForDeployment();
+  const govTokenAddr = await govToken.getAddress();
+
+  const TimelockFactory = await ethers.getContractFactory('SentinelTimelock');
+  const govTimelock = await TimelockFactory.deploy(3600, [ownerAddress], [ownerAddress], ownerAddress);
+  await govTimelock.waitForDeployment();
+  const govTimelockAddr = await govTimelock.getAddress();
+
   const contractArgs = {
     SentinelCore: [ownerAddress],
     SentinelToken: [ownerAddress],
@@ -41,7 +52,7 @@ async function analyzeGasUsage() {
     SentinelInterceptor: [80, 1000000000000000000000n, true, ownerAddress],
     SentinelStaking: [mockAddress, mockAddress, ownerAddress],
     SentinelTimelock: [3600, [ownerAddress], [ownerAddress], ownerAddress],
-    SentinelGovernance: [mockAddress, mockAddress],
+    SentinelGovernance: [govTokenAddr, govTimelockAddr],
   };
 
   for (const contractName of contracts) {
