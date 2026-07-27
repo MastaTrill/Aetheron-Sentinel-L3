@@ -11,14 +11,34 @@ const failures = [];
 const pending = [];
 const CANONICAL_TOKEN = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
 const CANONICAL_POOL_ID = '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d';
-const ETH_SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
-const PLACEHOLDER_PATTERN = /^(?:0x)?(?:0+|f+|deadbeef|cafebabe|1234(?:5678)?|todo|tbd|placeholder)$/i;
+const EIP191_SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
+const HEX_BYTES_PATTERN = /^0x(?:[0-9a-f]{2})+$/i;
+const EXACT_PLACEHOLDER_PATTERN = /^(?:0x)?(?:0+|f+|deadbeef|cafebabe|1234(?:5678)?|todo|tbd|pending|placeholder)$/i;
+const PLACEHOLDER_TOKEN_PATTERN = /\b(?:TODO|TBD|PENDING|PLACEHOLDER)\b/i;
 
-function isValidSignature(value) {
-  if (typeof value !== 'string' || !ETH_SIGNATURE_PATTERN.test(value)) return false;
+function isRepeatedHex(value) {
+  if (typeof value !== 'string' || !value.startsWith('0x')) return false;
   const body = value.slice(2).toLowerCase();
-  if (/^(.)\1+$/.test(body)) return false;
-  return !PLACEHOLDER_PATTERN.test(value);
+  return body.length > 0 && /^(.)\1+$/.test(body);
+}
+
+function isPlaceholderLike(value) {
+  if (typeof value !== 'string') return true;
+  const normalized = value.trim();
+  return normalized.length === 0
+    || /[<>]/.test(normalized)
+    || EXACT_PLACEHOLDER_PATTERN.test(normalized)
+    || PLACEHOLDER_TOKEN_PATTERN.test(normalized)
+    || isRepeatedHex(normalized);
+}
+
+function isValidAttestationSignature(entry) {
+  const signature = entry?.signature;
+  const verificationMode = String(entry?.verificationMode ?? '').toLowerCase();
+  if (typeof signature !== 'string' || isPlaceholderLike(signature)) return false;
+  if (verificationMode === 'eip191') return EIP191_SIGNATURE_PATTERN.test(signature);
+  if (verificationMode === 'eip1271') return HEX_BYTES_PATTERN.test(signature) && signature.length >= 132;
+  return false;
 }
 
 async function readJson(file, label) {
@@ -57,9 +77,17 @@ if (mode === 'final') {
         failures.push('beneficiaryControlAttestations: exactly four attestations are required');
       } else {
         for (const entry of attestations.attestations) {
-          if (entry.status !== 'signed') failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: attestation is not signed`);
-          if (typeof entry.message !== 'string' || entry.message.length < 80) failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: message is missing or too short`);
-          if (!isValidSignature(entry.signature)) failures.push(`${entry.beneficiary ?? 'unknown beneficiary'}: signature must be a non-placeholder 65-byte Ethereum signature`);
+          const beneficiary = entry.beneficiary ?? 'unknown beneficiary';
+          const verificationMode = String(entry.verificationMode ?? '').toLowerCase();
+          if (entry.status !== 'signed') failures.push(`${beneficiary}: attestation is not signed`);
+          if (typeof entry.message !== 'string' || entry.message.length < 80) failures.push(`${beneficiary}: message is missing or too short`);
+          if (!['eip191', 'eip1271'].includes(verificationMode)) failures.push(`${beneficiary}: verificationMode must be eip191 or eip1271`);
+          if (!isValidAttestationSignature(entry)) {
+            const expected = verificationMode === 'eip1271'
+              ? 'non-placeholder variable-length EIP-1271 hex bytes'
+              : 'non-placeholder 65-byte EIP-191 signature';
+            failures.push(`${beneficiary}: signature must be ${expected}`);
+          }
         }
       }
     }
@@ -103,7 +131,7 @@ if (mode === 'final') {
       if (typeof signoff.reviewerName !== 'string' || signoff.reviewerName.trim().length < 2) failures.push('independentSecuritySignoff: reviewerName is missing');
       if (typeof signoff.independenceStatement !== 'string' || signoff.independenceStatement.trim().length < 40) failures.push('independentSecuritySignoff: independenceStatement is missing or too short');
       if (!Array.isArray(signoff.evidenceReviewed) || signoff.evidenceReviewed.length < 5) failures.push('independentSecuritySignoff: evidenceReviewed is incomplete');
-      if (typeof signoff.signatureReference !== 'string' || signoff.signatureReference.trim().length < 8 || PLACEHOLDER_PATTERN.test(signoff.signatureReference.trim())) failures.push('independentSecuritySignoff: signatureReference is missing or placeholder-like');
+      if (typeof signoff.signatureReference !== 'string' || signoff.signatureReference.trim().length < 8 || isPlaceholderLike(signoff.signatureReference)) failures.push('independentSecuritySignoff: signatureReference is missing or placeholder-like');
     }
   }
 }
