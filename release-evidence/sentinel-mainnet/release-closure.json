@@ -56,15 +56,21 @@
     },
     "beneficiaryControlAttestations": {
       "status": "pending",
-      "evidence": ["release-evidence/sentinel-mainnet/attestations/manifest.json"]
+      "evidence": [
+        "release-evidence/sentinel-mainnet/attestations/manifest.json",
+        "release-evidence/sentinel-mainnet/attestations/SIGNING_REQUESTS.md"
+      ]
     },
     "authorizedBuySellSmokeTest": {
       "status": "pending",
-      "evidence": ["release-evidence/sentinel-mainnet/smoke-test/smoke-test-receipts.json"]
+      "evidence": [
+        "release-evidence/sentinel-mainnet/smoke-test/authorization.json",
+        "release-evidence/sentinel-mainnet/smoke-test/smoke-test-receipts.json"
+      ]
     },
     "independentSecuritySignoff": {
       "status": "pending",
-      "evidence": ["release-evidence/sentinel-mainnet/independent-review/signoff.md"]
+      "evidence": ["release-evidence/sentinel-mainnet/independent-review/signoff.json"]
     }
   }
 }
