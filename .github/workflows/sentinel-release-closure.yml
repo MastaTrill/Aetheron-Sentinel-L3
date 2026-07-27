@@ -7,10 +7,13 @@ on:
       - 'scripts/*sentinel*.mjs'
       - 'scripts/verify-sentinel-authority-reachability.sh'
       - 'release-evidence/sentinel-mainnet/release-closure.json'
-      - 'release-evidence/sentinel-mainnet/attestations/manifest.json'
+      - 'release-evidence/sentinel-mainnet/attestations/**'
+      - 'release-evidence/sentinel-mainnet/smoke-test/**'
+      - 'release-evidence/sentinel-mainnet/independent-review/**'
       - 'release-evidence/sentinel-mainnet/authority-reachability*'
       - 'release-evidence/sentinel-mainnet/swaps-decoded/**'
       - '.github/workflows/sentinel-release-closure.yml'
+      - '.github/workflows/sentinel-final-release.yml'
   workflow_dispatch:
 
 permissions:
@@ -30,6 +33,7 @@ jobs:
           node --check scripts/decode-sentinel-v4-swaps.mjs
           node --check scripts/verify-sentinel-smoke-test.mjs
           node --check scripts/verify-beneficiary-attestations.mjs
+          node --check scripts/verify-sentinel-independent-signoff.mjs
           node --check scripts/validate-sentinel-release-closure.mjs
           bash -n scripts/verify-sentinel-authority-reachability.sh
       - name: Validate readiness manifest
