@@ -73,9 +73,32 @@ if (mode === 'final') {
   if (attestationGate?.status === 'complete') {
     const attestations = await readJson('release-evidence/sentinel-mainnet/attestations/manifest.json', 'beneficiaryControlAttestations');
     if (attestations) {
+      const isSoloCreator = attestations.model === 'solo-creator' || attestations.schemaVersion >= 2;
+
       if (!Array.isArray(attestations.attestations) || attestations.attestations.length !== 4) {
-        failures.push('beneficiaryControlAttestations: exactly four attestations are required');
+        failures.push('beneficiaryControlAttestations: exactly four attestation slots are required');
+      } else if (isSoloCreator) {
+        // Solo-creator model: only the primary (Creator) entry must be signed.
+        const primary = attestations.attestations.find((e) => e.primary === true);
+        if (!primary) {
+          failures.push('beneficiaryControlAttestations: solo-creator model requires a primary Creator entry');
+        } else {
+          const beneficiary = primary.beneficiary ?? 'unknown primary';
+          if (primary.status !== 'signed') failures.push(`${beneficiary}: primary Creator attestation is not signed`);
+          if (typeof primary.message !== 'string' || primary.message.length < 80) failures.push(`${beneficiary}: message is missing or too short`);
+          if (String(primary.verificationMode ?? '').toLowerCase() !== 'eip191') failures.push(`${beneficiary}: primary must use eip191`);
+          if (!isValidAttestationSignature(primary)) failures.push(`${beneficiary}: signature must be non-placeholder 65-byte EIP-191`);
+        }
+
+        for (const entry of attestations.attestations) {
+          if (entry.primary === true) continue;
+          const status = entry.status ?? 'missing';
+          if (status !== 'residual-risk-accepted' && status !== 'signed') {
+            failures.push(`${entry.beneficiary ?? 'unknown'}: non-primary entry must be residual-risk-accepted or signed (got ${status})`);
+          }
+        }
       } else {
+        // Legacy four-signature model
         for (const entry of attestations.attestations) {
           const beneficiary = entry.beneficiary ?? 'unknown beneficiary';
           const verificationMode = String(entry.verificationMode ?? '').toLowerCase();
