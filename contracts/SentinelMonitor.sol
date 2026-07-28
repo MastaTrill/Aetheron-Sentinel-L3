@@ -146,7 +146,8 @@ contract SentinelMonitor is Ownable, ReentrancyGuard {
 
         // Count open circuits across all tracked chains
         uint256 openCircuits = 0;
-        for (uint256 i = 0; i < trackedChainIds.length; i++) {
+        uint256 chainCount = trackedChainIds.length;
+        for (uint256 i = 0; i < chainCount; i++) {
             (uint8 state, , , , ) = ICircuitBreaker(circuitBreakerContract)
                 .getCircuitStats(trackedChainIds[i]);
             if (state != 0) {

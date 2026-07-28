@@ -385,6 +385,19 @@
   },
   {
     "inputs": [],
+    "name": "SECURITY_ORACLE_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "TIMEOUT_PERIOD",
     "outputs": [
       {
@@ -840,6 +853,13 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "triggerEmergencyLockdown",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

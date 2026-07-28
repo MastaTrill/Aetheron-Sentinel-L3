@@ -1,0 +1,83 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "claimId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "approve",
+        "type": "bool"
+      }
+    ],
+    "name": "processClaim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "coveredContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coverageAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "insuranceType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coveragePeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "purchaseInsurance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "policyId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "incidentHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "evidence",
+        "type": "bytes"
+      }
+    ],
+    "name": "submitClaim",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

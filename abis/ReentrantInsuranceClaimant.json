@@ -1,0 +1,124 @@
+[
+  {
+    "inputs": [],
+    "name": "activeClaimId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "claimId",
+        "type": "uint256"
+      }
+    ],
+    "name": "process",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "protocol",
+    "outputs": [
+      {
+        "internalType": "contract ISentinelInsuranceProtocol",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "coveredContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coverageAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coveragePeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "purchase",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "reentrySucceeded",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "protocolAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setProtocol",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "policyId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "incidentHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "submit",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+]

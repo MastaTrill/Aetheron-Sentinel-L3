@@ -258,7 +258,8 @@ contract SentinelLiquidityMining is ReentrancyGuard, AccessControl, Pausable {
         require(feeAmount > 0, "Cannot distribute 0 fees");
 
         // Distribute fees proportionally to all pools
-        for (uint256 i = 0; i < pools.length; i++) {
+        uint256 poolCount = pools.length;
+        for (uint256 i = 0; i < poolCount; i++) {
             if (pools[i].totalStaked > 0) {
                 uint256 poolShare = (feeAmount * pools[i].allocPoint) /
                     totalAllocPoint;

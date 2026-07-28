@@ -429,7 +429,8 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
     ) internal {
         if (oldAllocation == 0) return;
         uint256 allocationRatio = newAllocation * 1e18 / oldAllocation;
-        for (uint256 i = 0; i < _userList.length; i++) {
+        uint256 userCount = _userList.length;
+        for (uint256 i = 0; i < userCount; i++) {
             address user = _userList[i];
             UserPosition storage position = userPositions[user];
             if (position.strategyAllocations[strategyId] > 0) {

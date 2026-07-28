@@ -460,7 +460,8 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
         uint256 severity,
         string memory message
     ) internal {
-        for (uint256 i = 0; i < alertRecipients.length; i++) {
+        uint256 recipientCount = alertRecipients.length;
+        for (uint256 i = 0; i < recipientCount; i++) {
             // In production, this would integrate with notification systems
             emit AlertSent(alertRecipients[i], severity, message);
         }

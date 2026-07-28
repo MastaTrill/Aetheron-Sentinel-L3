@@ -619,6 +619,19 @@
   },
   {
     "inputs": [],
+    "name": "s_securityAuditor",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "securityBonusAPY",
     "outputs": [
       {
@@ -647,6 +660,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "securityAuditor",
+        "type": "address"
+      }
+    ],
+    "name": "setSecurityAuditor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

@@ -89,6 +89,37 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint64",
+        "name": "sourceChainSelector",
+        "type": "uint64"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "alertHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "alertType",
+        "type": "string"
+      }
+    ],
+    "name": "CCIPAlertReceived",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "uint16",
         "name": "chainId",
         "type": "uint16"
@@ -351,6 +382,63 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "sourceChainSelector",
+        "type": "uint64"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      }
+    ],
+    "name": "ccipReceiveAlert",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "destinationChainSelector",
+        "type": "uint64"
+      },
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "alertType",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "threatLevel",
+        "type": "uint256"
+      }
+    ],
+    "name": "ccipSendAlert",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -776,6 +864,32 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "s_ccipRouter",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_circuitBreaker",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -822,6 +936,32 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      }
+    ],
+    "name": "setCCIPRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "breaker",
+        "type": "address"
+      }
+    ],
+    "name": "setCircuitBreaker",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

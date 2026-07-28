@@ -1,0 +1,36 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "incidentType",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "severity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "evidence",
+        "type": "bytes"
+      }
+    ],
+    "name": "reportSecurityIncident",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

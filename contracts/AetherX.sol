@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract AetherX is ERC20 {
-    address public treasuryWallet;
-    uint256 public taxRate = 5;
+    address public immutable treasuryWallet;
+    uint256 public constant taxRate = 5;
 
     constructor(address _treasuryWallet) ERC20("AetherX", "AETX") {
         treasuryWallet = _treasuryWallet;
