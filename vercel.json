@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'Skipping Python dependency installation for the Sentinel contract repository'",
+  "buildCommand": "mkdir -p public && cp docs/vercel-status.html public/index.html",
+  "outputDirectory": "public"
+}
