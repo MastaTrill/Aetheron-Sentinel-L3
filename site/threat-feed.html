@@ -27,7 +27,8 @@
       .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--quantum-green); margin-top: 4px; flex-shrink: 0; animation: pulse 2s infinite; }
       @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 70%{box-shadow:0 0 0 8px rgba(0,255,136,0)} }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -61,7 +62,7 @@
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val" id="totalInterceptions" style="color:var(--quantum-green)">142</div>
+          <div class="stat-val style-1ede3f" id="totalInterceptions" >142</div>
           <div class="stat-lbl">Total Interceptions (30d)</div>
         </div>
         <div class="stat-card">
@@ -69,7 +70,7 @@
           <div class="stat-lbl">Value Saved (30d)</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-pink)" id="liveAlerts">0</div>
+          <div class="stat-val style-1ef001"  id="liveAlerts">0</div>
           <div class="stat-lbl">Active Live Alerts</div>
         </div>
         <div class="stat-card">
@@ -79,10 +80,10 @@
       </div>
 
       <div class="feed-card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <div  class="style-73febd">
           <div class="pulse"></div>
-          <h2 style="margin:0;font-size:1.1rem;color:#fff">Live Incident Stream</h2>
-          <span style="margin-left:auto;font-size:0.75rem;color:var(--text-secondary)" id="lastUpdate">Updating...</span>
+          <h2  class="style-2d402f">Live Incident Stream</h2>
+          <span  id="lastUpdate" class="style-5bd518">Updating...</span>
         </div>
         <div class="feed-log" id="feedLog"></div>
       </div>
@@ -107,13 +108,13 @@
         item.className = 'feed-item';
         item.innerHTML = `
           <span class="severity ${event.severity}">${event.severity}</span>
-          <div style="flex:1">
-            <div style="font-weight:600;color:#fff;font-size:0.88rem">${event.type.replace(/_/g,' ')}</div>
-            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:3px">
-              Chain: ${event.chain} &nbsp;|&nbsp; Value Intercepted: <strong style="color:var(--quantum-green)">${event.value}</strong> &nbsp;|&nbsp; Latency: ${event.latency}
+          <div  class="style-d5e8c5">
+            <div  class="style-c98e42">${event.type.replace(/_/g,' ')}</div>
+            <div  class="style-1d72fc">
+              Chain: ${event.chain} &nbsp;|&nbsp; Value Intercepted: <strong  class="style-1ede3f">${event.value}</strong> &nbsp;|&nbsp; Latency: ${event.latency}
             </div>
           </div>
-          <div style="font-family:monospace;font-size:0.72rem;color:var(--text-secondary)">${event.hash}</div>`;
+          <div  class="style-fdcd40">${event.hash}</div>`;
         log.prepend(item);
         if (log.children.length > 20) log.lastChild.remove();
 

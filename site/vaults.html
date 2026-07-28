@@ -20,7 +20,8 @@
       .strategy-seg { height: 100%; }
       .form-input { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -56,7 +57,7 @@
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-green)">24.8% APY</div>
+          <div class="stat-val style-1ede3f" >24.8% APY</div>
           <div class="stat-lbl">Current Blended APY</div>
         </div>
         <div class="stat-card">
@@ -64,55 +65,55 @@
           <div class="stat-lbl">Total Value Locked (TVL)</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-pink)">3 Active</div>
+          <div class="stat-val style-1ef001" >3 Active</div>
           <div class="stat-lbl">Strategy Allocations</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-cyan)">$0.28</div>
+          <div class="stat-val style-a9147c" >$0.28</div>
           <div class="stat-lbl">SENTINEL Token Price</div>
         </div>
       </div>
 
       <!-- Strategy Allocation Card -->
       <div class="vault-card">
-        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">📊 Strategy Allocation Breakdown</h2>
+        <h2  class="style-a15efd">📊 Strategy Allocation Breakdown</h2>
         <div class="strategy-bar">
-          <div class="strategy-seg" style="width:40%;background:var(--quantum-cyan)"></div>
-          <div class="strategy-seg" style="width:35%;background:var(--quantum-pink)"></div>
-          <div class="strategy-seg" style="width:25%;background:var(--quantum-green)"></div>
+          <div class="strategy-seg style-3929b4" ></div>
+          <div class="strategy-seg style-4cff7c" ></div>
+          <div class="strategy-seg style-b136df" ></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;font-size:0.88rem">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--quantum-cyan);display:inline-block"></span>Aerodrome Finance (Base)</span>
-            <strong style="font-family:monospace;color:var(--quantum-cyan)">40% — 32.1% APY</strong>
+        <div  class="style-677c63">
+          <div  class="style-2447f6">
+            <span  class="style-4ca747"><span  class="style-5aaf0b"></span>Aerodrome Finance (Base)</span>
+            <strong  class="style-5c2e2a">40% — 32.1% APY</strong>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--quantum-pink);display:inline-block"></span>Uniswap v3 (Arbitrum)</span>
-            <strong style="font-family:monospace;color:var(--quantum-pink)">35% — 19.4% APY</strong>
+          <div  class="style-2447f6">
+            <span  class="style-4ca747"><span  class="style-02d556"></span>Uniswap v3 (Arbitrum)</span>
+            <strong  class="style-6b096e">35% — 19.4% APY</strong>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--quantum-green);display:inline-block"></span>Curve Finance (Base)</span>
-            <strong style="font-family:monospace;color:var(--quantum-green)">25% — 14.2% APY</strong>
+          <div  class="style-2447f6">
+            <span  class="style-4ca747"><span  class="style-5aefc1"></span>Curve Finance (Base)</span>
+            <strong  class="style-b384cf">25% — 14.2% APY</strong>
           </div>
         </div>
       </div>
 
       <!-- Deposit / Withdraw Card -->
       <div class="vault-card">
-        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">⚡ Deposit / Withdraw SENTINEL</h2>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <h2  class="style-a15efd">⚡ Deposit / Withdraw SENTINEL</h2>
+        <div  class="style-0e2802">
           <div>
-            <p style="margin:0 0 8px;font-size:0.85rem;color:var(--text-secondary)">Deposit Amount (SENTINEL)</p>
+            <p  class="style-20d352">Deposit Amount (SENTINEL)</p>
             <input type="number" id="depositAmount" class="form-input" placeholder="e.g. 10000" title="Deposit Amount" aria-label="Deposit Amount" min="0" />
-            <button class="btn-primary" style="margin-top:12px;width:100%" onclick="handleDeposit()">🚀 Deposit &amp; Earn</button>
+            <button class="btn-primary style-5a71bd"  onclick="handleDeposit()">🚀 Deposit &amp; Earn</button>
           </div>
           <div>
-            <p style="margin:0 0 8px;font-size:0.85rem;color:var(--text-secondary)">Withdraw Shares</p>
+            <p  class="style-20d352">Withdraw Shares</p>
             <input type="number" id="withdrawShares" class="form-input" placeholder="e.g. 5000" title="Withdraw Shares" aria-label="Withdraw Shares" min="0" />
-            <button class="btn-secondary" style="margin-top:12px;width:100%;background:transparent;border:1px solid var(--quantum-pink);color:var(--quantum-pink);padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600" onclick="handleWithdraw()">💸 Withdraw</button>
+            <button class="btn-secondary style-c71922"  onclick="handleWithdraw()">💸 Withdraw</button>
           </div>
         </div>
-        <div id="vaultMsg" style="margin-top:16px;font-size:0.85rem;color:var(--quantum-green);display:none"></div>
+        <div id="vaultMsg"  class="style-741124"></div>
       </div>
     </div>
 

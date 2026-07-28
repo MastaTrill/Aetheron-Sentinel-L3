@@ -23,7 +23,8 @@
       .form-input { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; font-size: 0.9rem; width: 100%; box-sizing: border-box; margin-bottom: 12px; }
       .reward-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--quantum-cyan), var(--quantum-pink)); margin-top: 8px; }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -55,52 +56,52 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-green)">18.4% APY</div><div class="stat-lbl">Base Staking APY</div></div>
+        <div class="stat-card"><div class="stat-val style-1ede3f" >18.4% APY</div><div class="stat-lbl">Base Staking APY</div></div>
         <div class="stat-card"><div class="stat-val">4,200,000,000</div><div class="stat-lbl">Total SENTINEL Staked</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-pink)">1,247</div><div class="stat-lbl">Active Stakers</div></div>
+        <div class="stat-card"><div class="stat-val style-1ef001" >1,247</div><div class="stat-lbl">Active Stakers</div></div>
         <div class="stat-card"><div class="stat-val">30 / 90 / 365d</div><div class="stat-lbl">Lock Periods</div></div>
       </div>
 
       <!-- Staking Tiers -->
       <div class="stake-card">
-        <h2 style="margin:0 0 8px;font-size:1.2rem;color:#fff">🎖️ Staking Tiers</h2>
-        <p style="margin:0 0 8px;color:var(--text-secondary);font-size:0.85rem">Select a tier to activate its APY multiplier and governance weight.</p>
+        <h2  class="style-6f05e2">🎖️ Staking Tiers</h2>
+        <p  class="style-858219">Select a tier to activate its APY multiplier and governance weight.</p>
         <div class="tier-grid">
           <div class="tier-card" onclick="selectTier(this,'Bronze','18.4%',30)">
-            <div style="font-size:1.5rem">🥉</div>
-            <div style="font-weight:700;color:#cd7f32;margin:6px 0 4px">Bronze Sentinel</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">Min: 100,000 SENTINEL</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">Lock: 30 days</div>
-            <div class="reward-bar" style="width:30%"></div>
-            <div style="font-size:1rem;font-weight:700;color:var(--quantum-green);margin-top:8px">18.4% APY</div>
+            <div  class="style-06d51c">🥉</div>
+            <div  class="style-38d43c">Bronze Sentinel</div>
+            <div  class="style-503f41">Min: 100,000 SENTINEL</div>
+            <div  class="style-503f41">Lock: 30 days</div>
+            <div class="reward-bar style-ee68c2" ></div>
+            <div  class="style-f563d5">18.4% APY</div>
           </div>
           <div class="tier-card" onclick="selectTier(this,'Silver','24.8%',90)">
-            <div style="font-size:1.5rem">🥈</div>
-            <div style="font-weight:700;color:#aaa;margin:6px 0 4px">Silver Sentinel</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">Min: 500,000 SENTINEL</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">Lock: 90 days</div>
-            <div class="reward-bar" style="width:60%"></div>
-            <div style="font-size:1rem;font-weight:700;color:var(--quantum-green);margin-top:8px">24.8% APY</div>
+            <div  class="style-06d51c">🥈</div>
+            <div  class="style-6e0129">Silver Sentinel</div>
+            <div  class="style-503f41">Min: 500,000 SENTINEL</div>
+            <div  class="style-503f41">Lock: 90 days</div>
+            <div class="reward-bar style-906126" ></div>
+            <div  class="style-f563d5">24.8% APY</div>
           </div>
           <div class="tier-card" onclick="selectTier(this,'Gold','36.2%',365)">
-            <div style="font-size:1.5rem">🥇</div>
-            <div style="font-weight:700;color:#ffd700;margin:6px 0 4px">Gold Sentinel</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">Min: 2,000,000 SENTINEL</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">Lock: 365 days</div>
-            <div class="reward-bar" style="width:100%"></div>
-            <div style="font-size:1rem;font-weight:700;color:var(--quantum-green);margin-top:8px">36.2% APY</div>
+            <div  class="style-06d51c">🥇</div>
+            <div  class="style-992160">Gold Sentinel</div>
+            <div  class="style-503f41">Min: 2,000,000 SENTINEL</div>
+            <div  class="style-503f41">Lock: 365 days</div>
+            <div class="reward-bar style-8588e4" ></div>
+            <div  class="style-f563d5">36.2% APY</div>
           </div>
         </div>
       </div>
 
       <!-- Stake Form -->
       <div class="stake-card">
-        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">⚡ Stake SENTINEL Tokens</h2>
-        <p style="margin:0 0 12px;font-size:0.82rem;color:var(--text-secondary)" id="selectedTierLabel">No tier selected. Choose a tier above.</p>
+        <h2  class="style-a15efd">⚡ Stake SENTINEL Tokens</h2>
+        <p  id="selectedTierLabel" class="style-ce0e4d">No tier selected. Choose a tier above.</p>
         <input type="number" id="stakeAmount" class="form-input" placeholder="Amount to stake (e.g. 500000)" title="Stake Amount" aria-label="Stake Amount" min="0" />
-        <div id="projectedReward" style="font-size:0.85rem;color:var(--quantum-cyan);margin-bottom:12px;font-family:monospace;display:none"></div>
-        <button class="btn-primary" style="width:100%" onclick="handleStake()">🚀 Stake &amp; Earn Rewards</button>
-        <div id="stakeMsg" style="margin-top:12px;font-size:0.85rem;display:none"></div>
+        <div id="projectedReward"  class="style-fcaf0d"></div>
+        <button class="btn-primary style-8588e4"  onclick="handleStake()">🚀 Stake &amp; Earn Rewards</button>
+        <div id="stakeMsg"  class="style-b2e0c9"></div>
       </div>
     </div>
 

@@ -22,7 +22,8 @@
       .plan-card.selected { border-color: var(--quantum-cyan); background: rgba(0,255,255,0.05); }
       .form-input { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -50,61 +51,61 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-green)">$12,400,000</div><div class="stat-lbl">Total Coverage Pool</div></div>
+        <div class="stat-card"><div class="stat-val style-1ede3f" >$12,400,000</div><div class="stat-lbl">Total Coverage Pool</div></div>
         <div class="stat-card"><div class="stat-val">$3,240,000</div><div class="stat-lbl">Claims Paid (All Time)</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-pink)">284</div><div class="stat-lbl">Active Policies</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-cyan)">99.2%</div><div class="stat-lbl">Claims Approval Rate</div></div>
+        <div class="stat-card"><div class="stat-val style-1ef001" >284</div><div class="stat-lbl">Active Policies</div></div>
+        <div class="stat-card"><div class="stat-val style-a9147c" >99.2%</div><div class="stat-lbl">Claims Approval Rate</div></div>
       </div>
 
       <!-- Coverage Plans -->
       <div class="ins-card">
-        <h2 style="margin:0 0 8px;font-size:1.2rem;color:#fff">📋 Coverage Plans</h2>
-        <p style="margin:0 0 12px;color:var(--text-secondary);font-size:0.85rem">Select a coverage tier to protect your DeFi positions against smart contract exploits.</p>
+        <h2  class="style-6f05e2">📋 Coverage Plans</h2>
+        <p  class="style-1ac755">Select a coverage tier to protect your DeFi positions against smart contract exploits.</p>
         <div class="plan-grid">
           <div class="plan-card" onclick="selectPlan(this,'Basic','0.5%','$50,000',30)">
-            <div style="font-size:1.4rem">🔵</div>
-            <div style="font-weight:700;color:#fff;margin:8px 0 4px">Basic Shield</div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Premium: <strong style="color:var(--quantum-cyan)">0.5% / month</strong></div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Max Coverage: <strong style="color:#fff">$50,000</strong></div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Duration: 30 days</div>
-            <div style="margin-top:10px;font-size:0.78rem;color:var(--text-secondary)">✅ Flash loan attacks<br>✅ Reentrancy exploits</div>
+            <div  class="style-40a550">🔵</div>
+            <div  class="style-1dea5e">Basic Shield</div>
+            <div  class="style-d81bad">Premium: <strong  class="style-a9147c">0.5% / month</strong></div>
+            <div  class="style-d81bad">Max Coverage: <strong  class="style-b59271">$50,000</strong></div>
+            <div  class="style-d81bad">Duration: 30 days</div>
+            <div  class="style-95b57c">✅ Flash loan attacks<br>✅ Reentrancy exploits</div>
           </div>
           <div class="plan-card" onclick="selectPlan(this,'Pro','1.2%','$500,000',90)">
-            <div style="font-size:1.4rem">🟣</div>
-            <div style="font-weight:700;color:#fff;margin:8px 0 4px">Pro Guardian</div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Premium: <strong style="color:var(--quantum-cyan)">1.2% / month</strong></div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Max Coverage: <strong style="color:#fff">$500,000</strong></div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Duration: 90 days</div>
-            <div style="margin-top:10px;font-size:0.78rem;color:var(--text-secondary)">✅ All Basic coverage<br>✅ Oracle manipulation<br>✅ Governance exploits</div>
+            <div  class="style-40a550">🟣</div>
+            <div  class="style-1dea5e">Pro Guardian</div>
+            <div  class="style-d81bad">Premium: <strong  class="style-a9147c">1.2% / month</strong></div>
+            <div  class="style-d81bad">Max Coverage: <strong  class="style-b59271">$500,000</strong></div>
+            <div  class="style-d81bad">Duration: 90 days</div>
+            <div  class="style-95b57c">✅ All Basic coverage<br>✅ Oracle manipulation<br>✅ Governance exploits</div>
           </div>
           <div class="plan-card" onclick="selectPlan(this,'Enterprise','2.5%','$5,000,000',365)">
-            <div style="font-size:1.4rem">🟡</div>
-            <div style="font-weight:700;color:#ffd700;margin:8px 0 4px">Enterprise Fortress</div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Premium: <strong style="color:var(--quantum-cyan)">2.5% / month</strong></div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Max Coverage: <strong style="color:#fff">$5,000,000</strong></div>
-            <div style="font-size:0.78rem;color:var(--text-secondary)">Duration: 365 days</div>
-            <div style="margin-top:10px;font-size:0.78rem;color:var(--text-secondary)">✅ All Pro coverage<br>✅ Cross-chain bridge failures<br>✅ Protocol insolvency</div>
+            <div  class="style-40a550">🟡</div>
+            <div  class="style-37a44b">Enterprise Fortress</div>
+            <div  class="style-d81bad">Premium: <strong  class="style-a9147c">2.5% / month</strong></div>
+            <div  class="style-d81bad">Max Coverage: <strong  class="style-b59271">$5,000,000</strong></div>
+            <div  class="style-d81bad">Duration: 365 days</div>
+            <div  class="style-95b57c">✅ All Pro coverage<br>✅ Cross-chain bridge failures<br>✅ Protocol insolvency</div>
           </div>
         </div>
       </div>
 
       <!-- Purchase Form -->
       <div class="ins-card">
-        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">⚡ Purchase Coverage</h2>
-        <p id="selectedPlanLabel" style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 12px">Select a plan above to continue.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+        <h2  class="style-a15efd">⚡ Purchase Coverage</h2>
+        <p id="selectedPlanLabel"  class="style-3bba39">Select a plan above to continue.</p>
+        <div  class="style-20b942">
           <div>
-            <label for="coverageAmount" style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Coverage Amount (USD)</label>
+            <label for="coverageAmount"  class="style-87210e">Coverage Amount (USD)</label>
             <input type="number" id="coverageAmount" class="form-input" placeholder="e.g. 100000" title="Coverage Amount" aria-label="Coverage Amount" min="0" oninput="calcPremium()" />
           </div>
           <div>
-            <label for="walletAddr" style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Wallet Address to Protect</label>
+            <label for="walletAddr"  class="style-87210e">Wallet Address to Protect</label>
             <input type="text" id="walletAddr" class="form-input" placeholder="0x..." title="Wallet Address" aria-label="Wallet Address" />
           </div>
         </div>
-        <div id="premiumEstimate" style="font-size:0.85rem;color:var(--quantum-cyan);font-family:monospace;margin-bottom:14px;display:none"></div>
-        <button class="btn-primary" style="width:100%" onclick="purchaseCoverage()">🛡️ Activate Coverage Policy</button>
-        <div id="insMsg" style="margin-top:12px;font-size:0.85rem;display:none"></div>
+        <div id="premiumEstimate"  class="style-ac3102"></div>
+        <button class="btn-primary style-8588e4"  onclick="purchaseCoverage()">🛡️ Activate Coverage Policy</button>
+        <div id="insMsg"  class="style-b2e0c9"></div>
       </div>
     </div>
 

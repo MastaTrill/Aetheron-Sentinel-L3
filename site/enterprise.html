@@ -124,7 +124,8 @@
         color: #fff;
       }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -160,7 +161,7 @@
       <!-- Stats Overview -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-green)">99.99%</div>
+          <div class="stat-val style-1ede3f" >99.99%</div>
           <div class="stat-lbl">SLA Interceptor Uptime</div>
         </div>
         <div class="stat-card">
@@ -168,11 +169,11 @@
           <div class="stat-lbl">Active Protected Contracts</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-cyan)">42 ms</div>
+          <div class="stat-val style-a9147c" >42 ms</div>
           <div class="stat-lbl">Average Intercept Latency</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-pink)">99.4/100</div>
+          <div class="stat-val style-1ef001" >99.4/100</div>
           <div class="stat-lbl">Institutional Health Score</div>
         </div>
       </div>
@@ -184,26 +185,26 @@
             <h2 class="panel-title">🛡️ Monitored Protocol Vaults</h2>
             <div class="vault-row">
               <div>
-                <strong style="color:#fff">Base Aetheron LP Vault</strong>
-                <div style="font-size:0.75rem;font-family:monospace;color:var(--text-secondary)">0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3</div>
+                <strong  class="style-b59271">Base Aetheron LP Vault</strong>
+                <div  class="style-32a037">0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3</div>
               </div>
-              <span style="color:var(--quantum-green);font-size:0.85rem">● Healthy</span>
+              <span  class="style-168e19">● Healthy</span>
               <button class="freeze-btn" onclick="freezeVault('Base Aetheron LP Vault')">⚡ Emergency Pause</button>
             </div>
             <div class="vault-row">
               <div>
-                <strong style="color:#fff">Arbitrum Yield Maximizer</strong>
-                <div style="font-size:0.75rem;font-family:monospace;color:var(--text-secondary)">0x2102c76c6528ecf7ebbf5102495d7531e823b6b5</div>
+                <strong  class="style-b59271">Arbitrum Yield Maximizer</strong>
+                <div  class="style-32a037">0x2102c76c6528ecf7ebbf5102495d7531e823b6b5</div>
               </div>
-              <span style="color:var(--quantum-green);font-size:0.85rem">● Healthy</span>
+              <span  class="style-168e19">● Healthy</span>
               <button class="freeze-btn" onclick="freezeVault('Arbitrum Yield Maximizer')">⚡ Emergency Pause</button>
             </div>
             <div class="vault-row">
               <div>
-                <strong style="color:#fff">Cross-Chain Oracle Bridge</strong>
-                <div style="font-size:0.75rem;font-family:monospace;color:var(--text-secondary)">0xd4f3000000000000000000000000000000000000</div>
+                <strong  class="style-b59271">Cross-Chain Oracle Bridge</strong>
+                <div  class="style-32a037">0xd4f3000000000000000000000000000000000000</div>
               </div>
-              <span style="color:var(--quantum-cyan);font-size:0.85rem">● Armed</span>
+              <span  class="style-818b92">● Armed</span>
               <button class="freeze-btn" onclick="freezeVault('Cross-Chain Oracle Bridge')">⚡ Emergency Pause</button>
             </div>
           </div>
@@ -212,16 +213,16 @@
           <div class="ent-panel">
             <h2 class="panel-title">🔔 Webhook &amp; PagerDuty Alert Router</h2>
             <div class="webhook-form">
-              <label for="discordWebhook" style="font-size:0.8rem;color:var(--text-secondary)">Discord Webhook URL</label>
+              <label for="discordWebhook"  class="style-503f41">Discord Webhook URL</label>
               <input type="text" id="discordWebhook" name="discordWebhook" class="webhook-input" title="Discord Webhook URL" placeholder="https://discord.com/api/webhooks/..." value="https://discord.com/api/webhooks/sentinel-alerts-prod" />
               
-              <label for="slackWebhook" style="font-size:0.8rem;color:var(--text-secondary)">Slack Webhook URL</label>
+              <label for="slackWebhook"  class="style-503f41">Slack Webhook URL</label>
               <input type="text" id="slackWebhook" name="slackWebhook" class="webhook-input" title="Slack Webhook URL" placeholder="https://hooks.slack.com/services/..." value="https://hooks.slack.com/services/sentinel/security-team" />
               
-              <label for="pagerdutyKey" style="font-size:0.8rem;color:var(--text-secondary)">PagerDuty Integration Key</label>
+              <label for="pagerdutyKey"  class="style-503f41">PagerDuty Integration Key</label>
               <input type="text" id="pagerdutyKey" name="pagerdutyKey" class="webhook-input" title="PagerDuty Integration Key" placeholder="pd-sec-key-..." value="pd-sec-key-9940218841-prod" />
 
-              <button class="btn-primary" style="margin-top:10px" onclick="saveWebhooks()">💾 Save Alert Configuration</button>
+              <button class="btn-primary style-92d173"  onclick="saveWebhooks()">💾 Save Alert Configuration</button>
             </div>
           </div>
         </div>
@@ -230,15 +231,15 @@
         <div>
           <div class="ent-panel">
             <h2 class="panel-title">📄 SOC2 Compliance</h2>
-            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5">
+            <p  class="style-2138ea">
               Sentinel L3 produces continuous real-time audit proofs verified by cryptographic SHA-256 signatures.
             </p>
-            <div style="background:var(--bg-primary);padding:14px;border-radius:10px;font-family:monospace;font-size:0.75rem;margin-bottom:16px">
-              <div style="color:var(--quantum-green)">✓ SOC2 Type II Certified</div>
-              <div style="color:var(--quantum-cyan)">✓ Real-Time Proof Logging</div>
-              <div style="color:var(--text-secondary)">✓ 24/7 SLA Guarantee</div>
+            <div  class="style-aafee0">
+              <div  class="style-1ede3f">✓ SOC2 Type II Certified</div>
+              <div  class="style-a9147c">✓ Real-Time Proof Logging</div>
+              <div  class="style-9155c9">✓ 24/7 SLA Guarantee</div>
             </div>
-            <button class="v-btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:#fff;cursor:pointer" onclick="downloadSlaCertificate()">📜 Download SLA Certificate</button>
+            <button class="v-btn style-130fc6"  onclick="downloadSlaCertificate()">📜 Download SLA Certificate</button>
           </div>
         </div>
       </div>

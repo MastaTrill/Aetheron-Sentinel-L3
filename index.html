@@ -12,7 +12,8 @@
     <link rel="icon" href="assets/favicon.ico" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="contracts.js"></script>
-  </head>
+      <link rel="stylesheet" href="./site/css/extracted-styles.css">
+</head>
 
   <body>
     <!-- Quantum Particle Background -->
@@ -30,24 +31,24 @@
         <div class="nav-menu" id="nav-menu">
           <a href="#home" class="nav-link active">Home</a>
           <a href="#technology" class="nav-link">Tech</a>
-          <a href="mobile-app.html" class="nav-link" style="color:var(--quantum-pink)">📱 Mobile Guard</a>
-          <a href="governance.html" class="nav-link" style="color:var(--quantum-cyan)">🗳️ DAO Governance</a>
-          <a href="enterprise.html" class="nav-link" style="color:var(--quantum-green)">🏢 Enterprise</a>
-          <a href="referral.html" class="nav-link" style="color:#ff6b00">🎁 Referrals</a>
-          <a href="telemetry.html" class="nav-link" style="color:var(--quantum-cyan)">🌐 Telemetry</a>
-          <a href="quantum.html" class="nav-link" style="color:#a855f7">🔐 Quantum</a>
-          <a href="api-docs.html" class="nav-link" style="color:var(--quantum-green)">📄 API Docs</a>
-          <a href="analytics.html" class="nav-link" style="color:var(--quantum-cyan)">📊 Analytics</a>
-          <a href="bug-bounty.html" class="nav-link" style="color:var(--quantum-pink)">🛡️ Bug Bounty</a>
-          <a href="vaults.html" class="nav-link" style="color:var(--quantum-cyan)">🌊 Vaults</a>
-          <a href="ai-assistant.html" class="nav-link" style="color:var(--quantum-green)">🤖 AI Copilot</a>
-          <a href="threat-feed.html" class="nav-link" style="color:var(--quantum-pink)">🚨 Threat Feed</a>
-          <a href="staking.html" class="nav-link" style="color:var(--quantum-green)">🏦 Staking</a>
-          <a href="roadmap.html" class="nav-link" style="color:#a855f7">🗺️ Roadmap</a>
-          <a href="notifications.html" class="nav-link" style="color:var(--quantum-cyan)">🔔 Alerts</a>
-          <a href="insurance.html" class="nav-link" style="color:var(--quantum-pink)">🛡️ Insurance</a>
-          <a href="leaderboard.html" class="nav-link" style="color:#ffd700">🏆 Leaderboard</a>
-          <a href="liquidity.html" class="nav-link" style="color:var(--quantum-cyan)">💧 Liquidity</a>
+          <a href="mobile-app.html" class="nav-link style-1ef001" >📱 Mobile Guard</a>
+          <a href="governance.html" class="nav-link style-a9147c" >🗳️ DAO Governance</a>
+          <a href="enterprise.html" class="nav-link style-1ede3f" >🏢 Enterprise</a>
+          <a href="referral.html" class="nav-link style-4f135e" >🎁 Referrals</a>
+          <a href="telemetry.html" class="nav-link style-a9147c" >🌐 Telemetry</a>
+          <a href="quantum.html" class="nav-link style-d83165" >🔐 Quantum</a>
+          <a href="api-docs.html" class="nav-link style-1ede3f" >📄 API Docs</a>
+          <a href="analytics.html" class="nav-link style-a9147c" >📊 Analytics</a>
+          <a href="bug-bounty.html" class="nav-link style-1ef001" >🛡️ Bug Bounty</a>
+          <a href="vaults.html" class="nav-link style-a9147c" >🌊 Vaults</a>
+          <a href="ai-assistant.html" class="nav-link style-1ede3f" >🤖 AI Copilot</a>
+          <a href="threat-feed.html" class="nav-link style-1ef001" >🚨 Threat Feed</a>
+          <a href="staking.html" class="nav-link style-1ede3f" >🏦 Staking</a>
+          <a href="roadmap.html" class="nav-link style-d83165" >🗺️ Roadmap</a>
+          <a href="notifications.html" class="nav-link style-a9147c" >🔔 Alerts</a>
+          <a href="insurance.html" class="nav-link style-1ef001" >🛡️ Insurance</a>
+          <a href="leaderboard.html" class="nav-link style-6e3c1b" >🏆 Leaderboard</a>
+          <a href="liquidity.html" class="nav-link style-a9147c" >💧 Liquidity</a>
           <a href="#security" class="nav-link">Security</a>
           <a href="#tokenomics" class="nav-link">Tokenomics</a>
           <a href="#roadmap" class="nav-link">Roadmap</a>
@@ -115,7 +116,7 @@
           <!-- Countdown Timer -->
           <div class="countdown-wrapper">
             <div class="countdown-label">&#x1F525; AETH Presale Progress</div>
-            <div class="countdown" id="countdown" style="margin-bottom:15px">
+            <div class="countdown style-d7858c" id="countdown" >
               <div class="cd-unit"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">Days</span></div>
               <div class="cd-sep">:</div>
               <div class="cd-unit"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">Hours</span></div>
@@ -126,21 +127,21 @@
             </div>
             
             <!-- Live Progress Bar -->
-            <div class="presale-progress-bar-container" style="background:rgba(255,255,255,0.08);border-radius:6px;height:12px;width:100%;margin-bottom:8px;position:relative;overflow:hidden">
-              <div id="presaleProgressBar" style="background:linear-gradient(90deg,var(--quantum-cyan),var(--quantum-pink));height:100%;width:0%;transition:width 1s ease-out"></div>
+            <div class="presale-progress-bar-container style-845612" >
+              <div id="presaleProgressBar"  class="style-02acae"></div>
             </div>
-            <div class="presale-stats-row" style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);font-family:monospace;margin-bottom:12px">
-              <span>Raised: <strong id="raisedVal" style="color:var(--quantum-green)">0.00</strong> ETH</span>
+            <div class="presale-stats-row style-6763c4" >
+              <span>Raised: <strong id="raisedVal"  class="style-1ede3f">0.00</strong> ETH</span>
               <span id="percentVal">0%</span>
               <span>Target: <strong>250.00</strong> ETH</span>
             </div>
-            <div style="font-size:0.75rem;color:var(--text-secondary);display:flex;justify-content:space-between;margin-bottom:12px">
-              <span>👥 Participants: <strong id="particVal" style="color:var(--text-primary)">0</strong></span>
+            <div  class="style-6cd4bb">
+              <span>👥 Participants: <strong id="particVal"  class="style-db2a40">0</strong></span>
               <span>Min/Max Buy: 0.0003 - 2.50 ETH</span>
             </div>
             
             <!-- Risk Disclaimer -->
-            <div class="presale-disclaimer" style="font-size:0.65rem;color:rgba(184,197,214,0.5);line-height:1.4;border-top:1px solid var(--border-color);padding-top:10px;text-align:left">
+            <div class="presale-disclaimer style-a83a97" >
               ⚠️ <strong>Risk Warning:</strong> Participation in the AETH presale carries risk. Platform launch parameters and smart contract audits are ongoing. Read the technical documentation fully before contributing.
             </div>
           </div>
@@ -482,19 +483,19 @@
         <h2 class="section-title">Join the Sentinel Network</h2>
         <div class="community-links">
           <a href="#" class="community-link">
-            <span class="comm-icon" style="color:#5865F2">&#128172;</span>
+            <span class="comm-icon style-fb96ce" >&#128172;</span>
             <span>Discord</span>
           </a>
           <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="community-link">
-            <span class="comm-icon" style="color:#ff00ff">&#120143;</span>
+            <span class="comm-icon style-d528d8" >&#120143;</span>
             <span>Twitter</span>
           </a>
           <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3" target="_blank" rel="noopener noreferrer" class="community-link">
-            <span class="comm-icon" style="color:#00ff88">&#128025;</span>
+            <span class="comm-icon style-d5dc35" >&#128025;</span>
             <span>GitHub</span>
           </a>
           <a href="#documentation" class="community-link">
-            <span class="comm-icon" style="color:#a855f7">&#128196;</span>
+            <span class="comm-icon style-d83165" >&#128196;</span>
             <span>Docs</span>
           </a>
         </div>
@@ -541,11 +542,11 @@
             </svg>
           </div>
           <div class="tokenomics-legend">
-            <div class="token-row"><span class="token-dot" style="background:#00ffff"></span><strong>40%</strong> Public Sale — Presale on Base network</div>
-            <div class="token-row"><span class="token-dot" style="background:#ff00ff"></span><strong>20%</strong> Ecosystem — Protocol incentives &amp; rewards</div>
-            <div class="token-row"><span class="token-dot" style="background:#00ff88"></span><strong>15%</strong> Team — 12-month cliff, 24-month vest</div>
-            <div class="token-row"><span class="token-dot" style="background:#ff6b00"></span><strong>15%</strong> Treasury — DAO-controlled reserve</div>
-            <div class="token-row"><span class="token-dot" style="background:#a855f7"></span><strong>10%</strong> Liquidity — Initial DEX liquidity</div>
+            <div class="token-row"><span class="token-dot style-a68694" ></span><strong>40%</strong> Public Sale — Presale on Base network</div>
+            <div class="token-row"><span class="token-dot style-7dc4a9" ></span><strong>20%</strong> Ecosystem — Protocol incentives &amp; rewards</div>
+            <div class="token-row"><span class="token-dot style-bc11fa" ></span><strong>15%</strong> Team — 12-month cliff, 24-month vest</div>
+            <div class="token-row"><span class="token-dot style-f69788" ></span><strong>15%</strong> Treasury — DAO-controlled reserve</div>
+            <div class="token-row"><span class="token-dot style-0148f8" ></span><strong>10%</strong> Liquidity — Initial DEX liquidity</div>
             <div class="token-stats">
               <div class="ts"><div class="ts-val">100,000,000,000</div><div class="ts-lbl">Total Supply</div></div>
               <div class="ts"><div class="ts-val">$0.28</div><div class="ts-lbl">Current Price</div></div>
@@ -553,66 +554,66 @@
             </div>
 
             <!-- Position & Asset Statistics Widget -->
-            <div class="asset-position-card" style="margin-top:30px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,0.3)">
-              <div style="font-size:0.9rem;font-weight:bold;color:var(--text-secondary);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px">Your Position</div>
+            <div class="asset-position-card style-e28e74" >
+              <div  class="style-2298a1">Your Position</div>
               
-              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border-color)">
-                <div style="display:flex;align-items:center;gap:12px">
-                  <div style="width:38px;height:38px;border-radius:50%;background:#000;border:1px solid var(--quantum-cyan);display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff">S</div>
+              <div  class="style-1b37ba">
+                <div  class="style-9cc5e9">
+                  <div  class="style-c69609">S</div>
                   <div>
-                    <strong style="font-size:1.05rem;color:#fff">SENTINEL</strong>
-                    <div style="font-size:0.75rem;color:var(--text-secondary)">SENTINEL on 1 Networks ℹ️</div>
+                    <strong  class="style-66ed37">SENTINEL</strong>
+                    <div  class="style-307a8c">SENTINEL on 1 Networks ℹ️</div>
                   </div>
                 </div>
-                <div style="text-align:right">
-                  <div style="font-size:1.1rem;font-weight:bold;color:#fff">$0.28</div>
-                  <div style="font-size:0.8rem;font-family:monospace;color:var(--quantum-cyan)">1,451,782.63 SENTINEL</div>
+                <div  class="style-08a0ed">
+                  <div  class="style-f224af">$0.28</div>
+                  <div  class="style-d8f5b1">1,451,782.63 SENTINEL</div>
                 </div>
               </div>
 
-              <div style="display:flex;justify-content:space-between;padding:12px 0;font-size:0.85rem;color:var(--text-secondary);border-bottom:1px solid var(--border-color)">
+              <div  class="style-048cb6">
                 <span>Average Cost</span>
-                <span style="font-family:monospace;color:#fff">$0.26</span>
+                <span  class="style-3b03da">$0.26</span>
               </div>
-              <div style="display:flex;justify-content:space-between;padding:12px 0;font-size:0.85rem;color:var(--text-secondary);border-bottom:1px solid var(--border-color)">
+              <div  class="style-048cb6">
                 <span>PnL</span>
-                <span style="font-family:monospace;color:var(--quantum-green);font-weight:bold">+$0.02 (+6.6%)</span>
+                <span  class="style-e6524b">+$0.02 (+6.6%)</span>
               </div>
 
-              <div style="margin-top:20px;font-size:0.9rem;font-weight:bold;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Asset Statistics</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem">
-                <div style="background:var(--bg-primary);padding:10px 14px;border-radius:8px;border:1px solid var(--border-color)">
-                  <div style="font-size:0.75rem;color:var(--text-secondary)">Total Supply</div>
-                  <div style="font-family:monospace;font-weight:bold;color:#fff;margin-top:4px">100B</div>
+              <div  class="style-f6dcce">Asset Statistics</div>
+              <div  class="style-cc5c3f">
+                <div  class="style-edb8a6">
+                  <div  class="style-307a8c">Total Supply</div>
+                  <div  class="style-2668de">100B</div>
                 </div>
-                <div style="background:var(--bg-primary);padding:10px 14px;border-radius:8px;border:1px solid var(--border-color)">
-                  <div style="font-size:0.75rem;color:var(--text-secondary)">Circulating Supply</div>
-                  <div style="font-family:monospace;font-weight:bold;color:#fff;margin-top:4px">100B</div>
+                <div  class="style-edb8a6">
+                  <div  class="style-307a8c">Circulating Supply</div>
+                  <div  class="style-2668de">100B</div>
                 </div>
-                <div style="background:var(--bg-primary);padding:10px 14px;border-radius:8px;border:1px solid var(--border-color)">
-                  <div style="font-size:0.75rem;color:var(--text-secondary)">Holders</div>
-                  <div style="font-family:monospace;font-weight:bold;color:var(--quantum-cyan);margin-top:4px">14</div>
+                <div  class="style-edb8a6">
+                  <div  class="style-307a8c">Holders</div>
+                  <div  class="style-32f193">14</div>
                 </div>
-                <div style="background:var(--bg-primary);padding:10px 14px;border-radius:8px;border:1px solid var(--border-color)">
-                  <div style="font-size:0.75rem;color:var(--text-secondary)">Liquidity</div>
-                  <div style="font-family:monospace;font-weight:bold;color:var(--quantum-green);margin-top:4px">$1.00</div>
+                <div  class="style-edb8a6">
+                  <div  class="style-307a8c">Liquidity</div>
+                  <div  class="style-4ae272">$1.00</div>
                 </div>
               </div>
 
-              <div style="margin-top:20px;font-size:0.85rem;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center">
+              <div  class="style-8b84ac">
                 <span>Recent Swap Activity:</span>
-                <span style="font-size:0.75rem;font-family:monospace;color:var(--quantum-pink)">Jul 19, 2026 • 5:05 AM</span>
+                <span  class="style-cc18c8">Jul 19, 2026 • 5:05 AM</span>
               </div>
 
               <!-- Base Mainnet Contract Verified Badge -->
-              <div style="margin-top:16px;padding:12px;background:rgba(0,255,255,0.05);border:1px dashed var(--quantum-cyan);border-radius:8px;font-size:0.78rem">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-                  <span style="color:var(--quantum-cyan);font-weight:bold">🔵 Base Mainnet Token Address</span>
-                  <a href="https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3" target="_blank" rel="noopener noreferrer" style="color:var(--quantum-pink);text-decoration:none">View BaseScan ↗</a>
+              <div  class="style-96f631">
+                <div  class="style-403b84">
+                  <span  class="style-02e0ae">🔵 Base Mainnet Token Address</span>
+                  <a href="https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3" target="_blank" rel="noopener noreferrer"  class="style-df2afa">View BaseScan ↗</a>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-primary);padding:8px 10px;border-radius:6px;font-family:monospace;color:#fff">
+                <div  class="style-e0ef3f">
                   <span id="baseContractAddr">0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3</span>
-                  <button id="copyBaseBtn" style="background:none;border:none;color:var(--quantum-cyan);cursor:pointer;font-size:0.85rem" title="Copy Address">📋 Copy</button>
+                  <button id="copyBaseBtn"  title="Copy Address" class="style-83688d">📋 Copy</button>
                 </div>
               </div>
             </div>
@@ -688,7 +689,7 @@
             <div class="cr-item"><div class="cr-val" id="crYearly">--</div><div class="cr-lbl">Yearly Yield (AETH)</div></div>
             <div class="cr-item"><div class="cr-val" id="crUsd">--</div><div class="cr-lbl">Est. Yearly (USD @ $0.0042)</div></div>
           </div>
-          <button class="btn-primary" id="calcBtn" style="margin-top:20px;width:100%">Calculate Yield &#x26A1;</button>
+          <button class="btn-primary style-63b11f" id="calcBtn" >Calculate Yield &#x26A1;</button>
         </div>
       </div>
     </section>
@@ -721,19 +722,19 @@
             <div class="audit-icon">&#128737;</div>
             <h3>HackenProof</h3>
             <p>Active bug bounty program. Responsible disclosure for all critical vulnerabilities.</p>
-            <a href="https://hackenproof.com" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:0.8rem;padding:8px 14px">View Program &#x2197;</a>
+            <a href="https://hackenproof.com" target="_blank" rel="noopener noreferrer" class="btn-secondary style-3548eb" >View Program &#x2197;</a>
           </div>
           <div class="audit-card">
             <div class="audit-icon">&#128274;</div>
             <h3>Open Source</h3>
             <p>All contracts are open source and publicly verifiable on GitHub. No hidden logic.</p>
-            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:0.8rem;padding:8px 14px">View Code &#x2197;</a>
+            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3" target="_blank" rel="noopener noreferrer" class="btn-secondary style-3548eb" >View Code &#x2197;</a>
           </div>
           <div class="audit-card">
             <div class="audit-icon">&#128203;</div>
             <h3>Security Policy</h3>
             <p>Formal security policy and responsible disclosure process documented on GitHub.</p>
-            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:0.8rem;padding:8px 14px">Read Policy &#x2197;</a>
+            <a href="https://github.com/MastaTrill/Aetheron-Sentinel-L3/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer" class="btn-secondary style-3548eb" >Read Policy &#x2197;</a>
           </div>
           <div class="audit-card audit-coming">
             <div class="audit-icon">&#128269;</div>
@@ -752,21 +753,21 @@
         <p class="section-subtitle">Battle-tested engineers &amp; security researchers</p>
         <div class="team-grid">
           <div class="team-card">
-            <div class="team-avatar" style="background:linear-gradient(135deg,#00ffff,#ff00ff)">MT</div>
+            <div class="team-avatar style-776f15" >MT</div>
             <h3>MastaTrill</h3>
             <div class="team-role">Founder &amp; Lead Engineer</div>
             <p>Full-stack blockchain engineer specializing in cross-chain security, AI threat detection, and DeFi protocol design.</p>
             <a href="https://github.com/MastaTrill" target="_blank" rel="noopener noreferrer" class="team-link">&#128025; GitHub</a>
           </div>
           <div class="team-card">
-            <div class="team-avatar" style="background:linear-gradient(135deg,#00ff88,#00ffff)">AI</div>
+            <div class="team-avatar style-c2d4cb" >AI</div>
             <h3>Aetheron AI</h3>
             <div class="team-role">Autonomous Interceptor System</div>
             <p>The Sentinel's AI core — trained on 10M+ on-chain attack patterns, operating 24/7 with sub-100ms response time.</p>
             <span class="team-link">&#129302; Autonomous Agent</span>
           </div>
           <div class="team-card">
-            <div class="team-avatar" style="background:linear-gradient(135deg,#a855f7,#ff00ff)">QR</div>
+            <div class="team-avatar style-1d4e32" >QR</div>
             <h3>Quantum Research</h3>
             <div class="team-role">Cryptography Division</div>
             <p>Specialists in post-quantum cryptography (CRYSTALS-Kyber, Dilithium) ensuring future-proof security architecture.</p>
@@ -955,12 +956,12 @@
             <h4>Contract Address</h4>
             <p class="contract-addr" id="contractAddr" title="Click to copy">0xAETH...Base</p>
             <p class="contract-network">&#128279; Base Network</p>
-            <a href="https://aistudio.google.com/app/apps/800dd05f-7235-450c-8470-b340ae5a75aa?showPreview=true&showAssistant=true" target="_blank" rel="noopener noreferrer" class="btn-primary" style="margin-top:12px;font-size:0.8rem;padding:8px 14px">Launch App &#x2197;</a>
+            <a href="https://aistudio.google.com/app/apps/800dd05f-7235-450c-8470-b340ae5a75aa?showPreview=true&showAssistant=true" target="_blank" rel="noopener noreferrer" class="btn-primary style-d8f775" >Launch App &#x2197;</a>
           </div>
         </div>
         <div class="footer-bottom">
           <span>&copy; 2026 Aetheron Sentinel L3. All rights reserved.</span>
-          <span class="footer-status">&#x25CF; Network Status: <strong style="color:var(--quantum-green)">Operational</strong></span>
+          <span class="footer-status">&#x25CF; Network Status: <strong  class="style-1ede3f">Operational</strong></span>
         </div>
       </div>
     </footer>
@@ -1057,10 +1058,10 @@
     <!-- Cookie Consent Banner -->
     <div class="cookie-banner" id="cookieBanner">
       <div class="cookie-content">
-        <span>🍪 We use cookies to enhance your experience and analyze site traffic. <a href="#" style="color:var(--quantum-cyan)">Learn more</a></span>
+        <span>🍪 We use cookies to enhance your experience and analyze site traffic. <a href="#"  class="style-a9147c">Learn more</a></span>
         <div class="cookie-btns">
-          <button class="btn-primary" id="cookieAccept" style="padding:8px 18px;font-size:0.85rem">Accept</button>
-          <button class="btn-secondary" id="cookieDecline" style="padding:8px 18px;font-size:0.85rem">Decline</button>
+          <button class="btn-primary style-6e4a71" id="cookieAccept" >Accept</button>
+          <button class="btn-secondary style-6e4a71" id="cookieDecline" >Decline</button>
         </div>
       </div>
     </div>
@@ -1115,7 +1116,7 @@
         const now = Date.now();
         const diff = countdownTarget - now;
         if (diff <= 0) {
-          document.getElementById('countdown').innerHTML = '<span style="color:var(--quantum-green);font-size:1.2rem">🎉 Presale Ended!</span>';
+          document.getElementById('countdown').innerHTML = '<span  class="style-8c6ae7">🎉 Presale Ended!</span>';
           return;
         }
         const d = Math.floor(diff / 86400000);

@@ -20,7 +20,8 @@
       .checkbox-row label { font-size: 0.88rem; cursor: pointer; }
       .severity-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -54,51 +55,51 @@
 
       <!-- Subscription Form -->
       <div class="notif-card">
-        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">📧 Email / Webhook Subscription</h2>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <h2  class="style-a15efd">📧 Email / Webhook Subscription</h2>
+        <div  class="style-e55678">
           <div>
-            <label for="subEmail" style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Email Address</label>
+            <label for="subEmail"  class="style-87210e">Email Address</label>
             <input type="email" id="subEmail" class="form-input" placeholder="you@example.com" title="Email Address" aria-label="Email Address" />
           </div>
           <div>
-            <label for="subWebhook" style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Webhook URL (optional)</label>
+            <label for="subWebhook"  class="style-87210e">Webhook URL (optional)</label>
             <input type="url" id="subWebhook" class="form-input" placeholder="https://hooks.slack.com/..." title="Webhook URL" aria-label="Webhook URL" />
           </div>
         </div>
 
-        <p style="margin:0 0 8px;font-size:0.85rem;color:var(--text-secondary)">📊 Severity Filters (select all that apply):</p>
+        <p  class="style-20d352">📊 Severity Filters (select all that apply):</p>
         <div class="checkbox-grid">
           <div class="checkbox-row">
             <input type="checkbox" id="sevCritical" name="severity" value="critical" checked />
-            <label for="sevCritical"><span class="severity-dot" style="background:#ff5050"></span> <span style="color:#ff5050;font-weight:600">CRITICAL</span> — Immediate threats (flash loans, governance exploits)</label>
+            <label for="sevCritical"><span class="severity-dot style-4f0b3d" ></span> <span  class="style-2fb59d">CRITICAL</span> — Immediate threats (flash loans, governance exploits)</label>
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sevHigh" name="severity" value="high" checked />
-            <label for="sevHigh"><span class="severity-dot" style="background:#ff8c00"></span> <span style="color:#ff8c00;font-weight:600">HIGH</span> — Significant attacks (oracle manipulation, reentrancy)</label>
+            <label for="sevHigh"><span class="severity-dot style-e56800" ></span> <span  class="style-a15f5b">HIGH</span> — Significant attacks (oracle manipulation, reentrancy)</label>
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sevMedium" name="severity" value="medium" />
-            <label for="sevMedium"><span class="severity-dot" style="background:#ffd700"></span> <span style="color:#ffd700;font-weight:600">MEDIUM</span> — Notable events (sandwich attacks)</label>
+            <label for="sevMedium"><span class="severity-dot style-3d40ac" ></span> <span  class="style-e91f82">MEDIUM</span> — Notable events (sandwich attacks)</label>
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sevLow" name="severity" value="low" />
-            <label for="sevLow"><span class="severity-dot" style="background:var(--quantum-green)"></span> <span style="color:var(--quantum-green);font-weight:600">LOW</span> — Informational (approval phishing attempts)</label>
+            <label for="sevLow"><span class="severity-dot style-8e5add" ></span> <span  class="style-04ac96">LOW</span> — Informational (approval phishing attempts)</label>
           </div>
         </div>
 
-        <div style="display:flex;gap:12px;margin-top:20px">
-          <button class="btn-primary" style="flex:1" onclick="handleSubscribe()">🔔 Subscribe to Alerts</button>
-          <button onclick="handleTestAlert()" style="padding:12px 20px;border-radius:8px;border:1px solid var(--quantum-cyan);color:var(--quantum-cyan);background:transparent;cursor:pointer;font-weight:600;font-size:0.9rem">⚡ Send Test Alert</button>
+        <div  class="style-c29476">
+          <button class="btn-primary style-d5e8c5"  onclick="handleSubscribe()">🔔 Subscribe to Alerts</button>
+          <button onclick="handleTestAlert()"  class="style-be1b95">⚡ Send Test Alert</button>
         </div>
-        <div id="notifMsg" style="margin-top:14px;font-size:0.85rem;display:none"></div>
+        <div id="notifMsg"  class="style-f0d1b9"></div>
       </div>
 
       <!-- Active Subscriptions Card -->
       <div class="notif-card">
-        <h2 style="margin:0 0 14px;font-size:1.2rem;color:#fff">📋 Active Subscriptions</h2>
-        <div id="subList" style="display:flex;flex-direction:column;gap:10px">
-          <div style="padding:12px 14px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-            <span style="color:var(--text-secondary)">No active subscriptions. Subscribe above to get started.</span>
+        <h2  class="style-40f4f5">📋 Active Subscriptions</h2>
+        <div id="subList"  class="style-cd1d67">
+          <div  class="style-1059d3">
+            <span  class="style-9155c9">No active subscriptions. Subscribe above to get started.</span>
           </div>
         </div>
       </div>
@@ -133,9 +134,9 @@
       function renderSubs() {
         const list = document.getElementById('subList');
         list.innerHTML = subs.map((s, i) => `
-          <div style="padding:12px 14px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-            <div><span style="color:#fff">${s.email}</span><br><span style="color:var(--text-secondary);font-size:0.78rem">Filters: ${s.severities.map(sv => sv.toUpperCase()).join(', ')}</span></div>
-            <button onclick="removeSub(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid #ff5050;color:#ff5050;background:transparent;cursor:pointer;font-size:0.75rem">Remove</button>
+          <div  class="style-1059d3">
+            <div><span  class="style-b59271">${s.email}</span><br><span  class="style-148cca">Filters: ${s.severities.map(sv => sv.toUpperCase()).join(', ')}</span></div>
+            <button onclick="removeSub(${i})"  class="style-92a9c3">Remove</button>
           </div>`).join('');
       }
 

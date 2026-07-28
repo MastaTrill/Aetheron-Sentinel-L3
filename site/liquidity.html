@@ -26,7 +26,8 @@
       .tab { padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); transition: all 0.2s; }
       .tab.active { background: var(--bg-secondary); color: #fff; font-weight: 600; }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -53,15 +54,15 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-green)">$28,400,000</div><div class="stat-lbl">Total Liquidity (TVL)</div></div>
+        <div class="stat-card"><div class="stat-val style-1ede3f" >$28,400,000</div><div class="stat-lbl">Total Liquidity (TVL)</div></div>
         <div class="stat-card"><div class="stat-val">$9,120,000</div><div class="stat-lbl">24h Volume</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-cyan)">$27,360</div><div class="stat-lbl">24h Fees Generated</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--quantum-pink)">4 Pools</div><div class="stat-lbl">Active Pools</div></div>
+        <div class="stat-card"><div class="stat-val style-a9147c" >$27,360</div><div class="stat-lbl">24h Fees Generated</div></div>
+        <div class="stat-card"><div class="stat-val style-1ef001" >4 Pools</div><div class="stat-lbl">Active Pools</div></div>
       </div>
 
       <!-- Pool Table -->
       <div class="pool-card">
-        <h2 style="margin:0 0 16px;font-size:1.2rem;color:#fff">🌊 Active Liquidity Pools</h2>
+        <h2  class="style-a15efd">🌊 Active Liquidity Pools</h2>
         <table class="pool-table">
           <thead>
             <tr>
@@ -70,68 +71,68 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>SENTINEL / ETH</strong><br><span style="font-size:0.75rem;color:var(--text-secondary)">Base Mainnet · 0.30% fee</span></td>
-              <td style="font-family:monospace">$14,200,000</td>
-              <td style="font-family:monospace">$4,840,000</td>
+              <td><strong>SENTINEL / ETH</strong><br><span  class="style-307a8c">Base Mainnet · 0.30% fee</span></td>
+              <td  class="style-c66b41">$14,200,000</td>
+              <td  class="style-c66b41">$4,840,000</td>
               <td><span class="apy-badge">38.2% APY</span></td>
-              <td style="color:var(--text-secondary)">—</td>
-              <td><button class="btn-primary" style="padding:6px 14px;font-size:0.78rem" onclick="openModal('SENTINEL/ETH')">Add</button></td>
+              <td  class="style-9155c9">—</td>
+              <td><button class="btn-primary style-a6358c"  onclick="openModal('SENTINEL/ETH')">Add</button></td>
             </tr>
             <tr>
-              <td><strong>SENTINEL / USDC</strong><br><span style="font-size:0.75rem;color:var(--text-secondary)">Base Mainnet · 0.30% fee</span></td>
-              <td style="font-family:monospace">$8,700,000</td>
-              <td style="font-family:monospace">$2,910,000</td>
+              <td><strong>SENTINEL / USDC</strong><br><span  class="style-307a8c">Base Mainnet · 0.30% fee</span></td>
+              <td  class="style-c66b41">$8,700,000</td>
+              <td  class="style-c66b41">$2,910,000</td>
               <td><span class="apy-badge">22.4% APY</span></td>
-              <td style="color:var(--text-secondary)">—</td>
-              <td><button class="btn-primary" style="padding:6px 14px;font-size:0.78rem" onclick="openModal('SENTINEL/USDC')">Add</button></td>
+              <td  class="style-9155c9">—</td>
+              <td><button class="btn-primary style-a6358c"  onclick="openModal('SENTINEL/USDC')">Add</button></td>
             </tr>
             <tr>
-              <td><strong>SENTINEL / WBTC</strong><br><span style="font-size:0.75rem;color:var(--text-secondary)">Arbitrum · 0.30% fee</span></td>
-              <td style="font-family:monospace">$3,800,000</td>
-              <td style="font-family:monospace">$980,000</td>
+              <td><strong>SENTINEL / WBTC</strong><br><span  class="style-307a8c">Arbitrum · 0.30% fee</span></td>
+              <td  class="style-c66b41">$3,800,000</td>
+              <td  class="style-c66b41">$980,000</td>
               <td><span class="apy-badge">14.8% APY</span></td>
-              <td style="color:var(--text-secondary)">—</td>
-              <td><button class="btn-primary" style="padding:6px 14px;font-size:0.78rem" onclick="openModal('SENTINEL/WBTC')">Add</button></td>
+              <td  class="style-9155c9">—</td>
+              <td><button class="btn-primary style-a6358c"  onclick="openModal('SENTINEL/WBTC')">Add</button></td>
             </tr>
             <tr>
-              <td><strong>SENTINEL / cbETH</strong><br><span style="font-size:0.75rem;color:var(--text-secondary)">Base Mainnet · 0.30% fee</span></td>
-              <td style="font-family:monospace">$1,700,000</td>
-              <td style="font-family:monospace">$390,000</td>
+              <td><strong>SENTINEL / cbETH</strong><br><span  class="style-307a8c">Base Mainnet · 0.30% fee</span></td>
+              <td  class="style-c66b41">$1,700,000</td>
+              <td  class="style-c66b41">$390,000</td>
               <td><span class="apy-badge">9.6% APY</span></td>
-              <td style="color:var(--text-secondary)">—</td>
-              <td><button class="btn-primary" style="padding:6px 14px;font-size:0.78rem" onclick="openModal('SENTINEL/cbETH')">Add</button></td>
+              <td  class="style-9155c9">—</td>
+              <td><button class="btn-primary style-a6358c"  onclick="openModal('SENTINEL/cbETH')">Add</button></td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <!-- Add Liquidity Panel -->
-      <div class="pool-card" id="addLiqPanel" style="display:none">
-        <h2 style="margin:0 0 6px;font-size:1.2rem;color:#fff">⚡ Add Liquidity — <span id="addLiqPair"></span></h2>
-        <p style="margin:0 0 16px;font-size:0.82rem;color:var(--text-secondary)">Deposit both assets proportionally to receive LP shares and start earning swap fees.</p>
+      <div class="pool-card style-93b8ea" id="addLiqPanel" >
+        <h2  class="style-b5c3c1">⚡ Add Liquidity — <span id="addLiqPair"></span></h2>
+        <p  class="style-abef1e">Deposit both assets proportionally to receive LP shares and start earning swap fees.</p>
         <div class="tabs">
           <div class="tab active" id="tab-add" onclick="switchTab('add')">Add Liquidity</div>
           <div class="tab" id="tab-remove" onclick="switchTab('remove')">Remove Liquidity</div>
         </div>
         <div id="addPanel">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+          <div  class="style-20b942">
             <div>
-              <label style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">SENTINEL Amount</label>
+              <label  class="style-87210e">SENTINEL Amount</label>
               <input type="number" id="lpSentinel" class="form-input" placeholder="e.g. 500000" title="SENTINEL Amount" aria-label="SENTINEL Amount" min="0" />
             </div>
             <div>
-              <label style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">Paired Asset Amount</label>
+              <label  class="style-87210e">Paired Asset Amount</label>
               <input type="number" id="lpPaired" class="form-input" placeholder="e.g. 1.5" title="Paired Asset Amount" aria-label="Paired Asset Amount" min="0" />
             </div>
           </div>
-          <button class="btn-primary" style="width:100%" onclick="handleAddLiquidity()">💧 Add Liquidity & Earn Fees</button>
+          <button class="btn-primary style-8588e4"  onclick="handleAddLiquidity()">💧 Add Liquidity & Earn Fees</button>
         </div>
-        <div id="removePanel" style="display:none">
-          <label style="display:block;font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px">LP Shares to Remove</label>
-          <input type="number" id="lpShares" class="form-input" placeholder="Enter LP share amount" title="LP Shares" aria-label="LP Shares" min="0" style="margin-bottom:14px" />
-          <button class="btn-primary" style="width:100%;background:var(--quantum-pink)" onclick="handleRemoveLiquidity()">🔥 Remove Liquidity</button>
+        <div id="removePanel"  class="style-93b8ea">
+          <label  class="style-87210e">LP Shares to Remove</label>
+          <input type="number" id="lpShares" class="form-input style-157a9c" placeholder="Enter LP share amount" title="LP Shares" aria-label="LP Shares" min="0"  />
+          <button class="btn-primary style-e60fd6"  onclick="handleRemoveLiquidity()">🔥 Remove Liquidity</button>
         </div>
-        <div id="lpMsg" style="margin-top:12px;font-size:0.85rem;display:none"></div>
+        <div id="lpMsg"  class="style-b2e0c9"></div>
       </div>
     </div>
 

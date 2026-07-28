@@ -82,7 +82,8 @@
         margin-top: 12px;
       }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -120,7 +121,7 @@
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-green)">100% NIST</div>
+          <div class="stat-val style-1ede3f" >100% NIST</div>
           <div class="stat-lbl">Post-Quantum Compliance</div>
         </div>
         <div class="stat-card">
@@ -128,19 +129,19 @@
           <div class="stat-lbl">Primary Encryption Standard</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-cyan)">Dilithium-5</div>
+          <div class="stat-val style-a9147c" >Dilithium-5</div>
           <div class="stat-lbl">Signature Algorithm</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val" style="color:var(--quantum-pink)">Active</div>
+          <div class="stat-val style-1ef001" >Active</div>
           <div class="stat-lbl">Quantum Guard State</div>
         </div>
       </div>
 
       <!-- Keypair Generator Card -->
       <div class="q-card">
-        <h2 style="margin:0 0 8px;font-size:1.2rem;color:#fff">🔮 Post-Quantum Lattice Public Key</h2>
-        <p style="margin:0;color:var(--text-secondary);font-size:0.88rem">Active CRYSTALS-Kyber-1024 public key registered to the Sentinel Quantum Oracle.</p>
+        <h2  class="style-6f05e2">🔮 Post-Quantum Lattice Public Key</h2>
+        <p  class="style-76c786">Active CRYSTALS-Kyber-1024 public key registered to the Sentinel Quantum Oracle.</p>
         <div class="key-output" id="publicKeyBox">
           0xkyber1024_7f8a9b2c4e6d8a0f1e3c5b7a9f2e4d6c8b0a1f3e5c7b9a2f4e6d8c0b2a4f6e8d1c3b5a7f9e2d4c6b8a0f1e3c5b7a9f2e4
         </div>
@@ -148,10 +149,10 @@
 
       <!-- Signature Verification Card -->
       <div class="q-card">
-        <h2 style="margin:0 0 12px;font-size:1.2rem;color:#fff">✍️ Verify Dilithium-5 Signature</h2>
-        <input type="text" placeholder="Paste transaction payload hash..." style="width:100%;padding:12px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:#fff;font-family:monospace;margin-bottom:12px;box-sizing:border-box" id="payloadInput" />
+        <h2  class="style-80e6f8">✍️ Verify Dilithium-5 Signature</h2>
+        <input type="text" placeholder="Paste transaction payload hash..."  id="payloadInput" / class="style-6ef0c7">
         <button class="btn-primary" onclick="verifySignature()">Check Quantum Proof</button>
-        <div id="verifyResult" style="margin-top:12px;font-family:monospace;font-size:0.9rem"></div>
+        <div id="verifyResult"  class="style-ee6537"></div>
       </div>
     </div>
 
@@ -167,9 +168,9 @@
         const input = document.getElementById('payloadInput').value;
         const res = document.getElementById('verifyResult');
         if (!input) {
-          res.innerHTML = '<span style="color:#ff0055">❌ Please enter a payload hash to verify.</span>';
+          res.innerHTML = '<span  class="style-737bd7">❌ Please enter a payload hash to verify.</span>';
         } else {
-          res.innerHTML = '<span style="color:var(--quantum-green)">✓ VERIFIED: Dilithium-5 post-quantum signature valid. Zero lattice attack vectors detected.</span>';
+          res.innerHTML = '<span  class="style-1ede3f">✓ VERIFIED: Dilithium-5 post-quantum signature valid. Zero lattice attack vectors detected.</span>';
         }
       }
     </script>

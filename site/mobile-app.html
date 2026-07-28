@@ -164,7 +164,8 @@
         color: var(--quantum-cyan);
       }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <!-- Mobile Header -->
     <header class="mobile-header">
@@ -180,12 +181,12 @@
       <!-- Health Card -->
       <section class="card-section">
         <div class="health-card">
-          <div style="font-size:0.8rem;color:var(--text-secondary)">PORTFOLIO SECURITY HEALTH</div>
+          <div  class="style-503f41">PORTFOLIO SECURITY HEALTH</div>
           <div class="score-circle">
             <span class="score-val" id="scoreVal">98</span>
             <span class="score-lbl">EXCELLENT</span>
           </div>
-          <p style="font-size:0.8rem;color:var(--text-secondary);margin:0">
+          <p  class="style-43ecec">
             0 Vulnerabilities Detected Across 4 Monitored Contracts
           </p>
           <div class="quick-actions">
@@ -197,18 +198,18 @@
 
       <!-- Monitored Contracts Form -->
       <section class="card-section">
-        <h3 style="font-size:0.95rem;margin:0 0 10px">Add Monitored Contract</h3>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="contractInput" placeholder="0x... or ENS" style="flex:1;padding:12px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:8px;color:#fff;font-size:0.85rem" />
-          <button class="m-btn m-btn-primary" id="btnAddMonitor" style="padding:0 16px">Add</button>
+        <h3  class="style-c6a8bb">Add Monitored Contract</h3>
+        <div  class="style-1952d6">
+          <input type="text" id="contractInput" placeholder="0x... or ENS"  / class="style-49ea70">
+          <button class="m-btn m-btn-primary style-61209c" id="btnAddMonitor" >Add</button>
         </div>
       </section>
 
       <!-- Live Stream -->
       <section class="card-section">
-        <h3 style="font-size:0.95rem;margin:0 0 10px;display:flex;justify-content:space-between">
+        <h3  class="style-ba3311">
           <span>Real-time Intercept Feed</span>
-          <span style="font-size:0.75rem;color:var(--quantum-cyan);font-weight:normal" id="feedCount">4 Intercepts Today</span>
+          <span  id="feedCount" class="style-f3fea4">4 Intercepts Today</span>
         </h3>
         <div class="feed-list" id="feedList">
           <div class="feed-item">
@@ -233,19 +234,19 @@
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
       <a href="#" class="nav-tab active">
-        <span style="font-size:1.2rem">🛡️</span>
+        <span  class="style-ebc214">🛡️</span>
         <span>Guard</span>
       </a>
       <a href="index.html#telemetry" class="nav-tab">
-        <span style="font-size:1.2rem">📊</span>
+        <span  class="style-ebc214">📊</span>
         <span>Feed</span>
       </a>
       <a href="index.html#yield" class="nav-tab">
-        <span style="font-size:1.2rem">⚡</span>
+        <span  class="style-ebc214">⚡</span>
         <span>Yield</span>
       </a>
       <a href="index.html#documentation" class="nav-tab">
-        <span style="font-size:1.2rem">⚙️</span>
+        <span  class="style-ebc214">⚙️</span>
         <span>Docs</span>
       </a>
     </nav>

@@ -21,7 +21,8 @@
       .rank-badge { font-size: 1.2rem; text-align: center; }
       .badge-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
     </style>
-  </head>
+      <link rel="stylesheet" href="/css/extracted-styles.css">
+</head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -75,12 +76,12 @@
         <div class="lb-row ${classMap[d.rank] || ''}">
           <div class="rank-badge">${d.rank === 1 ? '🥇' : d.rank === 2 ? '🥈' : d.rank === 3 ? '🥉' : `#${d.rank}`}</div>
           <div>
-            <div style="color:#fff;font-weight:600">${d.name}</div>
-            <span class="badge-pill" style="background:rgba(0,255,255,0.1);color:var(--quantum-cyan);border:1px solid var(--quantum-cyan)">${d.badge}</span>
+            <div  class="style-bb9ce9">${d.name}</div>
+            <span class="badge-pill style-e980c8" >${d.badge}</span>
           </div>
-          <div style="font-family:monospace;color:var(--quantum-green)">${d.staked}</div>
-          <div style="text-align:center;color:var(--quantum-pink);font-weight:600">${d.bugs} bugs</div>
-          <div style="font-family:monospace;font-weight:700;color:#fff">${d.score.toLocaleString()}</div>
+          <div  class="style-b384cf">${d.staked}</div>
+          <div  class="style-45d518">${d.bugs} bugs</div>
+          <div  class="style-5e45cc">${d.score.toLocaleString()}</div>
         </div>`).join('');
     </script>
   </body>
