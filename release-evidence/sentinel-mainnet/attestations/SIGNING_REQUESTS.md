@@ -15,12 +15,12 @@ Pool ID: 0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d
 Beneficiary address: 0x7e3D11f70084D667295710E6b7FF50C3b0487a45
 Configured share: 57%
 Intended economic role: Creator fee recipient
-Controlling person or organization: <CONTROLLING PERSON OR ORGANIZATION>
+Controlling person or organization: William McCoy (GitHub: MastaTrill)
 
 I confirm that I control, or am authorized to represent, the beneficiary address above. I approve its configured SENTINEL fee share and acknowledge that the current beneficiary can transfer its share through updateBeneficiary after settling accrued fees.
 
 Issue: MastaTrill/Aetheron-Sentinel-L3#210
-UTC date: <UTC_DATE>
+UTC date: 2026-07-29
 ```
 
 The underlying EOA of this EIP-7702 Kernel account must sign the message. Do not sign through an unrelated session key or module.
