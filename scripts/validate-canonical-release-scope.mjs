@@ -3,17 +3,19 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const DEPRECATED_PREFIX = 'sentinel-l3-v1.0/';
+const RETIREMENT_MARKER = 'sentinel-l3-v1.0/README_DEPRECATED.md';
 const RELEASE_CORE = new Set(['SentinelInterceptor', 'CircuitBreaker', 'RateLimiter']);
 const errors = [];
 
 const activeRoots = ['.github/workflows', 'scripts', 'script', 'config', 'site', 'docs'];
 const allowedExtensions = new Set(['.yml', '.yaml', '.json', '.js', '.cjs', '.mjs', '.ts', '.md', '.sol']);
 const allowDeprecatedReferences = new Set([
-  'sentinel-l3-v1.0/README_DEPRECATED.md',
+  RETIREMENT_MARKER,
   'PROJECT_STATUS.md',
   '.github/workflows/canonical-release-scope.yml',
   'scripts/validate-canonical-release-scope.mjs',
   'docs/OPERATIONAL_ACTIONS_REQUIRED.md',
+  'docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md',
 ]);
 
 function walk(dir) {
@@ -33,8 +35,21 @@ for (const root of activeRoots) {
     if (relative.startsWith(DEPRECATED_PREFIX) || allowDeprecatedReferences.has(relative)) continue;
     const text = fs.readFileSync(file, 'utf8');
     if (text.includes(DEPRECATED_PREFIX)) {
-      errors.push(`active file references deprecated tree: ${relative}`);
+      errors.push(`active file references retired tree: ${relative}`);
     }
+  }
+}
+
+const retirementPath = path.join(ROOT, RETIREMENT_MARKER);
+if (!fs.existsSync(retirementPath)) {
+  errors.push(`${RETIREMENT_MARKER} is required while the retired tree exists`);
+} else {
+  const retirement = fs.readFileSync(retirementPath, 'utf8');
+  if (!retirement.includes('Status: RETIRED')) {
+    errors.push(`${RETIREMENT_MARKER} must contain the permanent RETIRED status marker`);
+  }
+  if (!/archive-only, permanently non-canonical/i.test(retirement)) {
+    errors.push(`${RETIREMENT_MARKER} must identify the tree as archive-only and permanently non-canonical`);
   }
 }
 
