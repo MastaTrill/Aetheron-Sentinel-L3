@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "network": {
+    "name": "Base Mainnet",
+    "chainId": 8453
+  },
+  "initializer": "0xD59cE43E53D69F190E15d9822Fb4540dCcc91178",
+  "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
+  "currentBeneficiary": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45",
+  "intendedTreasury": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+  "executionOrder": [
+    "collectFees",
+    "updateBeneficiary"
+  ],
+  "controllerProof": {
+    "status": "missing",
+    "publicMessage": null,
+    "publicSignature": null,
+    "verifiedSigner": null,
+    "verifiedAtUtc": null
+  },
+  "authorization": {
+    "status": "not-authorized",
+    "authorizedBy": null,
+    "authorizedAtUtc": null,
+    "expiresAtUtc": null,
+    "maximumTotalGasCostWei": null,
+    "approvedPinnedBlock": null,
+    "approvedPreflightSha256": null,
+    "statement": "I authorize only the two exact transactions recorded here, in the stated order, after independent review. No ownership, migration, minting, metadata, liquidity, beneficiary other than the 57% creator slot, or unrelated fee action is authorized."
+  },
+  "transactions": {
+    "collectFees": {
+      "from": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45",
+      "to": "0xD59cE43E53D69F190E15d9822Fb4540dCcc91178",
+      "valueWei": "0",
+      "data": "0x817db73b05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
+      "transactionHash": null,
+      "blockNumber": null,
+      "blockHash": null,
+      "receiptStatus": null
+    },
+    "updateBeneficiary": {
+      "from": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45",
+      "to": "0xD59cE43E53D69F190E15d9822Fb4540dCcc91178",
+      "valueWei": "0",
+      "data": "0xd44f673805d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d000000000000000000000000a4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa",
+      "transactionHash": null,
+      "blockNumber": null,
+      "blockHash": null,
+      "receiptStatus": null
+    }
+  },
+  "independentReview": {
+    "status": "missing",
+    "reviewer": null,
+    "reviewedCommit": null,
+    "reviewedAtUtc": null,
+    "signoffReference": null
+  },
+  "notice": "This file is fail-closed. Null fields do not authorize signing or broadcasting. Never commit private credentials or wallet-session material."
+}
