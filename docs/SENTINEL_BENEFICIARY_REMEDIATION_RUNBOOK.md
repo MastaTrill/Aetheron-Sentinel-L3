@@ -59,7 +59,7 @@ A successful simulation proves only that the contract would accept the stated ca
 The current beneficiary calls:
 
 ```solidity
-collectFees(0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d)
+collectFees(/* poolId */ 0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d)
 ```
 
 Wait for a confirmed receipt. Verify the `Collect` event and any `Release` event for the current beneficiary before proceeding.
@@ -70,7 +70,7 @@ After Transaction 1 confirms, the same current beneficiary calls:
 
 ```solidity
 updateBeneficiary(
-  0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d,
+  /* poolId */ 0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d,
   0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa
 )
 ```
