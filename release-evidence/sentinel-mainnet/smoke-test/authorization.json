@@ -6,8 +6,8 @@
   "weth": "0x4200000000000000000000000000000000000006",
   "poolManager": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
   "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
-  "authorizedBy": null,
-  "authorizedAtUtc": null,
+  "authorizedBy": "William McCoy (GitHub: MastaTrill)",
+  "authorizedAtUtc": "2026-07-29T06:53:47Z",
   "testWallet": null,
   "maxWethPrincipalWei": null,
   "maxTotalGasCostWei": null,
@@ -18,5 +18,5 @@
   "authorizationStatement": "I explicitly authorize only the two minimal transactions described in this file. No treasury, beneficiary, owner, migration, fee, minting, metadata, or liquidity action is authorized.",
   "buyTransactionHash": null,
   "sellTransactionHash": null,
-  "notice": "Complete and approve this file before signing. Never commit private credentials."
+  "notice": "Identity and timestamp are prefilled from connected account data. Complete and approve all remaining fields before signing. Never commit private credentials."
 }
