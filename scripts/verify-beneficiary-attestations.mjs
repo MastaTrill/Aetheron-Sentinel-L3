@@ -8,17 +8,38 @@ const provider = new JsonRpcProvider(process.env.BASE_RPC_URL ?? 'https://base-r
 const eip1271 = new Interface(['function isValidSignature(bytes32,bytes) view returns (bytes4)']);
 const MAGIC_VALUE = '0x1626ba7e';
 const failures = [];
+const accepted = [];
+
+const isSoloCreator = manifest.model === 'solo-creator' || manifest.schemaVersion >= 2;
 
 for (const entry of manifest.attestations ?? []) {
   const address = getAddress(entry.beneficiary);
-  if (entry.status !== 'signed') {
-    failures.push(`${address}: attestation status is ${entry.status ?? 'missing'}`);
+  const status = entry.status ?? 'missing';
+
+  if (status === 'residual-risk-accepted') {
+    if (!isSoloCreator) {
+      failures.push(`${address}: residual-risk-accepted is only valid under solo-creator model`);
+    } else {
+      accepted.push(`${address}: residual risk accepted (${entry.role ?? 'unknown role'})`);
+    }
     continue;
   }
+
+  if (status !== 'signed') {
+    // Under solo-creator model only the primary (Creator) entry must be signed.
+    if (isSoloCreator && entry.primary !== true) {
+      failures.push(`${address}: non-primary entry must be signed or residual-risk-accepted`);
+    } else {
+      failures.push(`${address}: attestation status is ${status}`);
+    }
+    continue;
+  }
+
   if (!entry.message || !entry.signature) {
     failures.push(`${address}: missing message or signature`);
     continue;
   }
+
   if (entry.verificationMode === 'eip191') {
     const recovered = getAddress(verifyMessage(entry.message, entry.signature));
     if (recovered !== address) failures.push(`${address}: EIP-191 recovered ${recovered}`);
@@ -33,8 +54,23 @@ for (const entry of manifest.attestations ?? []) {
 }
 
 await provider.destroy();
+
+if (isSoloCreator) {
+  const primary = (manifest.attestations ?? []).find((e) => e.primary === true);
+  if (!primary) {
+    failures.push('solo-creator model requires exactly one primary attestation entry');
+  } else if (primary.status !== 'signed') {
+    failures.push(`primary Creator attestation (${primary.beneficiary}) is not signed`);
+  }
+}
+
 if (failures.length) {
   console.error('Beneficiary attestations are incomplete or invalid:\n- ' + failures.join('\n- '));
   process.exit(1);
 }
-console.log(`Verified ${manifest.attestations.length} beneficiary attestations.`);
+
+const signedCount = (manifest.attestations ?? []).filter((e) => e.status === 'signed').length;
+console.log(`Verified ${signedCount} signed beneficiary attestation(s).`);
+if (accepted.length) {
+  console.log('Residual risk accepted:\n- ' + accepted.join('\n- '));
+}

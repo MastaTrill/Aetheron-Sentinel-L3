@@ -1,27 +1,30 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "chainId": 8453,
   "token": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
   "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
-  "notice": "Replace pending entries with public messages and signatures only. Never commit private credentials.",
+  "model": "solo-creator",
+  "notice": "Under the solo-creator model only the Creator (57%) attestation must be signed. The other three may remain residual-risk-accepted. Never commit private credentials.",
   "attestations": [
     {
       "beneficiary": "0x21E2ce70511e4FE542a97708e89520471DAa7A66",
       "share": "5%",
       "role": "Doppler protocol owner",
       "verificationMode": "eip1271",
-      "status": "pending",
+      "status": "residual-risk-accepted",
       "message": null,
-      "signature": null
+      "signature": null,
+      "residualRiskNote": "External party; control not cryptographically attested under solo-creator model."
     },
     {
       "beneficiary": "0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1",
       "share": "1.9%",
       "role": "Bankr ecosystem fund",
       "verificationMode": "eip191",
-      "status": "pending",
+      "status": "residual-risk-accepted",
       "message": null,
-      "signature": null
+      "signature": null,
+      "residualRiskNote": "External party; control not cryptographically attested under solo-creator model."
     },
     {
       "beneficiary": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45",
@@ -30,16 +33,18 @@
       "verificationMode": "eip191",
       "status": "pending",
       "message": null,
-      "signature": null
+      "signature": null,
+      "primary": true
     },
     {
       "beneficiary": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
       "share": "36.1%",
       "role": "Bankr platform/integrator",
       "verificationMode": "eip191",
-      "status": "pending",
+      "status": "residual-risk-accepted",
       "message": null,
-      "signature": null
+      "signature": null,
+      "residualRiskNote": "External party; control not cryptographically attested under solo-creator model."
     }
   ]
 }
