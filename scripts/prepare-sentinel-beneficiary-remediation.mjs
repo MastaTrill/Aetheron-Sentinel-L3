@@ -45,7 +45,7 @@ function serialize(value) {
 
 async function read(provider, functionName, args, blockTag) {
   const data = initializer.encodeFunctionData(functionName, args);
-  const raw = await provider.call({ to: INITIALIZER, data }, blockTag);
+  const raw = await provider.call({ to: INITIALIZER, data, blockTag });
   return initializer.decodeFunctionResult(functionName, raw);
 }
 
@@ -92,14 +92,12 @@ async function inspectProvider(provider, url, blockTag) {
 
   let collectSimulation;
   try {
-    const raw = await provider.call(
-      {
-        to: INITIALIZER,
-        from: CURRENT_BENEFICIARY,
-        data: collectFeesData,
-      },
+    const raw = await provider.call({
+      to: INITIALIZER,
+      from: CURRENT_BENEFICIARY,
+      data: collectFeesData,
       blockTag,
-    );
+    });
     const [newlyCollectedFees0, newlyCollectedFees1] =
       initializer.decodeFunctionResult('collectFees', raw);
     collectSimulation = {
@@ -116,14 +114,12 @@ async function inspectProvider(provider, url, blockTag) {
 
   let updateSimulation;
   try {
-    await provider.call(
-      {
-        to: INITIALIZER,
-        from: CURRENT_BENEFICIARY,
-        data: updateBeneficiaryData,
-      },
+    await provider.call({
+      to: INITIALIZER,
+      from: CURRENT_BENEFICIARY,
+      data: updateBeneficiaryData,
       blockTag,
-    );
+    });
     updateSimulation = { success: true };
   } catch (error) {
     updateSimulation = {
@@ -226,5 +222,5 @@ try {
   console.log(JSON.stringify(output, serialize, 2));
   if (!readyForExplicitAuthorization) process.exitCode = 1;
 } finally {
-  await Promise.all(providers.map((provider) => provider.destroy()));
+  for (const provider of providers) provider.destroy();
 }
