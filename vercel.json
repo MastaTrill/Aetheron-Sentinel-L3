@@ -1,7 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "installCommand": "echo 'Skipping Python dependency installation for the Sentinel contract repository'",
-  "buildCommand": "mkdir -p public && cp docs/vercel-status.html public/index.html",
-  "outputDirectory": "public"
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "rewrites": [
+    {
+      "source": "/api/uniswap/:path*",
+      "destination": "/api/uniswap/:path*"
+    }
+  ]
 }

@@ -71,10 +71,15 @@
     "verify:source:base-sepolia": "hardhat run deploy/verify-mainnet.ts --network baseSepolia",
     "verify:base": "hardhat run deploy/verify-mainnet.ts --network base",
     "patch:base": "node -e \"throw new Error('Automatic mainnet patching is disabled; use reviewed timelock governance')\"",
-    "pipeline:base": "node -e \"throw new Error('One-command mainnet deployment is disabled; use the protected Base mainnet workflow')\""
+    "pipeline:base": "node -e \"throw new Error('One-command mainnet deployment is disabled; use the protected Base mainnet workflow')\"",
+    "build:mobile": "cross-env MOBILE_BUILD=true next build && npx cap sync"
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
     "@uniswap/v4-core": "^1.0.2",
@@ -101,6 +106,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "chai": "^5.2.0",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.5.18",

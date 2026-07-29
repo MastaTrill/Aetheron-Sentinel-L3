@@ -1,12 +1,27 @@
-import { createClient } from '@/lib/supabase/server';
+"use client";
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import SentinelStatus from '@/components/SentinelStatus';
+import SwapWidget from '@/components/SwapWidget';
 
-export default async function Home() {
-  const supabase = await createClient();
+export default function Home() {
+  const [session, setSession] = useState<any>(null);
+  const supabase = createClient();
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   return (
     <main className="min-h-screen p-8">
@@ -20,6 +35,11 @@ export default async function Home() {
         <p className="text-gray-600 mb-8">Not authenticated</p>
       )}
       <SentinelStatus />
+      
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">Uniswap Trading</h2>
+        <SwapWidget />
+      </div>
     </main>
   );
 }
