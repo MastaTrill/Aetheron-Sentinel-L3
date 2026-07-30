@@ -1,5 +1,7 @@
 # Independent SENTINEL Release Review Request
 
+> **Superseded review scope:** This request covers the legacy deployment and is retained for audit history only. Replacement approval must use `docs/SENTINEL_INDEPENDENT_REVIEW_PACKET.md` and `release-evidence/sentinel-mainnet/redeployment-closure.json`.
+
 - Repository: `MastaTrill/Aetheron-Sentinel-L3`
 - Review gate: issue #217
 - Beneficiary blocker: issue #215

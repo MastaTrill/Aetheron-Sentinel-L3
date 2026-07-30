@@ -1,5 +1,7 @@
 # Canonical SENTINEL Token — Base Mainnet
 
+> **Superseded deployment record:** The token and pool below are legacy/non-canonical. The active release model is controlled redeployment with creator beneficiary `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`.
+
 ## Canonical deployment
 
 | Field | Value |

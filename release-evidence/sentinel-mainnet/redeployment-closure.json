@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "releaseModel": "controlled-redeployment",
+  "chainId": 8453,
+  "decision": "docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md",
+  "legacyDeployment": {
+    "status": "legacy-non-canonical",
+    "token": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+    "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
+    "currentCreatorBeneficiary": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45"
+  },
+  "replacementDeployment": {
+    "status": "preparation-only",
+    "token": null,
+    "poolId": null,
+    "initializer": null,
+    "deploymentTransactionHash": null,
+    "creatorBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "creatorShareWad": "570000000000000000"
+  },
+  "requiredEvidenceFiles": [
+    "docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md",
+    "sentinel-l3-v1.0/README_DEPRECATED.md"
+  ],
+  "gates": {
+    "exactDeploymentManifest": { "status": "pending", "evidence": [] },
+    "baseSepoliaRehearsal": { "status": "pending", "evidence": [] },
+    "independentRpcReproduction": { "status": "pending", "evidence": [] },
+    "authorityAndBeneficiaryVerification": { "status": "pending", "evidence": [] },
+    "independentSecuritySignoff": { "status": "pending", "evidence": [] },
+    "explicitMainnetAuthorization": { "status": "pending", "evidence": [] },
+    "baseMainnetDeployment": { "status": "pending", "evidence": [] },
+    "authorizedBuySellSmokeTest": { "status": "pending", "evidence": [] },
+    "immutableEvidencePackage": { "status": "pending", "evidence": [] }
+  },
+  "notice": "Preparation only. This manifest does not authorize signing, broadcasting, deployment, liquidity, trading, or acceptance of public funds."
+}

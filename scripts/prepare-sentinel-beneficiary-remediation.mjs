@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Interface, JsonRpcProvider, getAddress } from 'ethers';
+import { FetchRequest, Interface, JsonRpcProvider, getAddress } from 'ethers';
 
 const CHAIN_ID = 8453;
 const INITIALIZER = getAddress('0xD59cE43E53D69F190E15d9822Fb4540dCcc91178');
@@ -8,6 +8,11 @@ const CURRENT_BENEFICIARY = getAddress('0x7e3D11f70084D667295710E6b7FF50C3b0487a
 const INTENDED_TREASURY = getAddress('0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa');
 const EXPECTED_CREATOR_SHARES = 570000000000000000n;
 const WAD = 1000000000000000000n;
+const RPC_TIMEOUT_MS = Number.parseInt(process.env.BASE_RPC_TIMEOUT_MS ?? '15000', 10);
+
+if (!Number.isSafeInteger(RPC_TIMEOUT_MS) || RPC_TIMEOUT_MS < 1000) {
+  throw new Error('BASE_RPC_TIMEOUT_MS must be an integer of at least 1000 milliseconds');
+}
 
 const rpcUrls = (process.env.BASE_RPC_URLS ??
   'https://mainnet.base.org,https://base-rpc.publicnode.com')
@@ -29,9 +34,11 @@ const initializer = new Interface([
   'function getLastCumulatedFees1(bytes32 poolId,address beneficiary) view returns (uint256)',
 ]);
 
-const providers = rpcUrls.map(
-  (url) => new JsonRpcProvider(url, CHAIN_ID, { staticNetwork: true }),
-);
+const providers = rpcUrls.map((url) => {
+  const request = new FetchRequest(url);
+  request.timeout = RPC_TIMEOUT_MS;
+  return new JsonRpcProvider(request, CHAIN_ID, { staticNetwork: true });
+});
 
 const collectFeesData = initializer.encodeFunctionData('collectFees', [POOL_ID]);
 const updateBeneficiaryData = initializer.encodeFunctionData('updateBeneficiary', [

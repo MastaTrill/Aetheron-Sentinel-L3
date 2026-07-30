@@ -1,5 +1,8 @@
 {
   "schemaVersion": 1,
+  "releaseModel": "legacy-existing-deployment",
+  "releaseStatus": "legacy-non-canonical",
+  "supersededBy": "release-evidence/sentinel-mainnet/redeployment-closure.json",
   "chainId": 8453,
   "token": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
   "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",

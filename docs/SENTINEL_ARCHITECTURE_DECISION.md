@@ -1,5 +1,7 @@
 # Architecture decision: canonical SENTINEL deployment
 
+> **Superseded for release selection.** The conditional-acceptance path below did not satisfy its Creator-control prerequisite. The active decision is [controlled redeployment](decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md). The token and pool described here are legacy/non-canonical release evidence; the replacement must configure `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` as the 57% Creator beneficiary from inception.
+
 **Decision:** Conditional acceptance of the existing deployment as an externally administered, permanently locked Doppler/Uniswap V4 market under a **solo-creator release model**.
 **Production status:** Blocked until the primary (Creator) attestation, smoke-test, and independent-review gates are complete.
 **Canonical address:** `0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3` on Base Mainnet.

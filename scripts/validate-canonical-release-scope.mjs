@@ -14,6 +14,7 @@ const allowDeprecatedReferences = new Set([
   'PROJECT_STATUS.md',
   '.github/workflows/canonical-release-scope.yml',
   'scripts/validate-canonical-release-scope.mjs',
+  'scripts/validate-sentinel-redeployment-closure.mjs',
   'docs/OPERATIONAL_ACTIONS_REQUIRED.md',
   'docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md',
 ]);

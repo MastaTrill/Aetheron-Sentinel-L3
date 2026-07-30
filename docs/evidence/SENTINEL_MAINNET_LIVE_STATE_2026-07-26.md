@@ -1,5 +1,7 @@
 # Canonical SENTINEL Mainnet Live-State Evidence — 2026-07-26
 
+> **Historical legacy evidence:** The deployment recorded below is now classified as legacy/non-canonical. This record is preserved unchanged as an observation of its 2026-07-26 state and does not approve it for release.
+
 ## Scope
 
 This record captures read-only Base Mainnet RPC observations for the canonical token:

@@ -10,21 +10,12 @@ jobs:
   verify-final-release:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    env:
-      BASE_RPC_URL: https://base-rpc.publicnode.com
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: npm
-      - name: Install locked dependencies
-        run: npm ci --legacy-peer-deps
-      - name: Verify beneficiary signatures
-        run: node scripts/verify-beneficiary-attestations.mjs
-      - name: Reverify authorized buy and sell receipts
-        run: node scripts/verify-sentinel-smoke-test.mjs
-      - name: Verify independent reviewer signoff
-        run: node scripts/verify-sentinel-independent-signoff.mjs
-      - name: Validate final release closure
-        run: node scripts/validate-sentinel-release-closure.mjs --mode=final
+      - name: Syntax-check replacement validator
+        run: node --check scripts/validate-sentinel-redeployment-closure.mjs
+      - name: Validate replacement final release closure
+        run: node scripts/validate-sentinel-redeployment-closure.mjs --mode=final

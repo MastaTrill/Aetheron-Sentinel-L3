@@ -1,5 +1,7 @@
 # SENTINEL External Gate Execution Runbook
 
+> **Superseded:** This runbook applies to the legacy deployment and must not authorize transactions for it. The active path is controlled redeployment under `docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md` and `release-evidence/sentinel-mainnet/redeployment-closure.json`.
+
 This runbook completes the three remaining external gates tracked by issue #210.
 
 - Beneficiary attestations: #215

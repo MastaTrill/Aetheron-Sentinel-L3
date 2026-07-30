@@ -1,15 +1,35 @@
 # Sentinel L3 Release Execution
 
-**Canonical token:** `0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`  
+**Active release model:** Controlled redeployment  
+**Legacy/non-canonical token:** `0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`  
+**Replacement token and pool:** Not deployed  
+**Required 57% Creator beneficiary:** `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`  
 **Network:** Base Mainnet (`8453`)  
 **Release state:** BLOCKED until every required gate below is evidenced.  
+**Active closure manifest:** `release-evidence/sentinel-mainnet/redeployment-closure.json`  
 **Current operator evidence:** `docs/evidence/SENTINEL_MAINNET_LIVE_STATE_2026-07-26.md`
 
 ## Release boundary
 
-No document, frontend, announcement, liquidity action, listing request, or partner integration may describe SENTINEL as fully launched until all required gates are complete.
+No document, frontend, announcement, liquidity action, listing request, or partner integration may describe the replacement SENTINEL deployment as live until every gate in the active redeployment closure manifest is complete.
 
-The canonical deployment does not currently match the repository's earlier assumption that an Aetheron-controlled wallet can directly transfer token ownership to a Safe. The observed token owner is a launch-controller contract. Release decisions must follow the deployed architecture rather than a generic ownership-transfer template.
+The prior Base deployment does not match the required Aetheron treasury beneficiary configuration and remains legacy/non-canonical. Its evidence is preserved below and must not be rewritten to imply that repository changes altered the deployed contract. The active path is governed by `docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md`.
+
+## Active controlled-redeployment gates
+
+- [ ] Pin the exact replacement source commit, toolchain, deployment bytecode, and initializer inputs.
+- [ ] Complete the protected Base Sepolia rehearsal with the Aetheron treasury configured as the 57% Creator beneficiary.
+- [ ] Obtain an independent review tied to the exact commit and deployment manifest.
+- [ ] Obtain separate, explicit Base Mainnet authorization with limits and expiry.
+- [ ] Preserve the confirmed deployment, verification, pool creation, liquidity, and smoke-test receipts.
+- [ ] Reproduce the replacement token, pool, ownership, and beneficiary state through two independent Base RPC providers.
+- [ ] Seal an immutable evidence package and pass the replacement closure validator in final mode.
+
+Preparation, simulation, and review do not authorize a wallet signature or Base Mainnet broadcast.
+
+Completed gates must reference their replacement-specific files under `release-evidence/sentinel-mainnet/redeployment/`. The validator locks the expected deployment manifest, rehearsal, two independent RPC records, authority/beneficiary verification, security sign-off, explicit authorization, deployment receipt, smoke-test authorization and receipts, and final `SHA256SUMS`; a generic or legacy file cannot satisfy a replacement gate.
+
+## Legacy deployment evidence checklist
 
 ## Gate 1 — Reproducible live-state verification
 
@@ -62,7 +82,7 @@ The token's `pool()` and `isPoolUnlocked()` getters must not be interpreted in i
 
 - [ ] Confirm the exact meaning of initializer raw status `2` from the deployed implementation.
 - [ ] Confirm the exact dynamic-fee units and schedule semantics from the deployed hook.
-- [ ] Preserve independently decoded successful swap-event evidence for the canonical pool ID.
+- [ ] Preserve independently decoded successful swap-event evidence for the legacy pool ID as historical evidence only.
 - [ ] Verify current quoting and routing through the intended public interface.
 - [ ] Perform an explicitly authorized minimal buy-and-sell smoke test and preserve transaction receipts.
 - [ ] Determine whether cumulative accounting getters represent pending, claimable, or historical amounts.
