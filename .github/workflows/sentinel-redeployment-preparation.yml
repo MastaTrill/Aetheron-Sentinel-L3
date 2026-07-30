@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      BASE_RPC_URL: https://base-rpc.publicnode.com
+      BASE_RPC_URLS: https://mainnet.base.org,https://base.llamarpc.com,https://base.drpc.org,https://1rpc.io/base,https://base-rpc.publicnode.com
       SENTINEL_CREATE_FROM_BLOCK: '42400000'
       SENTINEL_CREATE_TO_BLOCK: '42600000'
       SENTINEL_CREATE_LOG_CHUNK: '5000'
@@ -37,4 +37,3 @@ jobs:
           path: /tmp/sentinel-redeployment/legacy-launch-inputs.json
           if-no-files-found: error
           retention-days: 14
-
