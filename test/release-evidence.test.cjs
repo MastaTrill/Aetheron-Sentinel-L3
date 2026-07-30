@@ -1,4 +1,8 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
+const { mkdtempSync, readFileSync, rmSync, writeFileSync } = require('node:fs');
+const { tmpdir } = require('node:os');
+const path = require('node:path');
 const test = require('node:test');
 const {
   assertSuccessfulRehearsalRun,
@@ -19,6 +23,32 @@ const COMMIT = 'a'.repeat(40);
 const OWNER = `0x${'1'.repeat(40)}`;
 const DEPLOYER = `0x${'2'.repeat(40)}`;
 const MONITOR = `0x${'3'.repeat(40)}`;
+const REPOSITORY_ROOT = path.resolve(__dirname, '..');
+const REDEPLOYMENT_MANIFEST = path.join(
+  REPOSITORY_ROOT,
+  'release-evidence/sentinel-mainnet/redeployment-closure.json'
+);
+
+function runRedeploymentClosure(mode, mutate = manifest => manifest) {
+  const directory = mkdtempSync(path.join(tmpdir(), 'sentinel-redeployment-'));
+  const manifestPath = path.join(directory, 'release-closure.json');
+  const manifest = mutate(JSON.parse(readFileSync(REDEPLOYMENT_MANIFEST, 'utf8')));
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  const result = spawnSync(
+    process.execPath,
+    ['scripts/validate-sentinel-redeployment-closure.mjs', `--mode=${mode}`],
+    {
+      cwd: REPOSITORY_ROOT,
+      env: {
+        ...process.env,
+        SENTINEL_REDEPLOYMENT_CLOSURE_MANIFEST: manifestPath,
+      },
+      encoding: 'utf8',
+    }
+  );
+  rmSync(directory, { recursive: true, force: true });
+  return result;
+}
 
 function governanceHarness(configuration) {
   const provider = {
@@ -257,4 +287,35 @@ test('rejects a short timelock or an address without bytecode', async () => {
     validateGovernanceOwner(noCode.provider, OWNER, noCode.ethers),
     /has no deployed bytecode/
   );
+});
+
+test('accepts the fail-closed redeployment manifest in readiness mode', () => {
+  const result = runRedeploymentClosure('readiness');
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Complete gates: 0\/9/);
+});
+
+test('blocks final release while the replacement is not deployed', () => {
+  const result = runRedeploymentClosure('final');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /final mode requires a deployed replacement/);
+  assert.match(result.stderr, /final mode requires every gate complete/);
+});
+
+test('rejects a replacement manifest with the wrong Creator beneficiary', () => {
+  const result = runRedeploymentClosure('readiness', manifest => {
+    manifest.replacementDeployment.creatorBeneficiary = OWNER;
+    return manifest;
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /must be the established Aetheron treasury/);
+});
+
+test('rejects changes that rewrite the preserved legacy beneficiary evidence', () => {
+  const result = runRedeploymentClosure('readiness', manifest => {
+    manifest.legacyDeployment.currentCreatorBeneficiary = OWNER;
+    return manifest;
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /legacy beneficiary evidence changed/);
 });

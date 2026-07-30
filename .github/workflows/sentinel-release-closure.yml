@@ -7,6 +7,7 @@ on:
       - 'scripts/*sentinel*.mjs'
       - 'scripts/verify-sentinel-authority-reachability.sh'
       - 'release-evidence/sentinel-mainnet/release-closure.json'
+      - 'release-evidence/sentinel-mainnet/redeployment-closure.json'
       - 'release-evidence/sentinel-mainnet/attestations/**'
       - 'release-evidence/sentinel-mainnet/smoke-test/**'
       - 'release-evidence/sentinel-mainnet/independent-review/**'
@@ -35,14 +36,15 @@ jobs:
           node --check scripts/verify-beneficiary-attestations.mjs
           node --check scripts/verify-sentinel-independent-signoff.mjs
           node --check scripts/validate-sentinel-release-closure.mjs
+          node --check scripts/validate-sentinel-redeployment-closure.mjs
           bash -n scripts/verify-sentinel-authority-reachability.sh
       - name: Validate readiness manifest
-        run: node scripts/validate-sentinel-release-closure.mjs --mode=readiness
-      - name: Verify committed evidence hashes
+        run: node scripts/validate-sentinel-redeployment-closure.mjs --mode=readiness
+      - name: Verify preserved legacy evidence hashes
         run: |
           sha256sum -c release-evidence/sentinel-mainnet/authority-reachability.SHA256
           sha256sum -c release-evidence/sentinel-mainnet/swaps-decoded/SHA256SUMS
-      - name: Validate committed swap directions and row count
+      - name: Validate preserved legacy swap directions and row count
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync } from 'node:fs';
@@ -57,6 +59,8 @@ jobs:
           NODE
 
   authority-reachability:
+    name: Legacy authority reachability (manual evidence only)
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
@@ -65,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: foundry-rs/foundry-toolchain@v1
-      - name: Simulate authority paths without broadcasting
+      - name: Simulate legacy authority paths without broadcasting
         run: |
           set -o pipefail
           mkdir -p release-evidence/sentinel-mainnet
@@ -74,7 +78,7 @@ jobs:
       - name: Upload current authority evidence
         uses: actions/upload-artifact@v4
         with:
-          name: sentinel-authority-reachability-current
+          name: sentinel-legacy-authority-reachability-current
           path: /tmp/authority-reachability-current.txt
           if-no-files-found: error
           retention-days: 14
@@ -96,7 +100,7 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --legacy-peer-deps
-      - name: Decode canonical pool swaps
+      - name: Decode legacy pool swaps
         id: decode
         shell: bash
         run: |
@@ -111,7 +115,7 @@ jobs:
           node --input-type=module <<'NODE'
           import { readFileSync } from 'node:fs';
           const evidence = JSON.parse(readFileSync('release-evidence/sentinel-mainnet/swaps-decoded/swaps.json', 'utf8'));
-          if (evidence.swapLogCount < 1) throw new Error('No canonical swaps decoded');
+          if (evidence.swapLogCount < 1) throw new Error('No legacy swaps decoded');
           if (evidence.buyCount < 1) throw new Error('No historical SENTINEL buy direction decoded');
           if (evidence.sellCount < 1) throw new Error('No historical SENTINEL sell direction decoded');
           console.log({ swapLogCount: evidence.swapLogCount, buyCount: evidence.buyCount, sellCount: evidence.sellCount });

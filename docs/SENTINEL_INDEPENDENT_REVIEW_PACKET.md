@@ -4,15 +4,15 @@ An independent reviewer must not be the person who prepared or merged the eviden
 
 ## Review scope
 
-1. Confirm canonical token, chain ID, runtime hashes, and pinned block evidence.
-2. Confirm exact source mapping for the Airlock, NoOp migrator, initializer, hook, and PoolManager.
-3. Review `docs/SENTINEL_AUTHORITY_REACHABILITY.md` against the verified ABIs and source.
-4. Re-run both RPC verification scripts using a third provider or independently operated node.
-5. Re-run decoded historical swap collection and compare counts, directions, entrypoints, and transaction hashes.
-6. Validate all four beneficiary attestations cryptographically.
-7. Validate the authorized buy and sell receipts using `scripts/verify-sentinel-smoke-test.mjs`.
-8. Review the conditional architecture decision and every residual risk.
-9. Check the final release manifest and file digests.
+1. Confirm the reviewed commit and exact replacement deployment manifest.
+2. Confirm the replacement source, compiler, optimizer, bytecode, initializer inputs, owner, and emergency controls.
+3. Confirm the replacement 57% Creator beneficiary is `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` from inception.
+4. Reproduce the protected Base Sepolia rehearsal and compare its manifest and digests.
+5. After separately authorized deployment, reproduce the replacement token, pool, initializer, beneficiary shares, and receipts through two independent Base RPC providers.
+6. Confirm the legacy token, pool, and `0x7e3D...7a45` beneficiary remain labeled legacy/non-canonical and are not represented as Aetheron-controlled.
+7. Validate the separately authorized replacement buy and sell receipts against the replacement pool.
+8. Review the controlled-redeployment decision and every residual risk.
+9. Check `release-evidence/sentinel-mainnet/redeployment-closure.json` and every referenced digest in final mode.
 
 ## Required sign-off
 
