@@ -91,9 +91,17 @@ async function main() {
   const minimumBalanceText =
     process.env.MIN_DEPLOYER_BALANCE_ETH || RELEASE_CONFIG.defaults[selected.minBalanceKey];
   const minimumBalance = ethers.parseEther(minimumBalanceText);
-  if (balance < minimumBalance) {
+  const requireMinimumBalance =
+    String(process.env.REQUIRE_MINIMUM_BALANCE || 'true').trim().toLowerCase() !== 'false';
+
+  if (balance < minimumBalance && requireMinimumBalance) {
     throw new Error(
       `Deployer ${deployerAddress} has ${ethers.formatEther(balance)} ETH; at least ${minimumBalanceText} ETH is required`
+    );
+  }
+  if (balance < minimumBalance) {
+    console.warn(
+      `BALANCE ADVISORY: Deployer ${deployerAddress} has ${ethers.formatEther(balance)} ETH; ${minimumBalanceText} ETH will be required before broadcast`
     );
   }
 
@@ -129,7 +137,9 @@ async function main() {
   if (ownerGovernance) {
     console.log(`Governance owner: ${JSON.stringify(ownerGovernance)}`);
   }
-  console.log(`Balance: ${ethers.formatEther(balance)} ETH (minimum ${minimumBalanceText})`);
+  console.log(
+    `Balance: ${ethers.formatEther(balance)} ETH (${requireMinimumBalance ? 'minimum enforced' : 'minimum advisory'}: ${minimumBalanceText})`
+  );
   console.log(`Monitors: ${monitors.join(', ')}`);
   console.log(
     `Gas: ${JSON.stringify({
