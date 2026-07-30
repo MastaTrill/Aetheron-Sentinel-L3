@@ -73,8 +73,10 @@ jobs:
         run: |
           forge build --sizes
           forge test -vvv
-      - name: Validate RPC, signer, owner, balance, and monitors
+      - name: Validate RPC, signer, owner, balance policy, and monitors
         shell: bash
+        env:
+          REQUIRE_MINIMUM_BALANCE: ${{ inputs.broadcast }}
         run: |
           set -euo pipefail
           npm run preflight:base-sepolia | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
