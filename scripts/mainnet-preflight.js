@@ -92,7 +92,9 @@ async function main() {
     process.env.MIN_DEPLOYER_BALANCE_ETH || RELEASE_CONFIG.defaults[selected.minBalanceKey];
   const minimumBalance = ethers.parseEther(minimumBalanceText);
   const requireMinimumBalance =
-    String(process.env.REQUIRE_MINIMUM_BALANCE || 'true').trim().toLowerCase() !== 'false';
+    String(process.env.REQUIRE_MINIMUM_BALANCE || 'true')
+      .trim()
+      .toLowerCase() !== 'false';
 
   if (balance < minimumBalance && requireMinimumBalance) {
     throw new Error(
@@ -138,7 +140,9 @@ async function main() {
     console.log(`Governance owner: ${JSON.stringify(ownerGovernance)}`);
   }
   console.log(
-    `Balance: ${ethers.formatEther(balance)} ETH (${requireMinimumBalance ? 'minimum enforced' : 'minimum advisory'}: ${minimumBalanceText})`
+    `Balance: ${ethers.formatEther(balance)} ETH (${
+      requireMinimumBalance ? 'minimum enforced' : 'minimum advisory'
+    }: ${minimumBalanceText})`
   );
   console.log(`Monitors: ${monitors.join(', ')}`);
   console.log(
