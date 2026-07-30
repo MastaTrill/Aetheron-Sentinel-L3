@@ -1,0 +1,40 @@
+name: SENTINEL Redeployment Preparation
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/reconstruct-legacy-sentinel-launch.mjs'
+      - '.github/workflows/sentinel-redeployment-preparation.yml'
+      - 'release-evidence/sentinel-mainnet/redeployment/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconstruct-legacy-input:
+    name: Reconstruct legacy launch input (read only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      BASE_RPC_URL: https://base-rpc.publicnode.com
+      SENTINEL_CREATE_FROM_BLOCK: '42400000'
+      SENTINEL_CREATE_TO_BLOCK: '42600000'
+      SENTINEL_CREATE_LOG_CHUNK: '5000'
+      SENTINEL_LEGACY_RECONSTRUCTION_OUTPUT: /tmp/sentinel-redeployment/legacy-launch-inputs.json
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Decode canonical Airlock.create calldata
+        run: node scripts/reconstruct-legacy-sentinel-launch.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-legacy-launch-inputs-${{ github.run_id }}
+          path: /tmp/sentinel-redeployment/legacy-launch-inputs.json
+          if-no-files-found: error
+          retention-days: 14
+
