@@ -3,11 +3,11 @@
   "mode": "simulation-only",
   "chainId": 84532,
   "rpcUrl": "https://sepolia.base.org",
-  "blockNumber": 44846338,
-  "blockHash": "0x8898147439955e1737fa8b99eb06ad567a8a999460ff3e6bfaeb0410637f4294",
+  "blockNumber": 44846649,
+  "blockHash": "0x7d0b636961aa92847e3a033177c8e9ac6d62f8bbd81ee91688569ee58b7e6ddf",
   "manifest": {
     "path": "release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json",
-    "sha256": "80e8454a7deda6f31d3db47230e547d555d4f0f703a6fecc5d6c6c8e9e392b1f",
+    "sha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d",
     "sourcePreparationBaseCommit": "a98aaaac74e701f3eea4e051f703a240e97feeb2"
   },
   "airlockCall": {
