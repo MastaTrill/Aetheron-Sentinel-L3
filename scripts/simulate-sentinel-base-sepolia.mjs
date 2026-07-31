@@ -36,8 +36,10 @@ const coder = AbiCoder.defaultAbiCoder();
 const airlock = new Interface([
   'function create((uint256 initialSupply,uint256 numTokensToSell,address numeraire,address tokenFactory,bytes tokenFactoryData,address governanceFactory,bytes governanceFactoryData,address poolInitializer,bytes poolInitializerData,address liquidityMigrator,bytes liquidityMigratorData,address integrator,bytes32 salt) createData) returns (address asset,address pool,address governance,address timelock,address migrationPool)',
   'function getModuleState(address module) view returns (uint8)',
+  'function owner() view returns (address)',
   'error WrongModuleState(address module,uint8 expected,uint8 actual)',
 ]);
+const rehearsalBeneficiaries = manifest.rehearsal.beneficiaries ?? pool.beneficiaries;
 
 const tokenFactoryData = coder.encode(manifest.abi.tokenFactoryDataTypes, [
   token.name,
@@ -59,7 +61,7 @@ const poolInitializerData = coder.encode([manifest.abi.poolInitializerDataType],
     curve.numPositions,
     curve.shares,
   ]),
-  pool.beneficiaries.map(item => [item.beneficiary, item.shares]),
+  rehearsalBeneficiaries.map(item => [item.beneficiary, item.shares]),
   pool.startingTime,
 ]]);
 const createData = [
@@ -94,6 +96,14 @@ async function runSimulation(rpcUrl) {
     }
     const latest = await provider.getBlock('latest');
     if (!latest) throw new Error('latest block is unavailable');
+    const ownerData = airlock.encodeFunctionData('owner');
+    const ownerResponse = await provider.call({ to: network.airlock, data: ownerData }, latest.number);
+    const airlockOwner = getAddress(airlock.decodeFunctionResult('owner', ownerResponse)[0]);
+    if (airlockOwner !== getAddress(network.protocolOwnerBeneficiary)) {
+      throw new Error(
+        `Base Sepolia Airlock owner ${airlockOwner} does not match manifest protocol beneficiary ${network.protocolOwnerBeneficiary}`,
+      );
+    }
 
     const moduleAddresses = {
       airlock: network.airlock,
@@ -177,6 +187,7 @@ async function runSimulation(rpcUrl) {
           poolInitializerData,
           poolInitializerDataHash: keccak256(poolInitializerData),
           salt: execution.salt,
+          beneficiaries: rehearsalBeneficiaries,
         },
         predicted: {
           token: asset,
@@ -195,6 +206,7 @@ async function runSimulation(rpcUrl) {
         },
         moduleRuntime: Object.fromEntries(moduleEntries),
         registeredModuleStates,
+        airlockOwner,
         safety: {
           signatureProduced: false,
           transactionBroadcast: false,
