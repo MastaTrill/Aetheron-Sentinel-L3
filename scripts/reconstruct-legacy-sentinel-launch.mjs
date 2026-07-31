@@ -100,9 +100,17 @@ async function findAirlockCall(transaction) {
   const response = await fetch(`${BLOCKSCOUT_TRANSACTION_API}/${transaction.hash}/raw-trace`);
   if (!response.ok) throw new Error(`Blockscout raw trace returned HTTP ${response.status}`);
   const rawTraceResponse = await response.json();
-  const traces = Array.isArray(rawTraceResponse)
+  let traces = Array.isArray(rawTraceResponse)
     ? rawTraceResponse
     : rawTraceResponse.items ?? rawTraceResponse.result;
+  if (!traces && (rawTraceResponse.to || rawTraceResponse.calls)) {
+    traces = [];
+    const walk = (call, traceAddress = []) => {
+      traces.push({ action: call, traceAddress });
+      for (const [index, child] of (call.calls ?? []).entries()) walk(child, [...traceAddress, index]);
+    };
+    walk(rawTraceResponse);
+  }
   if (!Array.isArray(traces)) {
     throw new Error(`Unexpected Blockscout raw trace response keys: ${Object.keys(rawTraceResponse).join(',')}`);
   }
