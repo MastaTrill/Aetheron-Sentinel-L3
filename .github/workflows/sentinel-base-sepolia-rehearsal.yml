@@ -21,8 +21,6 @@ jobs:
     timeout-minutes: 20
     environment: base-sepolia
     env:
-      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
       SENTINEL_REDEPLOYMENT_MANIFEST: release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json
       SENTINEL_BASE_SEPOLIA_REHEARSAL_REQUEST: release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json
       SENTINEL_BASE_SEPOLIA_REHEARSAL_OUTPUT: /tmp/sentinel-redeployment/base-sepolia-rehearsal.json
@@ -35,6 +33,9 @@ jobs:
         run: node scripts/validate-sentinel-deployment-manifest.mjs
       - name: Execute protected Base Sepolia rehearsal
         shell: bash
+        env:
+          BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/sentinel-rehearsal-runner
