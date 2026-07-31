@@ -178,10 +178,10 @@
     "airlockCreateSignature": "create((uint256 initialSupply,uint256 numTokensToSell,address numeraire,address tokenFactory,bytes tokenFactoryData,address governanceFactory,bytes governanceFactoryData,address poolInitializer,bytes poolInitializerData,address liquidityMigrator,bytes liquidityMigratorData,address integrator,bytes32 salt))"
   },
   "expectedRuntimeHashes": {
-    "baseMainnetLegacyToken": "0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672",
-    "baseMainnetAirlock": "0x5f38c6f76f62855999df836052fccdc14befc7c067105e727f26ee3f42543acc",
-    "baseMainnetPoolInitializer": "0x29352cb39d5fa105ed35e852b518094c7900697236bfdcebafb583e2ddc18201",
-    "baseMainnetHook": "0x317314fa00365686fa78baafcd62d23ca4383b7d01a704ef5c600b8f8548e897",
-    "baseMainnetPoolManager": "0x83b2af6e9f3158defc2811cbcb0db71ecf8b2ba2abea39c39e370ac5c6f43eb6"
+    "baseMainnetLegacyTokenRuntimeHash": "0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672",
+    "baseMainnetAirlockRuntimeHash": "0x5f38c6f76f62855999df836052fccdc14befc7c067105e727f26ee3f42543acc",
+    "baseMainnetPoolInitializerRuntimeHash": "0x29352cb39d5fa105ed35e852b518094c7900697236bfdcebafb583e2ddc18201",
+    "baseMainnetHookRuntimeHash": "0x317314fa00365686fa78baafcd62d23ca4383b7d01a704ef5c600b8f8548e897",
+    "baseMainnetPoolManagerRuntimeHash": "0x83b2af6e9f3158defc2811cbcb0db71ecf8b2ba2abea39c39e370ac5c6f43eb6"
   }
 }
