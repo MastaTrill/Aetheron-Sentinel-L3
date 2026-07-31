@@ -35,6 +35,8 @@ const execution = manifest.execution;
 const coder = AbiCoder.defaultAbiCoder();
 const airlock = new Interface([
   'function create((uint256 initialSupply,uint256 numTokensToSell,address numeraire,address tokenFactory,bytes tokenFactoryData,address governanceFactory,bytes governanceFactoryData,address poolInitializer,bytes poolInitializerData,address liquidityMigrator,bytes liquidityMigratorData,address integrator,bytes32 salt) createData) returns (address asset,address pool,address governance,address timelock,address migrationPool)',
+  'function getModuleState(address module) view returns (uint8)',
+  'error WrongModuleState(address module,uint8 expected,uint8 actual)',
 ]);
 
 const tokenFactoryData = coder.encode(manifest.abi.tokenFactoryDataTypes, [
@@ -113,6 +115,27 @@ async function runSimulation(rpcUrl) {
       }];
     }));
 
+    const requiredModuleStates = {
+      tokenFactory: 1,
+      governanceFactory: 2,
+      poolInitializer: 3,
+      liquidityMigrator: 4,
+    };
+    const registeredModuleStates = Object.fromEntries(await Promise.all(
+      Object.entries(requiredModuleStates).map(async ([name, expected]) => {
+        const data = airlock.encodeFunctionData('getModuleState', [network[name]]);
+        const response = await provider.call({ to: network.airlock, data }, latest.number);
+        const actual = Number(airlock.decodeFunctionResult('getModuleState', response)[0]);
+        return [name, { expected, actual }];
+      }),
+    ));
+    const stateMismatches = Object.entries(registeredModuleStates)
+      .filter(([, state]) => state.actual !== state.expected)
+      .map(([name, state]) => `${name}=${state.actual} (expected ${state.expected})`);
+    if (stateMismatches.length) {
+      throw new Error(`Airlock module registry mismatch: ${stateMismatches.join(', ')}`);
+    }
+
     const returnData = await provider.call(transaction, latest.number);
     const decoded = airlock.decodeFunctionResult('create', returnData);
     const estimatedGas = await provider.estimateGas(transaction);
@@ -171,6 +194,7 @@ async function runSimulation(rpcUrl) {
           poolId,
         },
         moduleRuntime: Object.fromEntries(moduleEntries),
+        registeredModuleStates,
         safety: {
           signatureProduced: false,
           transactionBroadcast: false,
@@ -192,7 +216,10 @@ for (const rpcUrl of rpcUrls) {
     completed = await runSimulation(rpcUrl);
     break;
   } catch (error) {
-    errors.push(`${rpcUrl}: ${error.shortMessage ?? error.message}`);
+    const revertData = error.data ?? error.info?.error?.data ?? error.error?.data;
+    errors.push(
+      `${rpcUrl}: ${error.shortMessage ?? error.message}${revertData ? ` [data=${JSON.stringify(revertData)}]` : ''}`,
+    );
   }
 }
 if (!completed) {
