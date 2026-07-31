@@ -28,9 +28,14 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci --legacy-peer-deps
       - name: Decode canonical Airlock.create calldata
-        run: node scripts/reconstruct-legacy-sentinel-launch.mjs
+        run: |
+          mkdir -p /tmp/sentinel-decoder
+          cp scripts/reconstruct-legacy-sentinel-launch.mjs /tmp/sentinel-decoder/reconstruct.mjs
+          cd /tmp/sentinel-decoder
+          npm init --yes
+          npm install --ignore-scripts --no-audit --no-fund ethers@6.17.0
+          node reconstruct.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: sentinel-legacy-launch-inputs-${{ github.run_id }}
