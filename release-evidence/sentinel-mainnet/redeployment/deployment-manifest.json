@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "releaseModel": "controlled-redeployment",
+  "status": "preparation-only",
+  "purpose": "Exact unsigned SENTINEL replacement launch manifest. Preserve the legacy launch design while replacing only the unproven 57% creator beneficiary.",
+  "safety": {
+    "signingEnabled": false,
+    "broadcastEnabled": false,
+    "baseMainnetAuthorized": false,
+    "requiresIndependentHumanReview": true,
+    "requiresSeparateExplicitMainnetAuthorization": true
+  },
+  "sourcePins": {
+    "projectPreparationBaseCommit": "a98aaaac74e701f3eea4e051f703a240e97feeb2",
+    "dopplerSdk": {
+      "package": "@whetstone-research/doppler-sdk",
+      "version": "1.0.33",
+      "repository": "https://github.com/whetstoneresearch/doppler-sdk",
+      "commit": "d6b52689e6af367e7831a3d728c5a48dfa1507e8"
+    },
+    "dopplerContracts": {
+      "repository": "https://github.com/whetstoneresearch/doppler",
+      "commit": "b81980ab98c939abe88e8b2fbd6838969eb534d9",
+      "compiler": {
+        "solc": "0.8.26",
+        "evmVersion": "cancun",
+        "viaIR": true,
+        "optimizer": true,
+        "optimizerRuns": 0,
+        "bytecodeHash": "none",
+        "cborMetadata": false
+      }
+    }
+  },
+  "legacyProvenance": {
+    "chainId": 8453,
+    "blockNumber": 42506026,
+    "transactionHash": "0x0733e1e5700ed354298511dd09d3966c8c02093700074cf97d6d231b4544a776",
+    "airlockCalldataHash": "0x247bd7c0f568919379f8614fd9d25042cc21ece2ad6c52e67224d4c1b3b1b77c",
+    "token": "0x8c1eB8db47d52A8B5e2B1Eb4E5ec9491cE030BA3",
+    "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
+    "replacedCreatorBeneficiary": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45",
+    "evidence": "release-evidence/sentinel-mainnet/redeployment/legacy-launch-inputs.json",
+    "artifactDigest": "sha256:62e02a1ae95588fd081ac7016305159f6bbb8c6b0139f67ab0bf79a17d074bbb"
+  },
+  "networks": {
+    "baseSepolia": {
+      "chainId": 84532,
+      "airlock": "0x3411306Ce66c9469BFF1535BA955503c4Bde1C6e",
+      "tokenFactory": "0xf0B5141dD9096254B2ca624dff26024f46087229",
+      "governanceFactory": "0x916b8987e4ad325c10d58ed8dc2036a6ff5eb228",
+      "poolInitializer": "0xD59cE43E53D69F190E15d9822Fb4540dCcc91178",
+      "liquidityMigrator": "0xF11066abbd329ac4bBA39455340539322C222eb0",
+      "poolManager": "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408",
+      "weth": "0x4200000000000000000000000000000000000006",
+      "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0"
+    },
+    "baseMainnet": {
+      "chainId": 8453,
+      "airlock": "0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12",
+      "tokenFactory": "0xf0B5141dD9096254B2ca624dff26024f46087229",
+      "governanceFactory": "0xe7dfbd5b0A2C3B4464653A9beCdc489229eF090E",
+      "poolInitializer": "0xD59cE43E53D69F190E15d9822Fb4540dCcc91178",
+      "liquidityMigrator": "0x6ddfED58D238Ca3195E49d8ac3d4cEa6386E5C33",
+      "poolManager": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+      "weth": "0x4200000000000000000000000000000000000006",
+      "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0"
+    }
+  },
+  "token": {
+    "name": "SENTINEL",
+    "symbol": "SENTINEL",
+    "decimals": 18,
+    "initialSupply": "100000000000000000000000000000",
+    "numTokensToSell": "100000000000000000000000000000",
+    "yearlyMintRate": "20000000000000000",
+    "vestingDuration": "0",
+    "vestingRecipients": [],
+    "vestingAmounts": [],
+    "tokenURI": "ipfs://bafkreih43tnu76b2mrcvankahfmlgzcpgjmknzdmrclqezig4dtkpjm7wy"
+  },
+  "pool": {
+    "type": "uniswap-v4-decay-multicurve",
+    "dynamicFeeFlag": 8388608,
+    "startFee": 800000,
+    "fee": 12000,
+    "durationSeconds": 10,
+    "tickSpacing": 200,
+    "startingTime": 0,
+    "curves": [
+      {
+        "tickLower": -230000,
+        "tickUpper": -120000,
+        "numPositions": 1,
+        "shares": "990000000000000000"
+      },
+      {
+        "tickLower": -120000,
+        "tickUpper": 887200,
+        "numPositions": 1,
+        "shares": "10000000000000000"
+      }
+    ],
+    "beneficiaries": [
+      {
+        "role": "doppler-protocol",
+        "beneficiary": "0x21E2ce70511e4FE542a97708e89520471DAa7A66",
+        "shares": "50000000000000000"
+      },
+      {
+        "role": "bankr-ecosystem",
+        "beneficiary": "0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1",
+        "shares": "19000000000000000"
+      },
+      {
+        "role": "aetheron-treasury",
+        "beneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+        "shares": "570000000000000000"
+      },
+      {
+        "role": "bankr-platform-integrator",
+        "beneficiary": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
+        "shares": "361000000000000000"
+      }
+    ]
+  },
+  "execution": {
+    "governanceModel": "no-op",
+    "migrationModel": "no-op",
+    "governanceFactoryData": "0x",
+    "liquidityMigratorData": "0x",
+    "integrator": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
+    "salt": "0x53454e54494e454c2d52454445504c4f592d5631000000000000000000000000",
+    "valueWei": "0",
+    "authorizedBaseMainnetSender": null
+  },
+  "rehearsal": {
+    "network": "baseSepolia",
+    "mode": "simulation-only",
+    "simulationFrom": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "protectedBroadcastAuthorized": false
+  },
+  "abi": {
+    "tokenFactoryDataTypes": [
+      "string",
+      "string",
+      "uint256",
+      "uint256",
+      "address[]",
+      "uint256[]",
+      "string"
+    ],
+    "poolInitializerDataType": "tuple(uint24 startFee,uint24 fee,uint32 durationSeconds,int24 tickSpacing,tuple(int24 tickLower,int24 tickUpper,uint16 numPositions,uint256 shares)[] curves,tuple(address beneficiary,uint96 shares)[] beneficiaries,uint32 startingTime)",
+    "airlockCreateSignature": "create((uint256 initialSupply,uint256 numTokensToSell,address numeraire,address tokenFactory,bytes tokenFactoryData,address governanceFactory,bytes governanceFactoryData,address poolInitializer,bytes poolInitializerData,address liquidityMigrator,bytes liquidityMigratorData,address integrator,bytes32 salt))"
+  },
+  "expectedRuntimeHashes": {
+    "baseMainnetLegacyToken": "0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672",
+    "baseMainnetAirlock": "0x5f38c6f76f62855999df836052fccdc14befc7c067105e727f26ee3f42543acc",
+    "baseMainnetPoolInitializer": "0x29352cb39d5fa105ed35e852b518094c7900697236bfdcebafb583e2ddc18201",
+    "baseMainnetHook": "0x317314fa00365686fa78baafcd62d23ca4383b7d01a704ef5c600b8f8548e897",
+    "baseMainnetPoolManager": "0x83b2af6e9f3158defc2811cbcb0db71ecf8b2ba2abea39c39e370ac5c6f43eb6"
+  }
+}
