@@ -15,6 +15,8 @@ const RPC_URLS = (process.env.BASE_RPC_URLS ?? process.env.BASE_RPC_URL ?? [
   .filter(Boolean);
 const BLOCKSCOUT_ADDRESS_API =
   process.env.BASE_BLOCKSCOUT_ADDRESS_API ?? 'https://base.blockscout.com/api/v2/addresses';
+const BLOCKSCOUT_TRANSACTION_API =
+  process.env.BASE_BLOCKSCOUT_TRANSACTION_API ?? 'https://base.blockscout.com/api/v2/transactions';
 const OUTPUT_PATH =
   process.env.SENTINEL_LEGACY_RECONSTRUCTION_OUTPUT ??
   'release-evidence/sentinel-mainnet/redeployment/legacy-launch-inputs.json';
@@ -84,6 +86,36 @@ async function findCreateLog(provider) {
   throw new Error(`Legacy SENTINEL Create event not found in blocks ${FROM_BLOCK}-${TO_BLOCK}`);
 }
 
+async function findAirlockCall(transaction) {
+  if (transaction.to && getAddress(transaction.to) === AIRLOCK) {
+    return {
+      source: 'outer-transaction',
+      from: getAddress(transaction.from),
+      data: transaction.data,
+      value: transaction.value,
+      traceAddress: [],
+    };
+  }
+
+  const response = await fetch(`${BLOCKSCOUT_TRANSACTION_API}/${transaction.hash}/raw-trace`);
+  if (!response.ok) throw new Error(`Blockscout raw trace returned HTTP ${response.status}`);
+  const traces = await response.json();
+  const selector = airlock.getFunction('create').selector.toLowerCase();
+  const trace = traces.find((item) => {
+    const to = item.action?.to;
+    const input = item.action?.input;
+    return to && getAddress(to) === AIRLOCK && input?.toLowerCase().startsWith(selector);
+  });
+  if (!trace) throw new Error('Creation trace does not contain an Airlock.create call');
+  return {
+    source: 'blockscout-raw-trace',
+    from: getAddress(trace.action.from),
+    data: trace.action.input,
+    value: BigInt(trace.action.value ?? '0x0'),
+    traceAddress: trace.traceAddress ?? [],
+  };
+}
+
 async function selectProvider() {
   const errors = [];
   for (const rpcUrl of RPC_URLS) {
@@ -104,9 +136,9 @@ async function selectProvider() {
 const { provider, network, log, parsed } = await selectProvider();
 const transaction = await provider.getTransaction(log.transactionHash);
 if (!transaction) throw new Error(`Missing transaction ${log.transactionHash}`);
-if (getAddress(transaction.to) !== AIRLOCK) throw new Error('Creation transaction target is not the canonical Airlock');
+const airlockCall = await findAirlockCall(transaction);
 
-const decodedCall = airlock.parseTransaction({ data: transaction.data, value: transaction.value });
+const decodedCall = airlock.parseTransaction({ data: airlockCall.data, value: airlockCall.value });
 if (!decodedCall || decodedCall.name !== 'create') throw new Error('Unable to decode Airlock.create calldata');
 const createData = decodedCall.args.createData;
 
@@ -129,8 +161,14 @@ const result = {
   chainId: Number(network.chainId),
   blockNumber: log.blockNumber,
   transactionHash: log.transactionHash,
-  transactionFrom: getAddress(transaction.from),
+  outerTransactionFrom: getAddress(transaction.from),
+  outerTransactionTo: transaction.to ? getAddress(transaction.to) : null,
   airlock: AIRLOCK,
+  airlockCall: {
+    source: airlockCall.source,
+    from: airlockCall.from,
+    traceAddress: airlockCall.traceAddress,
+  },
   createEvent: {
     asset: getAddress(parsed.args.asset),
     numeraire: getAddress(parsed.args.numeraire),
@@ -178,7 +216,8 @@ const result = {
     })),
     startingTime: pool.startingTime,
   }),
-  calldataHash: keccak256(transaction.data),
+  calldataHash: keccak256(airlockCall.data),
+  outerTransactionCalldataHash: keccak256(transaction.data),
   notice: 'No transaction was signed or broadcast. This file reconstructs historical legacy calldata only.',
 };
 
