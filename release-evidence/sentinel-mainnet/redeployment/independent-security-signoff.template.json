@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "status": "template-not-evidence",
+  "reviewer": {
+    "nameOrOrganization": "REPLACE",
+    "professionalIdentity": "REPLACE_WITH_VERIFIABLE_REFERENCE",
+    "contact": "REPLACE",
+    "independenceStatement": "I did not own the project, prepare the reviewed evidence, control deployment or test wallets, receive beneficiary funds, or sign deployment/smoke-test transactions."
+  },
+  "review": {
+    "reviewedAtUtc": "REPLACE_WITH_ISO_8601_UTC",
+    "commit": "REPLACE_WITH_EXACT_40_HEX_COMMIT",
+    "deploymentManifestSha256": "REPLACE_WITH_64_HEX_SHA256",
+    "baseSepoliaRehearsalSha256": "REPLACE_WITH_64_HEX_SHA256",
+    "filesReviewed": [],
+    "reproductionMethods": [],
+    "findings": [],
+    "unresolvedRisks": [],
+    "conclusion": "REPLACE_WITH_approve_OR_approve-with-conditions_OR_reject",
+    "approvalReference": "REPLACE_WITH_SIGNED_COMMIT_PUBLIC_SIGNATURE_OR_OTHER_VERIFIABLE_REFERENCE"
+  },
+  "requiredAssertions": {
+    "creatorBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "creatorShareWad": "570000000000000000",
+    "legacyTokenExcluded": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+    "materialClaimsReproduced": false
+  },
+  "notice": "The project owner or evidence-preparation assistant must not complete this signoff. Copy to independent-security-signoff.json only after independent review."
+}
