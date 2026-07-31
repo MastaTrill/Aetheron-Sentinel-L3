@@ -37,9 +37,9 @@ jobs:
         run: |
           mkdir -p /tmp/sentinel-decoder
           cp scripts/reconstruct-legacy-sentinel-launch.mjs /tmp/sentinel-decoder/reconstruct.mjs
+          cp scripts/simulate-sentinel-base-sepolia.mjs /tmp/sentinel-decoder/simulate.mjs
           cd /tmp/sentinel-decoder
           npm init --yes
-          cp scripts/simulate-sentinel-base-sepolia.mjs /tmp/sentinel-decoder/simulate.mjs
           npm install --ignore-scripts --no-audit --no-fund ethers@6.17.0
           node reconstruct.mjs
       - name: Validate exact fail-closed manifest
