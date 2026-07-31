@@ -1,0 +1,53 @@
+name: SENTINEL Base Sepolia Protected Rehearsal
+
+on:
+  push:
+    branches:
+      - codex/sentinel-base-sepolia-rehearsal
+    paths:
+      - 'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentinel-controlled-redeployment-base-sepolia
+  cancel-in-progress: false
+
+jobs:
+  rehearse:
+    name: Execute exact replacement on Base Sepolia
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_REDEPLOYMENT_MANIFEST: release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json
+      SENTINEL_BASE_SEPOLIA_REHEARSAL_REQUEST: release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json
+      SENTINEL_BASE_SEPOLIA_REHEARSAL_OUTPUT: /tmp/sentinel-redeployment/base-sepolia-rehearsal.json
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Validate exact manifest
+        run: node scripts/validate-sentinel-deployment-manifest.mjs
+      - name: Execute protected Base Sepolia rehearsal
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sentinel-rehearsal-runner
+          cp scripts/execute-sentinel-base-sepolia-rehearsal.mjs /tmp/sentinel-rehearsal-runner/execute.mjs
+          cd /tmp/sentinel-rehearsal-runner
+          npm init --yes
+          npm install --ignore-scripts --no-audit --no-fund ethers@6.17.0
+          cd "$GITHUB_WORKSPACE"
+          node /tmp/sentinel-rehearsal-runner/execute.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sentinel-base-sepolia-rehearsal-${{ github.run_id }}
+          path: /tmp/sentinel-redeployment/base-sepolia-rehearsal.json
+          if-no-files-found: error
+          retention-days: 30
