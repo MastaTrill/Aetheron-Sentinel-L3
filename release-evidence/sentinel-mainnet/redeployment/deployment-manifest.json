@@ -53,7 +53,8 @@
       "liquidityMigrator": "0xF11066abbd329ac4bBA39455340539322C222eb0",
       "poolManager": "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408",
       "weth": "0x4200000000000000000000000000000000000006",
-      "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0"
+      "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0",
+      "protocolOwnerBeneficiary": "0x0abCf819FD57C9f0141628410fFC273405E44426"
     },
     "baseMainnet": {
       "chainId": 8453,
@@ -64,7 +65,8 @@
       "liquidityMigrator": "0x6ddfED58D238Ca3195E49d8ac3d4cEa6386E5C33",
       "poolManager": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
       "weth": "0x4200000000000000000000000000000000000006",
-      "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0"
+      "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0",
+      "protocolOwnerBeneficiary": "0x21E2ce70511e4FE542a97708e89520471DAa7A66"
     }
   },
   "token": {
@@ -138,7 +140,29 @@
     "network": "baseSepolia",
     "mode": "simulation-only",
     "simulationFrom": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
-    "protectedBroadcastAuthorized": false
+    "protectedBroadcastAuthorized": false,
+    "beneficiaries": [
+      {
+        "role": "doppler-protocol",
+        "beneficiary": "0x0abCf819FD57C9f0141628410fFC273405E44426",
+        "shares": "50000000000000000"
+      },
+      {
+        "role": "bankr-ecosystem",
+        "beneficiary": "0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1",
+        "shares": "19000000000000000"
+      },
+      {
+        "role": "aetheron-treasury",
+        "beneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+        "shares": "570000000000000000"
+      },
+      {
+        "role": "bankr-platform-integrator",
+        "beneficiary": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
+        "shares": "361000000000000000"
+      }
+    ]
   },
   "abi": {
     "tokenFactoryDataTypes": [
