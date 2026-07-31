@@ -64,6 +64,7 @@ const expectedNetworks = {
     poolManager: '0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408',
     weth: '0x4200000000000000000000000000000000000006',
     hook: '0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0',
+    protocolOwnerBeneficiary: '0x0abCf819FD57C9f0141628410fFC273405E44426',
   },
   baseMainnet: {
     chainId: 8453,
@@ -75,6 +76,7 @@ const expectedNetworks = {
     poolManager: '0x498581fF718922c3f8e6A244956aF099B2652b2b',
     weth: '0x4200000000000000000000000000000000000006',
     hook: '0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0',
+    protocolOwnerBeneficiary: '0x21E2ce70511e4FE542a97708e89520471DAa7A66',
   },
 };
 
@@ -127,6 +129,32 @@ if (JSON.stringify(beneficiaryAddresses) !== JSON.stringify([...beneficiaryAddre
 const treasury = beneficiaries.find(item => lower(item.beneficiary) === TREASURY);
 same('treasury role', treasury?.role, 'aetheron-treasury');
 same('treasury share', treasury?.shares, '570000000000000000');
+
+const rehearsalBeneficiaries = manifest.rehearsal?.beneficiaries ?? [];
+if (rehearsalBeneficiaries.reduce((sum, item) => sum + BigInt(item.shares), 0n) !== WAD) {
+  failures.push('rehearsal beneficiary shares must sum to 1e18');
+}
+const rehearsalAddresses = rehearsalBeneficiaries.map(item => lower(item.beneficiary));
+if (JSON.stringify(rehearsalAddresses) !== JSON.stringify([...rehearsalAddresses].sort())) {
+  failures.push('rehearsal beneficiaries must remain address-sorted');
+}
+const rehearsalProtocol = rehearsalBeneficiaries.find(item => item.role === 'doppler-protocol');
+sameAddress(
+  'Base Sepolia protocol beneficiary',
+  rehearsalProtocol?.beneficiary,
+  manifest.networks?.baseSepolia?.protocolOwnerBeneficiary,
+);
+same('Base Sepolia protocol share', rehearsalProtocol?.shares, '50000000000000000');
+const normalizedRehearsal = rehearsalBeneficiaries.map(item =>
+  item.role === 'doppler-protocol'
+    ? { ...item, beneficiary: lower(manifest.networks.baseMainnet.protocolOwnerBeneficiary) }
+    : { ...item, beneficiary: lower(item.beneficiary) }
+);
+same(
+  'rehearsal differs only by chain-specific protocol owner',
+  JSON.stringify(normalizedRehearsal.map(item => ({ role: item.role, beneficiary: lower(item.beneficiary), shares: item.shares }))),
+  JSON.stringify(beneficiaries.map(item => ({ role: item.role, beneficiary: lower(item.beneficiary), shares: item.shares }))),
+);
 
 same('governance model', manifest.execution?.governanceModel, 'no-op');
 same('migration model', manifest.execution?.migrationModel, 'no-op');
