@@ -31,11 +31,21 @@ jobs:
           node-version: '24'
       - name: Validate exact manifest
         run: node scripts/validate-sentinel-deployment-manifest.mjs
+      - name: Validate protected signer configuration
+        shell: bash
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$DEPLOYER_PRIVATE_KEY" =~ ^0x[0-9a-fA-F]{64}$ ]]; then
+            echo "The base-sepolia environment must provide DEPLOYER_PRIVATE_KEY or PRIVATE_KEY." >&2
+            exit 1
+          fi
       - name: Execute protected Base Sepolia rehearsal
         shell: bash
         env:
-          BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL || secrets.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org' }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/sentinel-rehearsal-runner
