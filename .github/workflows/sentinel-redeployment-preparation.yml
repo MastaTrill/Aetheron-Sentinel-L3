@@ -6,7 +6,9 @@ on:
       - 'scripts/reconstruct-legacy-sentinel-launch.mjs'
       - 'scripts/validate-sentinel-deployment-manifest.mjs'
       - 'scripts/simulate-sentinel-base-sepolia.mjs'
+      - 'scripts/execute-sentinel-base-sepolia-rehearsal.mjs'
       - '.github/workflows/sentinel-redeployment-preparation.yml'
+      - '.github/workflows/sentinel-base-sepolia-rehearsal.yml'
       - 'release-evidence/sentinel-mainnet/redeployment/**'
   workflow_dispatch:
 
