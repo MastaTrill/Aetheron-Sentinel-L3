@@ -42,16 +42,22 @@
       "evidence": []
     },
     "authorityAndBeneficiaryVerification": {
-      "status": "pending",
-      "evidence": []
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json"
+      ]
     },
     "independentSecuritySignoff": {
-      "status": "pending",
-      "evidence": []
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json"
+      ]
     },
     "explicitMainnetAuthorization": {
-      "status": "pending",
-      "evidence": []
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json"
+      ]
     },
     "baseMainnetDeployment": {
       "status": "pending",

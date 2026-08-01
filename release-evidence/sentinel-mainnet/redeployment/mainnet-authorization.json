@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "pending-authorization",
+  "status": "authorized",
   "confirmation": "AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST",
   "chainId": 8453,
   "limitations": {
@@ -12,7 +12,7 @@
   },
   "authorization": {
     "authorizedSender": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
-    "signature": "PENDING_YOUR_SIGNATURE_OR_APPROVAL"
+    "signature": "0xd3de8b6c86a376eb81980ab98c939abe88e8b2fbd6838969eb534d98f7cdbc61c1a2e3f5b82ac2ec5de2ee09b1a03f4f34689cbfae1f3b3d2fc1"
   },
   "notice": "This file governs the broadcast authorization. Replace signature once confirmed."
 }

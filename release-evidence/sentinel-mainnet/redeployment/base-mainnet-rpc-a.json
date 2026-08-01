@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "status": "template-not-evidence",
+  "provider": "REPLACE_WITH_RPC_PROVIDER_NAME_A",
+  "endpoint": "REPLACE_WITH_RPC_URL_ENDPOINT_A",
+  "capturedAtUtc": "REPLACE_WITH_ISO_8601_UTC",
+  "blockNumber": 0,
+  "blockHash": "REPLACE_WITH_0X_64_HEX_HASH",
+  "token": {
+    "address": "REPLACE_WITH_REPLACEMENT_TOKEN_ADDRESS",
+    "name": "SENTINEL",
+    "symbol": "SENTINEL",
+    "totalSupply": "100000000000000000000000000000",
+    "owner": "REPLACE_WITH_OWNER_ADDRESS",
+    "runtimeCodeHash": "REPLACE_WITH_0X_64_HEX_HASH"
+  },
+  "pool": {
+    "poolId": "REPLACE_WITH_REPLACEMENT_POOL_ID",
+    "poolManager": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+    "hook": "0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0",
+    "beneficiaries": [
+      {
+        "role": "doppler-protocol",
+        "beneficiary": "0x21E2ce70511e4FE542a97708e89520471DAa7A66",
+        "shares": "50000000000000000",
+        "verifiedShares": "50000000000000000"
+      },
+      {
+        "role": "bankr-ecosystem",
+        "beneficiary": "0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1",
+        "shares": "19000000000000000",
+        "verifiedShares": "19000000000000000"
+      },
+      {
+        "role": "aetheron-treasury",
+        "beneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+        "shares": "570000000000000000",
+        "verifiedShares": "570000000000000000"
+      },
+      {
+        "role": "bankr-platform-integrator",
+        "beneficiary": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
+        "shares": "361000000000000000",
+        "verifiedShares": "361000000000000000"
+      }
+    ]
+  },
+  "notice": "Query RPC Provider A independently. Copy to base-mainnet-rpc-a.json only after all values match."
+}
