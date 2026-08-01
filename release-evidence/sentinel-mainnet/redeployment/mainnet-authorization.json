@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-authorization",
+  "confirmation": "AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST",
+  "chainId": 8453,
+  "limitations": {
+    "maxGasCostWei": "10000000000000000",
+    "expiresAt": "2026-08-02T23:59:59.000Z"
+  },
+  "approvedManifest": {
+    "sha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d"
+  },
+  "authorization": {
+    "authorizedSender": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "signature": "PENDING_YOUR_SIGNATURE_OR_APPROVAL"
+  },
+  "notice": "This file governs the broadcast authorization. Replace signature once confirmed."
+}
