@@ -3,7 +3,7 @@ name: SENTINEL Base Sepolia Protected Rehearsal
 on:
   push:
     branches:
-      - codex/sentinel-base-sepolia-rehearsal
+      - main
     paths:
       - 'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json'
 
