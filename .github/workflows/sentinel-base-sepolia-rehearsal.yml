@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: sentinel-controlled-redeployment-base-sepolia
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   rehearse:
@@ -36,6 +36,7 @@ jobs:
         env:
           BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          SENTINEL_REHEARSAL_SOURCE_COMMIT: ${{ github.event.before }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/sentinel-rehearsal-runner
