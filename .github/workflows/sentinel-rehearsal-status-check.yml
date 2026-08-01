@@ -13,32 +13,42 @@ permissions:
   issues: write
 
 jobs:
-  clear-expired-run:
+  approve-exact-base-sepolia-run:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
-      EXPIRED_RUN_ID: '30694393560'
-      EXPIRED_SHA: 3deba5e33003cdb15c5fa93c54b323a1e5fb6041
-      FRESH_RUN_ID: '30715464157'
+      TARGET_RUN_ID: '30715464157'
+      TARGET_SHA: 073ac9c6aa1c14016167101da422a6a617689ae7
+      TARGET_ENVIRONMENT: base-sepolia
     steps:
-      - name: Cancel only the verified expired waiting run
+      - name: Approve only the exact authorized Base Sepolia rehearsal
         shell: bash
         run: |
           set -euo pipefail
-          old="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$EXPIRED_RUN_ID")"
-          old_sha="$(jq -r '.head_sha' <<< "$old")"
-          old_status="$(jq -r '.status' <<< "$old")"
-          if [[ "$old_sha" != "$EXPIRED_SHA" ]]; then
-            echo "Refusing to cancel unexpected run SHA: $old_sha" >&2
+          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID")"
+          run_sha="$(jq -r '.head_sha' <<< "$run")"
+          run_status="$(jq -r '.status' <<< "$run")"
+          if [[ "$run_sha" != "$TARGET_SHA" ]]; then
+            echo "Refusing approval for unexpected run SHA: $run_sha" >&2
             exit 1
           fi
-          if [[ "$old_status" != 'completed' ]]; then
-            gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$EXPIRED_RUN_ID/cancel"
-            action='cancel requested'
-          else
-            action='already completed'
+          if [[ "$run_status" != 'waiting' ]]; then
+            echo "Refusing approval because run status is $run_status, not waiting" >&2
+            exit 1
           fi
-          fresh="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$FRESH_RUN_ID" --jq '{id,head_sha,status,conclusion,html_url,created_at,updated_at}')"
-          body=$(printf 'Expired protected run `%s`: %s. Fresh protected run status:\n\n```json\n%s\n```\n\nNo deployment secrets are available to this control workflow.' "$EXPIRED_RUN_ID" "$action" "$(jq . <<< "$fresh")")
-          gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
+          pending="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/pending_deployments")"
+          environment_id="$(jq -r --arg name "$TARGET_ENVIRONMENT" '.[] | select(.environment.name == $name) | .environment.id' <<< "$pending" | head -n 1)"
+          if [[ -z "$environment_id" || "$environment_id" == 'null' ]]; then
+            echo "Required pending environment was not found" >&2
+            exit 1
+          fi
+          payload="$(jq -n --argjson environment_id "$environment_id" '{environment_ids:[$environment_id],state:"approved",comment:"Owner explicitly authorized this exact Base Sepolia rehearsal run. Base Mainnet remains unauthorized."}')"
+          if response="$(gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/pending_deployments" --input - <<< "$payload" 2>&1)"; then
+            body="Applied explicit owner authorization to exact Base Sepolia run \`$TARGET_RUN_ID\` at \`$TARGET_SHA\` for environment \`$TARGET_ENVIRONMENT\`. Base Mainnet remains unauthorized. Run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID"
+            gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            body=$(printf 'Could not apply the authorized Base Sepolia approval through the workflow token for run `%s`. GitHub response:\n\n```text\n%s\n```\n\nNo approval was applied and no secrets were exposed.' "$TARGET_RUN_ID" "$response")
+            gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
+            exit 1
+          fi
