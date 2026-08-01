@@ -20,18 +20,49 @@
   },
   "requiredEvidenceFiles": [
     "docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md",
-    "sentinel-l3-v1.0/README_DEPRECATED.md"
+    "sentinel-l3-v1.0/README_DEPRECATED.md",
+    "release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json",
+    "release-evidence/sentinel-mainnet/redeployment/base-sepolia-simulation.json"
   ],
   "gates": {
-    "exactDeploymentManifest": { "status": "pending", "evidence": [] },
-    "baseSepoliaRehearsal": { "status": "pending", "evidence": [] },
-    "independentRpcReproduction": { "status": "pending", "evidence": [] },
-    "authorityAndBeneficiaryVerification": { "status": "pending", "evidence": [] },
-    "independentSecuritySignoff": { "status": "pending", "evidence": [] },
-    "explicitMainnetAuthorization": { "status": "pending", "evidence": [] },
-    "baseMainnetDeployment": { "status": "pending", "evidence": [] },
-    "authorizedBuySellSmokeTest": { "status": "pending", "evidence": [] },
-    "immutableEvidencePackage": { "status": "pending", "evidence": [] }
+    "exactDeploymentManifest": {
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json"
+      ]
+    },
+    "baseSepoliaRehearsal": {
+      "status": "pending",
+      "evidence": []
+    },
+    "independentRpcReproduction": {
+      "status": "pending",
+      "evidence": []
+    },
+    "authorityAndBeneficiaryVerification": {
+      "status": "pending",
+      "evidence": []
+    },
+    "independentSecuritySignoff": {
+      "status": "pending",
+      "evidence": []
+    },
+    "explicitMainnetAuthorization": {
+      "status": "pending",
+      "evidence": []
+    },
+    "baseMainnetDeployment": {
+      "status": "pending",
+      "evidence": []
+    },
+    "authorizedBuySellSmokeTest": {
+      "status": "pending",
+      "evidence": []
+    },
+    "immutableEvidencePackage": {
+      "status": "pending",
+      "evidence": []
+    }
   },
-  "notice": "Preparation only. This manifest does not authorize signing, broadcasting, deployment, liquidity, trading, or acceptance of public funds."
+  "notice": "Preparation only. The corrected deployment manifest is complete and simulation evidence is preserved, but no signing, broadcasting, deployment, liquidity, trading, or acceptance of public funds is authorized. A protected Base Sepolia broadcast rehearsal is the next gate."
 }
