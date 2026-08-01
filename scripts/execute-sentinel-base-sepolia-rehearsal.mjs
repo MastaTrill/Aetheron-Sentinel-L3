@@ -44,6 +44,16 @@ if (request.confirmation !== 'EXECUTE_SENTINEL_BASE_SEPOLIA_REHEARSAL') {
 if (request.chainId !== 84532 || request.baseMainnetAuthorized !== false) {
   throw new Error('Rehearsal request must be Base Sepolia only and deny Base Mainnet');
 }
+const expectedSourceCommit = process.env.SENTINEL_REHEARSAL_SOURCE_COMMIT;
+if (!/^[0-9a-f]{40}$/i.test(expectedSourceCommit ?? '')) {
+  throw new Error('SENTINEL_REHEARSAL_SOURCE_COMMIT is missing or malformed');
+}
+if (!/^[0-9a-f]{40}$/i.test(request.sourceCommit ?? '')) {
+  throw new Error('Rehearsal request sourceCommit is missing or malformed');
+}
+if (request.sourceCommit.toLowerCase() !== expectedSourceCommit.toLowerCase()) {
+  throw new Error('Rehearsal request sourceCommit does not match the preceding branch commit');
+}
 if (typeof request.expiresAt !== 'string') {
   throw new Error('Rehearsal request expiresAt must be an ISO-8601 string');
 }
