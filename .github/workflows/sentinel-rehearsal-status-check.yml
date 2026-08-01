@@ -13,18 +13,17 @@ permissions:
   issues: write
 
 jobs:
-  inspect-exact-base-sepolia-gate:
+  report:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
       TARGET_RUN_ID: '30715464157'
     steps:
-      - name: Record exact pending deployment gate
+      - name: Report exact protected rehearsal status
         shell: bash
         run: |
           set -euo pipefail
-          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID" --jq '{id,head_sha,status,conclusion,html_url,actor:.actor.login,triggering_actor:.triggering_actor.login,created_at,updated_at}')"
-          pending="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/pending_deployments")"
-          body=$(printf 'Exact protected-gate inspection for run `%s`:\n\nRun:\n```json\n%s\n```\nPending deployments:\n```json\n%s\n```\n\nRead-only inspection; no approval, signing, or broadcast performed.' "$TARGET_RUN_ID" "$(jq . <<< "$run")" "$(jq . <<< "$pending")")
+          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID" --jq '{id,head_sha,status,conclusion,html_url,created_at,updated_at}')"
+          body=$(printf 'Read-only status for exact Base Sepolia run `%s`:\n\n```json\n%s\n```\n\nNo approval, signing, or broadcast capability is available to this probe.' "$TARGET_RUN_ID" "$(jq . <<< "$run")")
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
