@@ -1,0 +1,43 @@
+name: SENTINEL Rehearsal Status Probe
+
+on:
+  push:
+    branches:
+      - codex/sentinel-rehearsal-status-check
+    paths:
+      - '.github/workflows/sentinel-rehearsal-status-check.yml'
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_SHA: a5ee170d46a04311ebafe4eb8e7966f9750b56ab
+      TARGET_WORKFLOW: sentinel-base-sepolia-rehearsal.yml
+    steps:
+      - name: Report protected rehearsal status
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_json="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" \
+            -f branch='codex/sentinel-base-sepolia-rehearsal' \
+            -f event='push' \
+            -F per_page=20 \
+            --jq ".workflow_runs[] | select(.head_sha == \"$TARGET_SHA\") | {id,status,conclusion,html_url,created_at,updated_at} " \
+            | head -n 1)"
+          if [[ -z "$run_json" ]]; then
+            body="Status probe: no protected rehearsal workflow run was found yet for request \`$TARGET_SHA\`."
+          else
+            run_id="$(jq -r '.id' <<< "$run_json")"
+            run_status="$(jq -r '.status' <<< "$run_json")"
+            run_conclusion="$(jq -r '.conclusion // "pending"' <<< "$run_json")"
+            run_url="$(jq -r '.html_url' <<< "$run_json")"
+            body="Status probe for request \`$TARGET_SHA\`: status=\`$run_status\`, conclusion=\`$run_conclusion\`, run=$run_url, run_id=\`$run_id\`. This probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions."
+          fi
+          gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
