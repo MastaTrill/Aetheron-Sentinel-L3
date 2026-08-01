@@ -38,11 +38,13 @@ jobs:
             echo "Push event does not provide a valid preceding commit" >&2
             exit 1
           fi
-          if [[ "$(git rev-parse HEAD^)" != "$EXPECTED_SOURCE_COMMIT" ]]; then
+          source_commit="$(git rev-parse HEAD^)"
+          if [[ "$source_commit" != "$EXPECTED_SOURCE_COMMIT" ]]; then
             echo "Rehearsal request must be a single direct child of sourceCommit" >&2
             exit 1
           fi
-          mapfile -t changed_files < <(git diff --name-only "$EXPECTED_SOURCE_COMMIT" "$GITHUB_SHA")
+          echo "SENTINEL_REHEARSAL_SOURCE_COMMIT=$source_commit" >> "$GITHUB_ENV"
+          mapfile -t changed_files < <(git diff --name-only "$source_commit" "$GITHUB_SHA")
           if [[ "${#changed_files[@]}" -ne 1 ]] ||
              [[ "${changed_files[0]}" != "release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json" ]]; then
             echo "Rehearsal push must change only the protected request file" >&2
@@ -59,7 +61,6 @@ jobs:
         env:
           BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-          SENTINEL_REHEARSAL_SOURCE_COMMIT: ${{ github.event.before }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/sentinel-rehearsal-runner
