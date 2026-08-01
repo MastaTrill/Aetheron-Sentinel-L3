@@ -9,6 +9,7 @@ on:
 
 permissions:
   actions: read
+  checks: read
   contents: read
   deployments: read
   issues: write
@@ -21,21 +22,15 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       TARGET_RUN_ID: '30685496721'
       TARGET_JOB_ID: '91330306011'
+      TARGET_DEPLOYMENT_ID: '5701868353'
     steps:
-      - name: Report protected rehearsal failure metadata
+      - name: Report protected rehearsal gate failure
         shell: bash
         run: |
           set -euo pipefail
-          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID" \
-            --jq '{id,status,conclusion,event,head_branch,head_sha,run_attempt,created_at,updated_at,html_url}')"
-          job_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$TARGET_JOB_ID" \
-            --jq '{id,name,status,conclusion,started_at,completed_at,runner_name,runner_group_name,labels,steps,check_run_url,html_url}')"
-          pending_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/pending_deployments" \
-            --jq '[.[] | {environment:.environment.name,state,wait_timer,wait_timer_started_at,current_user_can_approve,reviewers}]')"
-          deployment_json="$(gh api --method GET "repos/$GITHUB_REPOSITORY/deployments" \
-            -f sha='a5ee170d46a04311ebafe4eb8e7966f9750b56ab' \
-            -f environment='base-sepolia' \
-            -F per_page=10 \
-            --jq '[.[] | {id,ref,sha,environment,created_at,updated_at,statuses_url}]')"
-          body="$(printf 'Protected rehearsal diagnostics for run `%s`:\n\n```json\n%s\n%s\n%s\n%s\n```\n\nNo deployment secrets were accessed by this probe.' "$TARGET_RUN_ID" "$run_json" "$job_json" "$pending_json" "$deployment_json")"
+          check_json="$(gh api "repos/$GITHUB_REPOSITORY/check-runs/$TARGET_JOB_ID" \
+            --jq '{id,status,conclusion,details_url,started_at,completed_at,output}')"
+          statuses_json="$(gh api "repos/$GITHUB_REPOSITORY/deployments/$TARGET_DEPLOYMENT_ID/statuses" \
+            --jq '[.[] | {id,state,description,environment,environment_url,created_at,updated_at,log_url}]')"
+          body="$(printf 'Protected rehearsal gate details for run `%s`:\n\n```json\n%s\n%s\n```\n\nNo deployment secrets were accessed by this probe.' "$TARGET_RUN_ID" "$check_json" "$statuses_json")"
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
