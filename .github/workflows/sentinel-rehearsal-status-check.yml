@@ -18,26 +18,15 @@ jobs:
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_SHA: 024e148341655a157da9fdf2755ed04c3d6cc57c
       TARGET_WORKFLOW: sentinel-base-sepolia-rehearsal.yml
     steps:
-      - name: Report protected rehearsal status
+      - name: Audit every recent protected rehearsal run
         shell: bash
         run: |
           set -euo pipefail
-          run_json="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" \
-            -f branch='main' \
-            -f event='push' \
-            -F per_page=20 \
-            --jq ".workflow_runs[] | select(.head_sha == \"$TARGET_SHA\") | {id,status,conclusion,html_url,created_at,updated_at} " \
-            | head -n 1)"
-          if [[ -z "$run_json" ]]; then
-            body="Status probe: no protected rehearsal workflow run was found yet for request merge \`$TARGET_SHA\`."
-          else
-            run_id="$(jq -r '.id' <<< "$run_json")"
-            run_status="$(jq -r '.status' <<< "$run_json")"
-            run_conclusion="$(jq -r '.conclusion // "pending"' <<< "$run_json")"
-            run_url="$(jq -r '.html_url' <<< "$run_json")"
-            body="Status probe for approved-main request \`$TARGET_SHA\`: status=\`$run_status\`, conclusion=\`$run_conclusion\`, run=$run_url, run_id=\`$run_id\`. This probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions."
-          fi
+          targets='["024e148341655a157da9fdf2755ed04c3d6cc57c","b002923fb436903012d53a2dd9b19e6e80c20ab0","56c20a7cb84dcc6c328c44ee3ca59450ee4ac4a3","8266b41f0e0cbc252303a4764248f4fddf6373a7","3deba5e33003cdb15c5fa93c54b323a1e5fb6041"]'
+          runs="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" -f branch='main' -f event='push' -F per_page=50)"
+          report="$(jq -c --argjson targets "$targets" '[.workflow_runs[] | select(.head_sha as $sha | $targets | index($sha)) | {id,head_sha,status,conclusion,html_url,created_at,updated_at}] | sort_by(.created_at)' <<< "$runs")"
+          success_count="$(jq '[.[] | select(.conclusion == "success")] | length' <<< "$report")"
+          body=$(printf 'Protected rehearsal audit for all request commits through `3deba5e33003cdb15c5fa93c54b323a1e5fb6041`:\n\n```json\n%s\n```\n\nSuccessful runs found: `%s`. This read-only probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions.' "$(jq . <<< "$report")" "$success_count")
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
