@@ -18,15 +18,17 @@ jobs:
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
+      TARGET_SHA: 073ac9c6aa1c14016167101da422a6a617689ae7
       TARGET_WORKFLOW: sentinel-base-sepolia-rehearsal.yml
     steps:
-      - name: Audit every recent protected rehearsal run
+      - name: Report fresh protected rehearsal status
         shell: bash
         run: |
           set -euo pipefail
-          targets='["024e148341655a157da9fdf2755ed04c3d6cc57c","b002923fb436903012d53a2dd9b19e6e80c20ab0","56c20a7cb84dcc6c328c44ee3ca59450ee4ac4a3","8266b41f0e0cbc252303a4764248f4fddf6373a7","3deba5e33003cdb15c5fa93c54b323a1e5fb6041"]'
-          runs="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" -f branch='main' -f event='push' -F per_page=50)"
-          report="$(jq -c --argjson targets "$targets" '[.workflow_runs[] | select(.head_sha as $sha | $targets | index($sha)) | {id,head_sha,status,conclusion,html_url,created_at,updated_at}] | sort_by(.created_at)' <<< "$runs")"
-          success_count="$(jq '[.[] | select(.conclusion == "success")] | length' <<< "$report")"
-          body=$(printf 'Protected rehearsal audit for all request commits through `3deba5e33003cdb15c5fa93c54b323a1e5fb6041`:\n\n```json\n%s\n```\n\nSuccessful runs found: `%s`. This read-only probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions.' "$(jq . <<< "$report")" "$success_count")
+          run_json="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" -f branch='main' -f event='push' -F per_page=20 --jq ".workflow_runs[] | select(.head_sha == \"$TARGET_SHA\") | {id,status,conclusion,html_url,created_at,updated_at}" | head -n 1)"
+          if [[ -z "$run_json" ]]; then
+            body="Fresh protected rehearsal probe: no run found yet for merge \`$TARGET_SHA\`."
+          else
+            body=$(printf 'Fresh protected rehearsal for `%s`:\n\n```json\n%s\n```\n\nThis read-only probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions.' "$TARGET_SHA" "$(jq . <<< "$run_json")")
+          fi
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
