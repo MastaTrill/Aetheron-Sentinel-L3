@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "status": "template-not-evidence",
+  "verifiedAtUtc": "REPLACE_WITH_ISO_8601_UTC",
+  "network": {
+    "name": "Base Mainnet",
+    "chainId": 8453
+  },
+  "verifications": {
+    "tokenOwner": {
+      "address": "REPLACE_WITH_REPLACEMENT_TOKEN_ADDRESS",
+      "expectedOwner": "0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12",
+      "actualOwner": "REPLACE_WITH_ONCHAIN_OWNER",
+      "reachabilityTestPassed": true
+    },
+    "poolCreatorBeneficiary": {
+      "poolId": "REPLACE_WITH_REPLACEMENT_POOL_ID",
+      "expectedBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+      "actualBeneficiary": "REPLACE_WITH_ONCHAIN_BENEFICIARY",
+      "shareWad": "570000000000000000",
+      "reachabilityTestPassed": true
+    },
+    "timelockConsequences": {
+      "expectedAdmin": "0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994",
+      "actualAdmin": "REPLACE_WITH_ONCHAIN_TIMELOCK_ADMIN",
+      "consequencesApproved": true
+    }
+  },
+  "notice": "Copy to authority-beneficiary-verification.json only after verification of reachability and timelock settings is complete."
+}

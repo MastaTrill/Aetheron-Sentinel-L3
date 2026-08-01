@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "template-not-evidence",
+  "confirmation": "AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST",
+  "chainId": 8453,
+  "limitations": {
+    "maxGasCostWei": "REPLACE_WITH_GAS_LIMIT_WEI",
+    "expiresAt": "REPLACE_WITH_ISO_8601_UTC_EXPIRY_TIMESTAMP"
+  },
+  "approvedManifest": {
+    "sha256": "REPLACE_WITH_APPROVED_MANIFEST_SHA256"
+  },
+  "authorization": {
+    "authorizedSender": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "signature": "REPLACE_WITH_EIP_191_PERSONAL_SIGNATURE_FROM_TREASURY_OR_REPLACE_WITH_APPROVED_EOA_CONFIRMATION"
+  },
+  "notice": "Copy to mainnet-authorization.json only after signing and adding limits."
+}
