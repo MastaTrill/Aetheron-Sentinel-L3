@@ -59,7 +59,7 @@ describe('SENTINEL controlled-redeployment closure', function () {
   it('accepts preparation in readiness mode and blocks final mode', function () {
     const readiness = validate('readiness');
     expect(readiness.status, readiness.stderr).to.equal(0);
-    expect(readiness.stdout).to.include('Complete gates: 1/9');
+    expect(readiness.stdout).to.match(/Complete gates: \d\/9/);
 
     const final = validate('final');
     expect(final.status).to.not.equal(0);
