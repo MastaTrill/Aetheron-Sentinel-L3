@@ -56,6 +56,8 @@ if (!/^0x[0-9a-f]{64}$/i.test(request.expectedCalldataHash ?? '')) {
 if (!/^0x[0-9a-f]{64}$/i.test(request.expectedPoolId ?? '')) {
   throw new Error('Rehearsal request expectedPoolId is malformed');
 }
+const expectedCalldataHash = request.expectedCalldataHash.toLowerCase();
+const expectedPoolId = request.expectedPoolId.toLowerCase();
 if (!isAddress(request.expectedPredictedToken)) {
   throw new Error('Rehearsal request expectedPredictedToken is malformed');
 }
@@ -90,10 +92,14 @@ const normalizedBeneficiaries = beneficiaries.map((item, index) => {
   if (!isAddress(item?.beneficiary)) {
     throw new Error(`Manifest beneficiary ${index} is not a valid Ethereum address`);
   }
-  if (!/^\d+$/.test(item?.shares ?? '')) {
-    throw new Error(`Manifest beneficiary ${index} shares are malformed`);
+  if (typeof item?.shares !== 'string' || !/^(0|[1-9]\d*)$/.test(item.shares)) {
+    throw new Error(`Manifest beneficiary ${index} shares must be a canonical decimal string`);
   }
-  return { ...item, beneficiary: getAddress(item.beneficiary) };
+  return {
+    ...item,
+    beneficiary: getAddress(item.beneficiary),
+    shares: BigInt(item.shares).toString(),
+  };
 });
 for (const [index, recipient] of (token.vestingRecipients ?? []).entries()) {
   if (!isAddress(recipient)) throw new Error(`Manifest vesting recipient ${index} is malformed`);
@@ -157,7 +163,7 @@ const createData = [
 ];
 const calldata = airlock.encodeFunctionData('create', [createData]);
 const calldataHash = keccak256(calldata);
-if (calldataHash !== request.expectedCalldataHash) throw new Error('Rehearsal calldata hash mismatch');
+if (calldataHash !== expectedCalldataHash) throw new Error('Rehearsal calldata hash mismatch');
 
 const provider = new JsonRpcProvider(rpcUrl, network.chainId, { staticNetwork: true });
 const signer = new Wallet(privateKey, provider);
@@ -187,7 +193,7 @@ const poolId = keccak256(coder.encode(
 if (predictedToken !== getAddress(request.expectedPredictedToken)) {
   throw new Error(`Predicted token mismatch: ${predictedToken}`);
 }
-if (poolId !== request.expectedPoolId) throw new Error(`Predicted pool ID mismatch: ${poolId}`);
+if (poolId !== expectedPoolId) throw new Error(`Predicted pool ID mismatch: ${poolId}`);
 
 const estimatedGas = await provider.estimateGas(unsignedTransaction);
 const feeData = await provider.getFeeData();
