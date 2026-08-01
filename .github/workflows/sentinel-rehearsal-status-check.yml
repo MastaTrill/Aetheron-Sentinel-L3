@@ -9,7 +9,6 @@ on:
 
 permissions:
   actions: read
-  checks: read
   contents: read
   issues: write
 
@@ -19,14 +18,26 @@ jobs:
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_RUN_ID: '30685496721'
-      TARGET_JOB_ID: '91330306011'
+      TARGET_SHA: 024e148341655a157da9fdf2755ed04c3d6cc57c
+      TARGET_WORKFLOW: sentinel-base-sepolia-rehearsal.yml
     steps:
-      - name: Report protected rehearsal annotations
+      - name: Report protected rehearsal status
         shell: bash
         run: |
           set -euo pipefail
-          annotations="$(gh api "repos/$GITHUB_REPOSITORY/check-runs/$TARGET_JOB_ID/annotations" \
-            --jq '[.[] | {annotation_level,title,message,raw_details,path,start_line,end_line}]')"
-          body="$(printf 'Protected rehearsal failure annotations for run `%s`:\n\n```json\n%s\n```\n\nNo deployment secrets were accessed by this probe.' "$TARGET_RUN_ID" "$annotations")"
+          run_json="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" \
+            -f branch='main' \
+            -f event='push' \
+            -F per_page=20 \
+            --jq ".workflow_runs[] | select(.head_sha == \"$TARGET_SHA\") | {id,status,conclusion,html_url,created_at,updated_at} " \
+            | head -n 1)"
+          if [[ -z "$run_json" ]]; then
+            body="Status probe: no protected rehearsal workflow run was found yet for request merge \`$TARGET_SHA\`."
+          else
+            run_id="$(jq -r '.id' <<< "$run_json")"
+            run_status="$(jq -r '.status' <<< "$run_json")"
+            run_conclusion="$(jq -r '.conclusion // "pending"' <<< "$run_json")"
+            run_url="$(jq -r '.html_url' <<< "$run_json")"
+            body="Status probe for approved-main request \`$TARGET_SHA\`: status=\`$run_status\`, conclusion=\`$run_conclusion\`, run=$run_url, run_id=\`$run_id\`. This probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions."
+          fi
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
