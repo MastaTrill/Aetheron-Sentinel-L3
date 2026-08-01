@@ -58,7 +58,8 @@
       ]
     },
     "beneficiaryControlAttestations": {
-      "status": "pending",
+      "status": "blocked-no-control",
+      "note": "Project owner confirmed non-control of 0x7e3D...7a45 on 2026-08-01. Attestation path permanently closed; remediation via controlled redeployment.",
       "evidence": [
         "release-evidence/sentinel-mainnet/attestations/manifest.json",
         "release-evidence/sentinel-mainnet/attestations/SIGNING_REQUESTS.md"

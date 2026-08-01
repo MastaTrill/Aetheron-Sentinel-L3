@@ -32,8 +32,10 @@
       ]
     },
     "baseSepoliaRehearsal": {
-      "status": "pending",
-      "evidence": []
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json"
+      ]
     },
     "independentRpcReproduction": {
       "status": "pending",

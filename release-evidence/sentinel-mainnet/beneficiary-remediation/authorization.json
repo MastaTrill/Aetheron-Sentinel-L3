@@ -13,14 +13,18 @@
     "updateBeneficiary"
   ],
   "controllerProof": {
-    "status": "missing",
+    "status": "confirmed-no-control",
+    "confirmedAtUtc": "2026-08-01T20:03:00Z",
+    "confirmedBy": "Project owner (William McCoy / MastaTrill)",
     "publicMessage": null,
     "publicSignature": null,
     "verifiedSigner": null,
     "verifiedAtUtc": null
   },
   "authorization": {
-    "status": "not-authorized",
+    "status": "path-closed",
+    "closedAtUtc": "2026-08-01T20:03:00Z",
+    "closedReason": "Project owner confirmed non-control of current beneficiary. In-place collectFees + updateBeneficiary sequence cannot be executed.",
     "authorizedBy": null,
     "authorizedAtUtc": null,
     "expiresAtUtc": null,
@@ -58,5 +62,6 @@
     "reviewedAtUtc": null,
     "signoffReference": null
   },
-  "notice": "This file is fail-closed. Null fields do not authorize signing or broadcasting. Never commit private credentials or wallet-session material."
+  "notice": "This file is fail-closed. Null fields do not authorize signing or broadcasting. Never commit private credentials or wallet-session material.",
+  "closureNote": "In-place remediation path permanently closed on 2026-08-01. Remediation proceeds via controlled redeployment; see redeployment-closure.json."
 }

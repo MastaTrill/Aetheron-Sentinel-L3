@@ -1,22 +1,47 @@
-# SENTINEL beneficiary signing requests — BLOCKED
+# SENTINEL beneficiary signing requests — replacement deployment
 
-## Release blocker
+## Context
 
-The established Aetheron treasury wallet is:
+The legacy Base SENTINEL pool reported `0x7e3D11f70084D667295710E6b7FF50C3b0487a45` as the 57% beneficiary. The project owner confirmed non-control of that address on 2026-08-01. The replacement deployment will configure the Aetheron treasury as the 57% creator beneficiary from inception:
 
 `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`
 
-The Base SENTINEL pool currently reports a different 57% beneficiary:
-
-`0x7e3D11f70084D667295710E6b7FF50C3b0487a45`
-
-Control of the deployed beneficiary has not been proven. **William McCoy / MastaTrill must not sign or be listed as the controller of `0x7e3D...7a45` unless that address produces a valid cryptographic signature.**
-
 Never disclose a private key, mnemonic, wallet export, or signing session.
 
-## Primary — 57% on-chain creator-fee slot — BLOCKED
+## Primary — 57% creator fee recipient — READY TO SIGN
 
-The following message is preserved only as the exact challenge that the current beneficiary would need to sign. It is not prefilled with William McCoy's identity and must not be signed from the `c1fa` treasury because that wallet is not the currently configured beneficiary.
+After the replacement deployment is live, the project owner (William McCoy / MastaTrill) signs the following message from `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` using EIP-191 `personal_sign`:
+
+```text
+SENTINEL BENEFICIARY CONTROL ATTESTATION
+
+Chain ID: 8453
+Token: <REPLACEMENT_TOKEN_ADDRESS>
+Pool ID: <REPLACEMENT_POOL_ID>
+Beneficiary address: 0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa
+Configured share: 57%
+Intended economic role: Creator fee recipient (Aetheron treasury)
+Controlling person or organization: William McCoy / MastaTrill
+
+I confirm that I control, or am authorized to represent, the beneficiary address above. I approve its configured SENTINEL fee share and acknowledge that the beneficiary may transfer its share through updateBeneficiary after settling accrued fees.
+
+Issue: MastaTrill/Aetheron-Sentinel-L3#210
+UTC date: <YYYY-MM-DD>
+```
+
+> **Note:** Replace `<REPLACEMENT_TOKEN_ADDRESS>` and `<REPLACEMENT_POOL_ID>` with the actual deployed addresses after redeployment. Do not sign until the replacement deployment is confirmed on-chain and verified through two independent RPC providers.
+
+## External beneficiaries
+
+| Address | Share | Role |
+|---------|-------|------|
+| `0x21E2ce70511e4FE542a97708e89520471DAa7A66` | 5% | Doppler protocol owner (Safe) |
+| `0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1` | 1.9% | Bankr ecosystem fund |
+| `0xF60633D02690e2A15A54AB919925F3d038Df163e` | 36.1% | Bankr platform/integrator |
+
+## Legacy audit trail
+
+The following challenge message targeted the legacy beneficiary `0x7e3D...7a45`. It was never signed because the project owner does not control that address.
 
 ```text
 SENTINEL BENEFICIARY CONTROL ATTESTATION
@@ -34,20 +59,3 @@ I confirm that I control, or am authorized to represent, the beneficiary address
 Issue: MastaTrill/Aetheron-Sentinel-L3#210
 UTC date: <UTC_DATE>
 ```
-
-## Required remediation before final release
-
-One of the following must occur and be independently verified:
-
-1. The current beneficiary proves control and calls the supported `updateBeneficiary` path to transfer the 57% slot to `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa` after settling accrued fees; or
-2. An approved pool migration or redeployment replaces the beneficiary configuration.
-
-After remediation, regenerate the attestation package from the resulting on-chain state. Do not edit the manifest to pretend that the deployed state has changed.
-
-## External beneficiaries
-
-| Address | Share | Role |
-|---------|-------|------|
-| `0x21E2ce70511e4FE542a97708e89520471DAa7A66` | 5% | Doppler protocol owner (Safe) |
-| `0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1` | 1.9% | Bankr ecosystem fund |
-| `0xF60633D02690e2A15A54AB919925F3d038Df163e` | 36.1% | Bankr platform/integrator |

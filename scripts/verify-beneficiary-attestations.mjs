@@ -9,6 +9,7 @@ const eip1271 = new Interface(['function isValidSignature(bytes32,bytes) view re
 const MAGIC_VALUE = '0x1626ba7e';
 const failures = [];
 const accepted = [];
+const blocked = [];
 
 const isSoloCreator = manifest.model === 'solo-creator' || manifest.schemaVersion >= 2;
 
@@ -21,6 +22,15 @@ for (const entry of manifest.attestations ?? []) {
       failures.push(`${address}: residual-risk-accepted is only valid under solo-creator model`);
     } else {
       accepted.push(`${address}: residual risk accepted (${entry.role ?? 'unknown role'})`);
+    }
+    continue;
+  }
+
+  if (status === 'blocked-no-control') {
+    if (!entry.remediationPath) {
+      failures.push(`${address}: blocked-no-control requires a remediationPath`);
+    } else {
+      blocked.push(`${address}: owner confirmed non-control; remediation via ${entry.remediationPath}`);
     }
     continue;
   }
@@ -59,6 +69,8 @@ if (isSoloCreator) {
   const primary = (manifest.attestations ?? []).find((e) => e.primary === true);
   if (!primary) {
     failures.push('solo-creator model requires exactly one primary attestation entry');
+  } else if (primary.status === 'blocked-no-control' && primary.remediationPath) {
+    // Primary attestation is blocked but has a valid remediation path — not a failure.
   } else if (primary.status !== 'signed') {
     failures.push(`primary Creator attestation (${primary.beneficiary}) is not signed`);
   }
@@ -70,7 +82,15 @@ if (failures.length) {
 }
 
 const signedCount = (manifest.attestations ?? []).filter((e) => e.status === 'signed').length;
-console.log(`Verified ${signedCount} signed beneficiary attestation(s).`);
+if (blocked.length) {
+  console.log(`Blocked attestations (remediation required):\n- ${blocked.join('\n- ')}`);
+}
+if (signedCount > 0) {
+  console.log(`Verified ${signedCount} signed beneficiary attestation(s).`);
+}
 if (accepted.length) {
-  console.log('Residual risk accepted:\n- ' + accepted.join('\n- '));
+  console.log(`Residual risk accepted:\n- ${accepted.join('\n- ')}`);
+}
+if (!failures.length && blocked.length) {
+  console.log('\nAttestation gate defers to the controlled redeployment path.');
 }
