@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "confirmation": "EXECUTE_SENTINEL_BASE_SEPOLIA_REHEARSAL",
+  "chainId": 84532,
+  "baseMainnetAuthorized": false,
+  "sourceCommit": "b793a1dec32f7e752d750e1a815d308f7a084710",
+  "manifestSha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d",
+  "expectedCalldataHash": "0x55b0054dbf3997212897cc88ec4acac376cf0c796e2234b87c4eb36433bdd701",
+  "expectedPredictedToken": "0x3555976fecf045833D6E148C42035170bA1337Ab",
+  "expectedPoolId": "0xb053a9edafe39e11a65a48f18804c500e45477c17d617c6145ef9f8c6ae9adcd",
+  "expiresAt": "2026-08-01T07:15:30.161Z",
+  "notice": "Base Sepolia rehearsal only. This request does not authorize Base Mainnet deployment, liquidity movement, trading, or acceptance of public funds."
+}
