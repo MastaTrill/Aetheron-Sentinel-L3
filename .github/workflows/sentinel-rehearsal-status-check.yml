@@ -11,7 +11,6 @@ permissions:
   actions: read
   checks: read
   contents: read
-  deployments: read
   issues: write
 
 jobs:
@@ -22,15 +21,12 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       TARGET_RUN_ID: '30685496721'
       TARGET_JOB_ID: '91330306011'
-      TARGET_DEPLOYMENT_ID: '5701868353'
     steps:
-      - name: Report protected rehearsal gate failure
+      - name: Report protected rehearsal annotations
         shell: bash
         run: |
           set -euo pipefail
-          check_json="$(gh api "repos/$GITHUB_REPOSITORY/check-runs/$TARGET_JOB_ID" \
-            --jq '{id,status,conclusion,details_url,started_at,completed_at,output}')"
-          statuses_json="$(gh api "repos/$GITHUB_REPOSITORY/deployments/$TARGET_DEPLOYMENT_ID/statuses" \
-            --jq '[.[] | {id,state,description,environment,environment_url,created_at,updated_at,log_url}]')"
-          body="$(printf 'Protected rehearsal gate details for run `%s`:\n\n```json\n%s\n%s\n```\n\nNo deployment secrets were accessed by this probe.' "$TARGET_RUN_ID" "$check_json" "$statuses_json")"
+          annotations="$(gh api "repos/$GITHUB_REPOSITORY/check-runs/$TARGET_JOB_ID/annotations" \
+            --jq '[.[] | {annotation_level,title,message,raw_details,path,start_line,end_line}]')"
+          body="$(printf 'Protected rehearsal failure annotations for run `%s`:\n\n```json\n%s\n```\n\nNo deployment secrets were accessed by this probe.' "$TARGET_RUN_ID" "$annotations")"
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
