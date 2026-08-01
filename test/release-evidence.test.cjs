@@ -292,7 +292,7 @@ test('rejects a short timelock or an address without bytecode', async () => {
 test('accepts the fail-closed redeployment manifest in readiness mode', () => {
   const result = runRedeploymentClosure('readiness');
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Complete gates: 0\/9/);
+  assert.match(result.stdout, /Complete gates: 1\/9/);
 });
 
 test('blocks final release while the replacement is not deployed', () => {
