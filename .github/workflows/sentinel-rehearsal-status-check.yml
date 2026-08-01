@@ -13,17 +13,18 @@ permissions:
   issues: write
 
 jobs:
-  report:
+  report-main-head-runs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_RUN_ID: '30715464157'
+      TARGET_SHA: f792c787d85e33faec2ab885e1d787c8c0f9b731
     steps:
-      - name: Report exact protected rehearsal status
+      - name: Report workflows for current main head
         shell: bash
         run: |
           set -euo pipefail
-          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID" --jq '{id,head_sha,status,conclusion,html_url,created_at,updated_at}')"
-          body=$(printf 'Read-only status for exact Base Sepolia run `%s`:\n\n```json\n%s\n```\n\nNo approval, signing, or broadcast capability is available to this probe.' "$TARGET_RUN_ID" "$(jq . <<< "$run")")
+          all="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/runs" -F per_page=100)"
+          runs="$(jq -c --arg sha "$TARGET_SHA" '[.workflow_runs[] | select(.head_sha == $sha) | {id,name,status,conclusion,event,html_url,created_at,updated_at}] | sort_by(.created_at)' <<< "$all")"
+          body=$(printf 'Workflow audit for current main head `%s`:\n\n```json\n%s\n```\n\nRead-only; no secrets, approval, signing, or broadcast capability.' "$TARGET_SHA" "$(jq . <<< "$runs")")
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
