@@ -8,27 +8,37 @@ on:
       - '.github/workflows/sentinel-rehearsal-status-check.yml'
 
 permissions:
-  actions: read
+  actions: write
   contents: read
   issues: write
 
 jobs:
-  report:
+  clear-expired-run:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_SHA: 073ac9c6aa1c14016167101da422a6a617689ae7
-      TARGET_WORKFLOW: sentinel-base-sepolia-rehearsal.yml
+      EXPIRED_RUN_ID: '30694393560'
+      EXPIRED_SHA: 3deba5e33003cdb15c5fa93c54b323a1e5fb6041
+      FRESH_RUN_ID: '30715464157'
     steps:
-      - name: Report fresh protected rehearsal status
+      - name: Cancel only the verified expired waiting run
         shell: bash
         run: |
           set -euo pipefail
-          run_json="$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$TARGET_WORKFLOW/runs" -f branch='main' -f event='push' -F per_page=20 --jq ".workflow_runs[] | select(.head_sha == \"$TARGET_SHA\") | {id,status,conclusion,html_url,created_at,updated_at}" | head -n 1)"
-          if [[ -z "$run_json" ]]; then
-            body="Fresh protected rehearsal probe: no run found yet for merge \`$TARGET_SHA\`."
-          else
-            body=$(printf 'Fresh protected rehearsal for `%s`:\n\n```json\n%s\n```\n\nThis read-only probe has no access to deployment secrets and cannot approve, sign, or broadcast transactions.' "$TARGET_SHA" "$(jq . <<< "$run_json")")
+          old="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$EXPIRED_RUN_ID")"
+          old_sha="$(jq -r '.head_sha' <<< "$old")"
+          old_status="$(jq -r '.status' <<< "$old")"
+          if [[ "$old_sha" != "$EXPIRED_SHA" ]]; then
+            echo "Refusing to cancel unexpected run SHA: $old_sha" >&2
+            exit 1
           fi
+          if [[ "$old_status" != 'completed' ]]; then
+            gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$EXPIRED_RUN_ID/cancel"
+            action='cancel requested'
+          else
+            action='already completed'
+          fi
+          fresh="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$FRESH_RUN_ID" --jq '{id,head_sha,status,conclusion,html_url,created_at,updated_at}')"
+          body=$(printf 'Expired protected run `%s`: %s. Fresh protected run status:\n\n```json\n%s\n```\n\nNo deployment secrets are available to this control workflow.' "$EXPIRED_RUN_ID" "$action" "$(jq . <<< "$fresh")")
           gh issue comment 217 --repo "$GITHUB_REPOSITORY" --body "$body"
