@@ -8,6 +8,7 @@ import {
   JsonRpcProvider,
   Wallet,
   getAddress,
+  isAddress,
   keccak256,
 } from 'ethers';
 
@@ -43,7 +44,21 @@ if (request.confirmation !== 'EXECUTE_SENTINEL_BASE_SEPOLIA_REHEARSAL') {
 if (request.chainId !== 84532 || request.baseMainnetAuthorized !== false) {
   throw new Error('Rehearsal request must be Base Sepolia only and deny Base Mainnet');
 }
-if (Date.parse(request.expiresAt) <= Date.now()) throw new Error('Rehearsal request has expired');
+if (typeof request.expiresAt !== 'string') {
+  throw new Error('Rehearsal request expiresAt must be an ISO-8601 string');
+}
+const expiresAtMs = Date.parse(request.expiresAt);
+if (!Number.isFinite(expiresAtMs)) throw new Error('Rehearsal request expiresAt is malformed');
+if (expiresAtMs <= Date.now()) throw new Error('Rehearsal request has expired');
+if (!/^0x[0-9a-f]{64}$/i.test(request.expectedCalldataHash ?? '')) {
+  throw new Error('Rehearsal request expectedCalldataHash is malformed');
+}
+if (!/^0x[0-9a-f]{64}$/i.test(request.expectedPoolId ?? '')) {
+  throw new Error('Rehearsal request expectedPoolId is malformed');
+}
+if (!isAddress(request.expectedPredictedToken)) {
+  throw new Error('Rehearsal request expectedPredictedToken is malformed');
+}
 if (request.manifestSha256 !== manifestSha256) throw new Error('Rehearsal request manifest digest mismatch');
 if (manifest.status !== 'preparation-only' || manifest.safety?.baseMainnetAuthorized !== false) {
   throw new Error('Manifest must remain preparation-only and unauthorized for Base Mainnet');
@@ -54,6 +69,38 @@ const token = manifest.token;
 const pool = manifest.pool;
 const execution = manifest.execution;
 const beneficiaries = manifest.rehearsal.beneficiaries;
+const manifestAddresses = {
+  airlock: network.airlock,
+  weth: network.weth,
+  tokenFactory: network.tokenFactory,
+  governanceFactory: network.governanceFactory,
+  poolInitializer: network.poolInitializer,
+  liquidityMigrator: network.liquidityMigrator,
+  hook: network.hook,
+  integrator: execution.integrator,
+};
+for (const [name, address] of Object.entries(manifestAddresses)) {
+  if (!isAddress(address)) throw new Error(`Manifest ${name} is not a valid Ethereum address`);
+  manifestAddresses[name] = getAddress(address);
+}
+if (!Array.isArray(beneficiaries) || beneficiaries.length === 0) {
+  throw new Error('Manifest rehearsal beneficiaries must be a non-empty array');
+}
+const normalizedBeneficiaries = beneficiaries.map((item, index) => {
+  if (!isAddress(item?.beneficiary)) {
+    throw new Error(`Manifest beneficiary ${index} is not a valid Ethereum address`);
+  }
+  if (!/^\d+$/.test(item?.shares ?? '')) {
+    throw new Error(`Manifest beneficiary ${index} shares are malformed`);
+  }
+  return { ...item, beneficiary: getAddress(item.beneficiary) };
+});
+for (const [index, recipient] of (token.vestingRecipients ?? []).entries()) {
+  if (!isAddress(recipient)) throw new Error(`Manifest vesting recipient ${index} is malformed`);
+}
+if (!/^0x[0-9a-f]{64}$/i.test(execution.salt ?? '')) {
+  throw new Error('Manifest execution salt is malformed');
+}
 const coder = AbiCoder.defaultAbiCoder();
 const airlock = new Interface([
   'event Create(address asset,address indexed numeraire,address initializer,address poolOrHook)',
@@ -90,22 +137,22 @@ const poolInitializerData = coder.encode([manifest.abi.poolInitializerDataType],
     curve.numPositions,
     curve.shares,
   ]),
-  beneficiaries.map(item => [item.beneficiary, item.shares]),
+  normalizedBeneficiaries.map(item => [item.beneficiary, item.shares]),
   pool.startingTime,
 ]]);
 const createData = [
   token.initialSupply,
   token.numTokensToSell,
-  network.weth,
-  network.tokenFactory,
+  manifestAddresses.weth,
+  manifestAddresses.tokenFactory,
   tokenFactoryData,
-  network.governanceFactory,
+  manifestAddresses.governanceFactory,
   execution.governanceFactoryData,
-  network.poolInitializer,
+  manifestAddresses.poolInitializer,
   poolInitializerData,
-  network.liquidityMigrator,
+  manifestAddresses.liquidityMigrator,
   execution.liquidityMigratorData,
-  execution.integrator,
+  manifestAddresses.integrator,
   execution.salt,
 ];
 const calldata = airlock.encodeFunctionData('create', [createData]);
@@ -122,7 +169,7 @@ if (Number(actualNetwork.chainId) !== network.chainId) {
 
 const unsignedTransaction = {
   from: signerAddress,
-  to: getAddress(network.airlock),
+  to: manifestAddresses.airlock,
   value: 0n,
   data: calldata,
 };
@@ -130,12 +177,12 @@ const simulatedReturn = await provider.call(unsignedTransaction);
 const predicted = airlock.decodeFunctionResult('create', simulatedReturn);
 const predictedToken = getAddress(predicted.asset);
 const [currency0, currency1] =
-  BigInt(network.weth) < BigInt(predictedToken)
-    ? [getAddress(network.weth), predictedToken]
-    : [predictedToken, getAddress(network.weth)];
+  BigInt(manifestAddresses.weth) < BigInt(predictedToken)
+    ? [manifestAddresses.weth, predictedToken]
+    : [predictedToken, manifestAddresses.weth];
 const poolId = keccak256(coder.encode(
   ['address', 'address', 'uint24', 'int24', 'address'],
-  [currency0, currency1, pool.dynamicFeeFlag, pool.tickSpacing, network.hook],
+  [currency0, currency1, pool.dynamicFeeFlag, pool.tickSpacing, manifestAddresses.hook],
 ));
 if (predictedToken !== getAddress(request.expectedPredictedToken)) {
   throw new Error(`Predicted token mismatch: ${predictedToken}`);
@@ -250,9 +297,9 @@ const [name, symbol, totalSupply, owner] = await Promise.all([
   tokenRead('owner'),
 ]);
 const beneficiaryShares = [];
-for (const item of beneficiaries) {
+for (const item of normalizedBeneficiaries) {
   const data = initializer.encodeFunctionData('getShares', [poolId, item.beneficiary]);
-  const response = await provider.call({ to: network.poolInitializer, data }, receipt.blockNumber);
+  const response = await provider.call({ to: manifestAddresses.poolInitializer, data }, receipt.blockNumber);
   const shares = initializer.decodeFunctionResult('getShares', response)[0].toString();
   if (shares !== item.shares) throw new Error(`Beneficiary share mismatch for ${item.beneficiary}`);
   beneficiaryShares.push({ ...item, verifiedShares: shares });
