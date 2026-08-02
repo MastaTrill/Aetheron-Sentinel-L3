@@ -250,6 +250,15 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       if (evidence.schemaVersion !== 1 || evidence.status !== 'verified') {
         failures.push(`${label}: evidence status must be verified`);
       }
+      if (typeof evidence.provider !== 'string' || evidence.provider.trim() === '') {
+        failures.push(`${label}: provider identity is required`);
+      }
+      if (
+        Object.hasOwn(evidence, 'endpoint') &&
+        (typeof evidence.endpoint !== 'string' || evidence.endpoint.trim() === '')
+      ) {
+        failures.push(`${label}: endpoint must be a nonempty string when recorded`);
+      }
       if (evidence.chainId !== 8453) {
         failures.push(`${label}: chainId must be 8453`);
       }
@@ -266,12 +275,17 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       requireHash(`${label} poolId`, evidence.pool?.poolId);
       requireVerifiedTreasuryShare(label, evidence.pool?.beneficiaries);
     }
-    if (
-      rpcEvidence.length === 2 &&
-      (rpcEvidence[0].provider === rpcEvidence[1].provider ||
-        rpcEvidence[0].endpoint === rpcEvidence[1].endpoint)
-    ) {
-      failures.push('independentRpcReproduction: providers and endpoints must be independent');
+    if (rpcEvidence.length === 2) {
+      if (rpcEvidence[0].provider === rpcEvidence[1].provider) {
+        failures.push('independentRpcReproduction: provider identities must be independent');
+      }
+      if (
+        typeof rpcEvidence[0].endpoint === 'string' &&
+        typeof rpcEvidence[1].endpoint === 'string' &&
+        rpcEvidence[0].endpoint === rpcEvidence[1].endpoint
+      ) {
+        failures.push('independentRpcReproduction: recorded endpoints must be independent');
+      }
     }
   }
 
