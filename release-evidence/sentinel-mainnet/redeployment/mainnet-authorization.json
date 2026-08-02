@@ -1,18 +1,22 @@
 {
   "schemaVersion": 1,
-  "status": "authorized",
-  "confirmation": "AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST",
+  "status": "pending-authorization",
+  "confirmation": "PENDING_EXPLICIT_BASE_MAINNET_AUTHORIZATION",
   "chainId": 8453,
   "limitations": {
     "maxGasCostWei": "10000000000000000",
-    "expiresAt": "2026-08-02T23:59:59.000Z"
+    "expiresAt": null
   },
   "approvedManifest": {
     "sha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d"
   },
   "authorization": {
-    "authorizedSender": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
-    "signature": "0xd3de8b6c86a376eb81980ab98c939abe88e8b2fbd6838969eb534d98f7cdbc61c1a2e3f5b82ac2ec5de2ee09b1a03f4f34689cbfae1f3b3d2fc1"
+    "authorizedSender": null,
+    "authorizedAtUtc": null,
+    "authorizedCommit": null,
+    "reference": null,
+    "signature": null,
+    "method": null
   },
-  "notice": "This file governs the broadcast authorization. Replace signature once confirmed."
+  "notice": "Template only. Base Mainnet remains unauthorized. A separate, explicit, time-bounded authorization for the exact reviewed commit is required before any signing or broadcasting."
 }

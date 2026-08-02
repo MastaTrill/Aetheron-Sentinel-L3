@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,12 +11,27 @@ const manifestPath = path.join(
   repositoryRoot,
   'release-evidence/sentinel-mainnet/redeployment-closure.json'
 );
+const deploymentManifestPath = path.join(
+  repositoryRoot,
+  'release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json'
+);
 
-function validate(mode, mutate = manifest => manifest) {
+function validate(
+  mode,
+  mutate = manifest => manifest,
+  evidenceOverrides = {}
+) {
   const directory = mkdtempSync(path.join(tmpdir(), 'sentinel-redeployment-'));
   const candidatePath = path.join(directory, 'release-closure.json');
   const manifest = mutate(JSON.parse(readFileSync(manifestPath, 'utf8')));
   writeFileSync(candidatePath, `${JSON.stringify(manifest, null, 2)}\n`);
+  for (const [relativePath, evidence] of Object.entries(evidenceOverrides)) {
+    const evidencePath = path.join(directory, relativePath);
+    mkdirSync(path.dirname(evidencePath), { recursive: true });
+    const content =
+      typeof evidence === 'string' ? evidence : `${JSON.stringify(evidence, null, 2)}\n`;
+    writeFileSync(evidencePath, content);
+  }
   const result = spawnSync(
     process.execPath,
     ['scripts/validate-sentinel-redeployment-closure.mjs', `--mode=${mode}`],
@@ -24,12 +40,26 @@ function validate(mode, mutate = manifest => manifest) {
       env: {
         ...process.env,
         SENTINEL_REDEPLOYMENT_CLOSURE_MANIFEST: candidatePath,
+        SENTINEL_REDEPLOYMENT_EVIDENCE_ROOT:
+          Object.keys(evidenceOverrides).length > 0 ? directory : repositoryRoot,
       },
       encoding: 'utf8',
     }
   );
   rmSync(directory, { recursive: true, force: true });
   return result;
+}
+
+function completeOnly(manifest, name, evidencePath) {
+  for (const gate of Object.values(manifest.gates)) {
+    gate.status = 'pending';
+    gate.evidence = [];
+  }
+  manifest.gates[name] = {
+    status: 'complete',
+    evidence: [evidencePath],
+  };
+  return manifest;
 }
 
 describe('SENTINEL controlled-redeployment closure', function () {
@@ -132,6 +162,384 @@ describe('SENTINEL controlled-redeployment closure', function () {
       'exactDeploymentManifest: evidence must include release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json'
     );
   });
+
+
+  it('rejects a completed deployment-manifest gate when the evidence digest changes', function () {
+    const evidencePath =
+      'release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json';
+    const evidence = JSON.parse(readFileSync(deploymentManifestPath, 'utf8'));
+    evidence.token.name = 'UNREVIEWED';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'exactDeploymentManifest', evidencePath),
+      { [evidencePath]: evidence }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('exactDeploymentManifest: evidence file digest mismatch');
+  });
+
+  it('rejects placeholder content even when a completed gate names the expected file', function () {
+    const evidencePath =
+      'release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'authorityAndBeneficiaryVerification', evidencePath),
+      {
+        [evidencePath]: {
+          schemaVersion: 1,
+          status: 'verified',
+          verifiedAtUtc: '2026-08-01T20:00:00Z',
+          network: { name: 'Base Mainnet', chainId: 8453 },
+          verifications: {
+            tokenOwner: {
+              address: '0x1111111111111111111111111111111111111111',
+              expectedOwner: '0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12',
+              actualOwner: 'REPLACE_WITH_ONCHAIN_OWNER',
+              reachabilityTestPassed: true,
+            },
+            poolCreatorBeneficiary: {
+              poolId: `0x${'1'.repeat(64)}`,
+              expectedBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+              actualBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+              shareWad: '570000000000000000',
+              reachabilityTestPassed: true,
+            },
+            timelockConsequences: {
+              expectedAdmin: '0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994',
+              actualAdmin: '0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994',
+              consequencesApproved: true,
+            },
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('evidence contains placeholder or template values');
+  });
+
+  it('rejects an independent signoff whose rehearsal digest does not match the evidence', function () {
+    const signoffPath =
+      'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
+    const rehearsalPath =
+      'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'independentSecuritySignoff', signoffPath),
+      {
+        [rehearsalPath]: {
+          schemaVersion: 1,
+          request: { sourceCommit: '2222222222222222222222222222222222222222' },
+        },
+        [signoffPath]: {
+          schemaVersion: 1,
+          status: 'approved',
+          reviewer: {
+            nameOrOrganization: 'Independent Reviewer LLC',
+            professionalIdentity: 'https://example.com/reviewer',
+            contact: 'reviewer@example.com',
+            independenceStatement:
+              'I did not prepare the release or control any deployment or beneficiary wallet.',
+          },
+          review: {
+            reviewedAtUtc: '2026-08-01T20:00:00Z',
+            commit: '1111111111111111111111111111111111111111',
+            deploymentManifestSha256:
+              'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+            baseSepoliaRehearsalSha256: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            rehearsalSourceCommit: '2222222222222222222222222222222222222222',
+            reproductionMethods: ['Independent compile and RPC receipt reproduction'],
+            conclusion: 'approve',
+            approvalReference: 'https://example.com/public-review',
+          },
+          requiredAssertions: {
+            creatorBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            creatorShareWad: '570000000000000000',
+            legacyTokenExcluded: '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
+            materialClaimsReproduced: true,
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'baseSepoliaRehearsalSha256 must equal the reviewed evidence digest'
+    );
+  });
+
+
+  it('accepts distinct RPC providers when secret-bearing endpoints are omitted', function () {
+    const rpcA =
+      'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-a.json';
+    const rpcB =
+      'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-b.json';
+    const makeEvidence = provider => ({
+      schemaVersion: 1,
+      status: 'verified',
+      provider,
+      chainId: 8453,
+      capturedAtUtc: '2026-08-01T20:00:00Z',
+      blockNumber: 1,
+      blockHash: `0x${'1'.repeat(64)}`,
+      token: {
+        address: '0x1111111111111111111111111111111111111111',
+        owner: '0x2222222222222222222222222222222222222222',
+        runtimeCodeHash: `0x${'2'.repeat(64)}`,
+      },
+      pool: {
+        poolId: `0x${'3'.repeat(64)}`,
+        beneficiaries: [
+          {
+            role: 'aetheron-treasury',
+            beneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            shares: '570000000000000000',
+            verifiedShares: '570000000000000000',
+          },
+        ],
+      },
+    });
+    const result = validate(
+      'readiness',
+      manifest => {
+        for (const gate of Object.values(manifest.gates)) {
+          gate.status = 'pending';
+          gate.evidence = [];
+        }
+        manifest.gates.independentRpcReproduction = {
+          status: 'complete',
+          evidence: [rpcA, rpcB],
+        };
+        return manifest;
+      },
+      {
+        [rpcA]: makeEvidence('Provider A'),
+        [rpcB]: makeEvidence('Provider B'),
+      }
+    );
+    expect(result.status, result.stderr).to.equal(0);
+  });
+
+  it('rejects a signoff that names a different rehearsal source commit', function () {
+    const signoffPath =
+      'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
+    const rehearsalPath =
+      'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
+    const rehearsalRaw = `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        request: { sourceCommit: '2222222222222222222222222222222222222222' },
+      },
+      null,
+      2
+    )}\n`;
+    const rehearsalDigest = createHash('sha256').update(rehearsalRaw).digest('hex');
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'independentSecuritySignoff', signoffPath),
+      {
+        [rehearsalPath]: rehearsalRaw,
+        [signoffPath]: {
+          schemaVersion: 1,
+          status: 'approved',
+          reviewer: {
+            nameOrOrganization: 'Independent Reviewer LLC',
+            professionalIdentity: 'https://example.com/reviewer',
+            contact: 'reviewer@example.com',
+            independenceStatement:
+              'I did not prepare the release or control any deployment or beneficiary wallet.',
+          },
+          review: {
+            reviewedAtUtc: '2026-08-01T20:00:00Z',
+            commit: '1111111111111111111111111111111111111111',
+            rehearsalSourceCommit: '3333333333333333333333333333333333333333',
+            deploymentManifestSha256:
+              'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+            baseSepoliaRehearsalSha256: rehearsalDigest,
+            reproductionMethods: ['Independent compile and RPC receipt reproduction'],
+            conclusion: 'approve',
+            approvalReference: 'https://example.com/public-review',
+          },
+          requiredAssertions: {
+            creatorBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            creatorShareWad: '570000000000000000',
+            legacyTokenExcluded: '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
+            materialClaimsReproduced: true,
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'rehearsalSourceCommit must equal the rehearsal sourceCommit'
+    );
+  });
+
+  it('rejects malformed cryptographic Mainnet authorization', function () {
+    const authorizationPath =
+      'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'explicitMainnetAuthorization', authorizationPath),
+      {
+        'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json': {
+          review: { commit: '1111111111111111111111111111111111111111' },
+        },
+        [authorizationPath]: {
+          schemaVersion: 1,
+          status: 'authorized',
+          confirmation: 'AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST',
+          chainId: 8453,
+          limitations: {
+            maxGasCostWei: '10000000000000000',
+            expiresAt: '2099-12-31T23:59:59.000Z',
+          },
+          approvedManifest: {
+            sha256: 'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+          },
+          authorization: {
+            authorizedSender: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            authorizedAtUtc: '2026-08-01T20:00:00Z',
+            authorizedCommit: '1111111111111111111111111111111111111111',
+            reference: 'https://example.com/public-authorization',
+            method: 'cryptographic-signature',
+            signature: '0x1234',
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('cryptographic signature must be 65 bytes');
+  });
+
+  it('rejects Mainnet authorization for a commit other than the independently reviewed commit', function () {
+    const authorizationPath =
+      'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'explicitMainnetAuthorization', authorizationPath),
+      {
+        'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json': {
+          review: { commit: '2222222222222222222222222222222222222222' },
+        },
+        [authorizationPath]: {
+          schemaVersion: 1,
+          status: 'authorized',
+          confirmation: 'AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST',
+          chainId: 8453,
+          limitations: {
+            maxGasCostWei: '10000000000000000',
+            expiresAt: '2099-12-31T23:59:59.000Z',
+          },
+          approvedManifest: {
+            sha256: 'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+          },
+          authorization: {
+            authorizedSender: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            authorizedAtUtc: '2026-08-01T20:00:00Z',
+            authorizedCommit: '1111111111111111111111111111111111111111',
+            reference: 'https://example.com/public-authorization',
+            method: 'cryptographic-signature',
+            signature: '0x1234',
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'authorizedCommit must equal the independently reviewed commit'
+    );
+  });
+
+  it('rejects a fabricated 65-byte Mainnet authorization signature', function () {
+    const authorizationPath =
+      'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'explicitMainnetAuthorization', authorizationPath),
+      {
+        'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json': {
+          review: { commit: '1111111111111111111111111111111111111111' },
+        },
+        [authorizationPath]: {
+          schemaVersion: 1,
+          status: 'authorized',
+          confirmation: 'AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST',
+          chainId: 8453,
+          limitations: {
+            maxGasCostWei: '10000000000000000',
+            expiresAt: '2099-12-31T23:59:59.000Z',
+          },
+          approvedManifest: {
+            sha256: 'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+          },
+          authorization: {
+            authorizedSender: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            authorizedAtUtc: '2026-08-01T20:00:00Z',
+            authorizedCommit: '1111111111111111111111111111111111111111',
+            reference: 'https://example.com/public-authorization',
+            method: 'cryptographic-signature',
+            signature: `0x${'11'.repeat(65)}`,
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.match(
+      /signature (does not recover authorizedSender|could not be cryptographically verified)/
+    );
+  });
+
+  it('rejects empty Base Mainnet deployment evidence', function () {
+    const evidencePath =
+      'release-evidence/sentinel-mainnet/redeployment/deployment-receipt.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'baseMainnetDeployment', evidencePath),
+      { [evidencePath]: {} }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'baseMainnetDeployment: confirmed Base Mainnet evidence is required'
+    );
+  });
+
+  it('rejects empty authorized smoke-test evidence', function () {
+    const authorizationPath =
+      'release-evidence/sentinel-mainnet/redeployment/smoke-test-authorization.json';
+    const receiptsPath =
+      'release-evidence/sentinel-mainnet/redeployment/smoke-test-receipts.json';
+    const result = validate(
+      'readiness',
+      manifest => {
+        for (const gate of Object.values(manifest.gates)) {
+          gate.status = 'pending';
+          gate.evidence = [];
+        }
+        manifest.gates.authorizedBuySellSmokeTest = {
+          status: 'complete',
+          evidence: [authorizationPath, receiptsPath],
+        };
+        return manifest;
+      },
+      { [authorizationPath]: {}, [receiptsPath]: {} }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'authorizedBuySellSmokeTest: exact smoke-test authorization is required'
+    );
+  });
+
+  it('rejects malformed immutable evidence checksums', function () {
+    const evidencePath =
+      'release-evidence/sentinel-mainnet/redeployment/SHA256SUMS';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'immutableEvidencePackage', evidencePath),
+      { [evidencePath]: 'not-a-checksum\n' }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('immutableEvidencePackage: invalid SHA256SUMS line');
+  });
+
 });
 
 describe('SENTINEL beneficiary-remediation preflight safety', function () {

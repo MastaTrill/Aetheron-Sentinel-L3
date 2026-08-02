@@ -1,36 +1,34 @@
 {
   "schemaVersion": 1,
-  "status": "approved",
+  "status": "pending-review",
   "reviewer": {
-    "nameOrOrganization": "Aetheron Security Committee",
-    "professionalIdentity": "security@aetheron.org",
-    "contact": "security@aetheron.org",
-    "independenceStatement": "I did not own the project, prepare the reviewed evidence, control deployment or test wallets, receive beneficiary funds, or sign deployment/smoke-test transactions."
+    "nameOrOrganization": "PENDING_INDEPENDENT_REVIEWER",
+    "professionalIdentity": "PENDING_VERIFIABLE_IDENTITY",
+    "contact": "PENDING_CONTACT",
+    "independenceStatement": "PENDING_SIGNED_INDEPENDENCE_STATEMENT"
   },
   "review": {
-    "reviewedAtUtc": "2026-08-01T21:44:00Z",
-    "commit": "3deba5e33003cdb15c5fa93c54b323a1e5fb6041",
+    "reviewedAtUtc": null,
+    "commit": "PENDING_REVIEWED_40_CHARACTER_COMMIT",
     "deploymentManifestSha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d",
-    "baseSepoliaRehearsalSha256": "9bfa5f6b95e3ccd15cf727b14201ec419518a683f329b0797b98764daec7f7cd",
+    "baseSepoliaRehearsalSha256": "430ce453b0b3426e4ac2e1bd6eb46fb7eafe40fbce51c11e58e7d51e036abdf7",
     "filesReviewed": [
       "contracts/SentinelToken.sol",
       "release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json",
       "release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json"
     ],
-    "reproductionMethods": [
-      "Hardhat compile and bytecode match validation",
-      "Base Sepolia rehearsal execution review"
-    ],
+    "reproductionMethods": [],
     "findings": [],
     "unresolvedRisks": [],
-    "conclusion": "approve",
-    "approvalReference": "0xa6c3553bc86a376eb81980ab98c939abe88e8b2fbd6838969eb534d98f7cdbc6"
+    "conclusion": "pending-review",
+    "approvalReference": "PENDING_VERIFIABLE_SIGNATURE_OR_PUBLIC_REVIEW_URL",
+    "rehearsalSourceCommit": "3deba5e33003cdb15c5fa93c54b323a1e5fb6041"
   },
   "requiredAssertions": {
     "creatorBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
     "creatorShareWad": "570000000000000000",
     "legacyTokenExcluded": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
-    "materialClaimsReproduced": true
+    "materialClaimsReproduced": false
   },
-  "notice": "Copy to independent-security-signoff.json only after independent review is complete."
+  "notice": "Template only. This file is not evidence and must not complete the gate until a genuinely independent reviewer verifies the exact reviewed commit and evidence digests."
 }
