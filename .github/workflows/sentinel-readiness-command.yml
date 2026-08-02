@@ -286,7 +286,7 @@ jobs:
 
       - name: Upload readiness evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: base-sepolia-readiness-${{ github.run_id }}
           path: artifacts/base-sepolia-readiness
