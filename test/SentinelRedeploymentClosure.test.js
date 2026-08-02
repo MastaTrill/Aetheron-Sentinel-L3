@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,11 +11,22 @@ const manifestPath = path.join(
   'release-evidence/sentinel-mainnet/redeployment-closure.json'
 );
 
-function validate(mode, mutate = manifest => manifest) {
+function validate(
+  mode,
+  mutate = manifest => manifest,
+  evidenceOverrides = {}
+) {
   const directory = mkdtempSync(path.join(tmpdir(), 'sentinel-redeployment-'));
   const candidatePath = path.join(directory, 'release-closure.json');
   const manifest = mutate(JSON.parse(readFileSync(manifestPath, 'utf8')));
   writeFileSync(candidatePath, `${JSON.stringify(manifest, null, 2)}\n`);
+  for (const [relativePath, evidence] of Object.entries(evidenceOverrides)) {
+    const evidencePath = path.join(directory, relativePath);
+    mkdirSync(path.dirname(evidencePath), { recursive: true });
+    const content =
+      typeof evidence === 'string' ? evidence : `${JSON.stringify(evidence, null, 2)}\n`;
+    writeFileSync(evidencePath, content);
+  }
   const result = spawnSync(
     process.execPath,
     ['scripts/validate-sentinel-redeployment-closure.mjs', `--mode=${mode}`],
@@ -24,12 +35,26 @@ function validate(mode, mutate = manifest => manifest) {
       env: {
         ...process.env,
         SENTINEL_REDEPLOYMENT_CLOSURE_MANIFEST: candidatePath,
+        SENTINEL_REDEPLOYMENT_EVIDENCE_ROOT:
+          Object.keys(evidenceOverrides).length > 0 ? directory : repositoryRoot,
       },
       encoding: 'utf8',
     }
   );
   rmSync(directory, { recursive: true, force: true });
   return result;
+}
+
+function completeOnly(manifest, name, evidencePath) {
+  for (const gate of Object.values(manifest.gates)) {
+    gate.status = 'pending';
+    gate.evidence = [];
+  }
+  manifest.gates[name] = {
+    status: 'complete',
+    evidence: [evidencePath],
+  };
+  return manifest;
 }
 
 describe('SENTINEL controlled-redeployment closure', function () {
@@ -131,6 +156,124 @@ describe('SENTINEL controlled-redeployment closure', function () {
     expect(result.stderr).to.include(
       'exactDeploymentManifest: evidence must include release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json'
     );
+  });
+
+  it('rejects placeholder content even when a completed gate names the expected file', function () {
+    const evidencePath =
+      'release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'authorityAndBeneficiaryVerification', evidencePath),
+      {
+        [evidencePath]: {
+          schemaVersion: 1,
+          status: 'verified',
+          verifiedAtUtc: '2026-08-01T20:00:00Z',
+          network: { name: 'Base Mainnet', chainId: 8453 },
+          verifications: {
+            tokenOwner: {
+              address: '0x1111111111111111111111111111111111111111',
+              expectedOwner: '0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12',
+              actualOwner: 'REPLACE_WITH_ONCHAIN_OWNER',
+              reachabilityTestPassed: true,
+            },
+            poolCreatorBeneficiary: {
+              poolId: `0x${'1'.repeat(64)}`,
+              expectedBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+              actualBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+              shareWad: '570000000000000000',
+              reachabilityTestPassed: true,
+            },
+            timelockConsequences: {
+              expectedAdmin: '0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994',
+              actualAdmin: '0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994',
+              consequencesApproved: true,
+            },
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('evidence contains placeholder or template values');
+  });
+
+  it('rejects an independent signoff whose rehearsal digest does not match the evidence', function () {
+    const signoffPath =
+      'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
+    const rehearsalPath =
+      'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'independentSecuritySignoff', signoffPath),
+      {
+        [rehearsalPath]: { schemaVersion: 1 },
+        [signoffPath]: {
+          schemaVersion: 1,
+          status: 'approved',
+          reviewer: {
+            nameOrOrganization: 'Independent Reviewer LLC',
+            professionalIdentity: 'https://example.com/reviewer',
+            contact: 'reviewer@example.com',
+            independenceStatement:
+              'I did not prepare the release or control any deployment or beneficiary wallet.',
+          },
+          review: {
+            reviewedAtUtc: '2026-08-01T20:00:00Z',
+            commit: '1111111111111111111111111111111111111111',
+            deploymentManifestSha256:
+              'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+            baseSepoliaRehearsalSha256: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            reproductionMethods: ['Independent compile and RPC receipt reproduction'],
+            conclusion: 'approve',
+            approvalReference: 'https://example.com/public-review',
+          },
+          requiredAssertions: {
+            creatorBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            creatorShareWad: '570000000000000000',
+            legacyTokenExcluded: '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
+            materialClaimsReproduced: true,
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'baseSepoliaRehearsalSha256 must equal the reviewed evidence digest'
+    );
+  });
+
+  it('rejects malformed cryptographic Mainnet authorization', function () {
+    const authorizationPath =
+      'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'explicitMainnetAuthorization', authorizationPath),
+      {
+        [authorizationPath]: {
+          schemaVersion: 1,
+          status: 'authorized',
+          confirmation: 'AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST',
+          chainId: 8453,
+          limitations: {
+            maxGasCostWei: '10000000000000000',
+            expiresAt: '2099-12-31T23:59:59.000Z',
+          },
+          approvedManifest: {
+            sha256: 'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+          },
+          authorization: {
+            authorizedSender: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            authorizedAtUtc: '2026-08-01T20:00:00Z',
+            authorizedCommit: '1111111111111111111111111111111111111111',
+            reference: 'https://example.com/public-authorization',
+            method: 'cryptographic-signature',
+            signature: '0x1234',
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('cryptographic signature must be 65 bytes');
   });
 });
 
