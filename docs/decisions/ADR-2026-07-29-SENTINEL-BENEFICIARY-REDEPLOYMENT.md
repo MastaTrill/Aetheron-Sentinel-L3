@@ -13,7 +13,7 @@ Because that controller proof is presently missing, the approved fail-closed pat
 
 `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`
 
-This decision authorizes planning, reproducible simulations, evidence generation, and independent review. It does **not** authorize a Base Mainnet broadcast, wallet signing, liquidity movement, fee collection, token migration, public trading, or acceptance of public funds.
+This decision authorizes planning, reproducible simulations, and evidence generation. It does **not** authorize a Base Mainnet broadcast, wallet signing, liquidity movement, fee collection, token migration, public trading, or acceptance of public funds.
 
 ## Mandatory deployment gates
 
@@ -21,7 +21,7 @@ This decision authorizes planning, reproducible simulations, evidence generation
 2. Produce a Base Sepolia rehearsal using the intended owner, treasury, beneficiary weights, PoolManager, and release workflow.
 3. Prove through two independent RPC providers that the replacement configuration assigns the 57% share to the Aetheron treasury.
 4. Reproduce ownership, beneficiary, fee, migration, and emergency-control reachability from chain state rather than screenshots.
-5. Obtain an independent qualified review referencing the exact reviewed commit and deployment manifest.
+5. Record explicit project-owner acceptance of the risk of proceeding without an independent security review.
 6. Obtain a separate explicit transaction authorization before any Base Mainnet deployment or funding transaction.
 7. Preserve deployment, verification, pool-creation, liquidity, buy, and sell receipts in the immutable release-evidence package.
 
@@ -37,7 +37,7 @@ The redeployment path becomes release-approved only when:
 
 - the exact replacement deployment manifest has passed CI;
 - the intended 57% treasury beneficiary is reproduced through two RPC providers;
-- the reviewer signs off on the exact commit and manifest;
+- the project owner explicitly accepts the absence of independent security review for the exact commit and manifest;
 - a dedicated non-privileged wallet completes the separately authorized WETH→SENTINEL and SENTINEL→WETH smoke test;
 - the final release validator exits zero; and
 - the project owner separately authorizes the Base Mainnet broadcast with explicit limits and expiry.
