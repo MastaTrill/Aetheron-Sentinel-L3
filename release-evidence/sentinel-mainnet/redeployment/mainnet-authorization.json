@@ -18,5 +18,11 @@
     "signature": null,
     "method": null
   },
-  "notice": "Template only. Base Mainnet remains unauthorized. A separate, explicit, time-bounded authorization for the exact reviewed commit is required before any signing or broadcasting."
+  "notice": "Template only. Base Mainnet remains unauthorized. A separate, explicit, time-bounded authorization for the exact commit and manifest is required, including project-owner acceptance of the risk of proceeding without independent security review.",
+  "riskAcceptance": {
+    "proceedWithoutIndependentSecurityReview": false,
+    "acceptedBy": null,
+    "acceptedAtUtc": null,
+    "statement": "PENDING_EXPLICIT_RISK_ACCEPTANCE"
+  }
 }
