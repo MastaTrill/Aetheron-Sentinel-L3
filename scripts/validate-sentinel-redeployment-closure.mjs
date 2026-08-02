@@ -43,8 +43,6 @@ const RPC_EVIDENCE = [
 ];
 const AUTHORITY_EVIDENCE =
   'release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json';
-const SECURITY_SIGNOFF_EVIDENCE =
-  'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
 const MAINNET_AUTHORIZATION_EVIDENCE =
   'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
 const MAINNET_DEPLOYMENT_EVIDENCE =
@@ -61,7 +59,6 @@ const REQUIRED_GATES = [
   'baseSepoliaRehearsal',
   'independentRpcReproduction',
   'authorityAndBeneficiaryVerification',
-  'independentSecuritySignoff',
   'explicitMainnetAuthorization',
   'baseMainnetDeployment',
   'authorizedBuySellSmokeTest',
@@ -80,9 +77,6 @@ const GATE_EVIDENCE_REQUIREMENTS = {
   ],
   authorityAndBeneficiaryVerification: [
     'release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json',
-  ],
-  independentSecuritySignoff: [
-    'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json',
   ],
   explicitMainnetAuthorization: [
     'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json',
@@ -197,7 +191,6 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       evidence.safety?.signingEnabled !== false ||
       evidence.safety?.broadcastEnabled !== false ||
       evidence.safety?.baseMainnetAuthorized !== false ||
-      evidence.safety?.requiresIndependentHumanReview !== true ||
       evidence.safety?.requiresSeparateExplicitMainnetAuthorization !== true
     ) {
       failures.push('exactDeploymentManifest: fail-closed safety assertions are invalid');
@@ -323,73 +316,6 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
     }
   }
 
-  if (name === 'independentSecuritySignoff') {
-    const evidence = evidenceByPath.get(SECURITY_SIGNOFF_EVIDENCE)?.data;
-    if (!evidence) return;
-    if (evidence.schemaVersion !== 1 || evidence.status !== 'approved') {
-      failures.push('independentSecuritySignoff: evidence status must be approved');
-    }
-    if (
-      !evidence.reviewer?.nameOrOrganization ||
-      !evidence.reviewer?.professionalIdentity ||
-      !evidence.reviewer?.contact ||
-      String(evidence.reviewer?.independenceStatement ?? '').length < 40
-    ) {
-      failures.push('independentSecuritySignoff: verifiable reviewer identity and independence statement are required');
-    }
-    if (!isIsoTimestamp(evidence.review?.reviewedAtUtc)) {
-      failures.push('independentSecuritySignoff: reviewedAtUtc must be an ISO timestamp');
-    }
-    if (!COMMIT_PATTERN.test(evidence.review?.commit ?? '')) {
-      failures.push('independentSecuritySignoff: reviewed commit must be a 40-character commit');
-    }
-    if (evidence.review?.deploymentManifestSha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
-      failures.push('independentSecuritySignoff: deployment manifest digest mismatch');
-    }
-    requireSha256(
-      'independentSecuritySignoff baseSepoliaRehearsalSha256',
-      evidence.review?.baseSepoliaRehearsalSha256
-    );
-    try {
-      const rehearsalRaw = await readFile(resolveEvidencePath(BASE_SEPOLIA_EVIDENCE));
-      const rehearsalEvidence = JSON.parse(rehearsalRaw);
-      const actualDigest = sha256(rehearsalRaw);
-      if (lower(evidence.review?.baseSepoliaRehearsalSha256) !== actualDigest) {
-        failures.push(
-          'independentSecuritySignoff: baseSepoliaRehearsalSha256 must equal the reviewed evidence digest'
-        );
-      }
-      if (
-        lower(evidence.review?.rehearsalSourceCommit) !==
-        lower(rehearsalEvidence.request?.sourceCommit)
-      ) {
-        failures.push(
-          'independentSecuritySignoff: rehearsalSourceCommit must equal the rehearsal sourceCommit'
-        );
-      }
-    } catch {
-      failures.push('independentSecuritySignoff: Base Sepolia evidence is unavailable for digest verification');
-    }
-    if (
-      evidence.review?.conclusion !== 'approve' ||
-      !Array.isArray(evidence.review?.reproductionMethods) ||
-      evidence.review.reproductionMethods.length === 0 ||
-      evidence.requiredAssertions?.materialClaimsReproduced !== true
-    ) {
-      failures.push('independentSecuritySignoff: reproduced approval conclusion is required');
-    }
-    const approvalReference = evidence.review?.approvalReference ?? '';
-    if (!SIGNATURE_PATTERN.test(approvalReference) && !/^https:\/\//i.test(approvalReference)) {
-      failures.push('independentSecuritySignoff: approvalReference must be a 65-byte signature or public HTTPS review');
-    }
-    if (
-      lower(evidence.requiredAssertions?.creatorBeneficiary) !== REQUIRED_TREASURY ||
-      String(evidence.requiredAssertions?.creatorShareWad ?? '') !== EXPECTED_CREATOR_SHARE_WAD ||
-      lower(evidence.requiredAssertions?.legacyTokenExcluded) !== LEGACY_TOKEN
-    ) {
-      failures.push('independentSecuritySignoff: required beneficiary assertions are invalid');
-    }
-  }
 
   if (name === 'explicitMainnetAuthorization') {
     const evidence = evidenceByPath.get(MAINNET_AUTHORIZATION_EVIDENCE)?.data;
@@ -402,6 +328,14 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       evidence.chainId !== 8453
     ) {
       failures.push('explicitMainnetAuthorization: exact Base Mainnet confirmation is required');
+    }
+    if (
+      evidence.riskAcceptance?.proceedWithoutIndependentSecurityReview !== true ||
+      evidence.riskAcceptance?.acceptedBy !== evidence.authorization?.authorizedSender ||
+      evidence.riskAcceptance?.statement !==
+        'I accept the risk of proceeding without an independent security review for this exact commit and manifest.'
+    ) {
+      failures.push('explicitMainnetAuthorization: explicit owner risk acceptance is required');
     }
     if (evidence.approvedManifest?.sha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
       failures.push('explicitMainnetAuthorization: deployment manifest digest mismatch');
@@ -443,21 +377,6 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       } catch {
         failures.push('explicitMainnetAuthorization: signature could not be cryptographically verified');
       }
-    }
-    try {
-      const signoff = JSON.parse(
-        await readFile(resolveEvidencePath(SECURITY_SIGNOFF_EVIDENCE), 'utf8')
-      );
-      if (
-        lower(evidence.authorization?.authorizedCommit) !==
-        lower(signoff.review?.commit)
-      ) {
-        failures.push(
-          'explicitMainnetAuthorization: authorizedCommit must equal the independently reviewed commit'
-        );
-      }
-    } catch {
-      failures.push('explicitMainnetAuthorization: independent signoff is unavailable for commit binding');
     }
   }
 
@@ -707,12 +626,6 @@ if (
   failures.push('baseMainnetDeployment cannot be complete while replacement status is preparation-only');
 }
 
-if (
-  manifest.gates?.explicitMainnetAuthorization?.status === 'complete' &&
-  manifest.gates?.independentSecuritySignoff?.status !== 'complete'
-) {
-  failures.push('explicitMainnetAuthorization requires completed independentSecuritySignoff');
-}
 if (
   manifest.gates?.baseMainnetDeployment?.status === 'complete' &&
   manifest.gates?.explicitMainnetAuthorization?.status !== 'complete'
