@@ -15,7 +15,8 @@
     "authorizedAtUtc": null,
     "authorizedCommit": null,
     "reference": null,
-    "signature": null
+    "signature": null,
+    "method": null
   },
   "notice": "Template only. Base Mainnet remains unauthorized. A separate, explicit, time-bounded authorization for the exact reviewed commit is required before any signing or broadcasting."
 }
