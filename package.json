@@ -34,8 +34,8 @@
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
     "format:check:release": "prettier --check config/release-core.json scripts/lib/release-core.cjs scripts/lib/github-api.cjs scripts/lib/github-environment.cjs scripts/lib/immutable-release.cjs scripts/lib/base-sepolia-rehearsal.cjs scripts/deploy-release-core.cjs scripts/verify-release-core.cjs scripts/validate-release-scope.cjs scripts/validate-github-environment.cjs scripts/validate-immutable-release.cjs scripts/validate-base-sepolia-rehearsal.cjs scripts/mainnet-preflight.js deploy/verify-mainnet.ts test/ReleaseDeploymentSafety.test.js test/SentinelInsuranceProtocol.test.js test/github-environment.test.cjs test/release-evidence.test.cjs",
-    "security:audit": "npm audit --omit=dev --omit=optional --audit-level=high",
-    "security:audit:toolchain": "npm audit --audit-level=critical",
+    "security:audit": "npm audit --omit=dev --audit-level=high",
+    "security:audit:toolchain": "npm audit --audit-level=high",
     "security:release-scope": "node scripts/validate-release-scope.cjs",
     "security:deployment-environment": "node scripts/validate-github-environment.cjs",
     "security:immutable-release": "node scripts/validate-immutable-release.cjs",
@@ -58,8 +58,8 @@
     "add-liquidity": "hardhat run scripts/add-liquidity.js",
     "update:site-contracts": "node scripts/update-site-contracts.js",
     "evidence:automate": "node scripts/automate-evidence.js",
-    "codegen": "npm --prefix sentinel-l3-v1.0 run codegen",
-    "build": "npm --prefix sentinel-l3-v1.0 run build",
+    "codegen": "node -e \"throw new Error('codegen via sentinel-l3-v1.0/ is retired (#203); use root tooling')\"",
+    "build": "node -e \"throw new Error('build via sentinel-l3-v1.0/ is retired (#203); use mainnet:build, dashboard:build, or build:web')\"",
     "mainnet:build": "forge build --profile default",
     "mainnet:test": "forge test -vvv",
     "mainnet:simulate": "DEPLOYMENT_MANIFEST_PATH=/tmp/sentinel-guardrails-simulation.json ALLOW_MANIFEST_OVERWRITE=true hardhat run scripts/deploy-release-core.cjs",
@@ -163,7 +163,8 @@
     "@ethersproject/signing-key": "^5.8.0",
     "@ethersproject/transactions": "^5.8.0",
     "@ethersproject/wallet": "^5.8.0",
-    "@ethersproject/wordlists": "^5.8.0"
+    "@ethersproject/wordlists": "^5.8.0",
+    "sharp": "0.35.0"
   },
   "type": "module"
 }

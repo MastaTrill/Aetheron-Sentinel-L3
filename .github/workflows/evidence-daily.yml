@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -36,7 +36,7 @@ jobs:
           npm run evidence:daily || true
 
       - name: Upload verification logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sepolia-evidence-${{ github.run_id }}
           path: logs/verification/
@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -68,7 +68,7 @@ jobs:
           npm run evidence:daily || true
 
       - name: Upload verification logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: mainnet-evidence-${{ github.run_id }}
           path: logs/verification/

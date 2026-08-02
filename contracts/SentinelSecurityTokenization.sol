@@ -64,6 +64,11 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     address indexed to,
     uint256 amount
   );
+  event SecurityNFTTransferred(
+    uint256 indexed tokenId,
+    address indexed from,
+    address indexed to
+  );
 
   constructor() Ownable(msg.sender) {}
 
@@ -159,10 +164,16 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
   /**
    * @notice Transfer security NFT (if transferable)
    */
-  function transferSecurityNFT(uint256 tokenId, address) external nonReentrant {
+  function transferSecurityNFT(uint256 tokenId, address to) external nonReentrant {
     SecurityNFT storage nft = securityNFTs[tokenId];
     require(nft.creator == msg.sender, 'Not NFT owner');
     require(nft.isTransferable, 'NFT not transferable');
+    require(to != address(0), 'Invalid recipient');
+
+    address from = nft.creator;
+    nft.creator = to;
+
+    emit SecurityNFTTransferred(tokenId, from, to);
   }
 
   /**

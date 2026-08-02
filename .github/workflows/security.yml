@@ -22,7 +22,7 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm run security:release-scope
       - name: Run production dependency audit
-        run: npm audit --omit=dev --omit=optional --audit-level=high --json > npm-audit-production.json
+        run: npm run security:audit -- --json > npm-audit-production.json
       - name: Upload production dependency audit
         if: always()
         uses: actions/upload-artifact@v6

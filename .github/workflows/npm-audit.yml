@@ -15,19 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
       - name: Run production dependency audit
-        shell: bash
-        run: |
-          set -o pipefail
-          npm audit --omit=dev --omit=optional --audit-level=high --json | tee audit-report.json
+        run: npm run security:audit -- --json > audit-report.json
+      - name: Validate toolchain dependency exceptions
+        run: npm run security:audit:toolchain
       - name: Upload audit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: npm-audit-report
           path: audit-report.json
@@ -38,7 +37,7 @@ jobs:
             const fs = require('fs');
             try {
               const report = JSON.parse(fs.readFileSync('audit-report.json', 'utf8'));
-              const v = report.vulnerabilities || {};
+              const v = report.metadata?.vulnerabilities || {};
               const total = (v.critical || 0) + (v.high || 0) + (v.moderate || 0) + (v.low || 0);
               console.log('Total vulnerabilities:', total);
               console.log('Critical:', v.critical || 0);
