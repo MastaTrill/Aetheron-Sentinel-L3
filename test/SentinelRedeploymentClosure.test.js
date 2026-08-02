@@ -359,6 +359,45 @@ describe('SENTINEL controlled-redeployment closure', function () {
     expect(result.stderr).to.include('cryptographic signature must be 65 bytes');
   });
 
+  it('rejects Mainnet authorization for a commit other than the independently reviewed commit', function () {
+    const authorizationPath =
+      'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'explicitMainnetAuthorization', authorizationPath),
+      {
+        'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json': {
+          review: { commit: '2222222222222222222222222222222222222222' },
+        },
+        [authorizationPath]: {
+          schemaVersion: 1,
+          status: 'authorized',
+          confirmation: 'AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST',
+          chainId: 8453,
+          limitations: {
+            maxGasCostWei: '10000000000000000',
+            expiresAt: '2099-12-31T23:59:59.000Z',
+          },
+          approvedManifest: {
+            sha256: 'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
+          },
+          authorization: {
+            authorizedSender: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            authorizedAtUtc: '2026-08-01T20:00:00Z',
+            authorizedCommit: '1111111111111111111111111111111111111111',
+            reference: 'https://example.com/public-authorization',
+            method: 'cryptographic-signature',
+            signature: '0x1234',
+          },
+        },
+      }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include(
+      'authorizedCommit must equal the independently reviewed commit'
+    );
+  });
+
   it('rejects a fabricated 65-byte Mainnet authorization signature', function () {
     const authorizationPath =
       'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
