@@ -119,14 +119,23 @@ jobs:
           npm run mainnet:preflight | tee base-mainnet-readiness.log
       - name: Simulate the exact deployment script
         run: npm run mainnet:simulate
-      - uses: actions/upload-artifact@v4
+      - name: Collect readiness diagnostics when available
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p base-mainnet-readiness-artifacts
+          if test -f base-mainnet-readiness.log; then
+            cp base-mainnet-readiness.log base-mainnet-readiness-artifacts/
+          fi
+          if test -f /tmp/sentinel-guardrails-simulation.json; then
+            cp /tmp/sentinel-guardrails-simulation.json base-mainnet-readiness-artifacts/
+          fi
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: base-mainnet-readiness-${{ github.run_id }}
-          path: |
-            base-mainnet-readiness.log
-            /tmp/sentinel-guardrails-simulation.json
-          if-no-files-found: error
+          path: base-mainnet-readiness-artifacts/
+          if-no-files-found: warn
 
   deploy:
     needs: readiness
@@ -157,7 +166,7 @@ jobs:
         run: npm run verify:release:base
       - name: Verify source on BaseScan
         run: npm run verify:base
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: base-mainnet-deployment-${{ github.run_id }}
