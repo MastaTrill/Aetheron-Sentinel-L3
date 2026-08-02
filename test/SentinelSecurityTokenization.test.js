@@ -52,6 +52,54 @@ describe('SentinelSecurityTokenization', function () {
     });
   });
 
+  describe('Security NFT Transfers', function () {
+    async function mintNFT(isTransferable = true) {
+      await securityTokenization.connect(user).mintSecurityNFT(
+        1, // COMPLIANCE_CERTIFICATE
+        'Compliance Certificate',
+        'Certificate issued after review',
+        'ipfs://certificate',
+        25_000,
+        isTransferable,
+        { value: 500 }
+      );
+      return 1n;
+    }
+
+    it('should move a transferable NFT to the recipient and emit the transfer', async function () {
+      const tokenId = await mintNFT();
+
+      await expect(
+        securityTokenization.connect(user).transferSecurityNFT(tokenId, user2.address)
+      )
+        .to.emit(securityTokenization, 'SecurityNFTTransferred')
+        .withArgs(tokenId, user.address, user2.address);
+
+      const [holder] = await securityTokenization.getNFTDetails(tokenId);
+      expect(holder).to.equal(user2.address);
+
+      await expect(
+        securityTokenization.connect(user).transferSecurityNFT(tokenId, owner.address)
+      ).to.be.revertedWith('Not NFT owner');
+    });
+
+    it('should reject transfers of non-transferable NFTs', async function () {
+      const tokenId = await mintNFT(false);
+
+      await expect(
+        securityTokenization.connect(user).transferSecurityNFT(tokenId, user2.address)
+      ).to.be.revertedWith('NFT not transferable');
+    });
+
+    it('should reject the zero-address recipient', async function () {
+      const tokenId = await mintNFT();
+
+      await expect(
+        securityTokenization.connect(user).transferSecurityNFT(tokenId, ethers.ZeroAddress)
+      ).to.be.revertedWith('Invalid recipient');
+    });
+  });
+
   describe('Access Control', function () {
     it('should allow only owner to set platform fee', async function () {
       await expect(
