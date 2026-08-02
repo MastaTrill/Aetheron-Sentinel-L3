@@ -47,6 +47,14 @@ const SECURITY_SIGNOFF_EVIDENCE =
   'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
 const MAINNET_AUTHORIZATION_EVIDENCE =
   'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+const MAINNET_DEPLOYMENT_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/deployment-receipt.json';
+const SMOKE_AUTHORIZATION_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/smoke-test-authorization.json';
+const SMOKE_RECEIPTS_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/smoke-test-receipts.json';
+const IMMUTABLE_SUMS_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/SHA256SUMS';
 const EVIDENCE_ROOT = process.env.SENTINEL_REDEPLOYMENT_EVIDENCE_ROOT ?? '.';
 const REQUIRED_GATES = [
   'exactDeploymentManifest',
@@ -124,10 +132,26 @@ function isIsoTimestamp(value) {
   return typeof value === 'string' && Number.isFinite(Date.parse(value));
 }
 
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
 function requireSha256(label, value) {
   if (!SHA256_PATTERN.test(value ?? '') || /^0{64}$/i.test(value)) {
     failures.push(`${label} must be a nonzero SHA-256 digest`);
   }
+}
+
+function mainnetAuthorizationMessage(evidence) {
+  return [
+    'AETHERON SENTINEL BASE MAINNET AUTHORIZATION',
+    `chainId:${evidence.chainId}`,
+    `manifestSha256:${lower(evidence.approvedManifest?.sha256)}`,
+    `authorizedCommit:${lower(evidence.authorization?.authorizedCommit)}`,
+    `authorizedSender:${lower(evidence.authorization?.authorizedSender)}`,
+    `maxGasCostWei:${evidence.limitations?.maxGasCostWei}`,
+    `expiresAt:${evidence.limitations?.expiresAt}`,
+  ].join('\n');
 }
 
 function requireVerifiedTreasuryShare(label, beneficiaries) {
@@ -156,6 +180,10 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
   if (name === 'exactDeploymentManifest') {
     const evidence = evidenceByPath.get(DEPLOYMENT_MANIFEST_EVIDENCE)?.data;
     if (!evidence) return;
+    const raw = evidenceByPath.get(DEPLOYMENT_MANIFEST_EVIDENCE)?.raw;
+    if (raw && sha256(raw) !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
+      failures.push('exactDeploymentManifest: evidence file digest mismatch');
+    }
     if (evidence.schemaVersion !== 1) {
       failures.push('exactDeploymentManifest: evidence schemaVersion must be 1');
     }
@@ -310,10 +338,19 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
     );
     try {
       const rehearsalRaw = await readFile(resolveEvidencePath(BASE_SEPOLIA_EVIDENCE));
-      const actualDigest = createHash('sha256').update(rehearsalRaw).digest('hex');
+      const rehearsalEvidence = JSON.parse(rehearsalRaw);
+      const actualDigest = sha256(rehearsalRaw);
       if (lower(evidence.review?.baseSepoliaRehearsalSha256) !== actualDigest) {
         failures.push(
           'independentSecuritySignoff: baseSepoliaRehearsalSha256 must equal the reviewed evidence digest'
+        );
+      }
+      if (
+        lower(evidence.review?.rehearsalSourceCommit) !==
+        lower(rehearsalEvidence.request?.sourceCommit)
+      ) {
+        failures.push(
+          'independentSecuritySignoff: rehearsalSourceCommit must equal the rehearsal sourceCommit'
         );
       }
     } catch {
@@ -374,14 +411,155 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
     if (!/^https:\/\//i.test(evidence.authorization?.reference ?? '')) {
       failures.push('explicitMainnetAuthorization: a verifiable public HTTPS authorization reference is required');
     }
-    if (!['cryptographic-signature', 'github-protected-environment'].includes(evidence.authorization?.method)) {
-      failures.push('explicitMainnetAuthorization: authorization method is invalid');
+    if (evidence.authorization?.method !== 'cryptographic-signature') {
+      failures.push('explicitMainnetAuthorization: method must be cryptographic-signature');
+    }
+    const signature = evidence.authorization?.signature ?? '';
+    if (!SIGNATURE_PATTERN.test(signature)) {
+      failures.push('explicitMainnetAuthorization: cryptographic signature must be 65 bytes');
+    } else {
+      try {
+        const { verifyMessage } = await import('ethers');
+        const recovered = verifyMessage(mainnetAuthorizationMessage(evidence), signature);
+        if (lower(recovered) !== lower(evidence.authorization?.authorizedSender)) {
+          failures.push(
+            'explicitMainnetAuthorization: signature does not recover authorizedSender'
+          );
+        }
+      } catch {
+        failures.push('explicitMainnetAuthorization: signature could not be cryptographically verified');
+      }
+    }
+    try {
+      const signoff = JSON.parse(
+        await readFile(resolveEvidencePath(SECURITY_SIGNOFF_EVIDENCE), 'utf8')
+      );
+      if (
+        lower(evidence.authorization?.authorizedCommit) !==
+        lower(signoff.review?.commit)
+      ) {
+        failures.push(
+          'explicitMainnetAuthorization: authorizedCommit must equal the independently reviewed commit'
+        );
+      }
+    } catch {
+      failures.push('explicitMainnetAuthorization: independent signoff is unavailable for commit binding');
+    }
+  }
+
+  if (name === 'baseMainnetDeployment') {
+    const evidence = evidenceByPath.get(MAINNET_DEPLOYMENT_EVIDENCE)?.data;
+    if (!evidence) return;
+    if (
+      evidence.schemaVersion !== 1 ||
+      evidence.status !== 'confirmed' ||
+      evidence.chainId !== 8453
+    ) {
+      failures.push('baseMainnetDeployment: confirmed Base Mainnet evidence is required');
+    }
+    if (evidence.manifestSha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
+      failures.push('baseMainnetDeployment: deployment manifest digest mismatch');
+    }
+    if (!COMMIT_PATTERN.test(evidence.releaseCommit ?? '')) {
+      failures.push('baseMainnetDeployment: releaseCommit must be a 40-character commit');
+    }
+    requireHash('baseMainnetDeployment transactionHash', evidence.transactionHash);
+    requireHash('baseMainnetDeployment blockHash', evidence.receipt?.blockHash);
+    if (
+      evidence.receipt?.status !== 1 ||
+      !Number.isInteger(evidence.receipt?.blockNumber) ||
+      evidence.receipt.blockNumber <= 0
+    ) {
+      failures.push('baseMainnetDeployment: successful receipt and positive blockNumber are required');
+    }
+    requireAddress('baseMainnetDeployment token', evidence.replacement?.token);
+    requireAddress('baseMainnetDeployment initializer', evidence.replacement?.initializer);
+    requireHash('baseMainnetDeployment poolId', evidence.replacement?.poolId);
+    if (
+      lower(evidence.replacement?.token) !== lower(replacement.token) ||
+      lower(evidence.replacement?.initializer) !== lower(replacement.initializer) ||
+      lower(evidence.replacement?.poolId) !== lower(replacement.poolId) ||
+      lower(evidence.transactionHash) !== lower(replacement.deploymentTransactionHash)
+    ) {
+      failures.push('baseMainnetDeployment: receipt must match replacementDeployment');
+    }
+  }
+
+  if (name === 'authorizedBuySellSmokeTest') {
+    const authorization = evidenceByPath.get(SMOKE_AUTHORIZATION_EVIDENCE)?.data;
+    const receipts = evidenceByPath.get(SMOKE_RECEIPTS_EVIDENCE)?.data;
+    if (!authorization || !receipts) return;
+    if (
+      authorization.schemaVersion !== 1 ||
+      authorization.status !== 'authorized' ||
+      authorization.chainId !== 8453 ||
+      authorization.confirmation !== 'AUTHORIZE_SENTINEL_BASE_MAINNET_SMOKE_TEST'
+    ) {
+      failures.push('authorizedBuySellSmokeTest: exact smoke-test authorization is required');
     }
     if (
-      evidence.authorization?.method === 'cryptographic-signature' &&
-      !SIGNATURE_PATTERN.test(evidence.authorization?.signature ?? '')
+      !isIsoTimestamp(authorization.expiresAt) ||
+      Date.parse(authorization.expiresAt) <= Date.now()
     ) {
-      failures.push('explicitMainnetAuthorization: cryptographic signature must be 65 bytes');
+      failures.push('authorizedBuySellSmokeTest: authorization must be unexpired');
+    }
+    requireAddress(
+      'authorizedBuySellSmokeTest authorizedSender',
+      authorization.authorizedSender
+    );
+    if (
+      receipts.schemaVersion !== 1 ||
+      receipts.status !== 'confirmed' ||
+      receipts.chainId !== 8453
+    ) {
+      failures.push('authorizedBuySellSmokeTest: confirmed Base Mainnet receipts are required');
+    }
+    requireAddress('authorizedBuySellSmokeTest token', receipts.token);
+    requireHash('authorizedBuySellSmokeTest poolId', receipts.poolId);
+    for (const side of ['buy', 'sell']) {
+      requireHash(`authorizedBuySellSmokeTest ${side} transactionHash`, receipts[side]?.transactionHash);
+      if (receipts[side]?.receiptStatus !== 1) {
+        failures.push(`authorizedBuySellSmokeTest: ${side} receipt must be successful`);
+      }
+    }
+    if (
+      lower(receipts.token) !== lower(replacement.token) ||
+      lower(receipts.poolId) !== lower(replacement.poolId)
+    ) {
+      failures.push('authorizedBuySellSmokeTest: receipts must match replacementDeployment');
+    }
+  }
+
+  if (name === 'immutableEvidencePackage') {
+    const raw = evidenceByPath.get(IMMUTABLE_SUMS_EVIDENCE)?.raw;
+    if (!raw) return;
+    const sums = new Map();
+    for (const line of raw.split(/\r?\n/).filter(Boolean)) {
+      const match = line.match(/^([0-9a-f]{64})  (.+)$/i);
+      if (!match) {
+        failures.push(`immutableEvidencePackage: invalid SHA256SUMS line: ${line}`);
+        continue;
+      }
+      sums.set(match[2], lower(match[1]));
+    }
+    const requiredFiles = new Set(
+      Object.values(manifest.gates ?? {})
+        .flatMap(gate => (gate.status === 'complete' ? gate.evidence : []))
+        .filter(file => file !== IMMUTABLE_SUMS_EVIDENCE)
+    );
+    for (const file of requiredFiles) {
+      if (!sums.has(file)) {
+        failures.push(`immutableEvidencePackage: missing checksum for ${file}`);
+        continue;
+      }
+      try {
+        const actual = sha256(await readFile(resolveEvidencePath(file)));
+        if (sums.get(file) !== actual) {
+          failures.push(`immutableEvidencePackage: checksum mismatch for ${file}`);
+        }
+      } catch {
+        failures.push(`immutableEvidencePackage: cannot checksum ${file}`);
+      }
     }
   }
 }
@@ -482,8 +660,8 @@ for (const name of REQUIRED_GATES) {
       try {
         const resolved = resolveEvidencePath(file);
         await access(resolved);
+        const raw = await readFile(resolved, 'utf8');
         if (file.endsWith('.json')) {
-          const raw = await readFile(resolved, 'utf8');
           let data;
           try {
             data = JSON.parse(raw);
@@ -495,6 +673,8 @@ for (const name of REQUIRED_GATES) {
           if (containsPlaceholder(data)) {
             failures.push(`${name}: evidence contains placeholder or template values: ${file}`);
           }
+        } else {
+          evidenceByPath.set(file, { raw });
         }
       } catch {
         failures.push(`${name}: missing evidence ${file}`);
