@@ -17,7 +17,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Read canonical token state
         env:
@@ -25,7 +25,7 @@ jobs:
         run: |
           mkdir -p evidence
           bash scripts/verify-canonical-token.sh | tee evidence/canonical-token-state.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: canonical-token-state
           path: evidence/canonical-token-state.txt
