@@ -267,6 +267,57 @@ describe('SENTINEL controlled-redeployment closure', function () {
   });
 
 
+  it('accepts distinct RPC providers when secret-bearing endpoints are omitted', function () {
+    const rpcA =
+      'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-a.json';
+    const rpcB =
+      'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-b.json';
+    const makeEvidence = provider => ({
+      schemaVersion: 1,
+      status: 'verified',
+      provider,
+      chainId: 8453,
+      capturedAtUtc: '2026-08-01T20:00:00Z',
+      blockNumber: 1,
+      blockHash: `0x${'1'.repeat(64)}`,
+      token: {
+        address: '0x1111111111111111111111111111111111111111',
+        owner: '0x2222222222222222222222222222222222222222',
+        runtimeCodeHash: `0x${'2'.repeat(64)}`,
+      },
+      pool: {
+        poolId: `0x${'3'.repeat(64)}`,
+        beneficiaries: [
+          {
+            role: 'aetheron-treasury',
+            beneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
+            shares: '570000000000000000',
+            verifiedShares: '570000000000000000',
+          },
+        ],
+      },
+    });
+    const result = validate(
+      'readiness',
+      manifest => {
+        for (const gate of Object.values(manifest.gates)) {
+          gate.status = 'pending';
+          gate.evidence = [];
+        }
+        manifest.gates.independentRpcReproduction = {
+          status: 'complete',
+          evidence: [rpcA, rpcB],
+        };
+        return manifest;
+      },
+      {
+        [rpcA]: makeEvidence('Provider A'),
+        [rpcB]: makeEvidence('Provider B'),
+      }
+    );
+    expect(result.status, result.stderr).to.equal(0);
+  });
+
   it('rejects a signoff that names a different rehearsal source commit', function () {
     const signoffPath =
       'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
