@@ -126,7 +126,7 @@ function validateAuditReport(report, policy, scope, now = new Date()) {
 
     const exception = (policy.exceptions || []).find(
       (entry) =>
-        entry.advisory === finding.advisory &&
+        entry.advisory.toUpperCase() === finding.advisory &&
         entry.package === finding.package &&
         entry.scopes.includes(scope)
     );
