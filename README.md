@@ -14,7 +14,7 @@
 ## 📌 Table of Contents
 
 - [Overview](#overview)
-- [Canonical SENTINEL Token](#canonical-sentinel-token)
+- [SENTINEL Deployment Status](#sentinel-deployment-status)
 - [🚀 Getting Started](#-getting-started)
 - [🛠 Development](#-development)
 - [🛡️ Security](#-security)
@@ -33,18 +33,26 @@ Aetheron Sentinel L3 is a comprehensive security and automation suite for the SE
 - **Bug Bounty Program**: Incentivized community-led security research.
 - **Verifiable DeFAI AI Agents**: TEE-secured inference (Phala/Oasis/Intel TDX), attestation flows, policy-enforced autonomy levels (0-3), human-in-the-loop, drift monitoring, and seamless fallback to rule-based L3 security (SentinelInterceptor, CircuitBreaker, quantum guards).
 
-## Canonical SENTINEL Token
+## SENTINEL Deployment Status
 
-The canonical Aetheron Sentinel L3 ecosystem token is deployed on Base Mainnet:
+A SENTINEL token is deployed on Base Mainnet, but the authoritative release decision
+classifies that deployment as **legacy/non-canonical** because control of its 57%
+beneficiary has not been proven.
 
-- **Contract:** [`0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`](https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3)
-- **Network:** Base Mainnet (`8453`)
-- **On-chain name/symbol:** `SENTINEL` / `SENTINEL`
-- **Deployment manifest:** [`deployments/base-mainnet.json`](deployments/base-mainnet.json)
-- **Security and governance plan:** [`docs/SENTINEL_TOKEN_MAINNET.md`](docs/SENTINEL_TOKEN_MAINNET.md)
-- **Verification:** `BASE_RPC_URL=https://mainnet.base.org bash scripts/verify-canonical-token.sh`
+- **Legacy Base Mainnet token:** [`0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`](https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3)
+- **Legacy pool ID:** `0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d`
+- **Current legacy 57% beneficiary:** `0x7e3D11f70084D667295710E6b7FF50C3b0487a45`
+- **Intended replacement 57% treasury:** `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`
+- **Corrected Base Sepolia rehearsal token:** [`0x3555976fecf045833D6E148C42035170bA1337Ab`](https://sepolia.basescan.org/address/0x3555976fecf045833D6E148C42035170bA1337Ab)
+- **Release decision:** [controlled beneficiary redeployment ADR](docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md)
+- **Machine-readable status:** [redeployment closure](release-evidence/sentinel-mainnet/redeployment-closure.json)
+- **Legacy deployment manifest:** [`deployments/base-mainnet.json`](deployments/base-mainnet.json)
+- **Legacy verification:** `BASE_RPC_URL=https://mainnet.base.org bash scripts/verify-canonical-token.sh`
 
-> **Release status:** Canonical, pending governance hardening and launch evidence. The separate `contracts/SentinelToken.sol` design is not the verified source for this deployed address and must not be represented as the live token.
+> **Release status:** Replacement preparation only. The corrected Base Sepolia rehearsal is
+> complete, but no corrected replacement Base Mainnet token, pool, or deployment
+> transaction is recorded. Do not represent the legacy deployment as canonical unless
+> the release decision and closure evidence are updated through the required process.
 
 ## 🚀 Getting Started
 
