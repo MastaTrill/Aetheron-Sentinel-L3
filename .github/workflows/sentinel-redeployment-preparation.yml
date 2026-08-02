@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/reconstruct-legacy-sentinel-launch.mjs'
       - 'scripts/validate-sentinel-deployment-manifest.mjs'
+      - 'scripts/validate-sentinel-redeployment-closure.mjs'
       - 'scripts/simulate-sentinel-base-sepolia.mjs'
       - 'scripts/execute-sentinel-base-sepolia-rehearsal.mjs'
       - '.github/workflows/sentinel-redeployment-preparation.yml'
@@ -46,9 +47,16 @@ jobs:
           node reconstruct.mjs
       - name: Validate exact fail-closed manifest
         run: node scripts/validate-sentinel-deployment-manifest.mjs
-      - name: Simulate exact launch on Base Sepolia
-        run: node /tmp/sentinel-decoder/simulate.mjs
-      - uses: actions/upload-artifact@v4
+      - name: Simulate a pending launch or validate the confirmed rehearsal
+        shell: bash
+        run: |
+          if node --input-type=commonjs -e "const m=require('./release-evidence/sentinel-mainnet/redeployment-closure.json'); process.exit(m.gates?.baseSepoliaRehearsal?.status === 'complete' ? 0 : 1)"; then
+            node scripts/validate-sentinel-redeployment-closure.mjs --mode=readiness
+            cp release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json "${SENTINEL_BASE_SEPOLIA_REHEARSAL_OUTPUT}"
+          else
+            node /tmp/sentinel-decoder/simulate.mjs
+          fi
+      - uses: actions/upload-artifact@v7
         with:
           name: sentinel-redeployment-preparation-${{ github.run_id }}
           path: |
