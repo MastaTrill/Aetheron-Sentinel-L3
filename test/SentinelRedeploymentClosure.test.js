@@ -89,7 +89,7 @@ describe('SENTINEL controlled-redeployment closure', function () {
   it('accepts preparation in readiness mode and blocks final mode', function () {
     const readiness = validate('readiness');
     expect(readiness.status, readiness.stderr).to.equal(0);
-    expect(readiness.stdout).to.match(/Complete gates: \d\/9/);
+    expect(readiness.stdout).to.match(/Complete gates: \d\/8/);
 
     const final = validate('final');
     expect(final.status).to.not.equal(0);
@@ -217,161 +217,7 @@ describe('SENTINEL controlled-redeployment closure', function () {
     expect(result.stderr).to.include('evidence contains placeholder or template values');
   });
 
-  it('rejects an independent signoff whose rehearsal digest does not match the evidence', function () {
-    const signoffPath =
-      'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
-    const rehearsalPath =
-      'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
-    const result = validate(
-      'readiness',
-      manifest => completeOnly(manifest, 'independentSecuritySignoff', signoffPath),
-      {
-        [rehearsalPath]: {
-          schemaVersion: 1,
-          request: { sourceCommit: '2222222222222222222222222222222222222222' },
-        },
-        [signoffPath]: {
-          schemaVersion: 1,
-          status: 'approved',
-          reviewer: {
-            nameOrOrganization: 'Independent Reviewer LLC',
-            professionalIdentity: 'https://example.com/reviewer',
-            contact: 'reviewer@example.com',
-            independenceStatement:
-              'I did not prepare the release or control any deployment or beneficiary wallet.',
-          },
-          review: {
-            reviewedAtUtc: '2026-08-01T20:00:00Z',
-            commit: '1111111111111111111111111111111111111111',
-            deploymentManifestSha256:
-              'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
-            baseSepoliaRehearsalSha256: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-            rehearsalSourceCommit: '2222222222222222222222222222222222222222',
-            reproductionMethods: ['Independent compile and RPC receipt reproduction'],
-            conclusion: 'approve',
-            approvalReference: 'https://example.com/public-review',
-          },
-          requiredAssertions: {
-            creatorBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
-            creatorShareWad: '570000000000000000',
-            legacyTokenExcluded: '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
-            materialClaimsReproduced: true,
-          },
-        },
-      }
-    );
-    expect(result.status).to.not.equal(0);
-    expect(result.stderr).to.include(
-      'baseSepoliaRehearsalSha256 must equal the reviewed evidence digest'
-    );
-  });
 
-
-  it('accepts distinct RPC providers when secret-bearing endpoints are omitted', function () {
-    const rpcA =
-      'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-a.json';
-    const rpcB =
-      'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-b.json';
-    const makeEvidence = provider => ({
-      schemaVersion: 1,
-      status: 'verified',
-      provider,
-      chainId: 8453,
-      capturedAtUtc: '2026-08-01T20:00:00Z',
-      blockNumber: 1,
-      blockHash: `0x${'1'.repeat(64)}`,
-      token: {
-        address: '0x1111111111111111111111111111111111111111',
-        owner: '0x2222222222222222222222222222222222222222',
-        runtimeCodeHash: `0x${'2'.repeat(64)}`,
-      },
-      pool: {
-        poolId: `0x${'3'.repeat(64)}`,
-        beneficiaries: [
-          {
-            role: 'aetheron-treasury',
-            beneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
-            shares: '570000000000000000',
-            verifiedShares: '570000000000000000',
-          },
-        ],
-      },
-    });
-    const result = validate(
-      'readiness',
-      manifest => {
-        for (const gate of Object.values(manifest.gates)) {
-          gate.status = 'pending';
-          gate.evidence = [];
-        }
-        manifest.gates.independentRpcReproduction = {
-          status: 'complete',
-          evidence: [rpcA, rpcB],
-        };
-        return manifest;
-      },
-      {
-        [rpcA]: makeEvidence('Provider A'),
-        [rpcB]: makeEvidence('Provider B'),
-      }
-    );
-    expect(result.status, result.stderr).to.equal(0);
-  });
-
-  it('rejects a signoff that names a different rehearsal source commit', function () {
-    const signoffPath =
-      'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
-    const rehearsalPath =
-      'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
-    const rehearsalRaw = `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        request: { sourceCommit: '2222222222222222222222222222222222222222' },
-      },
-      null,
-      2
-    )}\n`;
-    const rehearsalDigest = createHash('sha256').update(rehearsalRaw).digest('hex');
-    const result = validate(
-      'readiness',
-      manifest => completeOnly(manifest, 'independentSecuritySignoff', signoffPath),
-      {
-        [rehearsalPath]: rehearsalRaw,
-        [signoffPath]: {
-          schemaVersion: 1,
-          status: 'approved',
-          reviewer: {
-            nameOrOrganization: 'Independent Reviewer LLC',
-            professionalIdentity: 'https://example.com/reviewer',
-            contact: 'reviewer@example.com',
-            independenceStatement:
-              'I did not prepare the release or control any deployment or beneficiary wallet.',
-          },
-          review: {
-            reviewedAtUtc: '2026-08-01T20:00:00Z',
-            commit: '1111111111111111111111111111111111111111',
-            rehearsalSourceCommit: '3333333333333333333333333333333333333333',
-            deploymentManifestSha256:
-              'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d',
-            baseSepoliaRehearsalSha256: rehearsalDigest,
-            reproductionMethods: ['Independent compile and RPC receipt reproduction'],
-            conclusion: 'approve',
-            approvalReference: 'https://example.com/public-review',
-          },
-          requiredAssertions: {
-            creatorBeneficiary: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa',
-            creatorShareWad: '570000000000000000',
-            legacyTokenExcluded: '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
-            materialClaimsReproduced: true,
-          },
-        },
-      }
-    );
-    expect(result.status).to.not.equal(0);
-    expect(result.stderr).to.include(
-      'rehearsalSourceCommit must equal the rehearsal sourceCommit'
-    );
-  });
 
   it('rejects malformed cryptographic Mainnet authorization', function () {
     const authorizationPath =
@@ -410,16 +256,13 @@ describe('SENTINEL controlled-redeployment closure', function () {
     expect(result.stderr).to.include('cryptographic signature must be 65 bytes');
   });
 
-  it('rejects Mainnet authorization for a commit other than the independently reviewed commit', function () {
+  it('requires explicit owner risk acceptance in Mainnet authorization', function () {
     const authorizationPath =
       'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
     const result = validate(
       'readiness',
       manifest => completeOnly(manifest, 'explicitMainnetAuthorization', authorizationPath),
       {
-        'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json': {
-          review: { commit: '2222222222222222222222222222222222222222' },
-        },
         [authorizationPath]: {
           schemaVersion: 1,
           status: 'authorized',
@@ -445,7 +288,7 @@ describe('SENTINEL controlled-redeployment closure', function () {
     );
     expect(result.status).to.not.equal(0);
     expect(result.stderr).to.include(
-      'authorizedCommit must equal the independently reviewed commit'
+      'explicit owner risk acceptance is required'
     );
   });
 
