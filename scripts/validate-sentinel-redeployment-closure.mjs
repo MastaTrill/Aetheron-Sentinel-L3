@@ -33,6 +33,10 @@ const SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
 const PLACEHOLDER_PATTERN = /(REPLACE_WITH|PENDING_|template-not-evidence)/i;
 const EXPECTED_DEPLOYMENT_MANIFEST_SHA256 =
   '984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404';
+const EXPECTED_BASE_SEPOLIA_REHEARSAL_MANIFEST_SHA256 =
+  'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d';
+const EXPECTED_BASE_SEPOLIA_REHEARSAL_CALLDATA_HASH =
+  '0x55b0054dbf3997212897cc88ec4acac376cf0c796e2234b87c4eb36433bdd701';
 const DEPLOYMENT_MANIFEST_EVIDENCE =
   'release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json';
 const BASE_SEPOLIA_EVIDENCE =
@@ -210,8 +214,11 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
     if (evidence.mode !== 'protected-testnet-broadcast' || evidence.chainId !== 84532) {
       failures.push('baseSepoliaRehearsal: evidence must be a Base Sepolia protected broadcast');
     }
-    if (evidence.manifest?.sha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
-      failures.push('baseSepoliaRehearsal: deployment manifest digest mismatch');
+    if (evidence.manifest?.sha256 !== EXPECTED_BASE_SEPOLIA_REHEARSAL_MANIFEST_SHA256) {
+      failures.push('baseSepoliaRehearsal: historical deployment manifest digest mismatch');
+    }
+    if (lower(evidence.airlockCall?.calldataHash) !== EXPECTED_BASE_SEPOLIA_REHEARSAL_CALLDATA_HASH) {
+      failures.push('baseSepoliaRehearsal: exact deployment calldata hash mismatch');
     }
     if (!COMMIT_PATTERN.test(evidence.request?.sourceCommit ?? '')) {
       failures.push('baseSepoliaRehearsal: sourceCommit must be a 40-character commit');

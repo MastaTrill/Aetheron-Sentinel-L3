@@ -178,6 +178,20 @@ describe('SENTINEL controlled-redeployment closure', function () {
     expect(result.stderr).to.include('exactDeploymentManifest: evidence file digest mismatch');
   });
 
+  it('rejects a historical Base Sepolia rehearsal with different deployment calldata', function () {
+    const evidencePath =
+      'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
+    const evidence = JSON.parse(readFileSync(path.join(repositoryRoot, evidencePath), 'utf8'));
+    evidence.airlockCall.calldataHash = `0x${'1'.repeat(64)}`;
+    const result = validate(
+      'readiness',
+      manifest => completeOnly(manifest, 'baseSepoliaRehearsal', evidencePath),
+      { [evidencePath]: evidence }
+    );
+    expect(result.status).to.not.equal(0);
+    expect(result.stderr).to.include('exact deployment calldata hash mismatch');
+  });
+
   it('rejects placeholder content even when a completed gate names the expected file', function () {
     const evidencePath =
       'release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json';

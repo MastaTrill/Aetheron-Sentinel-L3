@@ -22,7 +22,7 @@ This directory is the only accepted evidence location for the replacement SENTIN
 7. Obtain separate smoke-test authorization, execute one minimal buy and one minimal sell, and preserve both authorization and receipts.
 8. Generate `SHA256SUMS`, update the closure manifest, and run `node scripts/validate-sentinel-redeployment-closure.mjs --mode=final`.
 
-Any byte change to `deployment-manifest.json` invalidates digest-bound simulation, rehearsal, and authorization evidence. Reset affected gates to pending and regenerate that evidence; never rewrite a historical receipt to reference the new digest.
+Changes to deployment-bearing manifest fields invalidate digest-bound simulation, rehearsal, and authorization evidence. A metadata-only provenance correction may retain a historical deterministic rehearsal only when validation pins its original manifest digest and proves the exact deployment calldata hash is unchanged. Never rewrite a historical receipt to reference a new digest.
 
 ## Non-negotiable safety rules
 
