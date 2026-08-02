@@ -32,7 +32,7 @@ const COMMIT_PATTERN = /^[0-9a-f]{40}$/i;
 const SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
 const PLACEHOLDER_PATTERN = /(REPLACE_WITH|PENDING_|template-not-evidence)/i;
 const EXPECTED_DEPLOYMENT_MANIFEST_SHA256 =
-  'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d';
+  '984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404';
 const DEPLOYMENT_MANIFEST_EVIDENCE =
   'release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json';
 const BASE_SEPOLIA_EVIDENCE =

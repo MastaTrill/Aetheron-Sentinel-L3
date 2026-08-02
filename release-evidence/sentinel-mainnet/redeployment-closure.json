@@ -32,10 +32,8 @@
       ]
     },
     "baseSepoliaRehearsal": {
-      "status": "complete",
-      "evidence": [
-        "release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json"
-      ]
+      "status": "pending",
+      "evidence": []
     },
     "independentRpcReproduction": {
       "status": "pending",
@@ -62,5 +60,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest and protected Base Sepolia broadcast rehearsal are complete. Base Mainnet remains blocked pending independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
+  "notice": "The exact deployment manifest is complete with corrected legacy provenance. The protected Base Sepolia broadcast rehearsal must be repeated against this manifest digest. Base Mainnet remains blocked pending that rehearsal, independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
 }
