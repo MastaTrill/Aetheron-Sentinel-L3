@@ -1,34 +1,8 @@
 {
   "schemaVersion": 1,
-  "status": "pending-review",
-  "reviewer": {
-    "nameOrOrganization": "PENDING_INDEPENDENT_REVIEWER",
-    "professionalIdentity": "PENDING_VERIFIABLE_IDENTITY",
-    "contact": "PENDING_CONTACT",
-    "independenceStatement": "PENDING_SIGNED_INDEPENDENCE_STATEMENT"
-  },
-  "review": {
-    "reviewedAtUtc": null,
-    "commit": "PENDING_REVIEWED_40_CHARACTER_COMMIT",
-    "deploymentManifestSha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d",
-    "baseSepoliaRehearsalSha256": "430ce453b0b3426e4ac2e1bd6eb46fb7eafe40fbce51c11e58e7d51e036abdf7",
-    "filesReviewed": [
-      "contracts/SentinelToken.sol",
-      "release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json",
-      "release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json"
-    ],
-    "reproductionMethods": [],
-    "findings": [],
-    "unresolvedRisks": [],
-    "conclusion": "pending-review",
-    "approvalReference": "PENDING_VERIFIABLE_SIGNATURE_OR_PUBLIC_REVIEW_URL",
-    "rehearsalSourceCommit": "3deba5e33003cdb15c5fa93c54b323a1e5fb6041"
-  },
-  "requiredAssertions": {
-    "creatorBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
-    "creatorShareWad": "570000000000000000",
-    "legacyTokenExcluded": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
-    "materialClaimsReproduced": false
-  },
-  "notice": "Template only. This file is not evidence and must not complete the gate until a genuinely independent reviewer verifies the exact reviewed commit and evidence digests."
+  "status": "retired",
+  "retiredOn": "2026-08-02",
+  "reason": "Independent security review is no longer a required gate in the project-owner-authorized SENTINEL release process.",
+  "replacementControl": "The exact, expiring Base Mainnet authorization must record project-owner acceptance of the risk of proceeding without independent security review.",
+  "historicalNotice": "This path is retained only to preserve repository history. It is not required evidence and cannot complete or block the active closure validator."
 }

@@ -45,10 +45,6 @@
       "status": "pending",
       "evidence": []
     },
-    "independentSecuritySignoff": {
-      "status": "pending",
-      "evidence": []
-    },
     "explicitMainnetAuthorization": {
       "status": "pending",
       "evidence": []
@@ -66,5 +62,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest and protected Base Sepolia broadcast rehearsal are complete. Base Mainnet remains blocked: independent RPC reproduction, authority and beneficiary verification, independent security signoff, and a separate explicit Mainnet authorization are still required. No Mainnet signing or broadcasting is authorized."
+  "notice": "The exact deployment manifest and protected Base Sepolia broadcast rehearsal are complete. Base Mainnet remains blocked pending independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
 }
