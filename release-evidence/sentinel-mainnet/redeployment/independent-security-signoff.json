@@ -21,7 +21,8 @@
     "findings": [],
     "unresolvedRisks": [],
     "conclusion": "pending-review",
-    "approvalReference": "PENDING_VERIFIABLE_SIGNATURE_OR_PUBLIC_REVIEW_URL"
+    "approvalReference": "PENDING_VERIFIABLE_SIGNATURE_OR_PUBLIC_REVIEW_URL",
+    "rehearsalSourceCommit": "3deba5e33003cdb15c5fa93c54b323a1e5fb6041"
   },
   "requiredAssertions": {
     "creatorBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
