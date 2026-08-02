@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import { createHash } from 'node:crypto';
 import { access, readFile } from 'node:fs/promises';
+import path from 'node:path';
 
 const modeArg = process.argv.find(arg => arg.startsWith('--mode='));
 const mode = modeArg?.split('=')[1] ?? 'readiness';
@@ -25,6 +27,27 @@ const REQUIRED_EVIDENCE_FILES = [EXPECTED_DECISION, 'sentinel-l3-v1.0/README_DEP
 const ADDRESS_PATTERN = /^0x[0-9a-f]{40}$/i;
 const HASH_PATTERN = /^0x[0-9a-f]{64}$/i;
 const ZERO_HASH_PATTERN = /^0x0{64}$/i;
+const SHA256_PATTERN = /^[0-9a-f]{64}$/i;
+const COMMIT_PATTERN = /^[0-9a-f]{40}$/i;
+const SIGNATURE_PATTERN = /^0x[0-9a-f]{130}$/i;
+const PLACEHOLDER_PATTERN = /(REPLACE_WITH|PENDING_|template-not-evidence)/i;
+const EXPECTED_DEPLOYMENT_MANIFEST_SHA256 =
+  'f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d';
+const DEPLOYMENT_MANIFEST_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json';
+const BASE_SEPOLIA_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json';
+const RPC_EVIDENCE = [
+  'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-a.json',
+  'release-evidence/sentinel-mainnet/redeployment/base-mainnet-rpc-b.json',
+];
+const AUTHORITY_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/authority-beneficiary-verification.json';
+const SECURITY_SIGNOFF_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/independent-security-signoff.json';
+const MAINNET_AUTHORIZATION_EVIDENCE =
+  'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
+const EVIDENCE_ROOT = process.env.SENTINEL_REDEPLOYMENT_EVIDENCE_ROOT ?? '.';
 const REQUIRED_GATES = [
   'exactDeploymentManifest',
   'baseSepoliaRehearsal',
@@ -81,6 +104,285 @@ function requireAddress(label, value) {
 function requireHash(label, value) {
   if (!HASH_PATTERN.test(value ?? '') || ZERO_HASH_PATTERN.test(value)) {
     failures.push(`${label} must be a nonzero 32-byte hash`);
+  }
+}
+
+function resolveEvidencePath(file) {
+  return path.resolve(EVIDENCE_ROOT, file);
+}
+
+function containsPlaceholder(value) {
+  if (typeof value === 'string') return PLACEHOLDER_PATTERN.test(value);
+  if (Array.isArray(value)) return value.some(containsPlaceholder);
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(containsPlaceholder);
+  }
+  return false;
+}
+
+function isIsoTimestamp(value) {
+  return typeof value === 'string' && Number.isFinite(Date.parse(value));
+}
+
+function requireSha256(label, value) {
+  if (!SHA256_PATTERN.test(value ?? '') || /^0{64}$/i.test(value)) {
+    failures.push(`${label} must be a nonzero SHA-256 digest`);
+  }
+}
+
+function requireVerifiedTreasuryShare(label, beneficiaries) {
+  const treasury = Array.isArray(beneficiaries)
+    ? beneficiaries.find(entry => entry?.role === 'aetheron-treasury')
+    : undefined;
+  if (!treasury) {
+    failures.push(`${label} must include the aetheron-treasury beneficiary`);
+    return;
+  }
+  if (lower(treasury.beneficiary) !== REQUIRED_TREASURY) {
+    failures.push(`${label} treasury beneficiary must be the established Aetheron treasury`);
+  }
+  if (String(treasury.shares ?? '') !== EXPECTED_CREATOR_SHARE_WAD) {
+    failures.push(`${label} treasury share must be exactly 57%`);
+  }
+  if (
+    Object.hasOwn(treasury, 'verifiedShares') &&
+    String(treasury.verifiedShares ?? '') !== EXPECTED_CREATOR_SHARE_WAD
+  ) {
+    failures.push(`${label} verified treasury share must be exactly 57%`);
+  }
+}
+
+async function validateCompletedGateEvidence(name, evidenceByPath) {
+  if (name === 'exactDeploymentManifest') {
+    const evidence = evidenceByPath.get(DEPLOYMENT_MANIFEST_EVIDENCE)?.data;
+    if (!evidence) return;
+    if (evidence.schemaVersion !== 1) {
+      failures.push('exactDeploymentManifest: evidence schemaVersion must be 1');
+    }
+    if (evidence.releaseModel !== 'controlled-redeployment') {
+      failures.push('exactDeploymentManifest: releaseModel must be controlled-redeployment');
+    }
+    if (evidence.status !== 'preparation-only') {
+      failures.push('exactDeploymentManifest: evidence must remain preparation-only');
+    }
+    if (
+      evidence.safety?.signingEnabled !== false ||
+      evidence.safety?.broadcastEnabled !== false ||
+      evidence.safety?.baseMainnetAuthorized !== false ||
+      evidence.safety?.requiresIndependentHumanReview !== true ||
+      evidence.safety?.requiresSeparateExplicitMainnetAuthorization !== true
+    ) {
+      failures.push('exactDeploymentManifest: fail-closed safety assertions are invalid');
+    }
+    requireVerifiedTreasuryShare(
+      'exactDeploymentManifest',
+      evidence.pool?.beneficiaries
+    );
+  }
+
+  if (name === 'baseSepoliaRehearsal') {
+    const evidence = evidenceByPath.get(BASE_SEPOLIA_EVIDENCE)?.data;
+    if (!evidence) return;
+    if (evidence.schemaVersion !== 1) {
+      failures.push('baseSepoliaRehearsal: evidence schemaVersion must be 1');
+    }
+    if (evidence.mode !== 'protected-testnet-broadcast' || evidence.chainId !== 84532) {
+      failures.push('baseSepoliaRehearsal: evidence must be a Base Sepolia protected broadcast');
+    }
+    if (evidence.manifest?.sha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
+      failures.push('baseSepoliaRehearsal: deployment manifest digest mismatch');
+    }
+    if (!COMMIT_PATTERN.test(evidence.request?.sourceCommit ?? '')) {
+      failures.push('baseSepoliaRehearsal: sourceCommit must be a 40-character commit');
+    }
+    if (evidence.status !== 'confirmed' || evidence.receipt?.status !== 1) {
+      failures.push('baseSepoliaRehearsal: transaction receipt must be confirmed and successful');
+    }
+    if (
+      evidence.safety?.baseMainnetAuthorized !== false ||
+      evidence.safety?.mainnetTransactionProduced !== false ||
+      evidence.safety?.privateKeyRecorded !== false
+    ) {
+      failures.push('baseSepoliaRehearsal: fail-closed safety assertions are invalid');
+    }
+    requireAddress('baseSepoliaRehearsal signer', evidence.signer);
+    requireAddress('baseSepoliaRehearsal token', evidence.tokenState?.address);
+    requireHash('baseSepoliaRehearsal transactionHash', evidence.transactionHash);
+    requireHash('baseSepoliaRehearsal poolId', evidence.predicted?.poolId);
+    requireVerifiedTreasuryShare(
+      'baseSepoliaRehearsal',
+      evidence.beneficiaryShares
+    );
+  }
+
+  if (name === 'independentRpcReproduction') {
+    const rpcEvidence = RPC_EVIDENCE.map(file => evidenceByPath.get(file)?.data).filter(Boolean);
+    for (const [index, evidence] of rpcEvidence.entries()) {
+      const label = `independentRpcReproduction provider ${index + 1}`;
+      if (evidence.schemaVersion !== 1 || evidence.status !== 'verified') {
+        failures.push(`${label}: evidence status must be verified`);
+      }
+      if (evidence.chainId !== 8453) {
+        failures.push(`${label}: chainId must be 8453`);
+      }
+      if (!isIsoTimestamp(evidence.capturedAtUtc)) {
+        failures.push(`${label}: capturedAtUtc must be an ISO timestamp`);
+      }
+      if (!Number.isInteger(evidence.blockNumber) || evidence.blockNumber <= 0) {
+        failures.push(`${label}: blockNumber must be positive`);
+      }
+      requireHash(`${label} blockHash`, evidence.blockHash);
+      requireAddress(`${label} token`, evidence.token?.address);
+      requireAddress(`${label} token owner`, evidence.token?.owner);
+      requireHash(`${label} runtimeCodeHash`, evidence.token?.runtimeCodeHash);
+      requireHash(`${label} poolId`, evidence.pool?.poolId);
+      requireVerifiedTreasuryShare(label, evidence.pool?.beneficiaries);
+    }
+    if (
+      rpcEvidence.length === 2 &&
+      (rpcEvidence[0].provider === rpcEvidence[1].provider ||
+        rpcEvidence[0].endpoint === rpcEvidence[1].endpoint)
+    ) {
+      failures.push('independentRpcReproduction: providers and endpoints must be independent');
+    }
+  }
+
+  if (name === 'authorityAndBeneficiaryVerification') {
+    const evidence = evidenceByPath.get(AUTHORITY_EVIDENCE)?.data;
+    if (!evidence) return;
+    if (evidence.schemaVersion !== 1 || evidence.status !== 'verified') {
+      failures.push('authorityAndBeneficiaryVerification: evidence status must be verified');
+    }
+    if (!isIsoTimestamp(evidence.verifiedAtUtc) || evidence.network?.chainId !== 8453) {
+      failures.push('authorityAndBeneficiaryVerification: timestamp and Base Mainnet chain are required');
+    }
+    const owner = evidence.verifications?.tokenOwner;
+    requireAddress('authorityAndBeneficiaryVerification token', owner?.address);
+    requireAddress('authorityAndBeneficiaryVerification expectedOwner', owner?.expectedOwner);
+    if (lower(owner?.actualOwner) !== lower(owner?.expectedOwner) || owner?.reachabilityTestPassed !== true) {
+      failures.push('authorityAndBeneficiaryVerification: token owner must match and be reachable');
+    }
+    const beneficiary = evidence.verifications?.poolCreatorBeneficiary;
+    requireHash('authorityAndBeneficiaryVerification poolId', beneficiary?.poolId);
+    if (
+      lower(beneficiary?.expectedBeneficiary) !== REQUIRED_TREASURY ||
+      lower(beneficiary?.actualBeneficiary) !== REQUIRED_TREASURY ||
+      String(beneficiary?.shareWad ?? '') !== EXPECTED_CREATOR_SHARE_WAD ||
+      beneficiary?.reachabilityTestPassed !== true
+    ) {
+      failures.push('authorityAndBeneficiaryVerification: treasury beneficiary verification is invalid');
+    }
+    const timelock = evidence.verifications?.timelockConsequences;
+    if (
+      lower(timelock?.actualAdmin) !== lower(timelock?.expectedAdmin) ||
+      timelock?.consequencesApproved !== true
+    ) {
+      failures.push('authorityAndBeneficiaryVerification: timelock administration is unverified');
+    }
+  }
+
+  if (name === 'independentSecuritySignoff') {
+    const evidence = evidenceByPath.get(SECURITY_SIGNOFF_EVIDENCE)?.data;
+    if (!evidence) return;
+    if (evidence.schemaVersion !== 1 || evidence.status !== 'approved') {
+      failures.push('independentSecuritySignoff: evidence status must be approved');
+    }
+    if (
+      !evidence.reviewer?.nameOrOrganization ||
+      !evidence.reviewer?.professionalIdentity ||
+      !evidence.reviewer?.contact ||
+      String(evidence.reviewer?.independenceStatement ?? '').length < 40
+    ) {
+      failures.push('independentSecuritySignoff: verifiable reviewer identity and independence statement are required');
+    }
+    if (!isIsoTimestamp(evidence.review?.reviewedAtUtc)) {
+      failures.push('independentSecuritySignoff: reviewedAtUtc must be an ISO timestamp');
+    }
+    if (!COMMIT_PATTERN.test(evidence.review?.commit ?? '')) {
+      failures.push('independentSecuritySignoff: reviewed commit must be a 40-character commit');
+    }
+    if (evidence.review?.deploymentManifestSha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
+      failures.push('independentSecuritySignoff: deployment manifest digest mismatch');
+    }
+    requireSha256(
+      'independentSecuritySignoff baseSepoliaRehearsalSha256',
+      evidence.review?.baseSepoliaRehearsalSha256
+    );
+    try {
+      const rehearsalRaw = await readFile(resolveEvidencePath(BASE_SEPOLIA_EVIDENCE));
+      const actualDigest = createHash('sha256').update(rehearsalRaw).digest('hex');
+      if (lower(evidence.review?.baseSepoliaRehearsalSha256) !== actualDigest) {
+        failures.push(
+          'independentSecuritySignoff: baseSepoliaRehearsalSha256 must equal the reviewed evidence digest'
+        );
+      }
+    } catch {
+      failures.push('independentSecuritySignoff: Base Sepolia evidence is unavailable for digest verification');
+    }
+    if (
+      evidence.review?.conclusion !== 'approve' ||
+      !Array.isArray(evidence.review?.reproductionMethods) ||
+      evidence.review.reproductionMethods.length === 0 ||
+      evidence.requiredAssertions?.materialClaimsReproduced !== true
+    ) {
+      failures.push('independentSecuritySignoff: reproduced approval conclusion is required');
+    }
+    const approvalReference = evidence.review?.approvalReference ?? '';
+    if (!SIGNATURE_PATTERN.test(approvalReference) && !/^https:\/\//i.test(approvalReference)) {
+      failures.push('independentSecuritySignoff: approvalReference must be a 65-byte signature or public HTTPS review');
+    }
+    if (
+      lower(evidence.requiredAssertions?.creatorBeneficiary) !== REQUIRED_TREASURY ||
+      String(evidence.requiredAssertions?.creatorShareWad ?? '') !== EXPECTED_CREATOR_SHARE_WAD ||
+      lower(evidence.requiredAssertions?.legacyTokenExcluded) !== LEGACY_TOKEN
+    ) {
+      failures.push('independentSecuritySignoff: required beneficiary assertions are invalid');
+    }
+  }
+
+  if (name === 'explicitMainnetAuthorization') {
+    const evidence = evidenceByPath.get(MAINNET_AUTHORIZATION_EVIDENCE)?.data;
+    if (!evidence) return;
+    if (evidence.schemaVersion !== 1 || evidence.status !== 'authorized') {
+      failures.push('explicitMainnetAuthorization: evidence status must be authorized');
+    }
+    if (
+      evidence.confirmation !== 'AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST' ||
+      evidence.chainId !== 8453
+    ) {
+      failures.push('explicitMainnetAuthorization: exact Base Mainnet confirmation is required');
+    }
+    if (evidence.approvedManifest?.sha256 !== EXPECTED_DEPLOYMENT_MANIFEST_SHA256) {
+      failures.push('explicitMainnetAuthorization: deployment manifest digest mismatch');
+    }
+    if (
+      !isIsoTimestamp(evidence.limitations?.expiresAt) ||
+      Date.parse(evidence.limitations.expiresAt) <= Date.now()
+    ) {
+      failures.push('explicitMainnetAuthorization: authorization must be unexpired');
+    }
+    requireAddress(
+      'explicitMainnetAuthorization authorizedSender',
+      evidence.authorization?.authorizedSender
+    );
+    if (!isIsoTimestamp(evidence.authorization?.authorizedAtUtc)) {
+      failures.push('explicitMainnetAuthorization: authorizedAtUtc must be an ISO timestamp');
+    }
+    if (!COMMIT_PATTERN.test(evidence.authorization?.authorizedCommit ?? '')) {
+      failures.push('explicitMainnetAuthorization: authorizedCommit must be a 40-character commit');
+    }
+    if (!/^https:\/\//i.test(evidence.authorization?.reference ?? '')) {
+      failures.push('explicitMainnetAuthorization: a verifiable public HTTPS authorization reference is required');
+    }
+    if (!['cryptographic-signature', 'github-protected-environment'].includes(evidence.authorization?.method)) {
+      failures.push('explicitMainnetAuthorization: authorization method is invalid');
+    }
+    if (
+      evidence.authorization?.method === 'cryptographic-signature' &&
+      !SIGNATURE_PATTERN.test(evidence.authorization?.signature ?? '')
+    ) {
+      failures.push('explicitMainnetAuthorization: cryptographic signature must be 65 bytes');
+    }
   }
 }
 
@@ -175,13 +477,30 @@ for (const name of REQUIRED_GATES) {
         failures.push(`${name}: evidence must include ${requiredFile}`);
       }
     }
+    const evidenceByPath = new Map();
     for (const file of gate.evidence) {
       try {
-        await access(file);
+        const resolved = resolveEvidencePath(file);
+        await access(resolved);
+        if (file.endsWith('.json')) {
+          const raw = await readFile(resolved, 'utf8');
+          let data;
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            failures.push(`${name}: evidence is not valid JSON: ${file}`);
+            continue;
+          }
+          evidenceByPath.set(file, { data, raw });
+          if (containsPlaceholder(data)) {
+            failures.push(`${name}: evidence contains placeholder or template values: ${file}`);
+          }
+        }
       } catch {
         failures.push(`${name}: missing evidence ${file}`);
       }
     }
+    await validateCompletedGateEvidence(name, evidenceByPath);
   } else {
     pending.push(`${name}: ${gate.status}`);
   }
@@ -192,6 +511,25 @@ if (
   manifest.gates?.baseMainnetDeployment?.status === 'complete'
 ) {
   failures.push('baseMainnetDeployment cannot be complete while replacement status is preparation-only');
+}
+
+if (
+  manifest.gates?.explicitMainnetAuthorization?.status === 'complete' &&
+  manifest.gates?.independentSecuritySignoff?.status !== 'complete'
+) {
+  failures.push('explicitMainnetAuthorization requires completed independentSecuritySignoff');
+}
+if (
+  manifest.gates?.baseMainnetDeployment?.status === 'complete' &&
+  manifest.gates?.explicitMainnetAuthorization?.status !== 'complete'
+) {
+  failures.push('baseMainnetDeployment requires completed explicitMainnetAuthorization');
+}
+if (
+  manifest.gates?.authorizedBuySellSmokeTest?.status === 'complete' &&
+  manifest.gates?.baseMainnetDeployment?.status !== 'complete'
+) {
+  failures.push('authorizedBuySellSmokeTest requires completed baseMainnetDeployment');
 }
 
 if (mode === 'final') {
