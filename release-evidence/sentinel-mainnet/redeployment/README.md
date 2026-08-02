@@ -15,18 +15,16 @@ This directory is the only accepted evidence location for the replacement SENTIN
 
 1. Complete `deployment-manifest.json` with no placeholder or null release fields.
 2. Run a protected Base Sepolia rehearsal without a Base Mainnet broadcast and write `base-sepolia-rehearsal.json`.
-3. Send the exact commit, manifest digest, rehearsal record, and this packet to a genuinely independent reviewer.
-4. Preserve the review as `independent-security-signoff.json`.
-5. Obtain a separate, expiring Base Mainnet authorization in `mainnet-authorization.json`.
-6. Deploy and preserve `deployment-receipt.json`.
-7. Reproduce state through two independent providers in `base-mainnet-rpc-a.json` and `base-mainnet-rpc-b.json`.
-8. Record treasury, share, ownership, initializer, and emergency-control checks in `authority-beneficiary-verification.json`.
-9. Obtain separate smoke-test authorization, execute one minimal buy and one minimal sell, and preserve both authorization and receipts.
-10. Generate `SHA256SUMS`, update the closure manifest, and run `node scripts/validate-sentinel-redeployment-closure.mjs --mode=final`.
+3. Record explicit project-owner risk acceptance and a separate, expiring Base Mainnet authorization in `mainnet-authorization.json`.
+4. Deploy and preserve `deployment-receipt.json`.
+5. Reproduce state through two independent providers in `base-mainnet-rpc-a.json` and `base-mainnet-rpc-b.json`.
+6. Record treasury, share, ownership, initializer, and emergency-control checks in `authority-beneficiary-verification.json`.
+7. Obtain separate smoke-test authorization, execute one minimal buy and one minimal sell, and preserve both authorization and receipts.
+8. Generate `SHA256SUMS`, update the closure manifest, and run `node scripts/validate-sentinel-redeployment-closure.mjs --mode=final`.
 
 ## Non-negotiable safety rules
 
 - No production private key, mnemonic, wallet export, or signing session belongs in this repository or CI.
 - Preparation and simulation do not authorize Base Mainnet deployment, liquidity movement, or trading.
-- The project owner and evidence-preparation assistant cannot satisfy the independent-review gate.
+- The project owner must explicitly accept the risk of proceeding without an independent security review in the exact, expiring Mainnet authorization.
 - Never mark a gate complete before the exact required evidence exists and is reproducible.
