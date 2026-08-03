@@ -1,17 +1,69 @@
-[profile.default]
-src = "contracts"
-out = "out"
-libs = ["lib"]
-solc = "0.8.28"
-evm_version = "cancun"
-optimizer = true
-optimizer_runs = 1000
-via_ir = false
-bytecode_hash = "none"
+# =============================================================================
+# Aetheron Sentinel L3 - foundry.toml
+# =============================================================================
+# FIXES APPLIED:
+#   BUG-28  fs_permissions access = "read" blocked deployment scripts from
+#           writing artifacts/. Changed to "read-write" so scripts can write
+#           broadcast receipts, deployed-addresses.json, etc.
+#   BUG-29  [profile.test] fuzz seed was quoted as a string ("0xdeadbeef").
+#           Foundry expects an integer literal -- removed quotes so it is parsed
+#           as a TOML integer (decimal). Changed to decimal 3735928559 which
+#           equals 0xdeadbeef.
+# =============================================================================
 
-remappings = [
-    "forge-std/=lib/forge-std/src/",
-    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
-    "solidity-examples/=lib/solidity-examples/",
-    "@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/src/"
-]
+[profile.default]
+src             = "src"
+out             = "out"
+libs            = ["lib"]
+test            = "test"
+script          = "script"
+cache_path      = "cache"
+broadcast       = "broadcast"
+solc            = "0.8.25"
+optimizer       = true
+optimizer_runs  = 999999
+via_ir          = false
+evm_version     = "cancun"
+ffi             = false
+
+# BUG-28 FIX: was access = "read" - deployment scripts must WRITE to ./artifacts
+fs_permissions  = [{ access = "read-write", path = "./artifacts" }]
+
+ignored_error_codes = []
+
+# Build reproducibility: pin bytecode hash to ipfs-only
+bytecode_hash   = "ipfs"
+cbor_metadata   = true
+
+[profile.mainnet]
+optimizer_runs  = 999999
+via_ir          = true
+evm_version     = "cancun"
+
+[profile.test]
+# BUG-29 FIX: seed must be a TOML integer literal, not a quoted string.
+# 3735928559 == 0xdeadbeef as a decimal integer.
+fuzz            = { runs = 1000, max_test_rejects = 65536, seed = 3735928559 }
+invariant       = { runs = 500, depth = 100, call_override = false }
+verbosity       = 3
+
+[fmt]
+line_length               = 100
+tab_width                 = 4
+bracket_spacing           = true
+int_types                 = "long"
+multiline_func_header     = "attributes_first"
+sort_imports              = true
+
+[doc]
+out             = "docs"
+repository      = "https://github.com/aetheron/sentinel-l3"
+
+[rpc_endpoints]
+base_mainnet    = "${BASE_MAINNET_RPC_URL}"
+base_sepolia    = "${BASE_SEPOLIA_RPC_URL}"
+anvil_local     = "http://127.0.0.1:8545"
+
+[etherscan]
+base_mainnet    = { key = "${BASESCAN_API_KEY}", url = "https://api.basescan.org/api", chain = 8453 }
+base_sepolia    = { key = "${BASESCAN_API_KEY}", url = "https://api-sepolia.basescan.org/api", chain = 84532 }
