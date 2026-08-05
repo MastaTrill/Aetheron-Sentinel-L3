@@ -45,7 +45,7 @@ jobs:
           npm init --yes
           npm install --ignore-scripts --no-audit --no-fund ethers@6.17.0
           node reconstruct.mjs
-      - name: Validate exact fail-closed manifest
+      - name: Validate exact manifest and reconstructed provenance
         run: node scripts/validate-sentinel-deployment-manifest.mjs
       - name: Simulate a pending launch or validate the confirmed rehearsal
         shell: bash

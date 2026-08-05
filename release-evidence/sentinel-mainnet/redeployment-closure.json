@@ -62,5 +62,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest and protected Base Sepolia broadcast rehearsal are complete. Base Mainnet remains blocked pending independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
+  "notice": "The exact deployment manifest is complete with corrected legacy provenance. The protected Base Sepolia receipt remains bound to its historical manifest digest and the unchanged exact deployment calldata hash; the deterministic launch cannot be repeated with the same salt. Base Mainnet remains blocked pending independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
 }
