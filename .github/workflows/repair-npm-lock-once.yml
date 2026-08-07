@@ -21,18 +21,19 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Repair lockfile with npm audit
+      - name: Apply secure override and regenerate lockfile
         run: |
-          npm audit fix --package-lock-only --legacy-peer-deps
+          npm pkg set 'overrides.brace-expansion=3.0.5'
+          npm install --package-lock-only --legacy-peer-deps
           npm audit --audit-level=high
-      - name: Commit repaired lockfile
+      - name: Commit repaired dependency metadata
         run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "No lockfile changes required"
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No dependency metadata changes required"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore: repair npm audit lockfile"
+          git add package.json package-lock.json
+          git commit -m "chore: repair high-severity npm audit finding"
           git push origin HEAD:release/populate-platform-authorization-metadata
