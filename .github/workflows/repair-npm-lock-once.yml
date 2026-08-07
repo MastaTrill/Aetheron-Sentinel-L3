@@ -23,7 +23,7 @@ jobs:
           cache: npm
       - name: Apply secure override and regenerate lockfile
         run: |
-          npm pkg set 'overrides.brace-expansion=3.0.5'
+          # package.json already pins the secure maintenance release; npm writes the exact lock entries.
           npm install --package-lock-only --legacy-peer-deps
           npm audit --audit-level=high
       - name: Commit repaired dependency metadata
