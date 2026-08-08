@@ -38,10 +38,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Require exact dispatch confirmation and signed release ancestry
+        env:
+          DISPATCH_CONFIRMATION: ${{ inputs.confirmation }}
         shell: bash
         run: |
           set -euo pipefail
-          test '${{ inputs.confirmation }}' = 'DEPLOY_SENTINEL_BASE_MAINNET'
+          test "$DISPATCH_CONFIRMATION" = 'DEPLOY_SENTINEL_BASE_MAINNET'
           test "${#SENTINEL_RELEASE_COMMIT}" -eq 40
           git cat-file -e "${SENTINEL_RELEASE_COMMIT}^{commit}"
           git merge-base --is-ancestor "${SENTINEL_RELEASE_COMMIT}" HEAD
