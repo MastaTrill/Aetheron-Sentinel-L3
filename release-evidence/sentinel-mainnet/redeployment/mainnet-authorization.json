@@ -11,14 +11,14 @@
     "sha256": "984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404"
   },
   "authorization": {
-    "authorizedSender": "0xDF5A2b892254C42F80000A029dfE8b311f777Bd5",
+    "authorizedSender": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
     "authorizedAtUtc": null,
-    "authorizedCommit": "d37a8b9eddcf571064b8ee98e2b105408c8b82f3",
-    "reference": "Aetheron Platform DEPLOY_AUDIT_2026-07-02.md verified owner/deployer metadata",
+    "authorizedCommit": "e0840fa53dbd467a7439bee6b880bbd9f3be9f59",
+    "reference": "https://github.com/MastaTrill/Aetheron_platform/blob/main/smart-contract/deployments/aeth-base.json",
     "signature": null,
     "method": null
   },
-  "notice": "Public owner/deployer metadata was imported from the Aetheron Platform audit. Base Mainnet remains unauthorized until the named wallet supplies a fresh time-bounded signature for the exact commit and manifest, and the project owner separately records explicit risk acceptance.",
+  "notice": "Authorized sender corrected to the operational wallet evidenced by the confirmed Sentinel Base Sepolia rehearsal and verified Aetheron Base Mainnet deployment records. Base Mainnet remains unauthorized until this wallet supplies a fresh time-bounded signature for the exact commit and manifest, and explicit risk acceptance is recorded.",
   "riskAcceptance": {
     "proceedWithoutIndependentSecurityReview": false,
     "acceptedBy": null,
