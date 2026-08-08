@@ -36,6 +36,8 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+      - name: Install locked repository dependencies for cryptographic evidence validation
+        run: npm ci --legacy-peer-deps
       - name: Decode canonical Airlock.create calldata
         run: |
           mkdir -p /tmp/sentinel-decoder

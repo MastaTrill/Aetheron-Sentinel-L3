@@ -46,8 +46,10 @@
       "evidence": []
     },
     "explicitMainnetAuthorization": {
-      "status": "pending",
-      "evidence": []
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json"
+      ]
     },
     "baseMainnetDeployment": {
       "status": "pending",
@@ -62,5 +64,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest is complete with corrected legacy provenance. The protected Base Sepolia receipt remains bound to its historical manifest digest and the unchanged exact deployment calldata hash; the deterministic launch cannot be repeated with the same salt. Base Mainnet remains blocked pending independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
+  "notice": "The exact deployment manifest, protected Base Sepolia rehearsal, and explicit time-bounded Base Mainnet owner authorization are complete. The replacement deployment remains preparation-only until a successful Base Mainnet deployment receipt is recorded. Independent RPC reproduction, authority and beneficiary verification, separately authorized buy/sell smoke tests, and the immutable evidence package remain post-deployment closure work."
 }
