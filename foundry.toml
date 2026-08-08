@@ -9,6 +9,9 @@
 #           Foundry expects an integer literal -- removed quotes so it is parsed
 #           as a TOML integer (decimal). Changed to decimal 3735928559 which
 #           equals 0xdeadbeef.
+#   CI-30   Pin solc 0.8.30 so sources/tests requiring ^0.8.28 compile under
+#           the same deterministic toolchain.
+#   CI-31   Add explicit package-style remappings for Uniswap imports.
 # =============================================================================
 
 [profile.default]
@@ -19,12 +22,22 @@ test            = "test"
 script          = "script"
 cache_path      = "cache"
 broadcast       = "broadcast"
-solc            = "0.8.25"
+solc            = "0.8.30"
 optimizer       = true
 optimizer_runs  = 999999
 via_ir          = false
 evm_version     = "cancun"
 ffi             = false
+remappings      = [
+  "forge-std/=lib/forge-std/src/",
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "chainlink-brownie-contracts/=lib/chainlink-brownie-contracts/",
+  "solidity-examples/=lib/solidity-examples/",
+  "@uniswap/v3-core/=lib/v3-core/",
+  "@uniswap/v3-periphery/=lib/v3-periphery/",
+  "v3-core/=lib/v3-core/",
+  "v3-periphery/=lib/v3-periphery/contracts/"
+]
 
 # BUG-28 FIX: was access = "read" - deployment scripts must WRITE to ./artifacts
 fs_permissions  = [{ access = "read-write", path = "./artifacts" }]
