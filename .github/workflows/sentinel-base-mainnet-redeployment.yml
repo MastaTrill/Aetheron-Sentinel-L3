@@ -37,14 +37,26 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Require exact dispatch confirmation and authorized release commit
+      - name: Require exact dispatch confirmation and signed release ancestry
         shell: bash
         run: |
           set -euo pipefail
           test '${{ inputs.confirmation }}' = 'DEPLOY_SENTINEL_BASE_MAINNET'
-          test '${{ inputs.release_commit }}' = '${{ github.sha }}'
-          test "$(git rev-parse HEAD)" = '${{ github.sha }}'
           test "${#SENTINEL_RELEASE_COMMIT}" -eq 40
+          git cat-file -e "${SENTINEL_RELEASE_COMMIT}^{commit}"
+          git merge-base --is-ancestor "${SENTINEL_RELEASE_COMMIT}" HEAD
+      - name: Require deployment-bearing files to be unchanged since the signed release commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code "${SENTINEL_RELEASE_COMMIT}" HEAD -- \
+            .github/workflows/sentinel-base-mainnet-redeployment.yml \
+            scripts/execute-sentinel-base-mainnet-redeployment.mjs \
+            scripts/validate-sentinel-deployment-manifest.mjs \
+            scripts/validate-sentinel-redeployment-closure.mjs \
+            release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json \
+            package.json \
+            package-lock.json
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
