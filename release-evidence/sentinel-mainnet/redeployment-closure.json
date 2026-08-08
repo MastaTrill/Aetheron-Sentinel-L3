@@ -46,10 +46,8 @@
       "evidence": []
     },
     "explicitMainnetAuthorization": {
-      "status": "complete",
-      "evidence": [
-        "release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json"
-      ]
+      "status": "pending",
+      "evidence": []
     },
     "baseMainnetDeployment": {
       "status": "pending",
@@ -64,5 +62,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest, protected Base Sepolia rehearsal, and explicit time-bounded Base Mainnet owner authorization are complete. The replacement deployment remains preparation-only until a successful Base Mainnet deployment receipt is recorded. Independent RPC reproduction, authority and beneficiary verification, separately authorized buy/sell smoke tests, and the immutable evidence package remain post-deployment closure work."
+  "notice": "The exact deployment manifest and protected Base Sepolia rehearsal remain complete. PR #260 adds the missing controlled Base Mainnet executor, which is a code-bearing release change; therefore explicit Mainnet authorization is intentionally reset to pending until the final merged executor-bearing release commit is freshly signed. Post-deployment RPC reproduction, authority verification, smoke testing, and immutable evidence packaging remain pending."
 }
