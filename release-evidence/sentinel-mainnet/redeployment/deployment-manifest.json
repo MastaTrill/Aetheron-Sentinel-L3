@@ -41,7 +41,7 @@
     "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
     "replacedCreatorBeneficiary": "0x7e3D11f70084D667295710E6b7FF50C3b0487a45",
     "evidence": "release-evidence/sentinel-mainnet/redeployment/legacy-launch-inputs.json",
-    "artifactDigest": "sha256:62e02a1ae95588fd081ac7016305159f6bbb8c6b0139f67ab0bf79a17d074bbb"
+    "artifactDigest": "sha256:eb9c93b5f3df841feb6b5caada1f33f88128e628322576a2addf8910fa537a3f"
   },
   "networks": {
     "baseSepolia": {

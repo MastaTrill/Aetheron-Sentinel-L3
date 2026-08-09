@@ -62,5 +62,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest and protected Base Sepolia broadcast rehearsal are complete. Base Mainnet remains blocked pending independent RPC reproduction, authority and beneficiary verification, explicit owner authorization with recorded risk acceptance, deployment evidence, the separately authorized smoke test, and the immutable evidence package. No Mainnet signing or broadcasting is authorized."
+  "notice": "The exact deployment manifest and protected Base Sepolia rehearsal remain complete. PR #262 updates deployment-bearing dependency metadata to remediate newly reported Hono and PostCSS advisories, so the prior Base Mainnet authorization is intentionally reset to pending. A fresh wallet signature must bind the final merged security-patched release commit before the protected controlled-redeployment workflow can run. Post-deployment RPC reproduction, authority verification, smoke testing, and immutable evidence packaging remain pending."
 }

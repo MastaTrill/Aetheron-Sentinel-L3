@@ -1,11 +1,13 @@
 #!/usr/bin/env node
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 const manifestPath =
   process.env.SENTINEL_REDEPLOYMENT_MANIFEST ??
   'release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json';
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-const legacy = JSON.parse(await readFile(manifest.legacyProvenance.evidence, 'utf8'));
+const legacyEvidenceBytes = await readFile(manifest.legacyProvenance.evidence);
+const legacy = JSON.parse(legacyEvidenceBytes.toString('utf8'));
 const failures = [];
 
 const OLD_CREATOR = '0x7e3d11f70084d667295710e6b7ff50c3b0487a45';
@@ -45,6 +47,17 @@ same('explicit authorization gate', manifest.safety?.requiresSeparateExplicitMai
 same('authorized Base Mainnet sender', manifest.execution?.authorizedBaseMainnetSender, null);
 same('protected rehearsal broadcast', manifest.rehearsal?.protectedBroadcastAuthorized, false);
 same('rehearsal mode', manifest.rehearsal?.mode, 'simulation-only');
+
+const legacyEvidenceDigest = `sha256:${createHash('sha256').update(legacyEvidenceBytes).digest('hex')}`;
+same('legacy evidence digest', manifest.legacyProvenance?.artifactDigest, legacyEvidenceDigest);
+
+const reconstructedLegacyPath = process.env.SENTINEL_LEGACY_RECONSTRUCTION_OUTPUT;
+if (reconstructedLegacyPath) {
+  const reconstructedLegacyBytes = await readFile(reconstructedLegacyPath);
+  if (!legacyEvidenceBytes.equals(reconstructedLegacyBytes)) {
+    failures.push('fresh reconstruction does not match committed legacy evidence byte-for-byte');
+  }
+}
 
 same('SDK version', manifest.sourcePins?.dopplerSdk?.version, '1.0.33');
 same('SDK commit', manifest.sourcePins?.dopplerSdk?.commit, 'd6b52689e6af367e7831a3d728c5a48dfa1507e8');
