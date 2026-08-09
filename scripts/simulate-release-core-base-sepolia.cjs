@@ -120,10 +120,14 @@ try {
   }
 } finally {
   console.log('Killing Hardhat node...');
-  if (process.platform === 'win32') {
-    spawnSync('taskkill', ['/pid', nodeProcess.pid, '/f', '/t']);
-  } else {
-    process.kill(-nodeProcess.pid);
+  try {
+    if (process.platform === 'win32') {
+      spawnSync('taskkill', ['/pid', nodeProcess.pid, '/f', '/t']);
+    } else {
+      nodeProcess.kill('SIGINT');
+    }
+  } catch (err) {
+    // ignore kill errors
   }
 }
 
