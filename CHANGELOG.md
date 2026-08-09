@@ -23,18 +23,53 @@ Base Mainnet Production Activation & Soft Launch Release
 
 ---
 
-## [Unreleased] — v0.4.0 Target: August 31, 2026
+## [Unreleased]
 
-### Planned
+---
 
-- `feat(security)` Full DeFAI TEE Integration with verifiable execution attestation (#155)
-- `feat(governance)` On-chain Agent Governance Policy — binding agent behavior rules via smart contract (#155)
-- `feat(security)` Adversarial Testing suite — red-team simulations, MEV vectors, flash-loan governance attacks (#155)
-- `feat(agents)` Swap Integration agent v2 — expanded DEX coverage, slippage protection, multi-hop routing
-- `fix(ci)` Resolve Dependabot PR CI failures and merge approved dependency updates (#158-#161)
-- `docs` CHANGELOG.md added to repo root
-- `docs` Sentinel-L3 Unified Dossier v3.1.0 committed to docs/
-- `chore` Community visibility push — X/Twitter threads, DEX monitoring, ecosystem channel seeding (#157)
+## [0.4.0] — 2026-08-09
+
+### Highlights
+
+v0.4.0 Adversarial Security, Swap Agent v2, On-chain Agent Governance Policy, and DeFAI TEE Architecture
+
+### Added
+
+- **Adversarial Testing Suite** — Red-team simulations for all three release-core contracts:
+  - `test/adversarial/MEVAttack.test.js` — front-running / sandwich attack simulation against `SentinelInterceptor`
+  - `test/adversarial/RateLimiterBypass.test.js` — time-manipulation, multi-account, and overflow attacks on `RateLimiter`
+  - `test/adversarial/CircuitBreakerDOS.test.js` — DOS / state-manipulation tests for `CircuitBreaker`
+  - `test/adversarial/FlashLoanGovernance.test.js` — flash-loan-boosted governance attack simulation for `SentinelAgentPolicy`
+- **SentinelAgentPolicy.sol** — On-chain policy registry that binds DeFAI agent IDs to allowed action bitmasks with mandatory timelock delays. Prevents flash-loan governance attacks. Includes `proposePolicy` / `executePolicy` / `cancelPolicy` / `revokePolicy` lifecycle.
+- **SentinelAgentPolicy tests** — Full test coverage: construction, bitmask constants, two-phase propose→execute, cancellation, revocation, isActionPermitted view, emergency pause, ownership transfer role migration.
+- **Foundry deploy script** — `script/deploy/005_SentinelAgentPolicy.s.sol` — ephemeral-deployer pattern with immediate ownership handoff.
+- **Swap Integration Agent v2** — `scripts/swap-agent-v2.js`:
+  - Uniswap v4 Universal Router integration
+  - Multi-hop WETH-bridged path resolution for illiquid pairs
+  - Configurable slippage tolerance (default 0.5%, CLI/env configurable)
+  - Pre-execution `eth_call` simulation before `sendTransaction`
+  - SentinelAgentPolicy enforcement (ACTION_SWAP / ACTION_MULTI_SWAP bit check)
+  - Structured JSON logging for TEE attestation wiring
+  - `--dry-run` mode for CI / testing
+- **DeFAI TEE Attestation Stub** — `scripts/tee-attestation-stub.js`: schema-compliant `TEEAttestationEnvelope` producer. Wired into swap-agent-v2. Single-file swap to real TDX SDK in v0.5.0.
+- **TEE Integration Architecture** — `docs/TEE_INTEGRATION.md`: threat model, full JSON schema, quote verification flow, v0.5.0 implementation roadmap.
+- **Base Sepolia deployment fixes**:
+  - `.github/workflows/base-sepolia-pipeline.yml` — pinned all actions to `@v4` (was incorrectly `@v6`); upgraded `deployments` permission to `write`.
+  - `.github/workflows/sentinel-base-sepolia-rehearsal.yml` — pinned all actions to `@v4`.
+  - `scripts/simulate-release-core-base-sepolia.cjs` — local simulation harness (deploy→verify on Hardhat fork).
+  - `.env.basesepolia` — documented local environment template for the `base-sepolia` GitHub environment secrets.
+  - `package.json` — `mainnet:simulate` now invokes the explicit simulation harness; added `preflight:local` convenience script.
+
+### Changed
+
+- `npm run mainnet:simulate` now uses `scripts/simulate-release-core-base-sepolia.cjs` instead of an inline one-liner.
+- Swap Integration Agent (`scripts/sentinel-agent.js`) updated to document v2 migration path.
+
+### Deferred to v0.5.0
+
+- Full DeFAI TEE Integration with hardware TDX quote (stub is in place, SDK binding deferred).
+- `AuditAnchor.sol` batch anchoring.
+- CI quote verification pipeline.
 
 ---
 

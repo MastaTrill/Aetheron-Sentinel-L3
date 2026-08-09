@@ -15,7 +15,7 @@ on:
 
 permissions:
   contents: read
-  deployments: read
+  deployments: write
 
 concurrency:
   group: sentinel-guardrails-base-sepolia
@@ -39,14 +39,14 @@ jobs:
     timeout-minutes: 45
     environment: base-sepolia
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Initialize readiness evidence
         run: |
           mkdir -p artifacts/base-sepolia-readiness
           : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
@@ -88,7 +88,7 @@ jobs:
           if [ -f /tmp/sentinel-guardrails-simulation.json ]; then
             cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: base-sepolia-readiness-${{ github.run_id }}
@@ -105,10 +105,10 @@ jobs:
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
       BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
@@ -123,7 +123,7 @@ jobs:
         run: npm run verify:release:base-sepolia
       - name: Verify source on BaseScan
         run: npm run verify:source:base-sepolia
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: base-sepolia-deployment-${{ github.run_id }}

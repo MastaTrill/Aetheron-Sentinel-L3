@@ -62,7 +62,8 @@
     "build": "node -e \"throw new Error('build via sentinel-l3-v1.0/ is retired (#203); use mainnet:build, dashboard:build, or build:web')\"",
     "mainnet:build": "forge build --profile default",
     "mainnet:test": "forge test -vvv",
-    "mainnet:simulate": "DEPLOYMENT_MANIFEST_PATH=/tmp/sentinel-guardrails-simulation.json ALLOW_MANIFEST_OVERWRITE=true hardhat run scripts/deploy-release-core.cjs",
+    "mainnet:simulate": "node scripts/simulate-release-core-base-sepolia.cjs",
+    "preflight:local": "dotenv -e .env.basesepolia -- node scripts/mainnet-preflight.js",
     "test:release": "npm run test:release:contracts && npm run test:release:policy",
     "test:release:contracts": "hardhat test test/ReleaseDeploymentSafety.test.js test/SentinelInsuranceProtocol.test.js",
     "test:release:policy": "node --test test/github-environment.test.cjs test/release-evidence.test.cjs",
@@ -72,7 +73,10 @@
     "verify:base": "hardhat run deploy/verify-mainnet.ts --network base",
     "patch:base": "node -e \"throw new Error('Automatic mainnet patching is disabled; use reviewed timelock governance')\"",
     "pipeline:base": "node -e \"throw new Error('One-command mainnet deployment is disabled; use the protected Base mainnet workflow')\"",
-    "build:mobile": "cross-env MOBILE_BUILD=true next build && npx cap sync"
+    "build:mobile": "cross-env MOBILE_BUILD=true next build && npx cap sync",
+    "swap:v2": "node scripts/swap-agent-v2.js",
+    "swap:v2:dry-run": "node scripts/swap-agent-v2.js --dry-run",
+    "tee:stub:test": "node -e \"const s=require('./scripts/tee-attestation-stub.cjs'); const a=s.createAttestation({test:true}); console.log(JSON.stringify(s.finalizeAttestation(a,{status:'confirmed',txHash:'0xtest'}),null,2))\""
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",

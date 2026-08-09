@@ -25,7 +25,7 @@ jobs:
       SENTINEL_BASE_SEPOLIA_REHEARSAL_REQUEST: release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json
       SENTINEL_BASE_SEPOLIA_REHEARSAL_OUTPUT: /tmp/sentinel-redeployment/base-sepolia-rehearsal.json
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - name: Verify request-only child commit
@@ -51,7 +51,7 @@ jobs:
             printf '%s\n' "${changed_files[@]}" >&2
             exit 1
           fi
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
       - name: Validate exact manifest
@@ -80,7 +80,7 @@ jobs:
           npm install --ignore-scripts --no-audit --no-fund ethers@6.17.0
           cd "$GITHUB_WORKSPACE"
           node /tmp/sentinel-rehearsal-runner/execute.mjs
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sentinel-base-sepolia-rehearsal-${{ github.run_id }}
