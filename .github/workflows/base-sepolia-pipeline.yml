@@ -29,7 +29,7 @@ env:
   DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
   SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
   MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
-  MIN_DEPLOYER_BALANCE_ETH: '0.05'
+  MIN_DEPLOYER_BALANCE_ETH: '0.01'
   RELEASE_COMMIT: ${{ github.sha }}
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 
