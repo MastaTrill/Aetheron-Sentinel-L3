@@ -1,28 +1,28 @@
 {
   "schemaVersion": 1,
-  "status": "pending-authorization",
-  "confirmation": "PENDING_EXPLICIT_BASE_MAINNET_AUTHORIZATION",
+  "status": "authorized",
+  "confirmation": "AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST",
   "chainId": 8453,
   "limitations": {
     "maxGasCostWei": "10000000000000000",
-    "expiresAt": null
+    "expiresAt": "2026-08-09T12:00:00.000Z"
   },
   "approvedManifest": {
     "sha256": "984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404"
   },
   "authorization": {
     "authorizedSender": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
-    "authorizedAtUtc": null,
-    "authorizedCommit": null,
-    "reference": "https://github.com/MastaTrill/Aetheron-Sentinel-L3/pull/260",
-    "signature": null,
-    "method": null
+    "authorizedAtUtc": "2026-08-09T05:06:00.000Z",
+    "authorizedCommit": "b74466b8c3aab2a3c9c1454b2ea03a2fd111ee2b",
+    "reference": "https://basescan.org/verifiedSignature/95914",
+    "signature": "0x1bf44ba58531551f81a5e929f067c5524c76dfd2e9505e58c3b33a0d90803bcf090121cdae1ee65dafdb5ae14e7fdf05e0f8357113aa6b0902df2d598dfd06bc1b",
+    "method": "cryptographic-signature"
   },
-  "notice": "The prior time-bounded authorization applied to the earlier reviewed release commit. PR #260 adds the controlled Base Mainnet executor, so a fresh wallet signature and fresh exact-commit risk acceptance are required after this code-bearing change is merged.",
+  "notice": "Base Mainnet authorization is time-bounded to the exact executor-bearing release commit, frozen manifest digest, authorized sender, gas-cost ceiling, and expiration recorded here. The signed message is published as BaseScan Verified Signature #95914. Broadcast remains subject to the repository closure validator and protected base-mainnet workflow.",
   "riskAcceptance": {
-    "proceedWithoutIndependentSecurityReview": false,
-    "acceptedBy": null,
-    "acceptedAtUtc": null,
-    "statement": "PENDING_EXPLICIT_RISK_ACCEPTANCE"
+    "proceedWithoutIndependentSecurityReview": true,
+    "acceptedBy": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+    "acceptedAtUtc": "2026-08-09T05:06:00.000Z",
+    "statement": "I accept the risk of proceeding without an independent security review for this exact commit and manifest."
   }
 }
