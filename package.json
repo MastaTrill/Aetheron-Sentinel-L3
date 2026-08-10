@@ -81,6 +81,7 @@
     "presale:deploy:simulate": "node scripts/deploy-presale-vault.cjs --dry-run",
     "presale:deploy": "node scripts/deploy-presale-vault.cjs",
     "safe:governance": "node scripts/setup-gnosis-safe-governance.cjs",
+    "health:check": "node scripts/defai-health-monitor.cjs",
     "tee:stub:test": "node -e \"const s=require('./scripts/tee-attestation-stub.cjs'); const a=s.createAttestation({test:true}); console.log(JSON.stringify(s.finalizeAttestation(a,{status:'confirmed',txHash:'0xtest'}),null,2))\""
   },
   "dependencies": {
