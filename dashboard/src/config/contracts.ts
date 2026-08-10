@@ -31,11 +31,19 @@ export const BASE_SEPOLIA_CONTRACTS = {
 } as const;
 
 export const BASE_MAINNET_CONTRACTS = {
-  SentinelToken: {
-    address: '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
-    name: 'SentinelToken',
+  AetheronToken: {
+    address: '0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e',
+    name: 'Aetheron',
+    symbol: 'AETH',
     network: 'base',
     chainId: 8453,
-    explorerUrl: 'https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3',
+    explorerUrl: 'https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e',
+  },
+  SentinelToken: {
+    address: '0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e',
+    name: 'AETH',
+    network: 'base',
+    chainId: 8453,
+    explorerUrl: 'https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e',
   },
 } as const;

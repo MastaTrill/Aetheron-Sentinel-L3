@@ -33,13 +33,9 @@ Aetheron Sentinel L3 is a comprehensive security and automation suite for the SE
 - **Bug Bounty Program**: Incentivized community-led security research.
 - **Verifiable DeFAI AI Agents**: TEE-secured inference (Phala/Oasis/Intel TDX), attestation flows, policy-enforced autonomy levels (0-3), human-in-the-loop, drift monitoring, and seamless fallback to rule-based L3 security (SentinelInterceptor, CircuitBreaker, quantum guards).
 
-## SENTINEL Deployment Status
-
-A SENTINEL token is deployed on Base Mainnet, but the authoritative release decision
-classifies that deployment as **legacy/non-canonical** because control of its 57%
-beneficiary has not been proven.
-
-- **Legacy Base Mainnet token:** [`0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`](https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3)
+## AETH Token Deployment Status
+- **Live Base Mainnet Token (AETH):** [`0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e`](https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e)
+- **Token Specifications:** 1,000,000,000 Total Supply, 18 Decimals, Source-Verified on BaseScan.
 - **Legacy pool ID:** `0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d`
 - **Current legacy 57% beneficiary:** `0x7e3D11f70084D667295710E6b7FF50C3b0487a45`
 - **Intended replacement 57% treasury:** `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`

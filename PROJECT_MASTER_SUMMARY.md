@@ -2,8 +2,8 @@
 
 **Status:** 🚀 **PRODUCTION READY & MAINNET DEPLOYED**  
 **Network:** Base Mainnet (Chain ID `8453`)  
-**Canonical Token Contract:** [`0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`](https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3)  
-**Total Test Suite Pass Rate:** **417 / 417 Passing** (10 Solidity + 407 Mocha)  
+**Canonical Token Contract (AETH):** [`0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e`](https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e)  
+**Total Test Suite Pass Rate:** **100% Passing** (Solidity + Mocha + Policy)  
 **ESLint Status:** **0 Errors / 0 Warnings**  
 **Frontend Build:** **Vite Production Build Passing**
 
@@ -13,8 +13,8 @@
 
 ### 1. 🏠 Core Landing & Tokenomics Platform (`site/index.html` & `index.html`)
 - Presale countdown timer, live raised counters ($4,250,000 / $5,000,000 Hard Cap), APY calculator, interactive roadmap, audit links, team profiles, and FAQ accordion.
-- **User Position & Asset Statistics Widget**: Real-time holding balance (`1,451,782.63 SENTINEL` @ `$0.28`), PnL tracking (`+$0.02 (+6.6%)`), total supply (`100B`), holders (`14`), and liquidity (`$1.00`).
-- **Canonical Base Mainnet Token Address Badge**: One-click copy button and direct BaseScan link for `0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`.
+- **User Position & Asset Statistics Widget**: Real-time holding balance (`1,451,782.63 SENTINEL` @ `$0.28`), PnL tracking (`+$0.02 (+6.6%)`), total supply (`1B AETH`), holders (`14`), and liquidity (`$1.00`).
+- **Canonical Base Mainnet Token Address Badge**: One-click copy button and direct BaseScan link for `0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e`.
 
 ### 2. 📱 Mobile Security PWA Guard (`site/mobile-app.html`)
 - Single-page mobile guardian dashboard with Web App Manifest ([`site/manifest.json`](file:///c:/Users/willi/Aetheron-Sentinel-L3/site/manifest.json)).
