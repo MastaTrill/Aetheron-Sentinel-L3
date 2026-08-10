@@ -37,9 +37,12 @@
 
 ---
 
-## 🛠️ CLI Utilities & Backend Automation
-
 - **`scripts/multi-network-deployer.cjs`**: Pre-flight RPC validator and automated deployer for Base, Arbitrum, Polygon, and Optimism.
+- **`scripts/deploy-governance-core.cjs`**: Companion deployment engine for `AuditAnchor` and `SentinelAgentPolicy` with immediate ownership migration.
+- **`scripts/swap-agent-v2.js`**: Autonomous DeFAI swap integration agent with Universal Router support, eth_call simulation, and on-chain TEE attestation anchoring.
+- **`scripts/validate-tee-attestation.cjs`**: Cryptographic TEE envelope schema and SHA-256 integrity validator.
+- **`contracts/sentinel/AuditAnchor.sol`**: Gas-efficient single and batch on-chain hash anchoring for TEE execution proofs.
+- **`contracts/sentinel/SentinelAgentPolicy.sol`**: On-chain timelocked agent governance policy controller with 6-action bitmask permissions.
 - **`scripts/monitoring-alert-server.js`**: Prometheus metrics server (`/metrics`) and REST alert dispatcher (`/api/alerts/trigger`).
 - **`scripts/generate-incident-report.cjs`**: Cryptographic SHA-256 evidence packet generator for security intercepts (`docs/incidents/`).
 - **`scripts/gas-benchmark-report.cjs`**: Gas profiling engine analyzing deployment and call costs across all 50 smart contracts (`docs/GAS_BENCHMARK_REPORT.md`).
