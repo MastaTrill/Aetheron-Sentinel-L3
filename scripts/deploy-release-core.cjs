@@ -170,6 +170,11 @@ async function main() {
   const rateLimiter = await deploy('RateLimiter', [deployerAddress]);
   assertExactContractScope(Object.keys(manifest.contracts));
 
+  if (networkName !== 'localhost' && networkName !== 'hardhat') {
+    console.log('Waiting 5 seconds for RPC deployment propagation...');
+    await new Promise(r => setTimeout(r, 5000));
+  }
+
   const interceptorMonitorRole = await interceptor.MONITOR_ROLE();
   const circuitMonitorRole = await circuitBreaker.MONITOR_ROLE();
   const rateMonitorRole = await rateLimiter.MONITOR_ROLE();
