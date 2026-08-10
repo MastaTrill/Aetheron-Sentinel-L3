@@ -21,7 +21,9 @@ describe('SentinelInsuranceProtocol', function () {
     ({ ethers } = await network.getOrCreate());
     [owner, policyHolder, other] = await ethers.getSigners();
     const MIN_COVERAGE = ethers.parseEther('1');
-    const SentinelInsuranceProtocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
+    const SentinelInsuranceProtocol = await ethers.getContractFactory(
+      'contracts/SentinelInsuranceProtocol.sol:SentinelInsuranceProtocol'
+    );
     insurance = await SentinelInsuranceProtocol.deploy(
       ethers.ZeroAddress, // sentinelCore (not called in basic flows)
       ethers.ZeroAddress, // sentinelAuditor (not called in basic flows)
@@ -49,7 +51,7 @@ describe('SentinelInsuranceProtocol', function () {
 
     it('rejects zero address owner', async function () {
       const SentinelInsuranceProtocol = await ethers.getContractFactory(
-        'SentinelInsuranceProtocol'
+        'contracts/SentinelInsuranceProtocol.sol:SentinelInsuranceProtocol'
       );
       // OZ's Ownable throws custom error when owner is zero
       await expect(
@@ -222,7 +224,9 @@ describe('SentinelInsuranceProtocol', function () {
       const claimant = await ReentrantClaimant.deploy();
       await claimant.waitForDeployment();
 
-      const Protocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
+      const Protocol = await ethers.getContractFactory(
+        'contracts/SentinelInsuranceProtocol.sol:SentinelInsuranceProtocol'
+      );
       const ownerControlledProtocol = await Protocol.deploy(
         ethers.ZeroAddress,
         ethers.ZeroAddress,
