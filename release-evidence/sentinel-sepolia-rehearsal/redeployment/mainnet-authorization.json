@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-authorization",
+  "confirmation": "PENDING_EXPLICIT_BASE_MAINNET_AUTHORIZATION",
+  "chainId": 8453,
+  "limitations": {
+    "maxGasCostWei": "10000000000000000",
+    "expiresAt": null
+  },
+  "approvedManifest": {
+    "sha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d"
+  },
+  "authorization": {
+    "authorizedSender": null,
+    "authorizedAtUtc": null,
+    "authorizedCommit": null,
+    "reference": null,
+    "signature": null,
+    "method": null
+  },
+  "notice": "Template only. Base Mainnet remains unauthorized. A separate, explicit, time-bounded authorization for the exact commit and manifest is required, including project-owner acceptance of the risk of proceeding without independent security review.",
+  "riskAcceptance": {
+    "proceedWithoutIndependentSecurityReview": false,
+    "acceptedBy": null,
+    "acceptedAtUtc": null,
+    "statement": "PENDING_EXPLICIT_RISK_ACCEPTANCE"
+  }
+}

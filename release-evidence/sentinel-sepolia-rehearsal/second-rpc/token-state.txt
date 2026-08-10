@@ -1,0 +1,23 @@
+Canonical SENTINEL token verification
+=====================================
+capturedAtUtc:     2026-07-26T14:35:44Z
+blockNumber:       49143598
+chainId:           8453
+address:           0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+name:              "SENTINEL"
+symbol:            "SENTINEL"
+decimals:          18
+totalSupply:       100000000000000000000000000000 [1e29]
+owner:             0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12
+pool:              0xdeaDDeADDEaDdeaDdEAddEADDEAdDeadDEADDEaD
+poolUnlocked:      false
+yearlyMintRate:    20000000000000000 [2e16]
+lastMintTimestamp: 0
+vestingStart:      1771801399 [1.771e9]
+vestingDuration:   0
+vestedTotalAmount: 0
+tokenURI:          "ipfs://bafkreih43tnu76b2mrcvankahfmlgzcpgjmknzdmrclqezig4dtkpjm7wy"
+bytecodeHash:      0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672
+explorer:          https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+ACTION REQUIRED: confirm owner is the approved controller architecture before public launch.
+NOTICE: the configured migration-pool lock target is not reported unlocked; this is not a global V4 trading lock.

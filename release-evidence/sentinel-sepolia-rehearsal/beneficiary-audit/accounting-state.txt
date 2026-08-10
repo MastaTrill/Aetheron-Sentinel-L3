@@ -1,0 +1,51 @@
+SENTINEL beneficiary accounting audit
+======================================
+utcTimestamp: 2026-07-26T11:38:03Z
+blockNumber:  49138268
+poolId:       0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d
+
+currentCumulatedFees0:
+119420660751378 [1.194e14]
+currentCumulatedFees1:
+1149162561900290908746607 [1.149e24]
+
+beneficiary: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+accountTypeObservedByCodeLength: nonempty-code
+runtimeBytecodeHash: 0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c
+shares:
+50000000000000000 [5e16]
+lastCumulatedFees0:
+0
+lastCumulatedFees1:
+0
+
+beneficiary: 0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1
+accountTypeObservedByCodeLength: empty-code
+shares:
+19000000000000000 [1.9e16]
+lastCumulatedFees0:
+119420660751378 [1.194e14]
+lastCumulatedFees1:
+1149162561900290908746607 [1.149e24]
+
+beneficiary: 0x7e3D11f70084D667295710E6b7FF50C3b0487a45
+accountTypeObservedByCodeLength: nonempty-code
+runtimeBytecodeHash: 0x4542cbf1da24ba964614e4f5585736e22884e23e97c0f0915de4f602585d2dd4
+shares:
+570000000000000000 [5.7e17]
+lastCumulatedFees0:
+119420660751378 [1.194e14]
+lastCumulatedFees1:
+1149162561900290908746607 [1.149e24]
+
+beneficiary: 0xF60633D02690e2A15A54AB919925F3d038Df163e
+accountTypeObservedByCodeLength: nonempty-code
+runtimeBytecodeHash: 0xb12aa4bc4e1b15c9f45948affce3805fa4cb9d06f3847f942a96b2d20f1f9473
+shares:
+361000000000000000 [3.61e17]
+lastCumulatedFees0:
+119420660751378 [1.194e14]
+lastCumulatedFees1:
+1149162561900290908746607 [1.149e24]
+
+NOTICE: Nonempty account code does not by itself distinguish a deployed contract from an EIP-7702 delegated EOA. No fee collection or beneficiary update transaction was sent during this audit.
