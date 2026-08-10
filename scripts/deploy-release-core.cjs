@@ -144,7 +144,16 @@ async function main() {
     await contract.waitForDeployment();
     const receipt = await contract.deploymentTransaction().wait();
     const address = await contract.getAddress();
-    const runtimeCode = await provider.getCode(address);
+    let runtimeCode = await provider.getCode(address);
+    if (networkName !== 'localhost' && networkName !== 'hardhat') {
+      let retries = 0;
+      while (runtimeCode === '0x' && retries < 10) {
+        console.log(`Waiting for RPC to sync bytecode for ${name} at ${address}...`);
+        await new Promise(r => setTimeout(r, 2000));
+        runtimeCode = await provider.getCode(address);
+        retries++;
+      }
+    }
     manifest.contracts[name] = {
       address,
       constructorArguments,
