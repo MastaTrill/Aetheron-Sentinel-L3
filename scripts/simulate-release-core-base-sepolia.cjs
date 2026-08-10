@@ -124,7 +124,7 @@ try {
     if (process.platform === 'win32') {
       spawnSync('taskkill', ['/pid', nodeProcess.pid, '/f', '/t']);
     } else {
-      nodeProcess.kill('SIGINT');
+      spawnSync('pkill', ['-f', 'hardhat']);
     }
   } catch (err) {
     // ignore kill errors
