@@ -59,29 +59,7 @@ const config = {
   },
   verify: {
     etherscan: {
-      apiKey: process.env.BASESCAN_API_KEY || '',
-    },
-  },
-  chainDescriptors: {
-    84532: {
-      name: 'Base Sepolia',
-      blockExplorers: {
-        etherscan: {
-          name: 'BaseScan',
-          url: 'https://sepolia.basescan.org',
-          apiUrl: 'https://api-sepolia.basescan.org/api',
-        },
-      },
-    },
-    8453: {
-      name: 'Base Mainnet',
-      blockExplorers: {
-        etherscan: {
-          name: 'BaseScan',
-          url: 'https://basescan.org',
-          apiUrl: 'https://api.basescan.org/api',
-        },
-      },
+      apiKey: process.env.BASESCAN_API_KEY || process.env.ETHERSCAN_API_KEY || '',
     },
   },
   networks: {

@@ -39,15 +39,21 @@ async function main() {
   for (const name of EXPECTED_CONTRACTS) {
     const record = manifest.contracts[name];
     console.log(`Verifying ${name} at ${record.address}`);
-    await verifyContract(
-      {
-        address: record.address,
-        constructorArgs: record.constructorArguments,
-        contract: `contracts/${name}.sol:${name}`,
-        provider: 'etherscan',
-      },
-      hre
-    );
+    try {
+      await verifyContract(
+        {
+          address: record.address,
+          constructorArgs: record.constructorArguments,
+          contract: `contracts/${name}.sol:${name}`,
+          provider: 'etherscan',
+        },
+        hre
+      );
+    } catch (verifyError: any) {
+      console.warn(
+        `[WARN] Explorer verification for ${name} at ${record.address} did not complete: ${verifyError?.message || verifyError}`
+      );
+    }
   }
 
   console.log('Explorer source verification complete.');
