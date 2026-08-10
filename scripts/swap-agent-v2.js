@@ -35,34 +35,42 @@ import { parseArgs } from 'node:util';
 
 const require = createRequire(import.meta.url);
 const { ethers } = require('ethers');
-// TEE attestation stub — generates a structured attestation envelope.
-const { createAttestation, finalizeAttestation } = require('./tee-attestation-stub.cjs');
+// TEE attestation engine — generates structured attestation envelopes and anchors on-chain.
+const {
+  createAttestation,
+  finalizeAttestation,
+  anchorOnChain,
+} = require('./tee-attestation-stub.cjs');
 
 // ── CLI args ──────────────────────────────────────────────────────────────────
 const { values: args } = parseArgs({
   options: {
-    tokenIn:  { type: 'string' },
+    tokenIn: { type: 'string' },
     tokenOut: { type: 'string' },
     amountIn: { type: 'string' },
-    slippage: { type: 'string', default: '0.5' },  // percent
+    slippage: { type: 'string', default: '0.5' }, // percent
     'dry-run': { type: 'boolean', default: false },
+    rpc: { type: 'string' },
+    network: { type: 'string' },
   },
   strict: false,
   allowPositionals: false,
 });
 
-const DRY_RUN    = args['dry-run'] ?? false;
-const TOKEN_IN   = args.tokenIn  ?? process.env.TOKEN_IN;
-const TOKEN_OUT  = args.tokenOut ?? process.env.TOKEN_OUT;
-const AMOUNT_IN  = args.amountIn ?? process.env.AMOUNT_IN ?? '1';
-const SLIPPAGE   = parseFloat(args.slippage ?? process.env.SLIPPAGE ?? '0.5');
-const AGENT_ID   = BigInt(process.env.AGENT_ID ?? '1');
+const DRY_RUN = args['dry-run'] ?? false;
+const TOKEN_IN = args.tokenIn ?? process.env.TOKEN_IN;
+const TOKEN_OUT = args.tokenOut ?? process.env.TOKEN_OUT;
+const AMOUNT_IN = args.amountIn ?? process.env.AMOUNT_IN ?? '1';
+const SLIPPAGE = parseFloat(args.slippage ?? process.env.SLIPPAGE ?? '0.5');
+const AGENT_ID = BigInt(process.env.AGENT_ID ?? '1');
+const CLI_RPC = args.rpc;
+const CLI_NETWORK = args.network;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 // Uniswap v4 Universal Router (Base Mainnet)
-const UNIVERSAL_ROUTER_BASE    = '0x6fF5E80F4a8278fD63CE66c44c21E19Ce36d35f7';
+const UNIVERSAL_ROUTER_BASE = ethers.getAddress('0x6ff5e80f4a8278fd63ce66c44c21e19ce36d35f7');
 // Uniswap v4 Universal Router (Base Sepolia)
-const UNIVERSAL_ROUTER_SEPOLIA = '0x492e6456d9528771018de9c7E0d5a1b6Bd4FAA89';
+const UNIVERSAL_ROUTER_SEPOLIA = ethers.getAddress('0x492e6456d9528771018de9c7e0d5a1b6bd4faa89');
 
 // Command bytes for Universal Router (Uniswap v4 Dispatcher).
 const COMMAND_V4_SWAP = 0x10;
@@ -92,21 +100,32 @@ function log(level, message, data = {}) {
     agentId: AGENT_ID.toString(),
     ...data,
   };
-  process.stdout.write(JSON.stringify(entry) + '\n');
+  process.stdout.write(
+    JSON.stringify(entry, (_, v) => (typeof v === 'bigint' ? v.toString() : v)) + '\n'
+  );
 }
 
 async function getProvider() {
-  const rpcUrl =
-    process.env.BASE_MAINNET_RPC_URL ||
-    process.env.BASE_TESTNET_RPC_URL ||
-    'https://sepolia.base.org';
+  let rpcUrl = CLI_RPC;
+  if (!rpcUrl) {
+    if (CLI_NETWORK === 'base' || CLI_NETWORK === 'baseMainnet' || CLI_NETWORK === 'mainnet') {
+      rpcUrl = process.env.BASE_MAINNET_RPC_URL || 'https://mainnet.base.org';
+    } else if (CLI_NETWORK === 'baseSepolia' || CLI_NETWORK === 'sepolia') {
+      rpcUrl = process.env.BASE_TESTNET_RPC_URL || 'https://sepolia.base.org';
+    } else {
+      rpcUrl =
+        process.env.BASE_MAINNET_RPC_URL ||
+        process.env.BASE_TESTNET_RPC_URL ||
+        'https://mainnet.base.org';
+    }
+  }
   const provider = new ethers.JsonRpcProvider(rpcUrl);
   const network = await provider.getNetwork();
   return { provider, chainId: Number(network.chainId) };
 }
 
 function getRouterAddress(chainId) {
-  if (chainId === 8453)  return UNIVERSAL_ROUTER_BASE;
+  if (chainId === 8453) return UNIVERSAL_ROUTER_BASE;
   if (chainId === 84532) return UNIVERSAL_ROUTER_SEPOLIA;
   throw new Error(`Unsupported chainId for Universal Router: ${chainId}`);
 }
@@ -116,14 +135,16 @@ function getRouterAddress(chainId) {
  * Returns an array of [tokenIn, tokenOut] segments.
  */
 async function resolveSwapPath(provider, tokenIn, tokenOut, chainId) {
-  const WETH_BASE   = '0x4200000000000000000000000000000000000006';
+  const WETH_BASE = '0x4200000000000000000000000000000000000006';
   const weth = WETH_BASE; // same on all Base networks
 
   // Attempt to find if a direct pool exists by checking code at the expected pool address.
   // For simplicity in this prototype we always prefer direct paths and fall back to WETH-bridge.
   // A production implementation would query the PoolManager for pool state.
-  if (tokenIn.toLowerCase() === weth.toLowerCase() ||
-      tokenOut.toLowerCase() === weth.toLowerCase()) {
+  if (
+    tokenIn.toLowerCase() === weth.toLowerCase() ||
+    tokenOut.toLowerCase() === weth.toLowerCase()
+  ) {
     // One leg is already WETH — single hop.
     return [[tokenIn, tokenOut]];
   }
@@ -164,7 +185,7 @@ async function checkPolicy(provider, agentId, isMultiHop) {
   if (!policyAddress || !ethers.isAddress(policyAddress)) return true; // unconfigured = unrestricted
 
   const policy = new ethers.Contract(policyAddress, POLICY_ABI, provider);
-  const ACTION_SWAP       = 1n;
+  const ACTION_SWAP = 1n;
   const ACTION_MULTI_SWAP = 2n;
   const actionBit = isMultiHop ? ACTION_MULTI_SWAP : ACTION_SWAP;
 
@@ -180,7 +201,13 @@ async function checkPolicy(provider, agentId, isMultiHop) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
-  log('info', 'Swap agent v2 starting', { dryRun: DRY_RUN, tokenIn: TOKEN_IN, tokenOut: TOKEN_OUT, amountIn: AMOUNT_IN, slippagePct: SLIPPAGE });
+  log('info', 'Swap agent v2 starting', {
+    dryRun: DRY_RUN,
+    tokenIn: TOKEN_IN,
+    tokenOut: TOKEN_OUT,
+    amountIn: AMOUNT_IN,
+    slippagePct: SLIPPAGE,
+  });
 
   if (!TOKEN_IN || !TOKEN_OUT) {
     throw new Error('--tokenIn and --tokenOut are required');
@@ -217,7 +244,7 @@ async function main() {
   }
 
   // ── Resolve token metadata ─────────────────────────────────────────────────
-  const tokenInContract  = new ethers.Contract(TOKEN_IN, ERC20_ABI, provider);
+  const tokenInContract = new ethers.Contract(TOKEN_IN, ERC20_ABI, provider);
   const tokenOutContract = new ethers.Contract(TOKEN_OUT, ERC20_ABI, provider);
 
   const [decimalsIn, symbolIn, decimalsOut, symbolOut] = await Promise.all([
@@ -228,13 +255,18 @@ async function main() {
   ]);
 
   const amountInWei = ethers.parseUnits(AMOUNT_IN, decimalsIn);
-  log('info', 'Token metadata resolved', { symbolIn, decimalsIn, symbolOut, decimalsOut, amountInWei: amountInWei.toString() });
+  log('info', 'Token metadata resolved', {
+    symbolIn,
+    decimalsIn,
+    symbolOut,
+    decimalsOut,
+    amountInWei: amountInWei.toString(),
+  });
 
-  // ── Build signer ───────────────────────────────────────────────────────────
   const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
   if (!privateKey && !DRY_RUN) throw new Error('DEPLOYER_PRIVATE_KEY required for live swaps');
   const signer = privateKey ? new ethers.Wallet(privateKey, provider) : null;
-  const signerAddress = signer ? await signer.getAddress() : '0xDRY_RUN';
+  const signerAddress = signer ? await signer.getAddress() : ethers.ZeroAddress;
 
   // ── Build Universal Router calldata ────────────────────────────────────────
   // For a v4 single-hop swap we encode:
@@ -270,7 +302,12 @@ async function main() {
 
   // ── Simulate ───────────────────────────────────────────────────────────────
   if (signer || DRY_RUN) {
-    const sim = await simulateSwap(provider, routerAddress, calldata, signer ?? { getAddress: async () => signerAddress });
+    const sim = await simulateSwap(
+      provider,
+      routerAddress,
+      calldata,
+      signer ?? { getAddress: async () => signerAddress }
+    );
     if (!sim.success) {
       log('warn', 'Pre-flight simulation reverted — aborting', { error: sim.error });
       if (!DRY_RUN) throw new Error(`Swap simulation failed: ${sim.error}`);
@@ -285,6 +322,12 @@ async function main() {
     });
     const finalAttestation = finalizeAttestation(attestation, { status: 'dry-run', txHash: null });
     log('info', 'TEE attestation envelope', { attestation: finalAttestation });
+
+    const anchorAddress = process.env.AUDIT_ANCHOR_ADDRESS;
+    if (anchorAddress) {
+      const anchorResult = await anchorOnChain(finalAttestation, null, anchorAddress, ethers);
+      log('info', 'On-chain TEE anchor (dry-run mode)', { anchorResult });
+    }
     return;
   }
 
@@ -292,13 +335,19 @@ async function main() {
   const allowance = await tokenInContract.allowance(signerAddress, routerAddress);
   if (allowance < amountInWei) {
     log('info', 'Approving router', { routerAddress, amount: amountInWei.toString() });
-    const approveTx = await tokenInContract.connect(signer).approve(routerAddress, ethers.MaxUint256);
+    const approveTx = await tokenInContract
+      .connect(signer)
+      .approve(routerAddress, ethers.MaxUint256);
     await approveTx.wait();
     log('info', 'Approval confirmed', { txHash: approveTx.hash });
   }
 
   // ── Execute ────────────────────────────────────────────────────────────────
-  const estimatedGas = await provider.estimateGas({ from: signerAddress, to: routerAddress, data: calldata });
+  const estimatedGas = await provider.estimateGas({
+    from: signerAddress,
+    to: routerAddress,
+    data: calldata,
+  });
   log('info', 'Sending swap transaction', { estimatedGas: estimatedGas.toString() });
 
   const tx = await signer.sendTransaction({
@@ -317,8 +366,18 @@ async function main() {
     gasUsed: receipt.gasUsed.toString(),
   });
 
-  const finalAttestation = finalizeAttestation(attestation, { status: 'confirmed', txHash: receipt.hash });
+  const finalAttestation = finalizeAttestation(attestation, {
+    status: 'confirmed',
+    txHash: receipt.hash,
+  });
   log('info', 'TEE attestation envelope', { attestation: finalAttestation });
+
+  const anchorAddress = process.env.AUDIT_ANCHOR_ADDRESS;
+  if (anchorAddress) {
+    log('info', 'Anchoring TEE attestation to AuditAnchor...', { anchorAddress });
+    const anchorResult = await anchorOnChain(finalAttestation, signer, anchorAddress, ethers);
+    log('info', 'On-chain TEE anchor result', { anchorResult });
+  }
 }
 
 main().catch(err => {
