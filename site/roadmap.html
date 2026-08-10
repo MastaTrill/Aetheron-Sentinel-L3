@@ -3,88 +3,191 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sentinel L3 — Protocol Roadmap</title>
-    <link rel="icon" href="assets/favicon.ico" />
+    <title>Aetheron Sentinel L3 — Protocol Roadmap</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      body { background: var(--bg-primary); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 80px; }
-      .roadmap-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-      .roadmap-title h1 { margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .roadmap-title p { margin: 6px 0 36px; color: var(--text-secondary); font-size: 0.95rem; }
-      .timeline { position: relative; padding-left: 40px; }
-      .timeline::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--quantum-cyan), var(--quantum-pink)); }
-      .phase { position: relative; margin-bottom: 36px; }
-      .phase-dot { position: absolute; left: -34px; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--quantum-cyan); background: var(--bg-primary); z-index: 1; transition: all 0.3s; }
-      .phase-dot.done { background: var(--quantum-green); border-color: var(--quantum-green); box-shadow: 0 0 10px rgba(0,255,136,0.5); }
-      .phase-dot.active { background: var(--quantum-cyan); border-color: var(--quantum-cyan); box-shadow: 0 0 14px rgba(0,255,255,0.6); animation: glow 2s infinite; }
-      @keyframes glow { 0%,100%{box-shadow:0 0 10px rgba(0,255,255,0.4)} 50%{box-shadow:0 0 20px rgba(0,255,255,0.8)} }
-      .phase-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; transition: border-color 0.2s; }
-      .phase-card:hover { border-color: var(--quantum-cyan); }
-      .phase-card.done { border-color: rgba(0,255,136,0.3); }
-      .phase-card.active { border-color: rgba(0,255,255,0.4); }
-      .phase-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-      .phase-tag { padding: 3px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; }
-      .phase-tag.done { background: rgba(0,255,136,0.15); color: var(--quantum-green); border: 1px solid var(--quantum-green); }
-      .phase-tag.active { background: rgba(0,255,255,0.15); color: var(--quantum-cyan); border: 1px solid var(--quantum-cyan); }
-      .phase-tag.upcoming { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid #a855f7; }
-      .progress-bar { height: 6px; border-radius: 4px; background: var(--bg-primary); margin-top: 10px; overflow: hidden; }
-      .progress-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
-      .milestone-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
-      .milestone { display: flex; align-items: center; gap: 8px; font-size: 0.83rem; color: var(--text-secondary); }
-      .milestone.done { color: var(--quantum-green); }
+      .road-container {
+        max-width: 960px;
+        margin: 80px auto 40px;
+        padding: 0 20px;
+      }
+      .road-title {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+      .road-title h1 {
+        font-size: 2.4rem;
+        color: #fff;
+        margin-bottom: 8px;
+      }
+      .road-title p {
+        color: var(--text-secondary);
+      }
+      .timeline {
+        position: relative;
+        padding-left: 32px;
+        border-left: 2px solid rgba(0, 255, 204, 0.3);
+      }
+      .phase {
+        position: relative;
+        margin-bottom: 48px;
+      }
+      .phase-dot {
+        position: absolute;
+        left: -41px;
+        top: 4px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--bg-dark);
+        border: 2px solid var(--text-secondary);
+      }
+      .phase-dot.done {
+        border-color: var(--quantum-green);
+        background: var(--quantum-green);
+        box-shadow: 0 0 8px var(--quantum-green);
+      }
+      .phase-dot.active {
+        border-color: var(--quantum-cyan);
+        background: var(--quantum-cyan);
+        box-shadow: 0 0 12px var(--quantum-cyan);
+      }
+      .phase-card {
+        background: rgba(13, 27, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 24px;
+      }
+      .phase-card.done {
+        border-color: rgba(0, 255, 136, 0.3);
+      }
+      .phase-card.active {
+        border-color: rgba(0, 255, 204, 0.5);
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+      }
+      .phase-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .phase-tag {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+      .phase-tag.done {
+        background: rgba(0, 255, 136, 0.15);
+        color: var(--quantum-green);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+      }
+      .phase-tag.active {
+        background: rgba(0, 255, 204, 0.15);
+        color: var(--quantum-cyan);
+        border: 1px solid rgba(0, 255, 204, 0.4);
+      }
+      .milestone-list {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+      }
+      .milestone {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.95rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .progress-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+      }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+  </head>
   <body>
+    <div class="stars-bg"></div>
     <nav class="navbar">
       <div class="nav-container">
-        <div class="nav-logo">
+        <a href="index.html" class="nav-logo">
           <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
           <span class="logo-text">SENTINEL L3</span>
-        </div>
-        <div class="nav-menu">
+        </a>
+        <div class="nav-links">
           <a href="index.html" class="nav-link">Home</a>
-          <a href="governance.html" class="nav-link">Governance</a>
-          <a href="vaults.html" class="nav-link">Vaults</a>
-          <a href="staking.html" class="nav-link">Staking</a>
           <a href="analytics.html" class="nav-link">Analytics</a>
-          <a href="threat-feed.html" class="nav-link">Threat Feed</a>
-          <a href="api-docs.html" class="nav-link">API Docs</a>
-          <a href="roadmap.html" class="nav-link active">🗺️ Roadmap</a>
-          <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
-          <a href="bug-bounty.html" class="nav-link">Bug Bounty</a>
+          <a href="roadmap.html" class="nav-link active">Roadmap</a>
+          <a href="staking.html" class="nav-link">Staking</a>
+          <a href="vaults.html" class="nav-link">Vaults</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch App</a>
+          <a
+            href="https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary"
+            >View BaseScan ↗</a
+          >
         </div>
       </div>
     </nav>
 
-    <div class="roadmap-container">
-      <div class="roadmap-title">
+    <div class="road-container">
+      <div class="road-title">
         <h1>🗺️ Protocol Development Roadmap</h1>
-        <p>Sentinel L3's journey from launch to full cross-chain autonomous security infrastructure.</p>
+        <p>
+          Aetheron Sentinel L3's journey from launch to full cross-chain autonomous security
+          infrastructure.
+        </p>
       </div>
 
       <div class="timeline">
-
         <!-- Phase 1 -->
         <div class="phase">
           <div class="phase-dot done"></div>
           <div class="phase-card done">
             <div class="phase-header">
               <div>
-                <div  class="style-01040d">Phase 1 — Foundation & Token Launch</div>
-                <div  class="style-ae17ea">Q1 2026 &nbsp;·&nbsp; Base Mainnet</div>
+                <strong style="font-size: 1.1rem; color: #fff"
+                  >Phase 1 — Token Launch & Core Interceptors</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Base Mainnet
+                </div>
               </div>
               <span class="phase-tag done">✅ Complete</span>
             </div>
-            <div class="progress-bar"><div class="progress-fill style-41e453" ></div></div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 100%; background: var(--quantum-green)"
+              ></div>
+            </div>
             <div class="milestone-list">
-              <div class="milestone done">✅ SENTINEL ERC-20 token deployed to Base Mainnet</div>
-              <div class="milestone done">✅ SentinelCore autonomous interceptor activated</div>
-              <div class="milestone done">✅ Circuit breaker & TWAP oracle protection live</div>
-              <div class="milestone done">✅ Community presale & initial liquidity provisioned</div>
+              <div class="milestone">✅ AETH (Aetheron) ERC-20 token deployed to Base Mainnet</div>
+              <div class="milestone">✅ SentinelCore autonomous interceptor activated</div>
+              <div class="milestone">✅ Circuit breaker & TWAP oracle protection live</div>
+              <div class="milestone">
+                ✅ Community presale & auto-liquidity reservation vault built
+              </div>
             </div>
           </div>
         </div>
@@ -95,38 +198,61 @@
           <div class="phase-card done">
             <div class="phase-header">
               <div>
-                <div  class="style-01040d">Phase 2 — Security Infrastructure</div>
-                <div  class="style-ae17ea">Q2 2026 &nbsp;·&nbsp; Base Mainnet</div>
+                <strong style="font-size: 1.1rem; color: #fff"
+                  >Phase 2 — Cryptographic Security Infrastructure</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Base Mainnet
+                </div>
               </div>
               <span class="phase-tag done">✅ Complete</span>
             </div>
-            <div class="progress-bar"><div class="progress-fill style-41e453" ></div></div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 100%; background: var(--quantum-green)"
+              ></div>
+            </div>
             <div class="milestone-list">
-              <div class="milestone done">✅ Post-quantum cryptography (Dilithium) integration</div>
-              <div class="milestone done">✅ SentinelAMM flash loan protection deployed</div>
-              <div class="milestone done">✅ Multi-chain telemetry oracle network activated</div>
-              <div class="milestone done">✅ DAO governance contract & voting system live</div>
+              <div class="milestone">
+                ✅ Post-quantum cryptography (CRYSTALS-Kyber & Dilithium) integration
+              </div>
+              <div class="milestone">✅ SentinelAMM flash loan protection deployed</div>
+              <div class="milestone">✅ AuditAnchor on-chain TEE cryptographic proof ledger</div>
+              <div class="milestone">
+                ✅ SentinelAgentPolicy multi-action governance timelock live
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Phase 3 — Active -->
+        <!-- Phase 3 -->
         <div class="phase">
           <div class="phase-dot active"></div>
           <div class="phase-card active">
             <div class="phase-header">
               <div>
-                <div  class="style-01040d">Phase 3 — DeFi Ecosystem Expansion</div>
-                <div  class="style-ae17ea">Q3 2026 &nbsp;·&nbsp; Base + Arbitrum</div>
+                <strong style="font-size: 1.1rem; color: var(--quantum-cyan)"
+                  >Phase 3 — DeFAI Autonomous Execution & DEX Launch</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Base Mainnet
+                </div>
               </div>
               <span class="phase-tag active">⚡ In Progress</span>
             </div>
-            <div class="progress-bar"><div class="progress-fill style-629644" ></div></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 75%; background: var(--quantum-cyan)"></div>
+            </div>
             <div class="milestone-list">
-              <div class="milestone done">✅ Yield Maximizer Vault strategy deployed</div>
-              <div class="milestone done">✅ Staking rewards center launched (3-tier system)</div>
-              <div class="milestone style-a9147c" >⚡ Cross-chain Arbitrum bridge integration</div>
-              <div class="milestone">⬜ Insurance pool protocol activation</div>
+              <div class="milestone">
+                ✅ Autonomous DeFAI Swap Agent with Universal Router & TEE attestation
+              </div>
+              <div class="milestone">
+                ✅ Automated Uniswap v3 full-range liquidity provisioning engine
+              </div>
+              <div class="milestone">⚡ Community Web3 Presale live on Base Mainnet</div>
+              <div class="milestone">⬜ Gnosis Safe 2-of-3 institutional ownership migration</div>
             </div>
           </div>
         </div>
@@ -137,42 +263,29 @@
           <div class="phase-card">
             <div class="phase-header">
               <div>
-                <div  class="style-01040d">Phase 4 — AI & Institutional Grade</div>
-                <div  class="style-ae17ea">Q4 2026 &nbsp;·&nbsp; Multi-Chain</div>
+                <strong style="font-size: 1.1rem; color: #fff"
+                  >Phase 4 — Cross-Chain Oracle & Institutional Expansion</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Multi-Chain
+                </div>
               </div>
-              <span class="phase-tag upcoming">🔮 Upcoming</span>
+              <span
+                class="phase-tag"
+                style="background: rgba(255, 255, 255, 0.1); color: var(--text-secondary)"
+                >Planned</span
+              >
             </div>
-            <div class="progress-bar"><div class="progress-fill style-79b68b" ></div></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 15%; background: #a855f7"></div>
+            </div>
             <div class="milestone-list">
-              <div class="milestone">⬜ AI-powered predictive threat engine v2 launch</div>
-              <div class="milestone">⬜ Enterprise security SDK & white-label deployment</div>
-              <div class="milestone">⬜ Institutional custody & compliance module</div>
-              <div class="milestone">⬜ $500K bug bounty program full activation</div>
+              <div class="milestone">⬜ Sentinel decentralized oracle network (SON)</div>
+              <div class="milestone">⬜ Tier-1 CEX Listings (Coinbase, Binance, OKX)</div>
+              <div class="milestone">⬜ Enterprise SOC2 institutional security integration</div>
             </div>
           </div>
         </div>
-
-        <!-- Phase 5 -->
-        <div class="phase">
-          <div class="phase-dot"></div>
-          <div class="phase-card">
-            <div class="phase-header">
-              <div>
-                <div  class="style-01040d">Phase 5 — Global Security Standard</div>
-                <div  class="style-ae17ea">Q1–Q2 2027 &nbsp;·&nbsp; 10+ Chains</div>
-              </div>
-              <span class="phase-tag upcoming">🔮 Upcoming</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill style-3ac8eb" ></div></div>
-            <div class="milestone-list">
-              <div class="milestone">⬜ 10-chain autonomous interceptor coverage</div>
-              <div class="milestone">⬜ Sentinel L3 decentralized oracle network (SON)</div>
-              <div class="milestone">⬜ ISO 27001 & SOC 2 Type II certification</div>
-              <div class="milestone">⬜ Full protocol decentralization (DAO-owned infrastructure)</div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </body>

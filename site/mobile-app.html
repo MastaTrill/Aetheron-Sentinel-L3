@@ -49,7 +49,11 @@
         padding: 16px;
       }
       .health-card {
-        background: radial-gradient(circle at top right, rgba(0,255,255,0.08), rgba(10,10,10,0.9));
+        background: radial-gradient(
+          circle at top right,
+          rgba(0, 255, 255, 0.08),
+          rgba(10, 10, 10, 0.9)
+        );
         border: 1px solid var(--border-color);
         border-radius: 16px;
         padding: 20px;
@@ -142,7 +146,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: rgba(10,10,10,0.95);
+        background: rgba(10, 10, 10, 0.95);
         -webkit-backdrop-filter: blur(12px);
         backdrop-filter: blur(12px);
         border-top: 1px solid var(--border-color);
@@ -164,8 +168,8 @@
         color: var(--quantum-cyan);
       }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Mobile Header -->
     <header class="mobile-header">
@@ -181,14 +185,12 @@
       <!-- Health Card -->
       <section class="card-section">
         <div class="health-card">
-          <div  class="style-503f41">PORTFOLIO SECURITY HEALTH</div>
+          <div class="style-503f41">PORTFOLIO SECURITY HEALTH</div>
           <div class="score-circle">
             <span class="score-val" id="scoreVal">98</span>
             <span class="score-lbl">EXCELLENT</span>
           </div>
-          <p  class="style-43ecec">
-            0 Vulnerabilities Detected Across 4 Monitored Contracts
-          </p>
+          <p class="style-43ecec">0 Vulnerabilities Detected Across 4 Monitored Contracts</p>
           <div class="quick-actions">
             <button class="m-btn m-btn-primary" id="btnScan">🔍 Run Deep Scan</button>
             <button class="m-btn m-btn-danger" id="btnFreeze">🚨 Freeze Vault</button>
@@ -198,18 +200,18 @@
 
       <!-- Monitored Contracts Form -->
       <section class="card-section">
-        <h3  class="style-c6a8bb">Add Monitored Contract</h3>
-        <div  class="style-1952d6">
-          <input type="text" id="contractInput" placeholder="0x... or ENS"  / class="style-49ea70">
-          <button class="m-btn m-btn-primary style-61209c" id="btnAddMonitor" >Add</button>
+        <h3 class="style-c6a8bb">Add Monitored Contract</h3>
+        <div class="style-1952d6">
+          <input type="text" id="contractInput" placeholder="0x... or ENS" class="style-49ea70" />
+          <button class="m-btn m-btn-primary style-61209c" id="btnAddMonitor">Add</button>
         </div>
       </section>
 
       <!-- Live Stream -->
       <section class="card-section">
-        <h3  class="style-ba3311">
+        <h3 class="style-ba3311">
           <span>Real-time Intercept Feed</span>
-          <span  id="feedCount" class="style-f3fea4">4 Intercepts Today</span>
+          <span id="feedCount" class="style-f3fea4">4 Intercepts Today</span>
         </h3>
         <div class="feed-list" id="feedList">
           <div class="feed-item">
@@ -234,19 +236,19 @@
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
       <a href="#" class="nav-tab active">
-        <span  class="style-ebc214">🛡️</span>
+        <span class="style-ebc214">🛡️</span>
         <span>Guard</span>
       </a>
       <a href="index.html#telemetry" class="nav-tab">
-        <span  class="style-ebc214">📊</span>
+        <span class="style-ebc214">📊</span>
         <span>Feed</span>
       </a>
       <a href="index.html#yield" class="nav-tab">
-        <span  class="style-ebc214">⚡</span>
+        <span class="style-ebc214">⚡</span>
         <span>Yield</span>
       </a>
       <a href="index.html#documentation" class="nav-tab">
-        <span  class="style-ebc214">⚙️</span>
+        <span class="style-ebc214">⚙️</span>
         <span>Docs</span>
       </a>
     </nav>
@@ -254,10 +256,10 @@
     <script>
       // Simulated WebSocket and Mobile API Integration
       const connStatus = document.getElementById('connStatus');
-      const feedList   = document.getElementById('feedList');
-      const btnScan    = document.getElementById('btnScan');
-      const btnFreeze  = document.getElementById('btnFreeze');
-      const btnAdd     = document.getElementById('btnAddMonitor');
+      const feedList = document.getElementById('feedList');
+      const btnScan = document.getElementById('btnScan');
+      const btnFreeze = document.getElementById('btnFreeze');
+      const btnAdd = document.getElementById('btnAddMonitor');
 
       // Attempt WebSocket connection to backend mobile app server
       let ws;
@@ -267,9 +269,13 @@
           connStatus.textContent = '● LIVE WEBSOCKET';
           connStatus.style.color = 'var(--quantum-green)';
         };
-        ws.onmessage = (evt) => {
+        ws.onmessage = evt => {
           const data = JSON.parse(evt.data);
-          addFeedItem(data.title || 'Security Alert', data.message || evt.data, data.type === 'alert');
+          addFeedItem(
+            data.title || 'Security Alert',
+            data.message || evt.data,
+            data.type === 'alert'
+          );
         };
         ws.onerror = () => {
           connStatus.textContent = '● LOCAL SIMULATION';
@@ -294,8 +300,14 @@
       });
 
       btnFreeze.addEventListener('click', () => {
-        if (confirm('🚨 EMERGENCY PAUSE: Trigger immediate circuit breaker for monitored contracts?')) {
-          addFeedItem('🚨 Emergency Freeze Activated', 'Sent emergency pause signal to Sentinel MultiSig Vault.', true);
+        if (
+          confirm('🚨 EMERGENCY PAUSE: Trigger immediate circuit breaker for monitored contracts?')
+        ) {
+          addFeedItem(
+            '🚨 Emergency Freeze Activated',
+            'Sent emergency pause signal to Sentinel MultiSig Vault.',
+            true
+          );
           alert('Circuit breaker signal broadcast! Contract paused for 24h.');
         }
       });
@@ -303,7 +315,11 @@
       btnAdd.addEventListener('click', () => {
         const input = document.getElementById('contractInput');
         if (input.value.trim()) {
-          addFeedItem('📌 Contract Added to Watchlist', `Monitoring contract ${input.value.trim()} for anomalies.`, false);
+          addFeedItem(
+            '📌 Contract Added to Watchlist',
+            `Monitoring contract ${input.value.trim()} for anomalies.`,
+            false
+          );
           alert(`Added ${input.value.trim()} to mobile watch suite.`);
           input.value = '';
         }

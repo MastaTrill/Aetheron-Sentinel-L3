@@ -125,9 +125,18 @@
         display: flex;
         margin-bottom: 8px;
       }
-      .vb-for { background: var(--quantum-green); height: 100%; }
-      .vb-against { background: #ff0055; height: 100%; }
-      .vb-abstain { background: var(--text-secondary); height: 100%; }
+      .vb-for {
+        background: var(--quantum-green);
+        height: 100%;
+      }
+      .vb-against {
+        background: #ff0055;
+        height: 100%;
+      }
+      .vb-abstain {
+        background: var(--text-secondary);
+        height: 100%;
+      }
 
       .vote-labels {
         display: flex;
@@ -152,11 +161,17 @@
         cursor: pointer;
         transition: all 0.2s;
       }
-      .v-btn-for:hover { border-color: var(--quantum-green); color: var(--quantum-green); }
-      .v-btn-against:hover { border-color: #ff0055; color: #ff0055; }
+      .v-btn-for:hover {
+        border-color: var(--quantum-green);
+        color: var(--quantum-green);
+      }
+      .v-btn-against:hover {
+        border-color: #ff0055;
+        color: #ff0055;
+      }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -173,7 +188,9 @@
           <a href="index.html#documentation" class="nav-link">Docs</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Wallet</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Wallet</a
+          >
         </div>
       </div>
     </nav>
@@ -182,7 +199,10 @@
       <div class="gov-header">
         <div class="gov-title">
           <h1>DAO Governance Portal</h1>
-          <p>Shape the future of cross-chain security. Vote on proposals and manage timelock parameters.</p>
+          <p>
+            Shape the future of cross-chain security. Vote on proposals and manage timelock
+            parameters.
+          </p>
         </div>
         <button class="btn-primary" id="btnNewProposal">+ Create Proposal</button>
       </div>
@@ -198,12 +218,12 @@
           <div class="stat-lbl">Total Quorum Reached</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-1ede3f" >48 Hours</div>
+          <div class="stat-val style-1ede3f">48 Hours</div>
           <div class="stat-lbl">Timelock Delay</div>
         </div>
       </div>
 
-      <h2  class="style-29ed59">Active &amp; Recent Proposals</h2>
+      <h2 class="style-29ed59">Active &amp; Recent Proposals</h2>
 
       <!-- Proposals List -->
       <div class="proposals-list">
@@ -212,17 +232,21 @@
           <div class="prop-header">
             <div>
               <span class="prop-badge active">● Active Voting</span>
-              <h3 class="prop-title style-d79ce2" >SIP-014: Upgrade Interceptor to CRYSTALS-Kyber-1024 Encryption</h3>
+              <h3 class="prop-title style-d79ce2">
+                SIP-014: Upgrade Interceptor to CRYSTALS-Kyber-1024 Encryption
+              </h3>
             </div>
-            <span  class="style-9dc60d">Ends in 2d 14h</span>
+            <span class="style-9dc60d">Ends in 2d 14h</span>
           </div>
           <p class="prop-desc">
-            Upgrade the quantum-resistant signature verification threshold on Base Mainnet to CRYSTALS-Kyber-1024. Ensures post-quantum security against future lattice attack vectors.
+            Upgrade the quantum-resistant signature verification threshold on Base Mainnet to
+            CRYSTALS-Kyber-1024. Ensures post-quantum security against future lattice attack
+            vectors.
           </p>
           <div class="vote-bar-wrap">
-            <div class="vb-for style-bd45dd" ></div>
-            <div class="vb-against style-af3db9" ></div>
-            <div class="vb-abstain style-8253f0" ></div>
+            <div class="vb-for style-bd45dd"></div>
+            <div class="vb-against style-af3db9"></div>
+            <div class="vb-abstain style-8253f0"></div>
           </div>
           <div class="vote-labels">
             <span>FOR: 4,820,000 AETH (88%)</span>
@@ -239,16 +263,19 @@
           <div class="prop-header">
             <div>
               <span class="prop-badge passed">✓ Passed</span>
-              <h3 class="prop-title style-d79ce2" >SIP-013: Allocate 500,000 AETH to HackenProof Bug Bounty</h3>
+              <h3 class="prop-title style-d79ce2">
+                SIP-013: Allocate 500,000 AETH to HackenProof Bug Bounty
+              </h3>
             </div>
-            <span  class="style-4ffd13">Passed Jul 20</span>
+            <span class="style-4ffd13">Passed Jul 20</span>
           </div>
           <p class="prop-desc">
-            Transfer 500,000 AETH from Treasury to HackenProof Smart Contract Bug Bounty escrow to reward security researchers for critical disclosures.
+            Transfer 500,000 AETH from Treasury to HackenProof Smart Contract Bug Bounty escrow to
+            reward security researchers for critical disclosures.
           </p>
           <div class="vote-bar-wrap">
-            <div class="vb-for style-1d3d52" ></div>
-            <div class="vb-against style-153705" ></div>
+            <div class="vb-for style-1d3d52"></div>
+            <div class="vb-against style-153705"></div>
           </div>
           <div class="vote-labels">
             <span>FOR: 8,120,000 AETH (94%)</span>
@@ -261,16 +288,19 @@
           <div class="prop-header">
             <div>
               <span class="prop-badge executed">⚡ Executed</span>
-              <h3 class="prop-title style-d79ce2" >SIP-012: Enable Cross-Chain Staking Yield Multiplier on Arbitrum</h3>
+              <h3 class="prop-title style-d79ce2">
+                SIP-012: Enable Cross-Chain Staking Yield Multiplier on Arbitrum
+              </h3>
             </div>
-            <span  class="style-4ffd13">Executed Jul 15</span>
+            <span class="style-4ffd13">Executed Jul 15</span>
           </div>
           <p class="prop-desc">
-            Activate the AI-optimized yield maximizer protocol on Arbitrum One for ETH/USDC liquidity pools.
+            Activate the AI-optimized yield maximizer protocol on Arbitrum One for ETH/USDC
+            liquidity pools.
           </p>
           <div class="vote-bar-wrap">
-            <div class="vb-for style-20b9dc" ></div>
-            <div class="vb-against style-af3db9" ></div>
+            <div class="vb-for style-20b9dc"></div>
+            <div class="vb-against style-af3db9"></div>
           </div>
           <div class="vote-labels">
             <span>FOR: 6,400,000 AETH (91%)</span>
@@ -282,13 +312,17 @@
 
     <script>
       function vote(proposalId, choice) {
-        alert(`✅ Vote Recorded! You cast ${choice} on Proposal #${proposalId} using 25,000 AETH voting power.`);
+        alert(
+          `✅ Vote Recorded! You cast ${choice} on Proposal #${proposalId} using 25,000 AETH voting power.`
+        );
       }
 
       document.getElementById('btnNewProposal').addEventListener('click', () => {
         const title = prompt('Enter Proposal Title (e.g., SIP-015: Add Optimism Vault):');
         if (title) {
-          alert(`Proposal "${title}" submitted to Timelock queue! Review period starts immediately.`);
+          alert(
+            `Proposal "${title}" submitted to Timelock queue! Review period starts immediately.`
+          );
         }
       });
     </script>

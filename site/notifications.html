@@ -7,21 +7,81 @@
     <link rel="icon" href="assets/favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
     <style>
-      body { background: var(--bg-primary); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 60px; }
-      .notif-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-      .notif-title h1 { margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .notif-title p { margin: 6px 0 28px; color: var(--text-secondary); font-size: 0.95rem; }
-      .notif-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 24px; }
-      .form-input { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
-      .form-input:focus { outline: none; border-color: var(--quantum-cyan); }
-      .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-      .checkbox-row { display: flex; align-items: center; gap: 10px; }
-      .checkbox-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--quantum-cyan); cursor: pointer; }
-      .checkbox-row label { font-size: 0.88rem; cursor: pointer; }
-      .severity-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
+      .notif-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .notif-title h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .notif-title p {
+        margin: 6px 0 28px;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+      .notif-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+      }
+      .form-input {
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: #fff;
+        font-size: 0.9rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: var(--quantum-cyan);
+      }
+      .checkbox-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .checkbox-row input[type='checkbox'] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--quantum-cyan);
+        cursor: pointer;
+      }
+      .checkbox-row label {
+        font-size: 0.88rem;
+        cursor: pointer;
+      }
+      .severity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -42,7 +102,9 @@
           <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch App</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Launch App</a
+          >
         </div>
       </div>
     </nav>
@@ -50,56 +112,92 @@
     <div class="notif-container">
       <div class="notif-title">
         <h1>🔔 Push Alert Subscriptions</h1>
-        <p>Subscribe to real-time Sentinel L3 security event notifications via email or webhook. Filter by severity to reduce noise.</p>
+        <p>
+          Subscribe to real-time Sentinel L3 security event notifications via email or webhook.
+          Filter by severity to reduce noise.
+        </p>
       </div>
 
       <!-- Subscription Form -->
       <div class="notif-card">
-        <h2  class="style-a15efd">📧 Email / Webhook Subscription</h2>
-        <div  class="style-e55678">
+        <h2 class="style-a15efd">📧 Email / Webhook Subscription</h2>
+        <div class="style-e55678">
           <div>
-            <label for="subEmail"  class="style-87210e">Email Address</label>
-            <input type="email" id="subEmail" class="form-input" placeholder="you@example.com" title="Email Address" aria-label="Email Address" />
+            <label for="subEmail" class="style-87210e">Email Address</label>
+            <input
+              type="email"
+              id="subEmail"
+              class="form-input"
+              placeholder="you@example.com"
+              title="Email Address"
+              aria-label="Email Address"
+            />
           </div>
           <div>
-            <label for="subWebhook"  class="style-87210e">Webhook URL (optional)</label>
-            <input type="url" id="subWebhook" class="form-input" placeholder="https://hooks.slack.com/..." title="Webhook URL" aria-label="Webhook URL" />
+            <label for="subWebhook" class="style-87210e">Webhook URL (optional)</label>
+            <input
+              type="url"
+              id="subWebhook"
+              class="form-input"
+              placeholder="https://hooks.slack.com/..."
+              title="Webhook URL"
+              aria-label="Webhook URL"
+            />
           </div>
         </div>
 
-        <p  class="style-20d352">📊 Severity Filters (select all that apply):</p>
+        <p class="style-20d352">📊 Severity Filters (select all that apply):</p>
         <div class="checkbox-grid">
           <div class="checkbox-row">
             <input type="checkbox" id="sevCritical" name="severity" value="critical" checked />
-            <label for="sevCritical"><span class="severity-dot style-4f0b3d" ></span> <span  class="style-2fb59d">CRITICAL</span> — Immediate threats (flash loans, governance exploits)</label>
+            <label for="sevCritical"
+              ><span class="severity-dot style-4f0b3d"></span>
+              <span class="style-2fb59d">CRITICAL</span> — Immediate threats (flash loans,
+              governance exploits)</label
+            >
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sevHigh" name="severity" value="high" checked />
-            <label for="sevHigh"><span class="severity-dot style-e56800" ></span> <span  class="style-a15f5b">HIGH</span> — Significant attacks (oracle manipulation, reentrancy)</label>
+            <label for="sevHigh"
+              ><span class="severity-dot style-e56800"></span>
+              <span class="style-a15f5b">HIGH</span> — Significant attacks (oracle manipulation,
+              reentrancy)</label
+            >
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sevMedium" name="severity" value="medium" />
-            <label for="sevMedium"><span class="severity-dot style-3d40ac" ></span> <span  class="style-e91f82">MEDIUM</span> — Notable events (sandwich attacks)</label>
+            <label for="sevMedium"
+              ><span class="severity-dot style-3d40ac"></span>
+              <span class="style-e91f82">MEDIUM</span> — Notable events (sandwich attacks)</label
+            >
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sevLow" name="severity" value="low" />
-            <label for="sevLow"><span class="severity-dot style-8e5add" ></span> <span  class="style-04ac96">LOW</span> — Informational (approval phishing attempts)</label>
+            <label for="sevLow"
+              ><span class="severity-dot style-8e5add"></span>
+              <span class="style-04ac96">LOW</span> — Informational (approval phishing
+              attempts)</label
+            >
           </div>
         </div>
 
-        <div  class="style-c29476">
-          <button class="btn-primary style-d5e8c5"  onclick="handleSubscribe()">🔔 Subscribe to Alerts</button>
-          <button onclick="handleTestAlert()"  class="style-be1b95">⚡ Send Test Alert</button>
+        <div class="style-c29476">
+          <button class="btn-primary style-d5e8c5" onclick="handleSubscribe()">
+            🔔 Subscribe to Alerts
+          </button>
+          <button onclick="handleTestAlert()" class="style-be1b95">⚡ Send Test Alert</button>
         </div>
-        <div id="notifMsg"  class="style-f0d1b9"></div>
+        <div id="notifMsg" class="style-f0d1b9"></div>
       </div>
 
       <!-- Active Subscriptions Card -->
       <div class="notif-card">
-        <h2  class="style-40f4f5">📋 Active Subscriptions</h2>
-        <div id="subList"  class="style-cd1d67">
-          <div  class="style-1059d3">
-            <span  class="style-9155c9">No active subscriptions. Subscribe above to get started.</span>
+        <h2 class="style-40f4f5">📋 Active Subscriptions</h2>
+        <div id="subList" class="style-cd1d67">
+          <div class="style-1059d3">
+            <span class="style-9155c9"
+              >No active subscriptions. Subscribe above to get started.</span
+            >
           </div>
         </div>
       </div>
@@ -110,16 +208,25 @@
 
       function handleSubscribe() {
         const email = document.getElementById('subEmail').value.trim();
-        if (!email) { alert('Please enter a valid email address.'); return; }
+        if (!email) {
+          alert('Please enter a valid email address.');
+          return;
+        }
 
-        const severities = Array.from(document.querySelectorAll('input[name="severity"]:checked')).map(el => el.value);
-        if (!severities.length) { alert('Please select at least one severity level.'); return; }
+        const severities = Array.from(
+          document.querySelectorAll('input[name="severity"]:checked')
+        ).map(el => el.value);
+        if (!severities.length) {
+          alert('Please select at least one severity level.');
+          return;
+        }
 
         subs.push({ email, severities });
         renderSubs();
 
         const msg = document.getElementById('notifMsg');
-        msg.style.display = 'block'; msg.style.color = 'var(--quantum-green)';
+        msg.style.display = 'block';
+        msg.style.color = 'var(--quantum-green)';
         msg.textContent = `✅ Subscribed! Alerts for [${severities.join(', ').toUpperCase()}] will be sent to ${email}`;
         document.getElementById('subEmail').value = '';
         document.getElementById('subWebhook').value = '';
@@ -127,20 +234,29 @@
 
       function handleTestAlert() {
         const msg = document.getElementById('notifMsg');
-        msg.style.display = 'block'; msg.style.color = 'var(--quantum-cyan)';
-        msg.textContent = '⚡ Test alert dispatched! Check your inbox or webhook endpoint for the CRITICAL severity test payload.';
+        msg.style.display = 'block';
+        msg.style.color = 'var(--quantum-cyan)';
+        msg.textContent =
+          '⚡ Test alert dispatched! Check your inbox or webhook endpoint for the CRITICAL severity test payload.';
       }
 
       function renderSubs() {
         const list = document.getElementById('subList');
-        list.innerHTML = subs.map((s, i) => `
+        list.innerHTML = subs
+          .map(
+            (s, i) => `
           <div  class="style-1059d3">
             <div><span  class="style-b59271">${s.email}</span><br><span  class="style-148cca">Filters: ${s.severities.map(sv => sv.toUpperCase()).join(', ')}</span></div>
             <button onclick="removeSub(${i})"  class="style-92a9c3">Remove</button>
-          </div>`).join('');
+          </div>`
+          )
+          .join('');
       }
 
-      function removeSub(i) { subs.splice(i, 1); renderSubs(); }
+      function removeSub(i) {
+        subs.splice(i, 1);
+        renderSubs();
+      }
     </script>
   </body>
 </html>

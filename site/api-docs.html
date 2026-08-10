@@ -45,7 +45,9 @@
         gap: 24px;
       }
       @media (max-width: 900px) {
-        .api-grid { grid-template-columns: 1fr; }
+        .api-grid {
+          grid-template-columns: 1fr;
+        }
       }
       .api-card {
         background: var(--bg-secondary);
@@ -73,11 +75,19 @@
         text-transform: uppercase;
         margin-right: 10px;
       }
-      .method-tag.get { background: rgba(0, 255, 136, 0.15); color: var(--quantum-green); border: 1px solid var(--quantum-green); }
-      .method-tag.post { background: rgba(0, 255, 255, 0.15); color: var(--quantum-cyan); border: 1px solid var(--quantum-cyan); }
+      .method-tag.get {
+        background: rgba(0, 255, 136, 0.15);
+        color: var(--quantum-green);
+        border: 1px solid var(--quantum-green);
+      }
+      .method-tag.post {
+        background: rgba(0, 255, 255, 0.15);
+        color: var(--quantum-cyan);
+        border: 1px solid var(--quantum-cyan);
+      }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -100,7 +110,9 @@
           <a href="index.html#documentation" class="nav-link">Docs</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Get API Key</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Get API Key</a
+          >
         </div>
       </div>
     </nav>
@@ -109,7 +121,10 @@
       <div class="api-header">
         <div class="api-title">
           <h1>Developer API &amp; SDK Documentation</h1>
-          <p>REST &amp; WebSocket reference for integrating Sentinel L3 security alerts into your dApp.</p>
+          <p>
+            REST &amp; WebSocket reference for integrating Sentinel L3 security alerts into your
+            dApp.
+          </p>
         </div>
       </div>
 
@@ -117,8 +132,10 @@
         <div>
           <!-- Endpoint 1 -->
           <div class="api-card">
-            <h2  class="style-80e6f8"><span class="method-tag get">GET</span> /health</h2>
-            <p  class="style-a1d6f3">Check Sentinel L3 monitoring gateway status and RPC connection health.</p>
+            <h2 class="style-80e6f8"><span class="method-tag get">GET</span> /health</h2>
+            <p class="style-a1d6f3">
+              Check Sentinel L3 monitoring gateway status and RPC connection health.
+            </p>
             <div class="code-block">
               curl -X GET "https://api.aetrs.com/health" -H "Accept: application/json"
             </div>
@@ -126,8 +143,12 @@
 
           <!-- Endpoint 2 -->
           <div class="api-card">
-            <h2  class="style-80e6f8"><span class="method-tag post">POST</span> /api/alerts/trigger</h2>
-            <p  class="style-a1d6f3">Dispatch real-time emergency threat alert payload to registered webhooks.</p>
+            <h2 class="style-80e6f8">
+              <span class="method-tag post">POST</span> /api/alerts/trigger
+            </h2>
+            <p class="style-a1d6f3">
+              Dispatch real-time emergency threat alert payload to registered webhooks.
+            </p>
             <div class="code-block">
               curl -X POST "https://api.aetrs.com/api/alerts/trigger" \<br />
               &nbsp;&nbsp;-H "Content-Type: application/json" \<br />
@@ -137,8 +158,8 @@
 
           <!-- Endpoint 3 -->
           <div class="api-card">
-            <h2  class="style-80e6f8"><span class="method-tag get">GET</span> /metrics</h2>
-            <p  class="style-a1d6f3">Prometheus telemetry metrics exporter endpoint.</p>
+            <h2 class="style-80e6f8"><span class="method-tag get">GET</span> /metrics</h2>
+            <p class="style-a1d6f3">Prometheus telemetry metrics exporter endpoint.</p>
             <div class="code-block">
               # HELP sentinel_intercepts_total Total intercepted attack vectors<br />
               # TYPE sentinel_intercepts_total counter<br />
@@ -150,8 +171,8 @@
         <!-- SDK Code Snippets Sidebar -->
         <div>
           <div class="api-card">
-            <h2  class="style-e40e44">💻 Ethers.js / Viem Integration</h2>
-            <div class="code-block style-c4ad98" >
+            <h2 class="style-e40e44">💻 Ethers.js / Viem Integration</h2>
+            <div class="code-block style-c4ad98">
               import { ethers } from 'ethers';<br /><br />
               const sentinelAbi = [<br />
               &nbsp;&nbsp;"function executeThreatResponse(address target) external"<br />

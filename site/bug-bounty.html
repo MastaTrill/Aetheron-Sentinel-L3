@@ -85,8 +85,8 @@
         font-size: 0.9rem;
       }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -110,7 +110,9 @@
           <a href="index.html#documentation" class="nav-link">Docs</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Wallet</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Wallet</a
+          >
         </div>
       </div>
     </nav>
@@ -126,11 +128,11 @@
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val style-1ede3f" >$500,000 AETH</div>
+          <div class="stat-val style-1ede3f">$500,000 AETH</div>
           <div class="stat-lbl">Bounty Escrow Reserve</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-1ef001" >$50,000</div>
+          <div class="stat-val style-1ef001">$50,000</div>
           <div class="stat-lbl">Max Critical Reward</div>
         </div>
         <div class="stat-card">
@@ -138,28 +140,57 @@
           <div class="stat-lbl">Avg Response Time</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-a9147c" >0 Criticals</div>
+          <div class="stat-val style-a9147c">0 Criticals</div>
           <div class="stat-lbl">Unresolved Vulnerabilities</div>
         </div>
       </div>
 
       <!-- Disclosure Form Card -->
       <div class="bounty-card">
-        <h2  class="style-a15efd">🔐 Submit Vulnerability Disclosure</h2>
+        <h2 class="style-a15efd">🔐 Submit Vulnerability Disclosure</h2>
         <form id="bountyForm" onsubmit="submitDisclosure(event)">
           <div class="form-group">
-            <label for="reportTitle"  class="style-b5e219">Report Title</label>
-            <input type="text" id="reportTitle" name="reportTitle" class="form-input" placeholder="e.g. Flash Loan Reentrancy in SentinelAMM" title="Report Title" aria-label="Report Title" required />
+            <label for="reportTitle" class="style-b5e219">Report Title</label>
+            <input
+              type="text"
+              id="reportTitle"
+              name="reportTitle"
+              class="form-input"
+              placeholder="e.g. Flash Loan Reentrancy in SentinelAMM"
+              title="Report Title"
+              aria-label="Report Title"
+              required
+            />
           </div>
 
           <div class="form-group">
-            <label for="targetContract"  class="style-b5e219">Target Contract Address / Scope</label>
-            <input type="text" id="targetContract" name="targetContract" class="form-input" placeholder="0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e" title="Target Contract Address" aria-label="Target Contract Address" required />
+            <label for="targetContract" class="style-b5e219">Target Contract Address / Scope</label>
+            <input
+              type="text"
+              id="targetContract"
+              name="targetContract"
+              class="form-input"
+              placeholder="0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e"
+              title="Target Contract Address"
+              aria-label="Target Contract Address"
+              required
+            />
           </div>
 
           <div class="form-group">
-            <label for="reportDetails"  class="style-b5e219">Vulnerability Summary &amp; Proof of Concept</label>
-            <textarea id="reportDetails" name="reportDetails" class="form-input" rows="5" placeholder="Provide step-by-step reproduction instructions..." title="Vulnerability Summary" aria-label="Vulnerability Summary" required></textarea>
+            <label for="reportDetails" class="style-b5e219"
+              >Vulnerability Summary &amp; Proof of Concept</label
+            >
+            <textarea
+              id="reportDetails"
+              name="reportDetails"
+              class="form-input"
+              rows="5"
+              placeholder="Provide step-by-step reproduction instructions..."
+              title="Vulnerability Summary"
+              aria-label="Vulnerability Summary"
+              required
+            ></textarea>
           </div>
 
           <button type="submit" class="btn-primary">🚀 Submit Encrypted Disclosure</button>
@@ -170,7 +201,9 @@
     <script>
       function submitDisclosure(e) {
         e.preventDefault();
-        alert('✅ Vulnerability report submitted securely! Our security team will review it within 24 hours.');
+        alert(
+          '✅ Vulnerability report submitted securely! Our security team will review it within 24 hours.'
+        );
         document.getElementById('bountyForm').reset();
       }
     </script>

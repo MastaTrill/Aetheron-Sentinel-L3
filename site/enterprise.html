@@ -69,7 +69,9 @@
         gap: 24px;
       }
       @media (max-width: 900px) {
-        .ent-grid { grid-template-columns: 1fr; }
+        .ent-grid {
+          grid-template-columns: 1fr;
+        }
       }
       .ent-panel {
         background: var(--bg-secondary);
@@ -108,7 +110,9 @@
         padding: 12px 0;
         border-bottom: 1px solid var(--border-color);
       }
-      .vault-row:last-child { border-bottom: none; }
+      .vault-row:last-child {
+        border-bottom: none;
+      }
       .freeze-btn {
         background: rgba(255, 0, 85, 0.15);
         color: #ff0055;
@@ -124,8 +128,8 @@
         color: #fff;
       }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -144,7 +148,9 @@
           <a href="index.html#documentation" class="nav-link">Docs</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Enterprise Safe</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Enterprise Safe</a
+          >
         </div>
       </div>
     </nav>
@@ -153,15 +159,19 @@
       <div class="ent-header">
         <div class="ent-title">
           <h1>Enterprise Client Security Portal</h1>
-          <p>Institutional protocol protection, custom alert routing, and SLA compliance monitoring.</p>
+          <p>
+            Institutional protocol protection, custom alert routing, and SLA compliance monitoring.
+          </p>
         </div>
-        <button class="btn-primary" onclick="exportComplianceReport()">📥 Export Compliance Audit (JSON)</button>
+        <button class="btn-primary" onclick="exportComplianceReport()">
+          📥 Export Compliance Audit (JSON)
+        </button>
       </div>
 
       <!-- Stats Overview -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val style-1ede3f" >99.99%</div>
+          <div class="stat-val style-1ede3f">99.99%</div>
           <div class="stat-lbl">SLA Interceptor Uptime</div>
         </div>
         <div class="stat-card">
@@ -169,11 +179,11 @@
           <div class="stat-lbl">Active Protected Contracts</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-a9147c" >42 ms</div>
+          <div class="stat-val style-a9147c">42 ms</div>
           <div class="stat-lbl">Average Intercept Latency</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-1ef001" >99.4/100</div>
+          <div class="stat-val style-1ef001">99.4/100</div>
           <div class="stat-lbl">Institutional Health Score</div>
         </div>
       </div>
@@ -185,27 +195,33 @@
             <h2 class="panel-title">🛡️ Monitored Protocol Vaults</h2>
             <div class="vault-row">
               <div>
-                <strong  class="style-b59271">Base Aetheron LP Vault</strong>
-                <div  class="style-32a037">0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e</div>
+                <strong class="style-b59271">Base Aetheron LP Vault</strong>
+                <div class="style-32a037">0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e</div>
               </div>
-              <span  class="style-168e19">● Healthy</span>
-              <button class="freeze-btn" onclick="freezeVault('Base Aetheron LP Vault')">⚡ Emergency Pause</button>
+              <span class="style-168e19">● Healthy</span>
+              <button class="freeze-btn" onclick="freezeVault('Base Aetheron LP Vault')">
+                ⚡ Emergency Pause
+              </button>
             </div>
             <div class="vault-row">
               <div>
-                <strong  class="style-b59271">Arbitrum Yield Maximizer</strong>
-                <div  class="style-32a037">0x2102c76c6528ecf7ebbf5102495d7531e823b6b5</div>
+                <strong class="style-b59271">Arbitrum Yield Maximizer</strong>
+                <div class="style-32a037">0x2102c76c6528ecf7ebbf5102495d7531e823b6b5</div>
               </div>
-              <span  class="style-168e19">● Healthy</span>
-              <button class="freeze-btn" onclick="freezeVault('Arbitrum Yield Maximizer')">⚡ Emergency Pause</button>
+              <span class="style-168e19">● Healthy</span>
+              <button class="freeze-btn" onclick="freezeVault('Arbitrum Yield Maximizer')">
+                ⚡ Emergency Pause
+              </button>
             </div>
             <div class="vault-row">
               <div>
-                <strong  class="style-b59271">Cross-Chain Oracle Bridge</strong>
-                <div  class="style-32a037">0xd4f3000000000000000000000000000000000000</div>
+                <strong class="style-b59271">Cross-Chain Oracle Bridge</strong>
+                <div class="style-32a037">0xd4f3000000000000000000000000000000000000</div>
               </div>
-              <span  class="style-818b92">● Armed</span>
-              <button class="freeze-btn" onclick="freezeVault('Cross-Chain Oracle Bridge')">⚡ Emergency Pause</button>
+              <span class="style-818b92">● Armed</span>
+              <button class="freeze-btn" onclick="freezeVault('Cross-Chain Oracle Bridge')">
+                ⚡ Emergency Pause
+              </button>
             </div>
           </div>
 
@@ -213,16 +229,42 @@
           <div class="ent-panel">
             <h2 class="panel-title">🔔 Webhook &amp; PagerDuty Alert Router</h2>
             <div class="webhook-form">
-              <label for="discordWebhook"  class="style-503f41">Discord Webhook URL</label>
-              <input type="text" id="discordWebhook" name="discordWebhook" class="webhook-input" title="Discord Webhook URL" placeholder="https://discord.com/api/webhooks/..." value="https://discord.com/api/webhooks/sentinel-alerts-prod" />
-              
-              <label for="slackWebhook"  class="style-503f41">Slack Webhook URL</label>
-              <input type="text" id="slackWebhook" name="slackWebhook" class="webhook-input" title="Slack Webhook URL" placeholder="https://hooks.slack.com/services/..." value="https://hooks.slack.com/services/sentinel/security-team" />
-              
-              <label for="pagerdutyKey"  class="style-503f41">PagerDuty Integration Key</label>
-              <input type="text" id="pagerdutyKey" name="pagerdutyKey" class="webhook-input" title="PagerDuty Integration Key" placeholder="pd-sec-key-..." value="pd-sec-key-9940218841-prod" />
+              <label for="discordWebhook" class="style-503f41">Discord Webhook URL</label>
+              <input
+                type="text"
+                id="discordWebhook"
+                name="discordWebhook"
+                class="webhook-input"
+                title="Discord Webhook URL"
+                placeholder="https://discord.com/api/webhooks/..."
+                value="https://discord.com/api/webhooks/sentinel-alerts-prod"
+              />
 
-              <button class="btn-primary style-92d173"  onclick="saveWebhooks()">💾 Save Alert Configuration</button>
+              <label for="slackWebhook" class="style-503f41">Slack Webhook URL</label>
+              <input
+                type="text"
+                id="slackWebhook"
+                name="slackWebhook"
+                class="webhook-input"
+                title="Slack Webhook URL"
+                placeholder="https://hooks.slack.com/services/..."
+                value="https://hooks.slack.com/services/sentinel/security-team"
+              />
+
+              <label for="pagerdutyKey" class="style-503f41">PagerDuty Integration Key</label>
+              <input
+                type="text"
+                id="pagerdutyKey"
+                name="pagerdutyKey"
+                class="webhook-input"
+                title="PagerDuty Integration Key"
+                placeholder="pd-sec-key-..."
+                value="pd-sec-key-9940218841-prod"
+              />
+
+              <button class="btn-primary style-92d173" onclick="saveWebhooks()">
+                💾 Save Alert Configuration
+              </button>
             </div>
           </div>
         </div>
@@ -231,15 +273,18 @@
         <div>
           <div class="ent-panel">
             <h2 class="panel-title">📄 SOC2 Compliance</h2>
-            <p  class="style-2138ea">
-              Sentinel L3 produces continuous real-time audit proofs verified by cryptographic SHA-256 signatures.
+            <p class="style-2138ea">
+              Sentinel L3 produces continuous real-time audit proofs verified by cryptographic
+              SHA-256 signatures.
             </p>
-            <div  class="style-aafee0">
-              <div  class="style-1ede3f">✓ SOC2 Type II Certified</div>
-              <div  class="style-a9147c">✓ Real-Time Proof Logging</div>
-              <div  class="style-9155c9">✓ 24/7 SLA Guarantee</div>
+            <div class="style-aafee0">
+              <div class="style-1ede3f">✓ SOC2 Type II Certified</div>
+              <div class="style-a9147c">✓ Real-Time Proof Logging</div>
+              <div class="style-9155c9">✓ 24/7 SLA Guarantee</div>
             </div>
-            <button class="v-btn style-130fc6"  onclick="downloadSlaCertificate()">📜 Download SLA Certificate</button>
+            <button class="v-btn style-130fc6" onclick="downloadSlaCertificate()">
+              📜 Download SLA Certificate
+            </button>
           </div>
         </div>
       </div>
@@ -247,7 +292,11 @@
 
     <script>
       function freezeVault(vaultName) {
-        if (confirm(`🚨 EMERGENCY ACTION: Are you sure you want to trigger Circuit-Breaker pause on ${vaultName}?`)) {
+        if (
+          confirm(
+            `🚨 EMERGENCY ACTION: Are you sure you want to trigger Circuit-Breaker pause on ${vaultName}?`
+          )
+        ) {
           alert(`✅ Emergency Pause signal broadcasted via Multi-Sig Timelock to ${vaultName}.`);
         }
       }
@@ -263,7 +312,7 @@
           slaUptime: '99.99%',
           monitoredVaults: 42,
           securityScore: 99.4,
-          status: 'COMPLIANT_AND_VERIFIED'
+          status: 'COMPLIANT_AND_VERIFIED',
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);

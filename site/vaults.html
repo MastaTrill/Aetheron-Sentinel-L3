@@ -7,21 +7,84 @@
     <link rel="icon" href="assets/favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
     <style>
-      body { background: var(--bg-primary); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 60px; }
-      .vault-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-      .vault-title h1 { margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .vault-title p { margin: 6px 0 28px; color: var(--text-secondary); font-size: 0.95rem; }
-      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 36px; }
-      .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; }
-      .stat-val { font-size: 1.8rem; font-family: monospace; font-weight: bold; color: var(--quantum-cyan); }
-      .stat-lbl { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-top: 4px; }
-      .vault-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 24px; }
-      .strategy-bar { height: 12px; border-radius: 8px; overflow: hidden; display: flex; margin: 12px 0; }
-      .strategy-seg { height: 100%; }
-      .form-input { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
+      .vault-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .vault-title h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .vault-title p {
+        margin: 6px 0 28px;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 36px;
+      }
+      .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 20px;
+      }
+      .stat-val {
+        font-size: 1.8rem;
+        font-family: monospace;
+        font-weight: bold;
+        color: var(--quantum-cyan);
+      }
+      .stat-lbl {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .vault-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+      }
+      .strategy-bar {
+        height: 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        margin: 12px 0;
+      }
+      .strategy-seg {
+        height: 100%;
+      }
+      .form-input {
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: #fff;
+        font-size: 0.9rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -43,7 +106,9 @@
           <a href="bug-bounty.html" class="nav-link">Bug Bounty</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Wallet</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Wallet</a
+          >
         </div>
       </div>
     </nav>
@@ -51,13 +116,16 @@
     <div class="vault-container">
       <div class="vault-title">
         <h1>🌊 Cross-Chain Yield Maximizer Vaults</h1>
-        <p>Automated DeFi yield strategy optimization across Base Mainnet and Arbitrum. Maximize your AETH staking returns.</p>
+        <p>
+          Automated DeFi yield strategy optimization across Base Mainnet and Arbitrum. Maximize your
+          AETH staking returns.
+        </p>
       </div>
 
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val style-1ede3f" >24.8% APY</div>
+          <div class="stat-val style-1ede3f">24.8% APY</div>
           <div class="stat-lbl">Current Blended APY</div>
         </div>
         <div class="stat-card">
@@ -65,55 +133,77 @@
           <div class="stat-lbl">Total Value Locked (TVL)</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-1ef001" >3 Active</div>
+          <div class="stat-val style-1ef001">3 Active</div>
           <div class="stat-lbl">Strategy Allocations</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-a9147c" >$0.28</div>
-          <div class="stat-lbl">SENTINEL Token Price</div>
+          <div class="stat-val style-a9147c">$0.28</div>
+          <div class="stat-lbl">AETH Token Price</div>
         </div>
       </div>
 
       <!-- Strategy Allocation Card -->
       <div class="vault-card">
-        <h2  class="style-a15efd">📊 Strategy Allocation Breakdown</h2>
+        <h2 class="style-a15efd">📊 Strategy Allocation Breakdown</h2>
         <div class="strategy-bar">
-          <div class="strategy-seg style-3929b4" ></div>
-          <div class="strategy-seg style-4cff7c" ></div>
-          <div class="strategy-seg style-b136df" ></div>
+          <div class="strategy-seg style-3929b4"></div>
+          <div class="strategy-seg style-4cff7c"></div>
+          <div class="strategy-seg style-b136df"></div>
         </div>
-        <div  class="style-677c63">
-          <div  class="style-2447f6">
-            <span  class="style-4ca747"><span  class="style-5aaf0b"></span>Aerodrome Finance (Base)</span>
-            <strong  class="style-5c2e2a">40% — 32.1% APY</strong>
+        <div class="style-677c63">
+          <div class="style-2447f6">
+            <span class="style-4ca747"
+              ><span class="style-5aaf0b"></span>Aerodrome Finance (Base)</span
+            >
+            <strong class="style-5c2e2a">40% — 32.1% APY</strong>
           </div>
-          <div  class="style-2447f6">
-            <span  class="style-4ca747"><span  class="style-02d556"></span>Uniswap v3 (Arbitrum)</span>
-            <strong  class="style-6b096e">35% — 19.4% APY</strong>
+          <div class="style-2447f6">
+            <span class="style-4ca747"><span class="style-02d556"></span>Uniswap v3 (Base)</span>
+            <strong class="style-6b096e">35% — 19.4% APY</strong>
           </div>
-          <div  class="style-2447f6">
-            <span  class="style-4ca747"><span  class="style-5aefc1"></span>Curve Finance (Base)</span>
-            <strong  class="style-b384cf">25% — 14.2% APY</strong>
+          <div class="style-2447f6">
+            <span class="style-4ca747"><span class="style-5aefc1"></span>Curve Finance (Base)</span>
+            <strong class="style-b384cf">25% — 14.2% APY</strong>
           </div>
         </div>
       </div>
 
       <!-- Deposit / Withdraw Card -->
       <div class="vault-card">
-        <h2  class="style-a15efd">⚡ Deposit / Withdraw SENTINEL</h2>
-        <div  class="style-0e2802">
+        <h2 class="style-a15efd">⚡ Deposit / Withdraw AETH</h2>
+        <div class="style-0e2802">
           <div>
-            <p  class="style-20d352">Deposit Amount (SENTINEL)</p>
-            <input type="number" id="depositAmount" class="form-input" placeholder="e.g. 10000" title="Deposit Amount" aria-label="Deposit Amount" min="0" />
-            <button class="btn-primary style-5a71bd"  onclick="handleDeposit()">🚀 Deposit &amp; Earn</button>
+            <p class="style-20d352">Deposit Amount (AETH)</p>
+            <input
+              type="number"
+              id="depositAmount"
+              class="form-input"
+              placeholder="e.g. 10000"
+              title="Deposit Amount"
+              aria-label="Deposit Amount"
+              min="0"
+            />
+            <button class="btn-primary style-5a71bd" onclick="handleDeposit()">
+              🚀 Deposit &amp; Earn
+            </button>
           </div>
           <div>
-            <p  class="style-20d352">Withdraw Shares</p>
-            <input type="number" id="withdrawShares" class="form-input" placeholder="e.g. 5000" title="Withdraw Shares" aria-label="Withdraw Shares" min="0" />
-            <button class="btn-secondary style-c71922"  onclick="handleWithdraw()">💸 Withdraw</button>
+            <p class="style-20d352">Withdraw Shares</p>
+            <input
+              type="number"
+              id="withdrawShares"
+              class="form-input"
+              placeholder="e.g. 5000"
+              title="Withdraw Shares"
+              aria-label="Withdraw Shares"
+              min="0"
+            />
+            <button class="btn-secondary style-c71922" onclick="handleWithdraw()">
+              💸 Withdraw
+            </button>
           </div>
         </div>
-        <div id="vaultMsg"  class="style-741124"></div>
+        <div id="vaultMsg" class="style-741124"></div>
       </div>
     </div>
 
@@ -124,7 +214,7 @@
         const msg = document.getElementById('vaultMsg');
         msg.style.display = 'block';
         msg.style.color = 'var(--quantum-green)';
-        msg.textContent = `✅ Deposit of ${parseFloat(amount).toLocaleString()} SENTINEL submitted! Shares will be minted after on-chain confirmation.`;
+        msg.textContent = `✅ Deposit of ${parseFloat(amount).toLocaleString()} AETH submitted! Shares will be minted after on-chain confirmation.`;
         document.getElementById('depositAmount').value = '';
       }
       function handleWithdraw() {

@@ -56,13 +56,24 @@
       .chain-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0; height: 3px;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
         background: var(--quantum-cyan);
       }
-      .chain-card.base::before { background: #0052ff; }
-      .chain-card.arbitrum::before { background: #28a0f0; }
-      .chain-card.polygon::before { background: #8247e5; }
-      .chain-card.optimism::before { background: #ff0420; }
+      .chain-card.base::before {
+        background: #0052ff;
+      }
+      .chain-card.arbitrum::before {
+        background: #28a0f0;
+      }
+      .chain-card.polygon::before {
+        background: #8247e5;
+      }
+      .chain-card.optimism::before {
+        background: #ff0420;
+      }
 
       .chain-header {
         display: flex;
@@ -80,7 +91,7 @@
         padding: 3px 8px;
         border-radius: 10px;
         font-weight: bold;
-        background: rgba(0,255,136,0.15);
+        background: rgba(0, 255, 136, 0.15);
         color: var(--quantum-green);
         border: 1px solid var(--quantum-green);
       }
@@ -117,12 +128,19 @@
         display: flex;
         gap: 12px;
       }
-      .log-time { color: var(--text-secondary); }
-      .log-chain { color: var(--quantum-cyan); font-weight: bold; }
-      .log-msg { color: #fff; }
+      .log-time {
+        color: var(--text-secondary);
+      }
+      .log-chain {
+        color: var(--quantum-cyan);
+        font-weight: bold;
+      }
+      .log-msg {
+        color: #fff;
+      }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -143,7 +161,9 @@
           <a href="index.html#documentation" class="nav-link">Docs</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Oracle</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Oracle</a
+          >
         </div>
       </div>
     </nav>
@@ -164,9 +184,15 @@
             <span class="chain-name">🔵 Base Mainnet</span>
             <span class="chain-status">HEALTHY</span>
           </div>
-          <div class="metric-row"><span>Block Height</span><span class="metric-val">#44,548,192</span></div>
-          <div class="metric-row"><span>Health Score</span><span class="metric-val style-1ede3f" >99.8%</span></div>
-          <div class="metric-row"><span>Response Latency</span><span class="metric-val">38 ms</span></div>
+          <div class="metric-row">
+            <span>Block Height</span><span class="metric-val">#44,548,192</span>
+          </div>
+          <div class="metric-row">
+            <span>Health Score</span><span class="metric-val style-1ede3f">99.8%</span>
+          </div>
+          <div class="metric-row">
+            <span>Response Latency</span><span class="metric-val">38 ms</span>
+          </div>
         </div>
 
         <div class="chain-card arbitrum">
@@ -174,9 +200,15 @@
             <span class="chain-name">🔷 Arbitrum One</span>
             <span class="chain-status">HEALTHY</span>
           </div>
-          <div class="metric-row"><span>Block Height</span><span class="metric-val">#210,942,011</span></div>
-          <div class="metric-row"><span>Health Score</span><span class="metric-val style-1ede3f" >99.5%</span></div>
-          <div class="metric-row"><span>Response Latency</span><span class="metric-val">45 ms</span></div>
+          <div class="metric-row">
+            <span>Block Height</span><span class="metric-val">#210,942,011</span>
+          </div>
+          <div class="metric-row">
+            <span>Health Score</span><span class="metric-val style-1ede3f">99.5%</span>
+          </div>
+          <div class="metric-row">
+            <span>Response Latency</span><span class="metric-val">45 ms</span>
+          </div>
         </div>
 
         <div class="chain-card polygon">
@@ -184,9 +216,15 @@
             <span class="chain-name">💜 Polygon POS</span>
             <span class="chain-status">HEALTHY</span>
           </div>
-          <div class="metric-row"><span>Block Height</span><span class="metric-val">#58,419,002</span></div>
-          <div class="metric-row"><span>Health Score</span><span class="metric-val style-1ede3f" >99.2%</span></div>
-          <div class="metric-row"><span>Response Latency</span><span class="metric-val">52 ms</span></div>
+          <div class="metric-row">
+            <span>Block Height</span><span class="metric-val">#58,419,002</span>
+          </div>
+          <div class="metric-row">
+            <span>Health Score</span><span class="metric-val style-1ede3f">99.2%</span>
+          </div>
+          <div class="metric-row">
+            <span>Response Latency</span><span class="metric-val">52 ms</span>
+          </div>
         </div>
 
         <div class="chain-card optimism">
@@ -194,15 +232,21 @@
             <span class="chain-name">🔴 Optimism Mainnet</span>
             <span class="chain-status">HEALTHY</span>
           </div>
-          <div class="metric-row"><span>Block Height</span><span class="metric-val">#122,810,443</span></div>
-          <div class="metric-row"><span>Health Score</span><span class="metric-val style-1ede3f" >99.6%</span></div>
-          <div class="metric-row"><span>Response Latency</span><span class="metric-val">41 ms</span></div>
+          <div class="metric-row">
+            <span>Block Height</span><span class="metric-val">#122,810,443</span>
+          </div>
+          <div class="metric-row">
+            <span>Health Score</span><span class="metric-val style-1ede3f">99.6%</span>
+          </div>
+          <div class="metric-row">
+            <span>Response Latency</span><span class="metric-val">41 ms</span>
+          </div>
         </div>
       </div>
 
       <!-- Live Stream Feed -->
       <div class="stream-panel">
-        <h2  class="style-a15efd">📡 Real-Time Telemetry Event Stream</h2>
+        <h2 class="style-a15efd">📡 Real-Time Telemetry Event Stream</h2>
         <div class="log-feed" id="logFeed">
           <div class="log-entry">
             <span class="log-time">[04:22:01]</span>
@@ -212,7 +256,9 @@
           <div class="log-entry">
             <span class="log-time">[04:21:58]</span>
             <span class="log-chain">ARBITRUM:</span>
-            <span class="log-msg">Liquidity vault TWAP baseline verified healthy (+0.01% divergence).</span>
+            <span class="log-msg"
+              >Liquidity vault TWAP baseline verified healthy (+0.01% divergence).</span
+            >
           </div>
           <div class="log-entry">
             <span class="log-time">[04:21:55]</span>

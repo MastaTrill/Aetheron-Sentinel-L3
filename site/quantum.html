@@ -82,8 +82,8 @@
         margin-top: 12px;
       }
     </style>
-      <link rel="stylesheet" href="/css/extracted-styles.css">
-</head>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -104,7 +104,9 @@
           <a href="index.html#documentation" class="nav-link">Docs</a>
         </div>
         <div class="nav-actions">
-          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Connect Wallet</a>
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Wallet</a
+          >
         </div>
       </div>
     </nav>
@@ -115,13 +117,15 @@
           <h1>Post-Quantum Cryptography Portal</h1>
           <p>Lattice-based encryption and NIST-standardized quantum-resistant key management.</p>
         </div>
-        <button class="btn-primary" onclick="generateKyberKeyPair()">🔑 Generate Kyber Keypair</button>
+        <button class="btn-primary" onclick="generateKyberKeyPair()">
+          🔑 Generate Kyber Keypair
+        </button>
       </div>
 
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val style-1ede3f" >100% NIST</div>
+          <div class="stat-val style-1ede3f">100% NIST</div>
           <div class="stat-lbl">Post-Quantum Compliance</div>
         </div>
         <div class="stat-card">
@@ -129,19 +133,21 @@
           <div class="stat-lbl">Primary Encryption Standard</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-a9147c" >Dilithium-5</div>
+          <div class="stat-val style-a9147c">Dilithium-5</div>
           <div class="stat-lbl">Signature Algorithm</div>
         </div>
         <div class="stat-card">
-          <div class="stat-val style-1ef001" >Active</div>
+          <div class="stat-val style-1ef001">Active</div>
           <div class="stat-lbl">Quantum Guard State</div>
         </div>
       </div>
 
       <!-- Keypair Generator Card -->
       <div class="q-card">
-        <h2  class="style-6f05e2">🔮 Post-Quantum Lattice Public Key</h2>
-        <p  class="style-76c786">Active CRYSTALS-Kyber-1024 public key registered to the Sentinel Quantum Oracle.</p>
+        <h2 class="style-6f05e2">🔮 Post-Quantum Lattice Public Key</h2>
+        <p class="style-76c786">
+          Active CRYSTALS-Kyber-1024 public key registered to the Sentinel Quantum Oracle.
+        </p>
         <div class="key-output" id="publicKeyBox">
           0xkyber1024_7f8a9b2c4e6d8a0f1e3c5b7a9f2e4d6c8b0a1f3e5c7b9a2f4e6d8c0b2a4f6e8d1c3b5a7f9e2d4c6b8a0f1e3c5b7a9f2e4
         </div>
@@ -149,18 +155,25 @@
 
       <!-- Signature Verification Card -->
       <div class="q-card">
-        <h2  class="style-80e6f8">✍️ Verify Dilithium-5 Signature</h2>
-        <input type="text" placeholder="Paste transaction payload hash..."  id="payloadInput" / class="style-6ef0c7">
+        <h2 class="style-80e6f8">✍️ Verify Dilithium-5 Signature</h2>
+        <input
+          type="text"
+          placeholder="Paste transaction payload hash..."
+          id="payloadInput"
+          class="style-6ef0c7"
+        />
         <button class="btn-primary" onclick="verifySignature()">Check Quantum Proof</button>
-        <div id="verifyResult"  class="style-ee6537"></div>
+        <div id="verifyResult" class="style-ee6537"></div>
       </div>
     </div>
 
     <script>
       function generateKyberKeyPair() {
         const rand = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-          .map(b => b.toString(16).padStart(2, '0')).join('');
-        document.getElementById('publicKeyBox').textContent = `0xkyber1024_${rand}9f2e4d6c8b0a1f3e5c7b9a2f4e6d8c0b2a4f6e8d`;
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+        document.getElementById('publicKeyBox').textContent =
+          `0xkyber1024_${rand}9f2e4d6c8b0a1f3e5c7b9a2f4e6d8c0b2a4f6e8d`;
         alert('✨ New CRYSTALS-Kyber-1024 post-quantum keypair generated!');
       }
 
@@ -168,9 +181,11 @@
         const input = document.getElementById('payloadInput').value;
         const res = document.getElementById('verifyResult');
         if (!input) {
-          res.innerHTML = '<span  class="style-737bd7">❌ Please enter a payload hash to verify.</span>';
+          res.innerHTML =
+            '<span  class="style-737bd7">❌ Please enter a payload hash to verify.</span>';
         } else {
-          res.innerHTML = '<span  class="style-1ede3f">✓ VERIFIED: Dilithium-5 post-quantum signature valid. Zero lattice attack vectors detected.</span>';
+          res.innerHTML =
+            '<span  class="style-1ede3f">✓ VERIFIED: Dilithium-5 post-quantum signature valid. Zero lattice attack vectors detected.</span>';
         }
       }
     </script>
