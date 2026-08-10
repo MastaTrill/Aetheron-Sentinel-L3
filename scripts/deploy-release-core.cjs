@@ -185,6 +185,12 @@ async function main() {
     await (await contract.transferOwnership(owner)).wait();
   }
 
+  // Allow time for L2 RPC read nodes to sync state after the final write
+  if (networkName !== 'localhost' && networkName !== 'hardhat') {
+    console.log('Waiting 5 seconds for RPC state propagation...');
+    await new Promise(r => setTimeout(r, 5000));
+  }
+
   for (const [name, contract] of [
     ['SentinelInterceptor', interceptor],
     ['CircuitBreaker', circuitBreaker],
