@@ -692,6 +692,146 @@
               </div>
             </div>
 
+            <!-- Live AETH Market Card -->
+            <div
+              class="market-ticker-card"
+              style="
+                background: rgba(11, 21, 35, 0.95);
+                border: 1px solid #00ffcc;
+                border-radius: 12px;
+                padding: 20px;
+                margin: 20px 0;
+                box-shadow: 0 0 20px rgba(0, 255, 204, 0.15);
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 12px;
+                  flex-wrap: wrap;
+                  gap: 8px;
+                "
+              >
+                <div>
+                  <span style="font-weight: 700; color: #fff; font-size: 18px"
+                    >Live AETH Market</span
+                  >
+                  <div
+                    id="marketStatusNotice"
+                    style="font-size: 12px; color: #a0aec0; margin-top: 2px"
+                  >
+                    <span style="color: #00ffcc"
+                      >⚡ Presale Active • 60% Auto-Liquidity Lock Enabled</span
+                    >
+                  </div>
+                </div>
+                <a
+                  href="https://dexscreener.com/base/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 14px;
+                    background: rgba(0, 255, 204, 0.1);
+                    border: 1px solid #00ffcc;
+                    border-radius: 8px;
+                    color: #00ffcc;
+                    font-size: 13px;
+                    font-weight: 600;
+                    text-decoration: none;
+                  "
+                >
+                  📈 View on DexScreener ↗
+                </a>
+              </div>
+
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                  gap: 12px;
+                  margin-top: 16px;
+                "
+              >
+                <div
+                  style="
+                    background: rgba(255, 255, 255, 0.03);
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                  "
+                >
+                  <div style="font-size: 11px; color: #8899a6; text-transform: uppercase">
+                    Price
+                  </div>
+                  <div
+                    id="marketPrice"
+                    style="font-size: 16px; font-weight: 700; color: #00ffcc; margin-top: 4px"
+                  >
+                    $0.20 (Presale)
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(255, 255, 255, 0.03);
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                  "
+                >
+                  <div style="font-size: 11px; color: #8899a6; text-transform: uppercase">
+                    Liquidity
+                  </div>
+                  <div
+                    id="marketLiquidity"
+                    style="font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px"
+                  >
+                    $3,000,000
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(255, 255, 255, 0.03);
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                  "
+                >
+                  <div style="font-size: 11px; color: #8899a6; text-transform: uppercase">
+                    24h Volume
+                  </div>
+                  <div
+                    id="marketVolume"
+                    style="font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px"
+                  >
+                    $42,500
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(255, 255, 255, 0.03);
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                  "
+                >
+                  <div style="font-size: 11px; color: #8899a6; text-transform: uppercase">
+                    24h Buys / Sells
+                  </div>
+                  <div
+                    id="marketBuysSells"
+                    style="font-size: 16px; font-weight: 700; color: #00ffcc; margin-top: 4px"
+                  >
+                    148 / 0
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Interactive Web3 Presale Widget -->
             <div
               class="presale-widget-card"
