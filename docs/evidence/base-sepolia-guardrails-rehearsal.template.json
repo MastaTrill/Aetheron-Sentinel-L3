@@ -1,0 +1,42 @@
+{
+  "network": "base-sepolia",
+  "chainId": 84532,
+  "rehearsalDate": "YYYY-MM-DD",
+  "operator": "",
+  "status": "template",
+  "linkedIssues": [169, 235, 210, 215, 216, 263],
+  "contracts": {
+    "guardrails": {
+      "address": "",
+      "deployTx": "",
+      "blockNumber": null,
+      "bytecodeHash": "",
+      "verifiedUrl": ""
+    },
+    "sentinelToken": {
+      "address": "",
+      "deployTx": "",
+      "blockNumber": null,
+      "bytecodeHash": "",
+      "verifiedUrl": ""
+    }
+  },
+  "beneficiary": {
+    "intended": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "actualAtDeploy": "",
+    "validatedFromInception": false
+  },
+  "checks": {
+    "guardrailsDeployed": false,
+    "redeploymentRehearsalComplete": false,
+    "beneficiaryValidated": false,
+    "evidencePackaged": false,
+    "closureJsonUpdated": false
+  },
+  "manifestDigest": "",
+  "notes": "",
+  "nonClaims": {
+    "legacyMainnetTokenRemainsNonCanonical": true,
+    "noMainnetBuySellAuthorization": true
+  }
+}
