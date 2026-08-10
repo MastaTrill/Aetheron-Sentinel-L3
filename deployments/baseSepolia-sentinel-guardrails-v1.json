@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "releaseProfile": "sentinel-guardrails-v1",
+  "status": "verified-paused",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "releaseCommit": "b0c83b4f5f82e0a0e3e2f094f6ff950b8e454eb3",
+  "releaseTag": null,
+  "auditReportSha256": null,
+  "baseSepoliaRehearsalRunId": null,
+  "baseSepoliaRehearsalManifestSha256": null,
+  "deployer": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+  "owner": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+  "ownerGovernance": null,
+  "startedAt": "2026-08-10T17:12:07.064Z",
+  "completedAt": "2026-08-10T17:12:31.173Z",
+  "safety": {
+    "paused": true,
+    "autonomousMode": false,
+    "custodyEnabled": false,
+    "pendingActions": []
+  },
+  "configuration": {
+    "monitors": [
+      "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa"
+    ],
+    "anomalyThreshold": 80,
+    "tvlThresholdEth": "1000"
+  },
+  "contracts": {
+    "SentinelInterceptor": {
+      "address": "0x5459D1398B0d29a758432183B6Fb306B46aD64f3",
+      "constructorArguments": [
+        80,
+        "1000000000000000000000",
+        false,
+        "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2"
+      ],
+      "deploymentTransaction": "0x80cf50f999dd981345782f0677c205c97662103ee41b3c69bc7b63cd447f6fe7",
+      "deploymentBlock": 45306820,
+      "runtimeCodeHash": "0xbdeee8bd9984d16ba57040828cc9d6815de33524a2d0c21e14a3c8c6d098f9e2"
+    },
+    "CircuitBreaker": {
+      "address": "0x7233e0805d71EEd3632a9E7579C5Fdfd7Fd6b88B",
+      "constructorArguments": [
+        "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2"
+      ],
+      "deploymentTransaction": "0x9a16bdaba70a79aff8a4709f88d81deaf935d4c52c6545e65fd8e8aa35ae8e17",
+      "deploymentBlock": 45306822,
+      "runtimeCodeHash": "0x80d00f7e7dcd98fcb611028a242d3a4fac7b24302d9bae04fdb945f1abad708c"
+    },
+    "RateLimiter": {
+      "address": "0xB84Cc1C36a8a037F56B85d4634fd293e89D59257",
+      "constructorArguments": [
+        "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2"
+      ],
+      "deploymentTransaction": "0xd83e3aecc80ec8fac0a8b096447fe2151e0dc064e508f22d96eb7e68a6d7e75e",
+      "deploymentBlock": 45306823,
+      "runtimeCodeHash": "0x7c9096ae213751b9861629260b3ee0ad2f3258ff062b1fb6ab6cad3f75757165"
+    }
+  },
+  "verifiedAt": "2026-08-10T17:12:34.608Z"
+}
