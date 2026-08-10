@@ -76,6 +76,8 @@
     "build:mobile": "cross-env MOBILE_BUILD=true next build && npx cap sync",
     "swap:v2": "node scripts/swap-agent-v2.js",
     "swap:v2:dry-run": "node scripts/swap-agent-v2.js --dry-run",
+    "pool:simulate": "node scripts/create-dex-liquidity-pool.cjs --dry-run",
+    "pool:create": "node scripts/create-dex-liquidity-pool.cjs",
     "tee:stub:test": "node -e \"const s=require('./scripts/tee-attestation-stub.cjs'); const a=s.createAttestation({test:true}); console.log(JSON.stringify(s.finalizeAttestation(a,{status:'confirmed',txHash:'0xtest'}),null,2))\""
   },
   "dependencies": {
