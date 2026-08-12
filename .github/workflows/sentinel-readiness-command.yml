@@ -14,7 +14,13 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: sentinel-readiness-command
+  group: >-
+    ${{ github.event_name == 'issue_comment' &&
+        github.event.issue.number == 169 &&
+        github.event.comment.body == '/sentinel-readiness' &&
+        github.event.comment.user.login == github.repository_owner &&
+        'sentinel-readiness-command' ||
+        format('sentinel-readiness-ignored-{0}', github.run_id) }}
   cancel-in-progress: false
 
 jobs:
