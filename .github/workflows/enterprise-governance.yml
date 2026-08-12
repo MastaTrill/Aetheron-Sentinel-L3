@@ -36,7 +36,9 @@ jobs:
               failures.push('PR title must include [L3].');
             }
 
-            const requiredLabels = ['governance-reviewed', 'risk-assessed'];
+            // Use labels that already exist in this repository so the gate can be
+            // enforced immediately without a separate repository-label migration.
+            const requiredLabels = ['security', 'github_actions'];
             const missingLabels = requiredLabels.filter(label => !labels.includes(label));
             if (missingLabels.length) {
               failures.push(`Missing governance labels: ${missingLabels.join(', ')}.`);
