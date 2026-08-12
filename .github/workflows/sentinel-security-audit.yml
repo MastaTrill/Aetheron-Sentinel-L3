@@ -34,7 +34,7 @@ jobs:
       - name: Run Hardhat & Unit Test Suite
         run: |
           set -o pipefail
-          npm test 2>&1 | tee hardhat-test.log
+          node scripts/run-hardhat-tests.js 2>&1 | tee hardhat-test.log
 
       - name: Upload Hardhat test diagnostics
         if: always()
