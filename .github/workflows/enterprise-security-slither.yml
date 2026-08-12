@@ -1,0 +1,87 @@
+name: Concord Enterprise Security - Slither
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: slither-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  slither:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install project dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Slither
+        run: python -m pip install --upgrade pip slither-analyzer
+
+      - name: Compile contracts
+        run: |
+          npm run compile
+          forge build
+
+      - name: Run Slither and emit SARIF
+        id: slither
+        continue-on-error: true
+        run: slither . --sarif slither.sarif --fail-high
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: always() && hashFiles('slither.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: slither.sarif
+          category: slither
+
+      - name: Upload raw SARIF artifact
+        if: always() && hashFiles('slither.sarif') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: slither-sarif
+          path: slither.sarif
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce high-severity Slither gate
+        if: steps.slither.outcome == 'failure'
+        run: |
+          echo 'Slither reported a high-severity finding or analysis failure.'
+          exit 1
