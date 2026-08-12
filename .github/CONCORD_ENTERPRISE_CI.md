@@ -7,7 +7,7 @@ This repository uses the repository root as the canonical project directory. The
 - `enterprise-ci-matrix.yml` — Node 20/24 × Foundry v1.7.1/nightly matrix, release policy gates, contract compile/build/test, gas snapshot enforcement, lint, and web build.
 - `enterprise-security-slither.yml` — weekly/push/PR Slither analysis with SARIF upload to GitHub Code Scanning and a high-severity failure gate.
 - `enterprise-release.yml` — semantic-version tag validation, release governance tests, deterministic contract artifact packaging, SHA-256 checksum generation, Actions artifact retention, and GitHub Release publication.
-- `enterprise-governance.yml` — `[L3]` PR title policy, `governance-reviewed` + `risk-assessed` labels, ready-for-review requirement, and two distinct non-author approvals.
+- `enterprise-governance.yml` — `[L3]` PR title policy, existing `security` + `github_actions` governance labels, ready-for-review requirement, and two distinct non-author approvals.
 
 ## Compatibility choices
 
@@ -29,7 +29,7 @@ Also keep direct mainnet deployment restricted to the protected deployment workf
 Before merge, a PR must:
 
 - include `[L3]` in the title;
-- have `governance-reviewed` and `risk-assessed` labels;
+- have the existing `security` and `github_actions` labels;
 - be ready for review;
 - have at least two distinct approvals from reviewers other than the PR author.
 
