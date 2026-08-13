@@ -52,9 +52,16 @@ jobs:
             });
 
             // GitHub can retain multiple review submissions per reviewer. Use only
-            // each reviewer's latest submitted state so repeated approvals do not
-            // inflate the approval count.
+            //
+            // Match GitHub's effective-review model: only APPROVED, CHANGES_REQUESTED
+            // and DISMISSED reviews change a reviewer's effective state. COMMENTED and
+            // PENDING reviews are ignored, otherwise a reviewer who approves and then
+            // leaves a comment-only review would be incorrectly dropped as an approver.
+            const effectiveStates = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
             const latestByReviewer = new Map();
+            for (const review of reviews) {
+              if (!review.user?.login || review.user.type === 'Bot') continue;
+              if (!effectiveStates.has(review.state)) continue;
             for (const review of reviews) {
               if (!review.user?.login || review.user.type === 'Bot') continue;
               const previous = latestByReviewer.get(review.user.login);
