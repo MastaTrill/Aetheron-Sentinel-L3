@@ -1,0 +1,92 @@
+name: Concord Enterprise Governance
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened, ready_for_review, labeled, unlabeled]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  governance:
+    if: github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Validate PR governance policy
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed('Pull request payload is required.');
+              return;
+            }
+
+            const failures = [];
+            const title = pr.title || '';
+            const labels = (pr.labels || []).map(label => label.name);
+
+            if (!/\[L3\]/i.test(title)) {
+              failures.push('PR title must include [L3].');
+            }
+
+            // Use labels that already exist in this repository so the gate can be
+            // enforced immediately without a separate repository-label migration.
+            const requiredLabels = ['security', 'github_actions'];
+            const missingLabels = requiredLabels.filter(label => !labels.includes(label));
+            if (missingLabels.length) {
+              failures.push(`Missing governance labels: ${missingLabels.join(', ')}.`);
+            }
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+
+            // GitHub can retain multiple review submissions per reviewer. Use only
+            //
+            // Match GitHub's effective-review model: only APPROVED, CHANGES_REQUESTED
+            // and DISMISSED reviews change a reviewer's effective state. COMMENTED and
+            // PENDING reviews are ignored, otherwise a reviewer who approves and then
+            // leaves a comment-only review would be incorrectly dropped as an approver.
+            const effectiveStates = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
+            const latestByReviewer = new Map();
+            for (const review of reviews) {
+              if (!review.user?.login || review.user.type === 'Bot') continue;
+              if (!effectiveStates.has(review.state)) continue;
+            for (const review of reviews) {
+              if (!review.user?.login || review.user.type === 'Bot') continue;
+              const previous = latestByReviewer.get(review.user.login);
+              const previousTime = previous?.submitted_at ? Date.parse(previous.submitted_at) : 0;
+              const currentTime = review.submitted_at ? Date.parse(review.submitted_at) : 0;
+              if (!previous || currentTime >= previousTime) {
+                latestByReviewer.set(review.user.login, review);
+              }
+            }
+
+            const approvers = [...latestByReviewer.values()]
+              .filter(review => review.state === 'APPROVED')
+              .filter(review => review.user.login !== pr.user.login)
+              .map(review => review.user.login);
+
+            if (approvers.length < 2) {
+              failures.push(`At least 2 distinct non-author approvals are required; found ${approvers.length}.`);
+            }
+
+            if (pr.draft) {
+              failures.push('PR must be marked ready for review.');
+            }
+
+            if (failures.length) {
+              core.setFailed(failures.join('\n'));
+            } else {
+              core.info(`Governance gate passed with approvals from: ${approvers.join(', ')}`);
+            }
