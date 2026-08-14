@@ -51,8 +51,7 @@ jobs:
               per_page: 100,
             });
 
-            // GitHub can retain multiple review submissions per reviewer. Use only
-            //
+            // GitHub can retain multiple review submissions per reviewer.
             // Match GitHub's effective-review model: only APPROVED, CHANGES_REQUESTED
             // and DISMISSED reviews change a reviewer's effective state. COMMENTED and
             // PENDING reviews are ignored, otherwise a reviewer who approves and then
@@ -62,8 +61,6 @@ jobs:
             for (const review of reviews) {
               if (!review.user?.login || review.user.type === 'Bot') continue;
               if (!effectiveStates.has(review.state)) continue;
-            for (const review of reviews) {
-              if (!review.user?.login || review.user.type === 'Bot') continue;
               const previous = latestByReviewer.get(review.user.login);
               const previousTime = previous?.submitted_at ? Date.parse(previous.submitted_at) : 0;
               const currentTime = review.submitted_at ? Date.parse(review.submitted_at) : 0;
