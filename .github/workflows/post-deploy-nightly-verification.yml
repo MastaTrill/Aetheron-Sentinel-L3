@@ -170,7 +170,11 @@ jobs:
         run: |
           TOTAL_VULNS=0
           for file in logs/verification/ci/audit/*.json; do
-            VULNS=$(cat "$file" | jq '.metadata.vulnerabilities' 2>/dev/null || echo 0)
+            VULNS=$(jq '[.metadata.vulnerabilities[]?] | add // 0' "$file")
+            if ! [[ "$VULNS" =~ ^[0-9]+$ ]]; then
+              echo "Invalid vulnerability count in $file: $VULNS"
+              exit 1
+            fi
             TOTAL_VULNS=$((TOTAL_VULNS + VULNS))
           done
           if [ $TOTAL_VULNS -gt 0 ]; then
