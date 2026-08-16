@@ -49,6 +49,8 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Validate release policy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm run security:release-scope
           npm run security:immutable-release
