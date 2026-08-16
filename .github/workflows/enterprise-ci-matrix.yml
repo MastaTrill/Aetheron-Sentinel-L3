@@ -52,8 +52,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           npm run security:release-scope
-          npm run security:immutable-release
+
+          if [[ -n "${RELEASE_TAG:-}" || -n "${RELEASE_COMMIT:-}" ]]; then
+            if [[ -z "${RELEASE_TAG:-}" || -z "${RELEASE_COMMIT:-}" ]]; then
+              echo 'RELEASE_TAG and RELEASE_COMMIT must be provided together.'
+              exit 1
+            fi
+            npm run security:immutable-release
+          else
+            echo 'Skipping immutable published-release validation in generic PR/push CI.'
+            echo 'The protected mainnet pipeline requires RELEASE_TAG and RELEASE_COMMIT and enforces this gate before deployment.'
+          fi
 
       - name: Hardhat compile
         run: npm run compile
