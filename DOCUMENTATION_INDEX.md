@@ -159,9 +159,9 @@ Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_S
 
 | Script                                                                               | Command                                                                | Purpose                       |
 | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------- |
-| [scripts/section7-final-sweep.js](./scripts/section7-final-sweep.js)                 | `node scripts/section7-final-sweep.js`                                 | Verify ownership + governance |
-| [scripts/audit-allowlists.js](./scripts/audit-allowlists.js)                         | `node scripts/audit-allowlists.js`                                     | Verify role allowlists        |
-| [scripts/verify-bridge-relayers.js](./scripts/verify-bridge-relayers.js)             | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.js`       | Verify bridge relayer         |
+| [scripts/section7-final-sweep.cjs](./scripts/section7-final-sweep.cjs)               | `node scripts/section7-final-sweep.cjs`                                | Verify ownership + governance |
+| [scripts/audit-allowlists.cjs](./scripts/audit-allowlists.cjs)                       | `node scripts/audit-allowlists.cjs`                                    | Verify role allowlists        |
+| [scripts/verify-bridge-relayers.cjs](./scripts/verify-bridge-relayers.cjs)           | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.cjs`      | Verify bridge relayer         |
 | [scripts/generate-bridge-relayer-safe.js](./scripts/generate-bridge-relayer-safe.js) | `RELAYER_ADDRESSES=0x... node scripts/generate-bridge-relayer-safe.js` | Generate Safe payload         |
 
 ### Executed Transactions (Already Mined)
@@ -208,9 +208,9 @@ Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_S
 → Run all three verification scripts:
 
 ```bash
-node scripts/section7-final-sweep.js
-node scripts/audit-allowlists.js
-RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify-bridge-relayers.js
+node scripts/section7-final-sweep.cjs
+node scripts/audit-allowlists.cjs
+RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify-bridge-relayers.cjs
 ```
 
 **Expected Result:** All pass. See [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §15](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md).
