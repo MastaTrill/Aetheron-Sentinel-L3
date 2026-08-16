@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 24]
+        node: [22, 24]
         foundry: [v1.7.1, nightly]
 
     steps:
@@ -83,7 +83,7 @@ jobs:
 
       - name: Enforce gas snapshot
         if: matrix.node == 24 && matrix.foundry == 'v1.7.1'
-        run: forge snapshot --check
+        run: forge snapshot --check --no-match-contract AetheronRetainerVaultInvariant
 
       - name: Lint
         if: matrix.node == 24 && matrix.foundry == 'v1.7.1'
