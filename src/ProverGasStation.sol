@@ -9,8 +9,8 @@ contract ProverGasStation is Ownable {
     IERC20 public immutable echoToken;
     ISwapRouter public immutable swapRouter;
     address public immutable wrappedNativeToken;
+    address public immutable proverAddress;
 
-    address public proverAddress;
     uint256 public constant MIN_PROVER_BALANCE = 0.5 ether;
     uint256 public constant TARGET_PROVER_BALANCE = 2 ether;
 
