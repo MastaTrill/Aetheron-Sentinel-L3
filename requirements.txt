@@ -39,7 +39,7 @@ torch
 torchaudio
 torchvision
 charset-normalizer==3.4.6
-ckzg==2.1.7
+ckzg==2.1.8
 click==8.3.1
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
