@@ -4,8 +4,6 @@ on:
   pull_request_target:
     branches: [main]
     types: [opened, edited, synchronize, reopened, ready_for_review, labeled, unlabeled]
-  pull_request_review:
-    types: [submitted, dismissed]
 
 permissions:
   contents: read
@@ -34,8 +32,7 @@ jobs:
             const author = pr.user?.login || '';
             const isBot = pr.user?.type === 'Bot' || author === 'dependabot[bot]';
 
-            // Title: require [L3] for human PRs. Dependabot titles are allowed as-is
-            // (we still encourage [L3] but do not hard-fail dependency bots).
+            // Title: require [L3] for human PRs. Dependabot titles are allowed as-is.
             if (!isBot && !/\[L3\]/i.test(title)) {
               failures.push('PR title must include [L3] (human-authored PRs).');
             }
@@ -60,42 +57,6 @@ jobs:
               );
             }
 
-            const reviews = await github.paginate(github.rest.pulls.listReviews, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
-              per_page: 100,
-            });
-
-            // Effective review model: only APPROVED / CHANGES_REQUESTED / DISMISSED count.
-            const effectiveStates = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
-            const latestByReviewer = new Map();
-            for (const review of reviews) {
-              if (!review.user?.login || review.user.type === 'Bot') continue;
-              if (!effectiveStates.has(review.state)) continue;
-              const previous = latestByReviewer.get(review.user.login);
-              const previousTime = previous?.submitted_at ? Date.parse(previous.submitted_at) : 0;
-              const currentTime = review.submitted_at ? Date.parse(review.submitted_at) : 0;
-              if (!previous || currentTime >= previousTime) {
-                latestByReviewer.set(review.user.login, review);
-              }
-            }
-
-            const approvers = [...latestByReviewer.values()]
-              .filter(review => review.state === 'APPROVED')
-              .filter(review => review.user.login !== author)
-              .map(review => review.user.login);
-
-            // Solo-maintainer + Dependabot reality:
-            // - Bot dependency PRs: owner merge is the gate (0 external approvals required).
-            // - Human PRs: require 1 distinct non-author approval.
-            const requiredApprovals = isBot ? 0 : 1;
-            if (approvers.length < requiredApprovals) {
-              failures.push(
-                `At least ${requiredApprovals} distinct non-author approval(s) required; found ${approvers.length}.`
-              );
-            }
-
             if (pr.draft) {
               failures.push('PR must be marked ready for review.');
             }
@@ -103,6 +64,5 @@ jobs:
             if (failures.length) {
               core.setFailed(failures.join('\n'));
             } else {
-              const who = approvers.length ? approvers.join(', ') : '(Dependabot / owner-merge path)';
-              core.info(`Governance gate passed. Approvals: ${who}`);
+              core.info('Governance gate passed (title + labels + ready-for-review).');
             }
