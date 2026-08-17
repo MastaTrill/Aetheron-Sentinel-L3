@@ -36,7 +36,7 @@ jobs:
       deployer: ${{ steps.toolchain.outputs.DEPLOYER_ADDR }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -83,7 +83,7 @@ jobs:
     needs: validate-environment
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -139,7 +139,7 @@ jobs:
     if: ${{ github.event.inputs.dry_run_only != 'true' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -195,7 +195,7 @@ jobs:
     if: ${{ github.event.inputs.dry_run_only != 'true' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -244,7 +244,7 @@ jobs:
     if: ${{ github.event.inputs.dry_run_only != 'true' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -294,7 +294,7 @@ jobs:
     if: ${{ github.event.inputs.dry_run_only != 'true' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 

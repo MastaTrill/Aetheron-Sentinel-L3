@@ -25,7 +25,7 @@ jobs:
       SENTINEL_BASE_SEPOLIA_REHEARSAL_REQUEST: release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json
       SENTINEL_BASE_SEPOLIA_REHEARSAL_OUTPUT: /tmp/sentinel-redeployment/base-sepolia-rehearsal.json
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
       - name: Verify request-only child commit

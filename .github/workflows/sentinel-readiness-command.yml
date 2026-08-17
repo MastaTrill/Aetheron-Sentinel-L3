@@ -106,7 +106,7 @@ jobs:
       DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
     steps:
       - name: Checkout isolated release candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: 45577af47b3916dc4386a6410a460cbdb35872d9
           submodules: recursive
