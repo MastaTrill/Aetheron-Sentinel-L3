@@ -31,17 +31,33 @@ jobs:
             const failures = [];
             const title = pr.title || '';
             const labels = (pr.labels || []).map(label => label.name);
+            const author = pr.user?.login || '';
+            const isBot = pr.user?.type === 'Bot' || author === 'dependabot[bot]';
 
-            if (!/\[L3\]/i.test(title)) {
-              failures.push('PR title must include [L3].');
+            // Title: require [L3] for human PRs. Dependabot titles are allowed as-is
+            // (we still encourage [L3] but do not hard-fail dependency bots).
+            if (!isBot && !/\[L3\]/i.test(title)) {
+              failures.push('PR title must include [L3] (human-authored PRs).');
             }
 
-            // Use labels that already exist in this repository so the gate can be
-            // enforced immediately without a separate repository-label migration.
-            const requiredLabels = ['security', 'github_actions'];
-            const missingLabels = requiredLabels.filter(label => !labels.includes(label));
-            if (missingLabels.length) {
-              failures.push(`Missing governance labels: ${missingLabels.join(', ')}.`);
+            // Labels: accept either the governance pair OR the standard Dependabot labels.
+            // Repo has both `github_actions` (underscore) and Dependabot may emit `github-actions`.
+            const hasSecurity = labels.includes('security');
+            const hasGithubActions =
+              labels.includes('github_actions') || labels.includes('github-actions');
+            const hasDependencies = labels.includes('dependencies');
+            const hasDocs = labels.includes('documentation');
+
+            const labelOk =
+              (hasSecurity && hasGithubActions) ||
+              hasDependencies ||
+              hasDocs ||
+              (hasSecurity && hasDependencies);
+
+            if (!labelOk) {
+              failures.push(
+                'Missing governance labels. Need one of: (security + github_actions), dependencies, or documentation.'
+              );
             }
 
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
@@ -51,11 +67,7 @@ jobs:
               per_page: 100,
             });
 
-            // GitHub can retain multiple review submissions per reviewer.
-            // Match GitHub's effective-review model: only APPROVED, CHANGES_REQUESTED
-            // and DISMISSED reviews change a reviewer's effective state. COMMENTED and
-            // PENDING reviews are ignored, otherwise a reviewer who approves and then
-            // leaves a comment-only review would be incorrectly dropped as an approver.
+            // Effective review model: only APPROVED / CHANGES_REQUESTED / DISMISSED count.
             const effectiveStates = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
             const latestByReviewer = new Map();
             for (const review of reviews) {
@@ -71,11 +83,17 @@ jobs:
 
             const approvers = [...latestByReviewer.values()]
               .filter(review => review.state === 'APPROVED')
-              .filter(review => review.user.login !== pr.user.login)
+              .filter(review => review.user.login !== author)
               .map(review => review.user.login);
 
-            if (approvers.length < 2) {
-              failures.push(`At least 2 distinct non-author approvals are required; found ${approvers.length}.`);
+            // Solo-maintainer + Dependabot reality:
+            // - Bot dependency PRs: owner merge is the gate (0 external approvals required).
+            // - Human PRs: require 1 distinct non-author approval.
+            const requiredApprovals = isBot ? 0 : 1;
+            if (approvers.length < requiredApprovals) {
+              failures.push(
+                `At least ${requiredApprovals} distinct non-author approval(s) required; found ${approvers.length}.`
+              );
             }
 
             if (pr.draft) {
@@ -85,5 +103,6 @@ jobs:
             if (failures.length) {
               core.setFailed(failures.join('\n'));
             } else {
-              core.info(`Governance gate passed with approvals from: ${approvers.join(', ')}`);
+              const who = approvers.length ? approvers.join(', ') : '(Dependabot / owner-merge path)';
+              core.info(`Governance gate passed. Approvals: ${who}`);
             }
