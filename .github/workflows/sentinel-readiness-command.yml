@@ -14,7 +14,13 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: sentinel-readiness-command
+  group: >-
+    ${{ github.event_name == 'issue_comment' &&
+        github.event.issue.number == 169 &&
+        github.event.comment.body == '/sentinel-readiness' &&
+        github.event.comment.user.login == github.repository_owner &&
+        'sentinel-readiness-command' ||
+        format('sentinel-readiness-ignored-{0}', github.run_id) }}
   cancel-in-progress: false
 
 jobs:
@@ -78,7 +84,7 @@ jobs:
           gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Base Sepolia readiness started
 
           - **Workflow run:** https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
-          - **Release candidate:** \`a2e61a646129bc5744e6f5f734823fb5604b58e5\`
+          - **Release candidate:** \`45577af47b3916dc4386a6410a460cbdb35872d9\`
           - **Broadcast:** disabled"
 
   readiness:
@@ -96,13 +102,13 @@ jobs:
       SENTINEL_OWNER: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
       MONITOR_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
       MIN_DEPLOYER_BALANCE_ETH: '0.05'
-      RELEASE_COMMIT: a2e61a646129bc5744e6f5f734823fb5604b58e5
+      RELEASE_COMMIT: 45577af47b3916dc4386a6410a460cbdb35872d9
       DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
     steps:
       - name: Checkout isolated release candidate
         uses: actions/checkout@v6
         with:
-          ref: a2e61a646129bc5744e6f5f734823fb5604b58e5
+          ref: 45577af47b3916dc4386a6410a460cbdb35872d9
           submodules: recursive
           persist-credentials: false
 
@@ -113,7 +119,7 @@ jobs:
           : > artifacts/base-sepolia-readiness/key-normalization.log
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -325,7 +331,7 @@ jobs:
           ## Automated Base Sepolia readiness result — trusted protected environment
 
           - **Overall:** `${{ job.status }}`
-          - **Release candidate:** `a2e61a646129bc5744e6f5f734823fb5604b58e5`
+          - **Release candidate:** `45577af47b3916dc4386a6410a460cbdb35872d9`
           - **Workflow run:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           - **Broadcast:** disabled; this workflow cannot send a deployment transaction
           - **Configuration note:** the protected deployer secret was canonicalized without printing it. Public Base Sepolia RPC and previously documented public owner/monitor addresses were used for diagnostics only; broadcast still requires approved Safe/timelock governance configuration.

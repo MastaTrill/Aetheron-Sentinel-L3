@@ -1,0 +1,127 @@
+name: Sentinel Current Release Readiness
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: sentinel-current-release-readiness
+  cancel-in-progress: false
+
+env:
+  RELEASE_COMMIT: 0e200a63f377c025d9aec1b5d78b347aa95bbd67
+  RELEASE_PROFILE: sentinel-guardrails-v1
+  DEPLOY_NETWORK: base-sepolia
+  DEPLOY_ENVIRONMENT: base-sepolia
+  BASE_TESTNET_RPC_URL: https://sepolia.base.org
+  DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
+
+jobs:
+  authorize:
+    if: >-
+      github.event.issue.number == 169 &&
+      github.event.comment.body == '/sentinel-readiness-current'
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.auth.outputs.allowed }}
+    steps:
+      - name: Authorize repository owner only
+        id: auth
+        shell: bash
+        env:
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          if [ "${COMMENT_AUTHOR,,}" = "${REPOSITORY_OWNER,,}" ]; then
+            echo 'allowed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'allowed=false' >> "$GITHUB_OUTPUT"
+          fi
+
+  readiness:
+    needs: authorize
+    if: needs.authorize.outputs.allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: base-sepolia
+    env:
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
+      MONITOR_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
+      MIN_DEPLOYER_BALANCE_ETH: '0.05'
+    steps:
+      - name: Checkout exact release candidate
+        uses: actions/checkout@v6
+        with:
+          ref: 0e200a63f377c025d9aec1b5d78b347aa95bbd67
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.7.1
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Validate protected deployment environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUIRE_DEPLOYMENT_REVIEWERS: 'false'
+        run: npm run security:deployment-environment
+
+      - name: Validate frozen release scope
+        run: npm run security:release-scope
+
+      - name: Validate Base Sepolia RPC, signer, balance, and addresses
+        run: npm run preflight:base-sepolia
+
+      - name: Audit release and toolchain dependencies
+        run: |
+          set -euo pipefail
+          npm run security:audit
+          npm run security:audit:toolchain
+
+      - name: Compile exact deployment artifacts
+        run: npm run compile
+
+      - name: Run release regression tests
+        run: npm run test:release
+
+      - name: Run Foundry build and tests
+        run: |
+          set -euo pipefail
+          forge build --sizes
+          forge test -vvv
+
+      - name: Simulate exact deployment without broadcast
+        run: npm run mainnet:simulate
+
+      - name: Upload simulation evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: current-release-readiness-${{ github.run_id }}
+          path: |
+            /tmp/sentinel-guardrails-simulation.json
+            deployments/baseSepolia-sentinel-guardrails-v1.json
+          if-no-files-found: warn
+
+      - name: Report readiness success
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: PASS\n\n- Release commit: \`0e200a63f377c025d9aec1b5d78b347aa95bbd67\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Next gate: immutable release tag and explicit mainnet authorization"

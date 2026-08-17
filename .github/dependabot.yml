@@ -7,25 +7,59 @@ updates:
       interval: "weekly"
     labels:
       - "dependencies"
-      - "github-actions"
+      - "github_actions"
+      - "security"
     open-pull-requests-limit: 5
 
-  # Keep npm / Node.js dependencies up to date (Next.js, etc.)
+  # npm at repo root (if present)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
       - "dependencies"
-      - "npm"
+      - "javascript"
+      - "security"
     open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"   # Remove this line if you want to update everything
 
-  # Optional: Update Foundry dependencies if you use submodules
+  # Remix dashboard
+  - package-ecosystem: "npm"
+    directory: "/apps/remix-dashboard"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # Imports remix package
+  - package-ecosystem: "npm"
+    directory: "/imports/remix_-aetheron-sentinel-l3"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # Python / pip (root requirements if any)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "python"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # Foundry / git submodules
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
       - "dependencies"
+      - "security"
