@@ -46,7 +46,7 @@ jobs:
         run: |
           mkdir -p artifacts/base-sepolia-readiness
           : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -108,7 +108,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
