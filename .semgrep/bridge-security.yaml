@@ -1,0 +1,80 @@
+rules:
+  - id: aetheron-hardcoded-private-key
+    languages: [javascript, typescript, python, solidity]
+    severity: ERROR
+    message: Possible hardcoded private key or secret material
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $X = "0x$HEX"
+          - pattern: |
+              privateKey = $X
+          - pattern: |
+              PRIVATE_KEY = $X
+          - pattern: |
+              secret = "$STR"
+    metadata:
+      category: security
+      technology: [ethereum, bridge]
+
+  - id: aetheron-unchecked-external-call
+    languages: [solidity]
+    severity: WARNING
+    message: External call without checking return value — potential silent failure in bridge path
+    patterns:
+      - pattern: $ADDR.call($DATA);
+      - pattern-not-inside: |
+          (bool $OK, ...) = $ADDR.call($DATA);
+      - pattern-not-inside: |
+          require($ADDR.call($DATA));
+    metadata:
+      category: security
+      cwe: "CWE-252"
+
+  - id: aetheron-tx-origin-auth
+    languages: [solidity]
+    severity: ERROR
+    message: Authorization via tx.origin is unsafe (phishing / intermediate contract risk)
+    pattern: tx.origin == $X
+    metadata:
+      category: security
+      cwe: "CWE-284"
+
+  - id: aetheron-delegatecall-untrusted
+    languages: [solidity]
+    severity: ERROR
+    message: delegatecall to potentially untrusted target
+    patterns:
+      - pattern: $T.delegatecall($D)
+      - pattern-not-inside: |
+          require($T == $TRUSTED, ...);
+          ...
+          $T.delegatecall($D)
+    metadata:
+      category: security
+      cwe: "CWE-829"
+
+  - id: aetheron-missing-access-control-hint
+    languages: [solidity]
+    severity: INFO
+    message: State-changing function may lack access control modifier (review onlyOwner/roles)
+    patterns:
+      - pattern: |
+          function $F(...) public {
+            ...
+          }
+      - pattern-not: |
+          function $F(...) public onlyOwner {
+            ...
+          }
+      - pattern-not: |
+          function $F(...) public view {
+            ...
+          }
+      - pattern-not: |
+          function $F(...) public pure {
+            ...
+          }
+    metadata:
+      category: security
+      confidence: LOW

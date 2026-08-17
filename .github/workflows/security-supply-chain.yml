@@ -1,0 +1,105 @@
+name: Supply Chain & Secrets Security
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+concurrency:
+  group: supply-chain-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    name: Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  osv-scanner:
+    name: OSV Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@v2.2.3
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            ./
+        continue-on-error: true
+      - name: Upload OSV results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: osv-scan-results
+          path: |
+            **/osv-scan-result*
+            results.sarif
+          if-no-files-found: ignore
+          retention-days: 14
+
+  pip-audit:
+    name: Python pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install pip-audit
+        run: python -m pip install --upgrade pip pip-audit
+      - name: Audit requirements files
+        run: |
+          set -euo pipefail
+          found=0
+          for f in $(find . -name 'requirements*.txt' -not -path './node_modules/*' -not -path './.git/*' 2>/dev/null); do
+            echo "==> Auditing $f"
+            pip-audit -r "$f" --progress-spinner off || true
+            found=1
+          done
+          for f in $(find . -name 'pyproject.toml' -not -path './node_modules/*' -not -path './.git/*' 2>/dev/null); do
+            echo "==> Auditing $f"
+            pip-audit --progress-spinner off || true
+            found=1
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "No Python dependency manifests found; skipping."
+          fi
+
+  trivy-fs:
+    name: Trivy Filesystem Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run Trivy vulnerability scanner (fs)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
+          format: 'sarif'
+          output: 'trivy-fs.sarif'
+          exit-code: '0'
+      - name: Upload Trivy SARIF
+        if: always() && hashFiles('trivy-fs.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-fs
