@@ -1,0 +1,25 @@
+title = "Aetheron Sentinel Gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "ethereum-private-key"
+description = "Ethereum / EVM private key"
+regex = '''(?i)(private[_-]?key|secret[_-]?key)\s*[=:]\s*['\"]?0x[a-f0-9]{64}['\"]?'''
+tags = ["key", "ethereum"]
+
+[[rules]]
+id = "generic-api-key-assignment"
+description = "Generic API key assignment"
+regex = '''(?i)(api[_-]?key|apikey|access[_-]?token)\s*[=:]\s*['\"][a-zA-Z0-9_\-]{20,}['\"]'''
+tags = ["key", "api"]
+
+[allowlist]
+description = "Allowlisted paths and test fixtures"
+paths = [
+  '''(.*?)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$''',
+  '''(.*?)(\.md)$''',
+  '''contracts/test/.*''',
+  '''contracts/mocks/.*''',
+]
