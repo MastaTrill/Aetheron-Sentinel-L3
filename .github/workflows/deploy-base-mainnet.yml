@@ -47,7 +47,7 @@ jobs:
           version: 'v0.3.0'
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20.18.2'
           cache: 'npm'
@@ -93,7 +93,7 @@ jobs:
           version: 'v0.3.0'
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20.18.2'
           cache: 'npm'
@@ -149,7 +149,7 @@ jobs:
           version: 'v0.3.0'
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20.18.2'
           cache: 'npm'
@@ -304,7 +304,7 @@ jobs:
           version: 'v0.3.0'
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20.18.2'
           cache: 'npm'
