@@ -58,7 +58,7 @@ jobs:
     timeout-minutes: 45
     environment: base-mainnet
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: recursive
@@ -147,7 +147,7 @@ jobs:
       BASE_SEPOLIA_MANIFEST_SHA256: ${{ needs.readiness.outputs.rehearsal_manifest_sha256 }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: recursive

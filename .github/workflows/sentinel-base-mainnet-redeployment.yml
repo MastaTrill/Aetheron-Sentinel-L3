@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 30
     environment: base-mainnet
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Require exact dispatch confirmation and signed release ancestry

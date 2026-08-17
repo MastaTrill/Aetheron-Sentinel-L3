@@ -31,7 +31,7 @@ jobs:
       verify_network: ${{ steps.context.outputs.verify_network }}
       skip_reason: ${{ steps.prereqs.outputs.skip_reason }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Resolve target network
         id: context
@@ -136,7 +136,7 @@ jobs:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Use Node.js 24
         uses: actions/setup-node@v7

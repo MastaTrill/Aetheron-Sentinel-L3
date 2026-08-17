@@ -56,7 +56,7 @@ jobs:
       MIN_DEPLOYER_BALANCE_ETH: '0.05'
     steps:
       - name: Checkout exact release candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: 0e200a63f377c025d9aec1b5d78b347aa95bbd67
           submodules: recursive
