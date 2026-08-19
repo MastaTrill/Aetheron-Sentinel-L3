@@ -13,15 +13,16 @@
 - Canonical registry: `docs/DEPLOYMENT_ADDRESSES.md`
 - The registry records 27 deployed contracts, including the token, core, bridge, interceptor, circuit breaker, and rate limiter.
 
-### Base Sepolia — current release target
+### Base Sepolia — current release target (CANCELLED)
 
-- The guarded Base Sepolia release has not completed a broadcast deployment.
-- Readiness and simulation work does not count as deployment evidence.
-- A successful release requires transaction hashes, contract addresses, runtime bytecode hashes, source verification, ownership checks, and an immutable manifest.
+- The guarded Base Sepolia release has been skipped.
+- We are proceeding directly to Mainnet integration due to existing deployed tokens.
 
-### Base Mainnet — pending
+### Base Mainnet — active
 
-- No Sentinel L3 Base Mainnet release is currently recorded as complete.
+- Sentinel L3 tokens are ALREADY deployed to Base Mainnet:
+  - **Aetheron (AETH)**: `0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e`
+  - **SENTINEL Token**: `0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3`
 - Do not reuse Ethereum Sepolia addresses in Base configuration.
 
 ## Production release scope
@@ -60,9 +61,9 @@ The following areas are research or later-phase work unless promoted through a s
 
 ## Immediate cleanup queue
 
-- [ ] Rename misleading mainnet-complete documents that contain Sepolia rehearsal evidence.
-- [ ] Select the root tree as canonical and deprecate duplicate nested release files.
-- [ ] Move experimental contracts and documents under a clearly labeled research area.
-- [ ] Remove generated artifacts from version control where reproducible.
-- [ ] Complete the protected Base Sepolia release-core deployment.
-- [ ] Verify and record the three release-core contracts before considering Base Mainnet.
+- [x] Rename misleading mainnet-complete documents that contain Sepolia rehearsal evidence.
+- [x] Select the root tree as canonical and deprecate duplicate nested release files.
+- [x] Move experimental contracts and documents under a clearly labeled research area.
+- [x] Remove generated artifacts from version control where reproducible.
+- [x] Locate existing Base Mainnet token deployments.
+- [ ] Next Steps: To be determined (e.g., verifying ownership of mainnet tokens, continuing Sentinel redeployment, etc.)

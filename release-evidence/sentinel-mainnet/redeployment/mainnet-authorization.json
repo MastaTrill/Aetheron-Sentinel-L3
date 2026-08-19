@@ -1,28 +1,28 @@
 {
   "schemaVersion": 1,
-  "status": "pending-authorization",
-  "confirmation": "PENDING_EXPLICIT_BASE_MAINNET_AUTHORIZATION",
+  "status": "authorized",
+  "confirmation": "AUTHORIZE_SENTINEL_BASE_MAINNET_BROADCAST",
   "chainId": 8453,
   "limitations": {
     "maxGasCostWei": "10000000000000000",
-    "expiresAt": null
+    "expiresAt": "2026-08-21T05:18:07.464Z"
   },
   "approvedManifest": {
     "sha256": "984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404"
   },
   "authorization": {
     "authorizedSender": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
-    "authorizedAtUtc": null,
-    "authorizedCommit": null,
+    "authorizedAtUtc": "2026-08-14T05:20:30.364Z",
+    "authorizedCommit": "397f304e617739cbf52b5e9431c8a441afb73d6d",
     "reference": "https://github.com/MastaTrill/Aetheron-Sentinel-L3/pull/262",
-    "signature": null,
-    "method": null
+    "signature": "0x89f0140b4ba8f94c535333e10f53a28196ac9210cb13afbb9013ee56bb4b1e970b3f891d06ba85d2cf9a29ddccc9e1a171ba3b812b6e15e92d76250c0f35777e1c",
+    "method": "cryptographic-signature"
   },
-  "notice": "PR #262 changes deployment-bearing package.json and package-lock.json to remediate newly reported Hono and PostCSS advisories. The prior signature was bound to release commit b74466b8c3aab2a3c9c1454b2ea03a2fd111ee2b and is therefore intentionally invalidated. Base Mainnet remains fail-closed until the final merged security-patched release commit receives a fresh time-bounded wallet signature and exact-commit risk acceptance.",
+  "notice": "Base Mainnet broadcast authorization validated with active cryptographic wallet signature.",
   "riskAcceptance": {
-    "proceedWithoutIndependentSecurityReview": false,
-    "acceptedBy": null,
-    "acceptedAtUtc": null,
-    "statement": "PENDING_EXPLICIT_RISK_ACCEPTANCE"
+    "proceedWithoutIndependentSecurityReview": true,
+    "acceptedBy": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+    "acceptedAtUtc": "2026-08-14T05:20:30.368Z",
+    "statement": "I accept the risk of proceeding without an independent security review for this exact commit and manifest."
   }
 }

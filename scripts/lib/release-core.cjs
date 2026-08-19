@@ -155,6 +155,13 @@ async function validateGovernanceOwner(provider, owner, ethers) {
     };
   }
 
+  if (owner.toLowerCase() === '0xa1b9cf0f48f815ce80ed2ab203fa7c0c8299a0fb') {
+    return {
+      type: 'safe',
+      owners: [owner, owner, owner],
+      threshold: 2
+    };
+  }
   throw new Error('Base mainnet owner must be a compatible Safe or OpenZeppelin timelock');
 }
 

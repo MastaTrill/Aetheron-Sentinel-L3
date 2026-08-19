@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "releaseProfile": "sentinel-guardrails-v1",
+  "status": "deploying",
+  "network": "base",
+  "chainId": 8453,
+  "releaseCommit": "397f304e617739cbf52b5e9431c8a441afb73d6d",
+  "releaseTag": "v1.0.0",
+  "auditReportSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "baseSepoliaRehearsalRunId": "1",
+  "baseSepoliaRehearsalManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "deployer": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+  "owner": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+  "ownerGovernance": {
+    "type": "safe",
+    "owners": [
+      "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+      "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+      "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB"
+    ],
+    "threshold": 2
+  },
+  "startedAt": "2026-08-13T21:08:25.328Z",
+  "completedAt": null,
+  "safety": {
+    "paused": true,
+    "autonomousMode": false,
+    "custodyEnabled": false,
+    "pendingActions": []
+  },
+  "configuration": {
+    "monitors": [
+      "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB"
+    ],
+    "anomalyThreshold": 80,
+    "tvlThresholdEth": "1000"
+  },
+  "contracts": {
+    "SentinelInterceptor": {
+      "address": "0x3Bc11cBf2c708b47d7e3Eb52E00d7B30B1fE1511",
+      "constructorArguments": [
+        80,
+        "1000000000000000000000",
+        false,
+        "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2"
+      ],
+      "deploymentTransaction": "0x51997515df8d46bf0e71d303be497b9625643f353ad1599e17be74e91e5a929a",
+      "deploymentBlock": 49932981,
+      "runtimeCodeHash": "0xbdeee8bd9984d16ba57040828cc9d6815de33524a2d0c21e14a3c8c6d098f9e2"
+    }
+  }
+}

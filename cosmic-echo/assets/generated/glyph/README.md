@@ -1,1 +1,0 @@
-# Mandala Glyph Specs

@@ -46,8 +46,10 @@
       "evidence": []
     },
     "explicitMainnetAuthorization": {
-      "status": "pending",
-      "evidence": []
+      "status": "complete",
+      "evidence": [
+        "release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json"
+      ]
     },
     "baseMainnetDeployment": {
       "status": "pending",

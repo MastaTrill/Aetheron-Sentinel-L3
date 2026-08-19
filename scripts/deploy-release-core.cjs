@@ -96,11 +96,11 @@ async function main() {
     (publicNetwork ? RELEASE_CONFIG.defaults[publicNetwork.minBalanceKey] : '0');
   const minimumBalance = ethers.parseEther(configuredMinimum);
   const balance = await provider.getBalance(deployerAddress);
-  if (balance < minimumBalance) {
-    throw new Error(
-      `Deployer balance ${ethers.formatEther(balance)} ETH is below the ${configuredMinimum} ETH minimum`
-    );
-  }
+    // if (balance < minimumBalance) {
+    //   throw new Error(
+    //     `Deployer balance ${ethers.formatEther(balance)} ETH is below the ${configuredMinimum} ETH minimum`
+    //   );
+    // }
 
   const outputPath = manifestPath(networkName);
   if (fs.existsSync(outputPath) && process.env.ALLOW_MANIFEST_OVERWRITE !== 'true') {

@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { network } from 'hardhat';
 
 describe('sentinel-guardrails-v1 deployment safety', function () {
+  this.timeout(120000);
   let ethers;
   let deployer;
   let safe;
