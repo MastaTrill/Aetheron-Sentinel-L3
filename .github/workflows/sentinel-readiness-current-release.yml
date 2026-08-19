@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RELEASE_COMMIT: 0e200a63f377c025d9aec1b5d78b347aa95bbd67
+  RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
@@ -58,7 +58,7 @@ jobs:
       - name: Checkout exact release candidate
         uses: actions/checkout@v7
         with:
-          ref: 0e200a63f377c025d9aec1b5d78b347aa95bbd67
+          ref: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
           submodules: recursive
           persist-credentials: false
 
@@ -124,4 +124,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: PASS\n\n- Release commit: \`0e200a63f377c025d9aec1b5d78b347aa95bbd67\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Next gate: immutable release tag and explicit mainnet authorization"
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: PASS\n\n- Release commit: \`f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Next gate: immutable release tag and explicit mainnet authorization"
