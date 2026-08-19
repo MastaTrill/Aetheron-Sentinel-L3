@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: sentinel-current-release-readiness
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
