@@ -54,9 +54,16 @@ jobs:
           secret_names="$(jq -r '[.secrets[]?.name] | join(",")' "$secrets_json")"
           variable_names="$(jq -r '[.variables[]?.name] | join(",")' "$vars_json")"
 
-          has_secret() { case ",$secret_names," in *",$1,"*) echo yes ;; *) echo no ;; esac; }
+          has_secret() {
+            if [ "$secrets_status" != ok ]; then echo unknown; return; fi
+            case ",$secret_names," in *",$1,"*) echo yes ;; *) echo no ;; esac
+          }
           has_var_or_secret() {
-            case ",$secret_names,$variable_names," in *",$1,"*) echo yes ;; *) echo no ;; esac
+            if [ "$secrets_status" != ok ] && [ "$vars_status" != ok ]; then echo unknown; return; fi
+            case ",$secret_names,$variable_names," in *",$1,"*) echo yes ;; *)
+              if [ "$secrets_status" != ok ] || [ "$vars_status" != ok ]; then echo unknown; else echo no; fi
+              ;;
+            esac
           }
 
           {
@@ -110,6 +117,6 @@ jobs:
           | MONITOR_ADDRESSES present | \`${MONITORS_PRESENT}\` |
           | BASESCAN_API_KEY present | \`${BASESCAN_PRESENT}\` |
 
-          This workflow reports metadata only. Governance-owner validity is checked separately by the strict readiness workflow on-chain.
+          \`unknown\` means the workflow token could not read secret/variable-name metadata; it does not mean the setting is absent. The strict readiness workflow is authoritative for actual protected secret availability and governance-owner validity.
           EOF
           gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body-file /tmp/report.md
