@@ -17,7 +17,6 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
-  BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 
 jobs:
@@ -50,6 +49,7 @@ jobs:
     timeout-minutes: 45
     environment: base-sepolia
     env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
       SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
       MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
@@ -170,3 +170,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: PASS\n\n- Release commit: \`f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Governance: protected OWNER_ADDRESS validated as Safe >=2-of-3 or timelock >=48h\n- Deployment reviewers: required\n- Next gate: immutable release tag and explicit mainnet authorization"
+
+      - name: Report readiness failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: FAIL\n\n- Release commit: \`f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Result: one or more fail-closed readiness gates failed. Open the workflow run above for the exact failed step and redacted logs."
