@@ -17,7 +17,7 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
-  BASE_TESTNET_RPC_URL: https://sepolia.base.org
+  BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 
 jobs:
@@ -51,8 +51,8 @@ jobs:
     environment: base-sepolia
     env:
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-      SENTINEL_OWNER: '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB'
-      MONITOR_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
       MIN_DEPLOYER_BALANCE_ETH: '0.05'
     steps:
       - name: Checkout exact release candidate
@@ -79,8 +79,53 @@ jobs:
       - name: Validate protected deployment environment
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          REQUIRE_DEPLOYMENT_REVIEWERS: 'false'
+          REQUIRE_DEPLOYMENT_REVIEWERS: 'true'
         run: npm run security:deployment-environment
+
+      - name: Validate governance owner contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { ethers } from 'ethers';
+
+          const rpcUrl = process.env.BASE_TESTNET_RPC_URL;
+          const owner = process.env.SENTINEL_OWNER;
+          if (!rpcUrl) throw new Error('BASE_TESTNET_RPC_URL is not configured');
+          if (!ethers.isAddress(owner)) throw new Error('OWNER_ADDRESS is not a valid EVM address');
+
+          const provider = new ethers.JsonRpcProvider(rpcUrl);
+          const code = await provider.getCode(owner);
+          if (code === '0x') {
+            throw new Error('OWNER_ADDRESS must be a deployed Safe or compatible OpenZeppelin timelock on Base Sepolia');
+          }
+
+          let safeValid = false;
+          try {
+            const safe = new ethers.Contract(owner, [
+              'function getOwners() view returns (address[])',
+              'function getThreshold() view returns (uint256)'
+            ], provider);
+            const [owners, threshold] = await Promise.all([safe.getOwners(), safe.getThreshold()]);
+            safeValid = owners.length >= 3 && threshold >= 2n;
+          } catch {}
+
+          let timelockValid = false;
+          if (!safeValid) {
+            try {
+              const timelock = new ethers.Contract(owner, [
+                'function getMinDelay() view returns (uint256)'
+              ], provider);
+              const minDelay = await timelock.getMinDelay();
+              timelockValid = minDelay >= 172800n;
+            } catch {}
+          }
+
+          if (!safeValid && !timelockValid) {
+            throw new Error('OWNER_ADDRESS is deployed but does not satisfy Safe >=2-of-3 or timelock >=48h governance policy');
+          }
+          console.log('Governance owner policy: PASS');
+          NODE
 
       - name: Validate frozen release scope
         run: npm run security:release-scope
@@ -124,4 +169,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: PASS\n\n- Release commit: \`f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Next gate: immutable release tag and explicit mainnet authorization"
+          gh issue comment 169 --repo "$GITHUB_REPOSITORY" --body "## Current release candidate readiness: PASS\n\n- Release commit: \`f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\`\n- Workflow run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\n- Broadcast: disabled\n- Governance: protected OWNER_ADDRESS validated as Safe >=2-of-3 or timelock >=48h\n- Deployment reviewers: required\n- Next gate: immutable release tag and explicit mainnet authorization"
