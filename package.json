@@ -125,7 +125,7 @@
     "ethers": "6.17.0",
     "hardhat": "3.11.0",
     "mocha": "^11.8.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.9.6",
     "solc": "0.8.36",
     "ts-node": "^10.0.0",
     "typescript": "^6.0.3"
