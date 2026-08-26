@@ -21,8 +21,8 @@ The release is successful when all of the following are true:
 - The API key is shown to the customer only when created; only a cryptographic hash and non-secret prefix are stored server-side.
 - Protected Sentinel endpoints reject missing, invalid, revoked, or unsubscribed API keys.
 - Stripe webhooks update subscription state idempotently.
-- Customers with an active key can open Stripe Customer Portal to update payment details or cancel.
-- A canceled, unpaid, incomplete, or otherwise inactive subscription no longer grants protected API access.
+- Customers with a recognized, non-revoked key can open Stripe Customer Portal to update payment details or manage cancellation even when service access is temporarily inactive.
+- A canceled, unpaid, incomplete, or otherwise inactive subscription no longer grants protected Sentinel service access.
 - Stripe secrets and the Supabase service-role key never reach browser code.
 - Production does not accept the existing shared fallback development key.
 - Billing/API tests and the existing CI/security/dashboard checks pass.
@@ -66,7 +66,7 @@ Add a small billing/access module rather than embedding Stripe secrets or billin
 - show the API key once with explicit copy/save guidance;
 - allow a customer to paste an existing API key for protected dashboard features;
 - keep an entered/claimed API key only in `sessionStorage`, not in source code, build-time constants, or persistent local storage;
-- expose a `Manage subscription` action that calls the authenticated billing portal endpoint and then redirects to Stripe Customer Portal.
+- expose a `Manage subscription` action that authenticates with the recognized API key and then redirects to Stripe Customer Portal.
 
 Create a dashboard API client abstraction that uses `VITE_SENTINEL_API_URL` in production and the existing `/api/sentinel` development proxy locally. This removes the current assumption that production and the FastAPI gateway share an origin.
 
@@ -79,12 +79,21 @@ The FastAPI gateway remains the server-side trust boundary.
 Billing and entitlement code is isolated into focused modules rather than being added inline to the already-large `sentinel_gateway_prototype.py` file:
 
 - `sentinel/billing.py` — Stripe Checkout, claim, portal, and webhook routes.
-- `sentinel/entitlements.py` — API-key generation, hashing, lookup, and active-subscription checks.
+- `sentinel/entitlements.py` — API-key generation, hashing, lookup, and subscription authorization checks.
 - `sentinel/billing_store.py` — server-side Supabase persistence for billing records.
 
 `sentinel_gateway_prototype.py` includes the billing router and continues to include the existing Sentinel router.
 
+The entitlement module exposes two distinct security checks:
+
+- `resolve_customer_api_key` verifies that a presented API key exists and is not revoked, then resolves its Stripe customer/subscription record. This is used for account-recovery surfaces such as Customer Portal.
+- `require_active_subscription` builds on the recognized-key check and additionally requires the Sentinel Pro subscription to be active. This is used for protected Sentinel service/API routes.
+
+Separating those checks prevents a payment failure from locking the customer out of the very portal needed to repair payment details.
+
 All production billing operations use server-side environment variables. No Stripe secret is exposed through Vite variables.
+
+Because the production dashboard and API may use different origins, the gateway enables CORS only for the exact configured `SENTINEL_DASHBOARD_URL`; wildcard production CORS is not allowed.
 
 ### 3. Supabase persistence
 
@@ -109,7 +118,7 @@ Fields:
 - `created_at` timestamptz, not null
 - `updated_at` timestamptz, not null
 
-The subscription grants access only when `status = 'active'` and the stored price ID matches `STRIPE_SENTINEL_PRO_PRICE_ID`.
+The subscription grants service access only when `status = 'active'` and the stored price ID matches `STRIPE_SENTINEL_PRO_PRICE_ID`.
 
 #### `sentinel_api_keys`
 
@@ -142,9 +151,9 @@ Fields:
 
 When Checkout is created, the gateway generates a random one-time claim secret, stores only its hash, records the public `claim_id` in Stripe Checkout metadata/client reference, and returns the plaintext claim secret to the dashboard. The dashboard keeps that secret in `sessionStorage` only for the Checkout round trip.
 
-On return, the claim endpoint requires both the Stripe Checkout Session ID and the claim secret. It retrieves the Checkout Session from Stripe, verifies the session is complete for Sentinel Pro, verifies the claim ID/secret pair, verifies the claim is unexpired and unused, issues the API key, and atomically marks the claim used.
+On return, the claim endpoint requires both the Stripe Checkout Session ID and the claim secret. It retrieves the Checkout Session from Stripe, verifies the session is complete for Sentinel Pro, verifies the claim ID/secret pair, verifies the claim is unexpired and unused, retrieves the referenced Stripe subscription, and synchronously upserts the subscription record before evaluating entitlement. This makes successful claiming independent of whether the asynchronous Stripe webhook was delivered before or after the browser returned from Checkout.
 
-A refresh or replay after successful claim must not reveal or recreate the previous plaintext key.
+After that verification and upsert, the claim endpoint issues the API key and atomically marks the claim used. A refresh or replay after successful claim must not reveal or recreate the previous plaintext key.
 
 #### `sentinel_billing_events`
 
@@ -156,7 +165,7 @@ Fields:
 - `event_type` text, not null
 - `processed_at` timestamptz, not null
 
-Webhook processing first checks/records the event ID in the same logical transaction as the state change where practical. Repeated delivery of the same Stripe event returns success without reapplying side effects.
+Webhook state changes are written as deterministic upserts keyed by Stripe customer/subscription IDs. Before processing, an already-recorded event ID is treated as a duplicate and returns success. For a new event, the subscription upsert is completed first and the event ID is recorded only after successful state persistence, so a transient failure can safely retry the idempotent upsert instead of permanently suppressing an incomplete event.
 
 Row-level security for these billing tables denies browser/anon access. Server billing code uses `SUPABASE_SERVICE_ROLE_KEY` only on the backend.
 
@@ -168,9 +177,13 @@ Row-level security for these billing tables denies browser/anon access. Server b
 
 Creates a Sentinel Pro Checkout Session and one-time claim. Returns the Stripe Checkout URL and claim secret. The claim expires after 60 minutes if Checkout is not successfully completed.
 
+This endpoint is rate-limited by client IP to prevent unbounded Checkout Session creation. The first implementation uses a conservative limit of 10 checkout-creation attempts per 10 minutes per IP, with HTTP 429 on excess requests.
+
 `POST /billing/claim`
 
-Input: Checkout Session ID + claim secret. Returns a newly created Sentinel API key exactly once after server-side Stripe verification.
+Input: Checkout Session ID + claim secret. Returns a newly created Sentinel API key exactly once after server-side Stripe verification and synchronous subscription-state upsert.
+
+Claim attempts are also rate-limited by client IP to reduce brute-force/replay abuse.
 
 `POST /billing/webhook`
 
@@ -180,19 +193,21 @@ Receives Stripe webhook requests. It must use the raw request body and `STRIPE_W
 
 Remains public.
 
-### API-key-authenticated billing endpoints
+### Recognized-API-key billing endpoints
 
 `POST /billing/portal`
 
-Resolves the API key to the active subscription/customer, creates a Stripe Customer Portal Session, and returns its URL.
+Uses `resolve_customer_api_key`, not active-service entitlement. Any recognized, non-revoked API key can resolve its Stripe customer and create a Customer Portal Session, including when the subscription is `past_due` or otherwise inactive. This gives the customer a path to repair payment or inspect/cancel billing state.
+
+### Active-subscription billing endpoints
 
 `POST /billing/api-key/rotate`
 
-Requires a currently valid active API key. Revokes the presented key, creates a replacement, and returns the replacement plaintext once.
+Requires a currently valid active Sentinel Pro subscription. Revokes the presented key, creates a replacement, and returns the replacement plaintext once.
 
 ### Protected Sentinel endpoints
 
-All non-health, non-checkout, non-claim, and non-webhook Sentinel application routes must use the entitlement dependency in production. This includes the current analyze/sync/log/chat/reset/honeypot capabilities where they remain exposed by the production application.
+All non-health, non-checkout, non-claim, non-webhook, and non-portal Sentinel application routes must use `require_active_subscription` in production. This includes the current analyze/sync/log/chat/reset/honeypot capabilities where they remain exposed by the production application.
 
 Development-only demo endpoints may remain usable locally, but production must fail closed if billing/API-key configuration is missing.
 
@@ -209,9 +224,11 @@ The webhook handler processes at least:
 
 `customer.subscription.*` events are authoritative for stored subscription status. `invoice.paid` and `invoice.payment_failed` are retained for reconciliation/logging and to accelerate state refresh where useful.
 
-Entitlement is intentionally strict for version 1: only `active` Sentinel Pro subscriptions are authorized. A `past_due`, `unpaid`, `canceled`, `incomplete`, `incomplete_expired`, or `paused` subscription is denied until Stripe reports it active again. This avoids inventing a grace-period policy in the first paid release.
+Entitlement is intentionally strict for version 1: only `active` Sentinel Pro subscriptions are authorized for protected Sentinel service/API access. A `past_due`, `unpaid`, `canceled`, `incomplete`, `incomplete_expired`, or `paused` subscription is denied service access until Stripe reports it active again. This avoids inventing a grace-period policy in the first paid release.
 
-Cancellation through Customer Portal should be configured to cancel at period end. The Stripe subscription remains `active` until the end of the paid period, so access continues naturally until Stripe transitions it out of active state.
+A recognized, non-revoked API key remains sufficient to open Customer Portal even while service entitlement is inactive.
+
+Cancellation through Customer Portal should be configured to cancel at period end. The Stripe subscription remains `active` until the end of the paid period, so service access continues naturally until Stripe transitions it out of active state.
 
 ## Environment and secrets
 
@@ -241,12 +258,14 @@ The legacy `SENTINEL_API_KEY` shared-secret mode remains available only for expl
 - API-key comparisons are database equality on SHA-256 hashes; no plaintext list is loaded into browser code.
 - The key prefix is non-secret and exists only for customer/support identification.
 - Checkout claim secrets are random, hashed at rest, single-use, and expire after 60 minutes.
+- Checkout and claim endpoints are IP-rate-limited.
+- Production CORS allows only the configured dashboard origin, never `*`.
 - Billing-table RLS denies anon/browser access.
 - Service-role and Stripe secrets stay server-side.
 - Logs never include API keys, claim secrets, Stripe secrets, webhook signatures, or service-role keys.
-- Webhook handlers are idempotent by Stripe event ID.
-- Customer Portal creation requires an already-valid API key, preventing arbitrary callers from opening another customer's portal.
-- Production protected routes fail closed when entitlement storage or Stripe verification is unavailable; they do not silently fall back to the development key.
+- Webhook handlers are idempotent by Stripe event ID plus deterministic subscription upserts.
+- Customer Portal creation requires a recognized API key but deliberately does not require an active subscription, so customers can repair failed payment.
+- Production protected service routes fail closed when entitlement storage or Stripe verification is unavailable; they do not silently fall back to the development key.
 
 ## Error handling
 
@@ -258,7 +277,7 @@ Webhook signature failures return HTTP 400 and do not mutate state. Valid duplic
 
 Entitlement lookup failures return HTTP 401 for invalid/revoked keys and HTTP 403 for recognized keys whose subscription is not active. Backend dependency outages return HTTP 503 rather than treating the request as authorized.
 
-Customer Portal creation returns HTTP 403 if the subscription is inactive and HTTP 503 for Stripe availability failures.
+Customer Portal creation returns HTTP 401 for an invalid/revoked key and HTTP 503 for Stripe availability failures. It does not reject a recognized customer merely because the subscription is inactive.
 
 ## Testing strategy
 
@@ -268,12 +287,16 @@ Add pytest coverage for:
 
 - API-key format, cryptographic generation, hashing, and verification;
 - revoked-key rejection;
+- recognized-key versus active-entitlement distinction;
 - active versus inactive Stripe subscription status decisions;
 - production rejection of the legacy fallback key;
 - claim-secret hashing/expiry/single-use behavior;
+- claim success when webhook delivery has not happened yet;
 - duplicate webhook event idempotency;
 - webhook signature rejection;
-- Stripe event-to-subscription-state mapping.
+- Stripe event-to-subscription-state mapping;
+- production CORS origin selection;
+- checkout/claim rate-limit behavior.
 
 Stripe network calls are mocked in unit tests. Supabase persistence is tested through a store abstraction so entitlement logic can run against deterministic fakes.
 
@@ -283,12 +306,14 @@ Use FastAPI TestClient to cover:
 
 - checkout creation response shape without leaking secrets beyond the intended one-time claim secret;
 - successful claim producing one API key;
+- successful claim before webhook delivery;
 - claim replay refusal;
 - protected endpoint rejection without a key;
 - protected endpoint success with an active key;
 - protected endpoint denial after subscription cancellation/update;
-- authenticated Customer Portal creation;
-- API-key rotation revoking the old key.
+- Customer Portal creation with an inactive but recognized API key;
+- API-key rotation revoking the old key;
+- disallowed production CORS origin rejection.
 
 ### Dashboard tests/build validation
 
@@ -301,13 +326,13 @@ The existing consolidated `CI`, `Security`, and `Dashboard` workflows must remai
 ## Rollout sequence
 
 1. Add database migration and backend billing/entitlement modules with tests.
-2. Add Stripe SDK dependency and environment validation.
+2. Add Stripe SDK dependency and production environment/CORS validation.
 3. Add dashboard API client, pricing/upgrade flow, claim flow, API-key input, and portal action.
 4. Run local/unit/integration tests plus existing lint/build/security checks.
 5. Create the live `Aetheron Sentinel Pro` Stripe product and $99/month price in the connected live Aetheron Stripe account; capture only the resulting IDs in deployment secrets/config, not source.
 6. Configure/verify Stripe Customer Portal and webhook endpoint for the production gateway.
 7. Deploy the gateway with production secrets and deploy the dashboard with `VITE_SENTINEL_API_URL`.
-8. Perform a controlled live Checkout smoke test and verify the resulting Stripe subscription, webhook processing, one-time API-key claim, protected API access, and Customer Portal flow.
+8. Perform a controlled live Checkout smoke test and verify the resulting Stripe subscription, webhook processing, one-time API-key claim, protected API access, payment-repair portal path, and Customer Portal flow.
 9. Keep Base Sepolia/Base Mainnet release pipelines unchanged and separately gated.
 
 ## Explicit non-goals for version 1
