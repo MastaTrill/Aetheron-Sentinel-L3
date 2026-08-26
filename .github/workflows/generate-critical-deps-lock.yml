@@ -1,0 +1,39 @@
+name: Generate critical dependency lockfile
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sentinel-l3-v1.0/pnpm-workspace.yaml'
+      - '.github/workflows/generate-critical-deps-lock.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+      - name: Install pnpm
+        run: npm install --global pnpm@11.5.2
+      - name: Generate lockfile
+        run: >-
+          pnpm --dir sentinel-l3-v1.0 install
+          --lockfile-only
+          --no-frozen-lockfile
+          --ignore-scripts
+      - name: Upload lockfile
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: critical-deps-pnpm-lock
+          path: sentinel-l3-v1.0/pnpm-lock.yaml
+          if-no-files-found: error
+          retention-days: 1
+
