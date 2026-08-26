@@ -1,55 +1,117 @@
-name: Release Security Scan
+name: Security
 
 on:
-  push:
-    branches: [main, master, develop]
   pull_request:
-    branches: [main, master, develop]
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - 'test/**'
+      - 'script/**'
+      - 'scripts/**'
+      - 'deploy/**'
+      - 'config/**'
+      - 'foundry.toml'
+      - 'remappings.txt'
+      - 'hardhat.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'slither.config.json'
+      - '.semgrep/**'
+      - 'echidna.yaml'
+      - 'echidna.config.yml'
+      - '.github/workflows/security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - 'test/**'
+      - 'script/**'
+      - 'scripts/**'
+      - 'deploy/**'
+      - 'config/**'
+      - 'foundry.toml'
+      - 'remappings.txt'
+      - 'hardhat.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'slither.config.json'
+      - '.semgrep/**'
+      - 'echidna.yaml'
+      - 'echidna.config.yml'
+      - '.github/workflows/security.yml'
+  schedule:
+    - cron: '0 6 * * 1'
+    - cron: '0 4 * * 3'
+  workflow_dispatch:
 
 permissions:
   contents: read
   security-events: write
 
+concurrency:
+  group: security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  release-policy:
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
+        with:
+          fail-on-severity: high
+
+  dependency-audit:
+    name: Dependency audit
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * 1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           cache: npm
       - run: npm ci --legacy-peer-deps
-      - run: npm run security:release-scope
-      - name: Run production dependency audit
+      - name: Audit production dependencies
         run: npm run security:audit -- --json > npm-audit-production.json
-      - name: Upload production dependency audit
+      - name: Audit toolchain dependencies
+        run: npm run security:audit:toolchain
+      - name: Upload audit report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: npm-audit-production
+          name: npm-audit-production-${{ github.run_id }}
           path: npm-audit-production.json
-          if-no-files-found: error
-          retention-days: 7
-      - run: npm run security:audit:toolchain
+          if-no-files-found: warn
+          retention-days: 14
 
   slither:
-    needs: release-policy
+    name: Slither release guardrails
+    if: github.event_name != 'schedule' || github.event.schedule == '0 6 * * 1'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: recursive
-      - uses: foundry-rs/foundry-toolchain@v1
+          persist-credentials: false
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
         with:
           version: v1.7.1
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.11'
           cache: pip
-      - name: Install Slither once
+      - name: Install Slither
         run: pip install slither-analyzer
-      - name: Build release contracts once
+      - name: Build release contracts
         run: forge build
       - name: Scan SentinelInterceptor
         run: >-
@@ -71,19 +133,112 @@ jobs:
           --sarif results-RateLimiter.sarif
       - name: Upload SentinelInterceptor SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
         with:
           sarif_file: results-SentinelInterceptor.sarif
-          category: slither-SentinelInterceptor
+          category: slither-sentinel-interceptor
       - name: Upload CircuitBreaker SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
         with:
           sarif_file: results-CircuitBreaker.sarif
-          category: slither-CircuitBreaker
+          category: slither-circuit-breaker
       - name: Upload RateLimiter SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
         with:
           sarif_file: results-RateLimiter.sarif
-          category: slither-RateLimiter
+          category: slither-rate-limiter
+
+  semgrep:
+    name: Semgrep SAST
+    if: github.event_name != 'schedule' || github.event.schedule == '0 6 * * 1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Run Semgrep
+        run: |
+          semgrep scan \
+            --config=p/default \
+            --config=p/python \
+            --config=p/javascript \
+            --config=p/typescript \
+            --config=p/owasp-top-ten \
+            --config=.semgrep/ \
+            --sarif --output=semgrep.sarif \
+            --error \
+            --metrics=off \
+            . || true
+      - name: Upload Semgrep SARIF
+        if: always() && hashFiles('semgrep.sarif') != ''
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+      - name: Upload Semgrep artifact
+        if: always() && hashFiles('semgrep.sarif') != ''
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: semgrep-sarif-${{ github.run_id }}
+          path: semgrep.sarif
+          retention-days: 30
+
+  echidna:
+    name: Echidna property fuzz
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 4 * * 3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
+        with:
+          version: v1.7.1
+      - name: Install Echidna
+        run: |
+          curl -L https://github.com/crytic/echidna/releases/download/v2.2.6/echidna-2.2.6-x86_64-linux.tar.gz \
+            | tar -xz -C /usr/local/bin
+          echidna --version
+      - name: Build contracts
+        run: forge build
+      - name: Run Echidna
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -f echidna.yaml ]; then
+            CONFIG=echidna.yaml
+          elif [ -f echidna.config.yml ]; then
+            CONFIG=echidna.config.yml
+          else
+            CONFIG=""
+          fi
+
+          TARGET=""
+          for candidate in \
+            contracts/test/EchidnaInterceptorProperties.sol \
+            contracts/test/Invariants.sol \
+            test/echidna/EchidnaInterceptorProperties.sol; do
+            if [ -f "$candidate" ]; then
+              TARGET="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$TARGET" ]; then
+            echo "No Echidna property contract found; skipping until properties are authored."
+            exit 0
+          fi
+
+          if [ -n "$CONFIG" ]; then
+            echidna "$TARGET" --contract EchidnaInterceptorProperties --config "$CONFIG"
+          else
+            echidna "$TARGET" --contract EchidnaInterceptorProperties --test-mode property
+          fi

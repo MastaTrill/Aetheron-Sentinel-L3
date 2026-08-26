@@ -38,12 +38,6 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base
   DEPLOY_ENVIRONMENT: base-mainnet
-  BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
-  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-  SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-  MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
-  AUDIT_REPORT_SHA256: ${{ secrets.AUDIT_REPORT_SHA256 }}
-  BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
   MIN_DEPLOYER_BALANCE_ETH: '0.5'
   RELEASE_COMMIT: ${{ inputs.release_commit }}
   RELEASE_TAG: ${{ inputs.release_tag }}
@@ -57,22 +51,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-mainnet
+    env:
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+      AUDIT_REPORT_SHA256: ${{ secrets.AUDIT_REPORT_SHA256 }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
       - name: Require the checked-out commit to equal the reviewed commit
         shell: bash
         run: |
           set -euo pipefail
           test "${RELEASE_COMMIT}" = "${GITHUB_SHA}"
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           cache: npm
-      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
         with:
           version: v1.7.1
       - run: npm ci --legacy-peer-deps
@@ -85,7 +86,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: npm run security:immutable-release
       - name: Download exact Base Sepolia deployment artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: base-sepolia-deployment-${{ inputs.base_sepolia_run_id }}
           github-token: ${{ github.token }}
@@ -130,7 +131,7 @@ jobs:
           if test -f /tmp/sentinel-guardrails-simulation.json; then
             cp /tmp/sentinel-guardrails-simulation.json base-mainnet-readiness-artifacts/
           fi
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: base-mainnet-readiness-${{ github.run_id }}
@@ -144,14 +145,20 @@ jobs:
     timeout-minutes: 60
     environment: base-mainnet
     env:
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
       BASE_SEPOLIA_MANIFEST_SHA256: ${{ needs.readiness.outputs.rehearsal_manifest_sha256 }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           submodules: recursive
-      - uses: actions/setup-node@v7
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           cache: npm
@@ -166,7 +173,7 @@ jobs:
         run: npm run verify:release:base
       - name: Verify source on BaseScan
         run: npm run verify:base
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: base-mainnet-deployment-${{ github.run_id }}

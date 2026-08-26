@@ -1,19 +1,52 @@
-name: Deploy Dashboard to Vercel
+name: Dashboard
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    branches: [main]
     paths:
       - 'dashboard/**'
-      - 'apps/remix-dashboard/**'
+      - '.github/workflows/deploy-dashboard-vercel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
       - '.github/workflows/deploy-dashboard-vercel.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: dashboard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  deploy:
-    name: Deploy to Vercel
+  validate:
+    name: Validate dashboard
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Install dashboard dependencies
+        run: npm --prefix dashboard ci
+      - name: Lint dashboard
+        run: npm --prefix dashboard run lint
+      - name: Build dashboard
+        run: npm --prefix dashboard run build
+
+  deploy:
+    name: Deploy dashboard to Vercel
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check required secrets
         id: secrets
@@ -23,56 +56,50 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "Missing VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID — skipping deploy (not a failure)."
+            echo "Missing Vercel secrets; skipping deploy without failing the workflow."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Checkout Code
+      - name: Checkout
         if: steps.secrets.outputs.skip != 'true'
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         if: steps.secrets.outputs.skip != 'true'
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20
+          node-version: '24'
 
-      - name: Detect dashboard root
+      - name: Confirm canonical dashboard root
         if: steps.secrets.outputs.skip != 'true'
-        id: root
-        run: |
-          if [ -d dashboard ]; then
-            echo "cwd=./dashboard" >> "$GITHUB_OUTPUT"
-          elif [ -d apps/remix-dashboard ]; then
-            echo "cwd=./apps/remix-dashboard" >> "$GITHUB_OUTPUT"
-          else
-            echo "No dashboard directory found; skipping deploy."
-            echo "cwd=" >> "$GITHUB_OUTPUT"
-          fi
+        shell: bash
+        run: test -f dashboard/package.json
 
       - name: Install Vercel CLI
-        if: steps.secrets.outputs.skip != 'true' && steps.root.outputs.cwd != ''
+        if: steps.secrets.outputs.skip != 'true'
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        if: steps.secrets.outputs.skip != 'true' && steps.root.outputs.cwd != ''
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ steps.root.outputs.cwd }}
+      - name: Pull Vercel environment
+        if: steps.secrets.outputs.skip != 'true'
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=./dashboard
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Build Project Artifacts
-        if: steps.secrets.outputs.skip != 'true' && steps.root.outputs.cwd != ''
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ steps.root.outputs.cwd }}
+      - name: Build dashboard
+        if: steps.secrets.outputs.skip != 'true'
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=./dashboard
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Deploy Project Artifacts to Vercel
-        if: steps.secrets.outputs.skip != 'true' && steps.root.outputs.cwd != ''
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ steps.root.outputs.cwd }}
+      - name: Deploy dashboard
+        if: steps.secrets.outputs.skip != 'true'
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=./dashboard
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

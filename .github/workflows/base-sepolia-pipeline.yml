@@ -25,10 +25,6 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
-  BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-  SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-  MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
   MIN_DEPLOYER_BALANCE_ETH: '0.01'
   RELEASE_COMMIT: ${{ github.sha }}
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
@@ -38,19 +34,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: recursive
+          persist-credentials: false
       - name: Initialize readiness evidence
         run: |
           mkdir -p artifacts/base-sepolia-readiness
           : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           cache: npm
-      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
         with:
           version: v1.7.1
       - run: npm ci --legacy-peer-deps
@@ -88,7 +90,7 @@ jobs:
           if [ -f /tmp/sentinel-guardrails-simulation.json ]; then
             cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: base-sepolia-readiness-${{ github.run_id }}
@@ -102,13 +104,18 @@ jobs:
     timeout-minutes: 60
     environment: base-sepolia
     env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
       BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: recursive
-      - uses: actions/setup-node@v7
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           cache: npm
@@ -123,7 +130,7 @@ jobs:
         run: npm run verify:release:base-sepolia
       - name: Verify source on BaseScan
         run: npm run verify:source:base-sepolia
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: base-sepolia-deployment-${{ github.run_id }}
