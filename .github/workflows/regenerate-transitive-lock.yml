@@ -1,6 +1,12 @@
 name: Regenerate transitive dependency lockfile
 
 on:
+  push:
+    branches:
+      - codex/remediate-transitive-high-deps
+    paths:
+      - sentinel-l3-v1.0/pnpm-workspace.yaml
+      - .github/workflows/regenerate-transitive-lock.yml
   workflow_dispatch:
 
 permissions:
@@ -8,7 +14,7 @@ permissions:
 
 jobs:
   regenerate:
-    if: github.ref == 'refs/heads/codex/remediate-transitive-high-deps'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check out branch
