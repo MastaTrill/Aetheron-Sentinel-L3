@@ -133,6 +133,25 @@ class BillingStore:
         except Exception as exc:
             raise BillingStoreUnavailable("Unable to claim checkout and create API key") from exc
 
+    def create_api_key(
+        self,
+        subscription_id: str,
+        key_prefix: str,
+        key_hash: str,
+    ) -> dict[str, Any]:
+        try:
+            response = self._client.table("sentinel_api_keys").insert({
+                "subscription_id": subscription_id,
+                "key_prefix": key_prefix,
+                "key_hash": key_hash,
+            }).execute()
+        except Exception as exc:
+            raise BillingStoreUnavailable("Unable to create API key") from exc
+        row = self._first(response)
+        if row is None:
+            raise BillingStoreUnavailable("API key insert returned no row")
+        return row
+
     def revoke_api_key(self, key_id: str) -> None:
         try:
             self._client.table("sentinel_api_keys").update({
