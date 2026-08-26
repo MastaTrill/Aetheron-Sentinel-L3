@@ -8,3 +8,10 @@ allowBuilds:
 
 overrides:
   decompress: npm:@xhmikosr/decompress@11.1.3
+  '@graphprotocol/graph-cli>axios': 0.33.0
+  '@graphprotocol/graph-cli>glob': 11.1.0
+  '@graphprotocol/graph-cli>immutable': 5.1.8
+  '@layerzerolabs/solidity-examples>axios': 0.33.0
+  '@layerzerolabs/solidity-examples>immutable': 4.3.9
+  '@chainlink/contracts-ccip>@openzeppelin/contracts': 4.9.6
+  '@chainlink/contracts-ccip>@openzeppelin/contracts-upgradeable': 4.9.6
