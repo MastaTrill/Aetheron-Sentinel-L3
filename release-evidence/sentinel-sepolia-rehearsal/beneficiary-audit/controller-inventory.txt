@@ -1,0 +1,39 @@
+SENTINEL beneficiary controller inventory
+==========================================
+utcTimestamp: 2026-07-26T11:56:43Z
+blockNumber:  49138828
+
+safeAccount: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+safeVersion:
+"1.4.1"
+safeOwners:
+[0xf5b75474d006495C82dBbf010e230d5D2F86226f, 0x2C6C52B00d7360a8F82F3e8D27369F75c47306F9, 0xB8aA608671A639873c63cCd02548706AA8be2Ff7, 0xdF95Cc445469816234Ad95f702c79d25BCE401a7, 0xd39475C553Cc86f0a569001F22b79F693EA92F0e, 0x5F512dFeAcc95e8c47135A1EbBdf5A9E70a0Eeff]
+safeThreshold:
+3
+
+kernelAccount: 0x7e3D11f70084D667295710E6b7FF50C3b0487a45
+kernelAccountId:
+"kernel.advanced.v0.3.3"
+kernelEntryPoint:
+0x0000000071727De22E5E9d8BAf0edAc6f37da032
+kernelCurrentNonce:
+0
+kernelRootValidator:
+0x000000000000000000000000000000000000000000
+kernelValidatorType:
+0x00
+kernelValidatorAddress:
+0x0000000000000000000000000000000000000000
+kernelValidatorRuntimeBytecodeHash: 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
+
+caliburAccount: 0xF60633D02690e2A15A54AB919925F3d038Df163e
+caliburNamespaceAndVersion:
+"Uniswap.Calibur.1.0.0"
+caliburEntryPoint:
+0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108
+caliburKeyCount:
+0
+
+NOTICE: Kernel rootValidator zero is consistent with its native EIP-7702 validation mode; the zero address bytecode hash is keccak256 of empty code, not a deployed validator.
+NOTICE: Calibur keyCount zero means no additional registered keys were enumerated; the underlying EOA signing authority remains relevant.
+NOTICE: This inventory identifies account technology and control configuration, not the legal identity of the controlling person or organization. No transaction was signed or broadcast.

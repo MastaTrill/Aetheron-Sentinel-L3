@@ -1,0 +1,9 @@
+[
+  {
+    "inputs": [],
+    "name": "executeOptimization",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

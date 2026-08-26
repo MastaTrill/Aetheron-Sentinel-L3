@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "network": {
+    "name": "Base Mainnet",
+    "chainId": 8453,
+    "explorer": "https://basescan.org"
+  },
+  "tokens": {
+    "aetheron": {
+      "canonical": true,
+      "address": "0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e",
+      "name": "Aetheron",
+      "symbol": "AETH",
+      "decimals": 18,
+      "displayedMaxSupply": "1000000000000000000000000000",
+      "implementationName": "AetheronToken",
+      "proxy": false,
+      "sourceVerified": true,
+      "explorerUrl": "https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e",
+      "status": "canonical-verified",
+      "notes": [
+        "Live source-verified AETH token contract on Base Mainnet (1B total supply, 18 decimals)."
+      ]
+    }
+  }
+}

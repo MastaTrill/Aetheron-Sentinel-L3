@@ -312,15 +312,23 @@ contract SentinelOracleNetwork is Ownable, ReentrancyGuard {
      */
     function slashOracle(address oracle, uint256 penalty) external onlyOwner {
         require(oracles[oracle].active, "Oracle not active");
-        require(penalty <= 10000, "Invalid penalty"); // Max 100%
+        require(penalty <= 10000, "Invalid penalty");
 
         uint256 slashAmount = oracles[oracle].stake * penalty / 10000;
-        oracles[oracle].stake = oracles[oracle].stake - slashAmount;
+        require(slashAmount > 0, "Nothing to slash");
 
-        // Update reputation
+        uint256 remainingStake = oracles[oracle].stake - slashAmount;
+        if (remainingStake > 0 && remainingStake < MIN_STAKE) {
+            remainingStake = 0;
+            slashAmount = oracles[oracle].stake;
+        }
+        oracles[oracle].stake = remainingStake;
+        if (remainingStake == 0) {
+            oracles[oracle].active = false;
+        }
+
         _updateOracleReputation(oracle, false);
 
-        // Transfer slashed amount to treasury
         (bool ok, ) = payable(owner()).call{value: slashAmount}("");
         require(ok, "ETH transfer failed");
     }

@@ -250,3 +250,7 @@ SentinelCore (Main System)
 - **Parallel Processing**: Concurrent strategy execution
 
 This architecture represents the most advanced, secure, and yield-optimized DeFi system available, designed to be truly **unbreakable** and **unhackable** while delivering **market-leading returns** to participants.
+
+---
+
+_For more information on our security practices, see SECURITY.md._

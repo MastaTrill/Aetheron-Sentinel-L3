@@ -12,7 +12,7 @@ contracts:
   - SentinelGovernance.sol
 
 # Test mode: use Solidity-style property functions
-testMode: 'assert'
+testMode: 'property'
 
 # Number of fuzzing iterations (adjust as needed)
 maxIterations: 100000

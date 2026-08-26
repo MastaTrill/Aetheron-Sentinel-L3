@@ -334,17 +334,9 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
             return;
         }
 
-        // Execute core loop phases with error handling
-        try this._executeCoreLoopPhases(cycleNumber) {
-            // Success - update metrics
-            coreMetrics.lastCoreUpdate = block.timestamp;
-        } catch Error(string memory reason) {
-            // Handle expected errors
-            _handleCoreLoopError(reason, cycleNumber);
-        } catch (bytes memory /*lowLevelData*/) {
-            // Handle unexpected errors
-            _handleCoreLoopError("Unexpected error in core loop", cycleNumber);
-        }
+        // Execute core loop phases
+        _executeCoreLoopPhases(cycleNumber);
+        coreMetrics.lastCoreUpdate = block.timestamp;
 
         // Post-execution validation
         _validatePostExecution();
@@ -397,8 +389,7 @@ contract SentinelCoreLoop is Ownable, AccessControl, ReentrancyGuard, Pausable {
     /**
      * @dev Execute all core loop phases
      */
-    function _executeCoreLoopPhases(uint256 /* cycleNumber */) external {
-        require(msg.sender == address(this), "Internal function call only");
+    function _executeCoreLoopPhases(uint256 /* cycleNumber */) internal {
 
         // ════════════════════════════════════════════════════════════════
         //                    PHASE 1: QUANTUM STATE ASSESSMENT

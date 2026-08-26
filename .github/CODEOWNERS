@@ -1,7 +1,13 @@
-# This file designates code owners for critical files and directories.
-# Require review from @MastaTrill for all smart contract and config changes.
+# Aetheron Sentinel L3 Code Owners
 
-/contracts/* @MastaTrill
-/hardhat.config.ts @MastaTrill
-/scripts/* @MastaTrill
-SECURITY.md @MastaTrill
+# Core Security & Architecture
+/src/                  @MastaTrill
+/script/               @MastaTrill
+/foundry.toml          @MastaTrill
+/slither.config.json   @MastaTrill
+
+# CI/CD & Workflows
+.github/workflows/     @MastaTrill
+
+# Default fallback
+*                      @MastaTrill

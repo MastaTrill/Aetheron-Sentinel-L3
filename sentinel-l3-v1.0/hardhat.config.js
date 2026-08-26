@@ -29,7 +29,6 @@ function hasNetworkConfig(rpcUrl) {
   return isRealRpcUrl(rpcUrl) && getOwnerAccounts().length > 0;
 }
 
-/** @type import('hardhat/config').HardhatUserConfig */
 const config = {
   plugins: [hardhatEthers, hardhatMocha, hardhatEthersChaiMatchers],
   solidity: {
@@ -41,15 +40,16 @@ const config = {
       },
     },
   },
+  paths: {
+    sources: './contracts',
+  },
   networks: {
     hardhat: {
-      // Local simulation
       type: 'edr-simulated',
     },
     direct_l3: {
       type: 'http',
       url: 'http://127.0.0.1:8545',
-      // Local dev only — use DIRECT_L3_PRIVATE_KEY env var (defaults to Hardhat account #0 for local simulation)
       accounts: process.env.DIRECT_L3_PRIVATE_KEY ? [process.env.DIRECT_L3_PRIVATE_KEY] : [],
     },
     ...(hasNetworkConfig(process.env.SEPOLIA_RPC_URL)

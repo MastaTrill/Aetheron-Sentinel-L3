@@ -1,9 +1,13 @@
-import hardhat from 'hardhat';
-const { ethers } = hardhat;
+import hardhatModule from 'hardhat';
+const hre = hardhatModule.default ?? hardhatModule;
+const { ethers } = hre;
 
 async function analyzeGasUsage() {
   console.log('⛽ Gas Usage Analysis for Aetheron Sentinel L3');
   console.log('============================================\n');
+
+  const connection = await hre.network.getOrCreate();
+  const { ethers } = connection;
 
   // Get contract factories
   const contracts = [
@@ -21,14 +25,46 @@ async function analyzeGasUsage() {
     'SentinelInterceptor',
   ];
 
+  const [owner] = await ethers.getSigners();
+  const ownerAddress = owner.address;
+  const mockAddress = '0x0000000000000000000000000000000000000001';
+
+  // Pre-deploy real contracts needed as constructor args for SentinelGovernance
+  const TokenFactory = await ethers.getContractFactory('SentinelToken');
+  const govToken = await TokenFactory.deploy(ownerAddress);
+  await govToken.waitForDeployment();
+  const govTokenAddr = await govToken.getAddress();
+
+  const TimelockFactory = await ethers.getContractFactory('SentinelTimelock');
+  const govTimelock = await TimelockFactory.deploy(3600, [ownerAddress], [ownerAddress], ownerAddress);
+  await govTimelock.waitForDeployment();
+  const govTimelockAddr = await govTimelock.getAddress();
+
+  const contractArgs = {
+    SentinelCore: [ownerAddress],
+    SentinelToken: [ownerAddress],
+    SentinelAMM: [ownerAddress],
+    SentinelOracleNetwork: [ownerAddress],
+    SentinelMultiSigVault: [ownerAddress],
+    AetheronBridge: [ownerAddress],
+    RateLimiter: [ownerAddress],
+    CircuitBreaker: [ownerAddress],
+    SentinelInterceptor: [80, 1000000000000000000000n, true, ownerAddress],
+    SentinelStaking: [mockAddress, mockAddress, ownerAddress],
+    SentinelTimelock: [3600, [ownerAddress], [ownerAddress], ownerAddress],
+    SentinelGovernance: [govTokenAddr, govTimelockAddr],
+  };
+
   for (const contractName of contracts) {
     try {
-      const Contract = await ethers.getContractFactory(contractName);
-      const deploymentTx = Contract.getDeployTransaction();
+      const ContractFactory = await ethers.getContractFactory(contractName);
+      const args = contractArgs[contractName] || [];
+      const deploymentTx = await ContractFactory.getDeployTransaction(...args);
 
       if (deploymentTx) {
         const estimatedGas = await ethers.provider.estimateGas(deploymentTx);
-        const gasPrice = await ethers.provider.getGasPrice();
+        const feeData = await ethers.provider.getFeeData();
+        const gasPrice = feeData.gasPrice ?? 20000000000n; // fallback to 20 gwei
         const estimatedCost = estimatedGas * gasPrice;
 
         console.log(`${contractName}:`);
@@ -49,14 +85,14 @@ async function analyzeGasUsage() {
   );
 }
 
-// Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  analyzeGasUsage()
-    .then(() => process.exit(0))
-    .catch(error => {
-      console.error(error);
-      process.exit(1);
-    });
-}
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+analyzeGasUsage()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
 
 export { analyzeGasUsage };

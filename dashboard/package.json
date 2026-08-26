@@ -10,8 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "@tanstack/react-query": "^5.101.2",
+    "aetheron-sentinel-l3": "file:..",
+    "buffer": "^6.0.3",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "viem": "^2.55.2",
+    "wagmi": "^3.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -24,10 +30,10 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
-    "postcss": "^8.5.13",
+    "postcss": "^8.5.23",
     "tailwindcss": "^4.2.4",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.16"
   }
 }

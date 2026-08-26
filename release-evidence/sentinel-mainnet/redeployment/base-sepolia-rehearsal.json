@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "mode": "protected-testnet-broadcast",
+  "chainId": 84532,
+  "manifest": {
+    "path": "release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json",
+    "sha256": "f727b14201ec419518a683f329b0797b98764daec7f7cdbc6ccd3d0d83423e1d"
+  },
+  "request": {
+    "path": "release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal-request.json",
+    "sha256": "e275f539d16f7a3c8e4e6e1436ad2f5b1b1fe342fd495d1c5be0cf2404ab59d2",
+    "sourceCommit": "3deba5e33003cdb15c5fa93c54b323a1e5fb6041",
+    "expiresAt": "2026-08-01T23:45:00.000Z"
+  },
+  "signer": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+  "airlockCall": {
+    "to": "0x3411306Ce66c9469BFF1535BA955503c4Bde1C6e",
+    "valueWei": "0",
+    "calldataHash": "0x55b0054dbf3997212897cc88ec4acac376cf0c796e2234b87c4eb36433bdd701",
+    "estimatedGas": "3728460"
+  },
+  "predicted": {
+    "token": "0x3555976fecf045833D6E148C42035170bA1337Ab",
+    "pool": "0x3555976fecf045833D6E148C42035170bA1337Ab",
+    "governance": "0x000000000000000000000000000000000000dEaD",
+    "timelock": "0x000000000000000000000000000000000000dEaD",
+    "migrationPool": "0xdeaDDeADDEaDdeaDdEAddEADDEAdDeadDEADDEaD",
+    "poolId": "0xb053a9edafe39e11a65a48f18804c500e45477c17d617c6145ef9f8c6ae9adcd"
+  },
+  "safety": {
+    "baseMainnetAuthorized": false,
+    "mainnetTransactionProduced": false,
+    "privateKeyRecorded": false
+  },
+  "status": "confirmed",
+  "transactionHash": "0x77117f06adb7c9355659244929e6143785d5b66a75b40e2732912205fed7c433",
+  "receipt": {
+    "blockNumber": 44925555,
+    "blockHash": "0xc0fe1f6d259793b1a974b5e467926f467484365a8c19b48b96c940cd929601be",
+    "confirmations": 2,
+    "status": 1,
+    "gasUsed": "3622931",
+    "gasPriceWei": "6000000",
+    "transactionIndex": 8
+  },
+  "createEvent": {
+    "token": "0x3555976fecf045833D6E148C42035170bA1337Ab",
+    "numeraire": "0x4200000000000000000000000000000000000006",
+    "initializer": "0xD59cE43E53D69F190E15d9822Fb4540dCcc91178",
+    "poolOrHook": "0x3555976fecf045833D6E148C42035170bA1337Ab",
+    "logIndex": 27
+  },
+  "tokenState": {
+    "address": "0x3555976fecf045833D6E148C42035170bA1337Ab",
+    "name": "SENTINEL",
+    "symbol": "SENTINEL",
+    "totalSupply": "100000000000000000000000000000",
+    "owner": "0x3411306Ce66c9469BFF1535BA955503c4Bde1C6e",
+    "runtimeCodeHash": "0x0fac87bbc4bfd0c61b1f9af741df5dcc44491cf4998f9015cdf4947a5d17051f"
+  },
+  "beneficiaryShares": [
+    {
+      "role": "doppler-protocol",
+      "beneficiary": "0x0abCf819FD57C9f0141628410fFC273405E44426",
+      "shares": "50000000000000000",
+      "verifiedShares": "50000000000000000"
+    },
+    {
+      "role": "bankr-ecosystem",
+      "beneficiary": "0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1",
+      "shares": "19000000000000000",
+      "verifiedShares": "19000000000000000"
+    },
+    {
+      "role": "aetheron-treasury",
+      "beneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+      "shares": "570000000000000000",
+      "verifiedShares": "570000000000000000"
+    },
+    {
+      "role": "bankr-platform-integrator",
+      "beneficiary": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
+      "shares": "361000000000000000",
+      "verifiedShares": "361000000000000000"
+    }
+  ],
+  "balanceBeforeWei": "10300000000000000",
+  "balanceAfterWei": "10278227824488004"
+}

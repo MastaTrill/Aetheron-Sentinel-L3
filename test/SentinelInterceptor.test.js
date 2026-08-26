@@ -30,8 +30,8 @@ describe('SentinelInterceptor', function () {
   describe('getAnomalyStats', function () {
     it('returns zeroed stats initially', async function () {
       const [total, lastBlock, consecutive, freq] = await interceptor.getAnomalyStats();
-      expect(total).to.equal(0);
-      expect(consecutive).to.equal(0);
+      expect(total).to.equal(0n);
+      expect(consecutive).to.equal(0n);
     });
   });
 
@@ -42,7 +42,7 @@ describe('SentinelInterceptor', function () {
       }
       await interceptor.connect(monitorUser).detectAnomaly(1, 30);
       const [total] = await interceptor.getAnomalyStats();
-      expect(total).to.equal(1);
+      expect(total).to.equal(1n);
     });
 
     it('rejects invalid anomaly type', async function () {

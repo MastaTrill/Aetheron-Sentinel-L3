@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "status": "template-not-evidence",
+  "reviewedCommit": "REPLACE_WITH_EXACT_40_HEX_COMMIT",
+  "repository": "MastaTrill/Aetheron-Sentinel-L3",
+  "toolchain": {
+    "node": "24.x",
+    "hardhat": "3.11.0",
+    "ethers": "6.17.0",
+    "solc": "0.8.28",
+    "optimizerEnabled": true,
+    "optimizerRuns": "REPLACE_WITH_EXACT_VALUE"
+  },
+  "networks": {
+    "rehearsalChainId": 84532,
+    "productionChainId": 8453
+  },
+  "source": {
+    "deploymentScript": "REPLACE_WITH_REVIEWED_PATH",
+    "contractSourcePaths": [],
+    "sourceTreeDigestSha256": "REPLACE_WITH_64_HEX_SHA256",
+    "creationBytecodeKeccak256": "REPLACE_WITH_0X_64_HEX_HASH",
+    "runtimeBytecodeKeccak256": "REPLACE_WITH_0X_64_HEX_HASH"
+  },
+  "initializer": {
+    "contract": "REPLACE_WITH_CONTRACT_NAME",
+    "calldata": "REPLACE_WITH_0X_HEX_CALLDATA",
+    "decodedInputs": {}
+  },
+  "governance": {
+    "owner": "REPLACE_WITH_NONZERO_ADDRESS",
+    "emergencyControls": [],
+    "creatorBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
+    "creatorShareWad": "570000000000000000"
+  },
+  "legacyExclusion": {
+    "legacyToken": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+    "mustNotBeReplacement": true
+  },
+  "notice": "Copy to deployment-manifest.json only after every placeholder is replaced and independently reviewable. This file does not authorize a transaction."
+}

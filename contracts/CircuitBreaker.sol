@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 contract CircuitBreaker is Ownable, AccessControl, Pausable {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant MONITOR_ROLE = keccak256("MONITOR_ROLE");
+    bytes32 public constant SECURITY_ORACLE_ROLE = keccak256("SECURITY_ORACLE_ROLE");
 
     enum State {
         CLOSED,
@@ -162,7 +163,9 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
      * @param chainId Chain ID
      * @return True if circuit is closed or can be tried
      */
-    function isCircuitClosed(uint256 chainId) external returns (bool) {
+    function isCircuitClosed(
+        uint256 chainId
+    ) external whenNotPaused returns (bool) {
         require(chainId > 0, "Invalid chain ID");
 
         if (circuitStates[chainId] == State.OPEN) {
@@ -187,6 +190,14 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
     }
 
     /**
+     * @notice Allows an authorized security oracle to trigger an emergency lockdown
+     */
+    function triggerEmergencyLockdown() external onlyRole(SECURITY_ORACLE_ROLE) {
+        _pause();
+        emit EmergencyPaused(msg.sender);
+    }
+
+    /**
      * @notice Emergency unpause circuit breaker operations
      */
     function emergencyUnpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -203,6 +214,22 @@ contract CircuitBreaker is Ownable, AccessControl, Pausable {
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         permanentShutdown[chainId] = true;
         circuitStates[chainId] = State.OPEN; // Ensure it's open
+    }
+
+    /**
+     * @notice Transfer ownership and migrate every privileged role to the new owner
+     * @param newOwner New owner address
+     */
+    function transferOwnership(address newOwner) public override onlyOwner {
+        require(newOwner != address(0), "Invalid owner");
+        address previousOwner = owner();
+        super.transferOwnership(newOwner);
+        _grantRole(DEFAULT_ADMIN_ROLE, newOwner);
+        _grantRole(OPERATOR_ROLE, newOwner);
+        _grantRole(MONITOR_ROLE, newOwner);
+        _revokeRole(MONITOR_ROLE, previousOwner);
+        _revokeRole(OPERATOR_ROLE, previousOwner);
+        _revokeRole(DEFAULT_ADMIN_ROLE, previousOwner);
     }
 
     /**

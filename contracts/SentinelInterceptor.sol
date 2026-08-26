@@ -19,8 +19,8 @@ contract SentinelInterceptor is
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant MONITOR_ROLE = keccak256("MONITOR_ROLE");
 
-    uint256 public anomalyThreshold;
-    uint256 public tvlThreshold;
+    uint256 public immutable anomalyThreshold;
+    uint256 public immutable tvlThreshold;
     uint256 public currentTVL;
     bool public autonomousMode;
     uint256 public anomalyCount;

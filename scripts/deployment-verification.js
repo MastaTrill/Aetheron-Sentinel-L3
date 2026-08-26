@@ -8,33 +8,48 @@ async function verifyDeployment() {
   const network = await ethers.provider.getNetwork();
   console.log(`Network: ${network.name} (Chain ID: ${network.chainId})\n`);
 
-  // Check if contracts are deployed by trying to get their addresses
-  const contracts = [
-    'SentinelCore',
-    'SentinelToken',
-    'SentinelStaking',
-    'SentinelAMM',
-    'SentinelOracleNetwork',
-    'SentinelMultiSigVault',
-    'SentinelTimelock',
-    'SentinelGovernance',
-    'AetheronBridge',
-    'RateLimiter',
-    'CircuitBreaker',
-    'SentinelInterceptor',
-  ];
+  // --- IMPORTANT ---
+  // For actual verification, these addresses should come from a reliable source
+  // (e.g., a .env file updated by deploy.js, or a deployment JSON record).
+  // For this example, we'll use placeholder environment variables.
+  const deployedAddresses = {
+    SentinelCore: process.env.SENTINEL_CORE_ADDRESS,
+    SentinelToken: process.env.SENTINEL_TOKEN_ADDRESS,
+    SentinelStaking: process.env.SENTINEL_STAKING_ADDRESS,
+    SentinelAMM: process.env.SENTINEL_AMM_ADDRESS,
+    SentinelOracleNetwork: process.env.SENTINEL_ORACLE_NETWORK_ADDRESS,
+    SentinelMultiSigVault: process.env.SENTINEL_MULTISIG_VAULT_ADDRESS,
+    SentinelTimelock: process.env.SENTINEL_TIMELOCK_ADDRESS,
+    SentinelGovernance: process.env.SENTINEL_GOVERNANCE_ADDRESS,
+    AetheronBridge: process.env.AETHERON_BRIDGE_ADDRESS,
+    RateLimiter: process.env.RATE_LIMITER_ADDRESS,
+    CircuitBreaker: process.env.CIRCUIT_BREAKER_ADDRESS,
+    SentinelInterceptor: process.env.INTERCEPTOR_ADDRESS, // This one is explicitly set by deploy.js
+    SentinelMonitor: process.env.MONITOR_ADDRESS, // This one is explicitly set by deploy.js
+  };
+
+  const contractsToVerify = Object.entries(deployedAddresses).filter(([, address]) => address);
 
   let deployedCount = 0;
-  let totalCount = contracts.length;
+  let totalCount = contractsToVerify.length;
 
-  for (const contractName of contracts) {
+  if (totalCount === 0) {
+    console.log('⚠️ No contract addresses found in environment variables for verification.');
+    console.log(
+      'Please ensure your .env file is correctly populated with deployed contract addresses.'
+    );
+    return;
+  }
+
+  for (const [contractName, address] of contractsToVerify) {
     try {
-      const Contract = await ethers.getContractFactory(contractName);
-      const contract = await Contract.deploy();
-      await contract.waitForDeployment();
-
-      const address = await contract.getAddress();
-      console.log(`✅ ${contractName}: ${address}`);
+      const code = await ethers.provider.getCode(address);
+      if (code && code !== '0x' && code !== '0x0') {
+        console.log(`✅ ${contractName} (${address}): Code found on chain.`);
+        deployedCount++;
+      } else {
+        console.log(`❌ ${contractName} (${address}): No code found on chain.`);
+      }
 
       deployedCount++;
     } catch (error) {

@@ -1,0 +1,38 @@
+SENTINEL beneficiary control classification
+============================================
+utcTimestamp: 2026-07-26T11:50:14Z
+blockNumber:  49138633
+
+beneficiary: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+accountType: deployed-contract
+runtimeBytecodeHash: 0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c
+safeOwners:
+[0xf5b75474d006495C82dBbf010e230d5D2F86226f, 0x2C6C52B00d7360a8F82F3e8D27369F75c47306F9, 0xB8aA608671A639873c63cCd02548706AA8be2Ff7, 0xdF95Cc445469816234Ad95f702c79d25BCE401a7, 0xd39475C553Cc86f0a569001F22b79F693EA92F0e, 0x5F512dFeAcc95e8c47135A1EbBdf5A9E70a0Eeff]
+safeThreshold: 3
+safeNonce: 35
+
+beneficiary: 0x2Cdd33d6FF2a897180c7F4e5a20F018Bf0c16fD1
+accountType: EOA
+safeOwners: not-supported
+safeThreshold: not-supported
+safeNonce: not-supported
+
+beneficiary: 0x7e3D11f70084D667295710E6b7FF50C3b0487a45
+accountType: EIP-7702-delegated-EOA
+delegationTarget: 0xd6cedde84be40893d153be9d467cd6ad37875b28
+delegationTargetRuntimeBytecodeHash: 0xe5b56d82025d2358308f77833fe29c3856b1a7a0f7a4b9f86b1fd77da3e3b4fb
+verifiedDelegationImplementation: Kernel
+safeOwners: not-supported
+safeThreshold: not-supported
+safeNonce: not-supported
+
+beneficiary: 0xF60633D02690e2A15A54AB919925F3d038Df163e
+accountType: EIP-7702-delegated-EOA
+delegationTarget: 0x612373d7003d694220f7800eeaf8e3924c0951d3
+delegationTargetRuntimeBytecodeHash: 0xff0357b543bbb94845b6791a8becac5e87d467814f86538a62649c877227d631
+verifiedDelegationImplementation: CaliburEntry
+safeOwners: not-supported
+safeThreshold: not-supported
+safeNonce: not-supported
+
+NOTICE: Account technology and delegation implementation do not establish the human or organization controlling an address. No beneficiary approval, fee collection, share transfer, or other transaction was authorized or executed by this read-only classification.

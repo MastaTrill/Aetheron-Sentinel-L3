@@ -34,11 +34,12 @@ class SentinelInterface {
   }
 
   setupEventListeners() {
-    // Smooth scrolling navigation
+    // Smooth scrolling navigation for internal hash links
     this.navLinks.forEach(link => {
       link.addEventListener('click', e => {
-        e.preventDefault();
         const targetId = link.getAttribute('href');
+        if (!targetId || !targetId.startsWith('#')) return; // Allow normal page navigation
+        e.preventDefault();
         const targetSection = document.querySelector(targetId);
 
         if (targetSection) {

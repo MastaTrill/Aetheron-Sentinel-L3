@@ -13,19 +13,19 @@ describe('SentinelInsuranceMarketplace', function () {
     ({ ethers } = await network.getOrCreate());
     [owner, provider, user, user2] = await ethers.getSigners();
 
-    // Deploy a mock ERC20 token for payment
-    const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    paymentToken = await ERC20Mock.deploy(
-      'Mock AETH',
-      'mAETH',
-      owner.address,
-      ethers.parseEther('1000000')
-    );
+    // Deploy the actual AETH token for payment
+    const SentinelToken = await ethers.getContractFactory('SentinelToken');
+    paymentToken = await SentinelToken.deploy(owner.address);
     await paymentToken.waitForDeployment();
 
-    // Deploy a mock insurance pool (could be a simple contract or just use an address)
-    // For simplicity, we'll use the owner as the insurance pool address
-    insurancePool = owner.address;
+    // Deploy the actual insurance pool
+    const SentinelInsurancePool = await ethers.getContractFactory('SentinelInsurancePool');
+    const pool = await SentinelInsurancePool.deploy(
+      await paymentToken.getAddress(),
+      await paymentToken.getAddress() // Mocking payoutToken as paymentToken for simplicity
+    );
+    await pool.waitForDeployment();
+    insurancePool = await pool.getAddress();
 
     // Deploy the insurance marketplace
     const SentinelInsuranceMarketplace = await ethers.getContractFactory(
@@ -86,10 +86,10 @@ describe('SentinelInsuranceMarketplace', function () {
       const offering = await insuranceMarketplace.offerings(offeringId);
       expect(offering.provider).to.equal(provider.address);
       expect(offering.coverageType).to.equal(coverageType);
-      expect(offering.coverageAmount).to.equal(coverageAmount);
-      expect(offering.premiumAmount).to.equal(premiumAmount);
-      expect(offering.duration).to.equal(duration);
-      expect(offering.maxCapacity).to.equal(maxCapacity);
+      expect(offering.coverageAmount).to.equal(BigInt(coverageAmount));
+      expect(offering.premiumAmount).to.equal(BigInt(premiumAmount));
+      expect(offering.duration).to.equal(BigInt(duration));
+      expect(offering.maxCapacity).to.equal(BigInt(maxCapacity));
       expect(offering.isActive).to.be.true;
     });
 
@@ -128,7 +128,7 @@ describe('SentinelInsuranceMarketplace', function () {
 
       const policy = await insuranceMarketplace.policies(1);
       expect(policy.buyer).to.equal(user.address);
-      expect(policy.coverageAmount).to.equal(50);
+      expect(policy.coverageAmount).to.equal(50n);
       expect(policy.isActive).to.be.true;
       expect(policy.isClaimed).to.be.false;
     });
@@ -146,7 +146,7 @@ describe('SentinelInsuranceMarketplace', function () {
 
   describe('Liquidity Management', function () {
     it('should allow adding liquidity', async function () {
-      const amount = 100;
+      const amount = 100n;
 
       await expect(insuranceMarketplace.connect(user).addLiquidity(amount))
         .to.emit(insuranceMarketplace, 'LiquidityAdded')
@@ -159,7 +159,7 @@ describe('SentinelInsuranceMarketplace', function () {
     it('should allow removing liquidity', async function () {
       // Note: Contract has a bug in _calculateRewards when totalLiquidity is used as divisor
       // This test verifies basic functionality without rewards calculation
-      const amount = 100;
+      const amount = 100n;
       await insuranceMarketplace.connect(user).addLiquidity(amount);
 
       // Verify liquidity was added

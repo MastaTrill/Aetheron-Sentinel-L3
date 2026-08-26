@@ -1,108 +1,138 @@
-import { defineConfig } from 'hardhat/config';
+import 'dotenv/config';
 import hardhatEthers from '@nomicfoundation/hardhat-ethers';
+import hardhatVerify from '@nomicfoundation/hardhat-verify';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatEthersChaiMatchers from '@nomicfoundation/hardhat-ethers-chai-matchers';
+import { fileURLToPath } from 'node:url';
 
-function getOwnerAccounts() {
-  const ownerKey = (process.env.OWNER_PRIVATE_KEY || '').trim();
-  return isRealPrivateKey(ownerKey) ? [ownerKey] : [];
-}
+const LOCAL_SOLC_PATH = fileURLToPath(new URL('./node_modules/solc/soljson.js', import.meta.url));
 
-function isRealPrivateKey(value) {
-  return /^0x[0-9a-fA-F]{64}$/.test((value || '').trim());
-}
-
-function isRealRpcUrl(value) {
-  const url = (value || '').trim();
-  if (!url) return false;
-  if (url.includes('YOUR_') || url.includes('your_') || url.endsWith('/v3/')) return false;
-
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch {
-    return false;
+function normalizePrivateKey(value) {
+  let normalized = String(value || '')
+    .trim()
+    .replace(/^\uFEFF/, '');
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
   }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
 }
 
-function hasNetworkConfig(rpcUrl) {
-  return isRealRpcUrl(rpcUrl) && getOwnerAccounts().length > 0;
+const DEPLOYER_PRIVATE_KEY = normalizePrivateKey(
+  process.env.DEPLOYER_PRIVATE_KEY ||
+    '0000000000000000000000000000000000000000000000000000000000000000'
+);
+const BRIDGE_PRIVATE_KEY = process.env.BRIDGE_PRIVATE_KEY || DEPLOYER_PRIVATE_KEY;
+
+function getRpcUrl(envVar, fallback) {
+  const url = process.env[envVar];
+  if (!url || url.includes('YOUR_') || url.includes('your_')) {
+    throw new Error(`Missing or invalid ${envVar} environment variable`);
+  }
+  return url;
 }
 
-/** @type import('hardhat/config').HardhatUserConfig */
 const config = {
-  plugins: [hardhatEthers, hardhatMocha, hardhatEthersChaiMatchers],
+  plugins: [hardhatEthers, hardhatVerify, hardhatMocha, hardhatEthersChaiMatchers],
+  paths: {
+    contracts: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts',
+  },
   solidity: {
     version: '0.8.28',
+    path: LOCAL_SOLC_PATH,
+    isolated: true,
     settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-      },
+      optimizer: { enabled: true, runs: 1000 },
+      metadata: { bytecodeHash: 'none' },
+      evmVersion: 'cancun',
+    },
+  },
+  mocha: {
+    timeout: 100000,
+  },
+  verify: {
+    etherscan: {
+      apiKey: process.env.BASESCAN_API_KEY || process.env.ETHERSCAN_API_KEY || '',
     },
   },
   networks: {
     hardhat: {
-      // Local simulation
       type: 'edr-simulated',
     },
-    direct_l3: {
-      type: 'http',
-      url: 'http://127.0.0.1:8545',
-      // Local dev only — use DIRECT_L3_PRIVATE_KEY env var (defaults to Hardhat account #0 for local simulation)
-      accounts: process.env.DIRECT_L3_PRIVATE_KEY ? [process.env.DIRECT_L3_PRIVATE_KEY] : [],
-    },
-    ...(hasNetworkConfig(process.env.SEPOLIA_RPC_URL)
+    ...(process.env.BASE_TESTNET_RPC_URL
+      ? {
+          baseSepolia: {
+            type: 'http',
+            url: process.env.BASE_TESTNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 84532,
+          },
+          baseSepoliaBridge: {
+            type: 'http',
+            url: process.env.BASE_TESTNET_RPC_URL,
+            accounts: [BRIDGE_PRIVATE_KEY],
+            chainId: 84532,
+          },
+        }
+      : {}),
+    ...(process.env.SEPOLIA_RPC_URL
       ? {
           sepolia: {
             type: 'http',
             url: process.env.SEPOLIA_RPC_URL,
-            accounts: getOwnerAccounts(),
+            accounts: [DEPLOYER_PRIVATE_KEY],
             gasPrice: 20000000000,
           },
         }
       : {}),
-    ...(hasNetworkConfig(process.env.MAINNET_RPC_URL)
+    ...(process.env.MAINNET_RPC_URL
       ? {
           mainnet: {
             type: 'http',
             url: process.env.MAINNET_RPC_URL,
-            accounts: getOwnerAccounts(),
+            accounts: [DEPLOYER_PRIVATE_KEY],
             gasPrice: 20000000000,
           },
         }
       : {}),
-    ...(hasNetworkConfig(process.env.POLYGON_RPC_URL)
-      ? {
-          polygon: {
-            type: 'http',
-            url: process.env.POLYGON_RPC_URL,
-            accounts: getOwnerAccounts(),
-            gasPrice: 40000000000,
-          },
-        }
-      : {}),
-    ...(hasNetworkConfig(process.env.BASE_RPC_URL)
+    ...(process.env.BASE_MAINNET_RPC_URL
       ? {
           base: {
             type: 'http',
-            url: process.env.BASE_RPC_URL,
-            accounts: getOwnerAccounts(),
-            gasPrice: 1000000000,
+            url: process.env.BASE_MAINNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 8453,
           },
         }
       : {}),
-    ...(hasNetworkConfig(process.env.ARBITRUM_RPC_URL)
+    ...(process.env.POLYGON_MAINNET_RPC_URL
+      ? {
+          polygon: {
+            type: 'http',
+            url: process.env.POLYGON_MAINNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 137,
+          },
+        }
+      : {}),
+    ...(process.env.ARBITRUM_MAINNET_RPC_URL
       ? {
           arbitrum: {
             type: 'http',
-            url: process.env.ARBITRUM_RPC_URL,
-            accounts: getOwnerAccounts(),
-            gasPrice: 2000000000,
+            url: process.env.ARBITRUM_MAINNET_RPC_URL,
+            accounts: [DEPLOYER_PRIVATE_KEY],
+            chainId: 42161,
           },
         }
       : {}),
   },
 };
 
-export default defineConfig(config);
+export default config;

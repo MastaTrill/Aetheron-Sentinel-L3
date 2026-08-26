@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aetheron Sentinel L3 — Liquidity Pools</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .lp-container {
+        max-width: 1100px;
+        margin: 80px auto 40px;
+        padding: 0 20px;
+      }
+      .lp-title {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .lp-title h1 {
+        font-size: 2.4rem;
+        color: #fff;
+        margin-bottom: 8px;
+      }
+      .lp-title p {
+        color: var(--text-secondary);
+      }
+      .pool-card {
+        background: rgba(13, 27, 42, 0.7);
+        border: 1px solid rgba(0, 255, 204, 0.15);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+      .pool-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .pool-table th {
+        text-align: left;
+        padding: 12px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .pool-table td {
+        padding: 16px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #fff;
+        font-size: 0.95rem;
+      }
+      .pool-table tr:hover td {
+        background: rgba(0, 255, 204, 0.03);
+      }
+      .apy-badge {
+        background: rgba(0, 255, 204, 0.1);
+        color: var(--quantum-cyan);
+        border: 1px solid rgba(0, 255, 204, 0.3);
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .stat-card {
+        background: rgba(13, 27, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+      }
+      .stat-val {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #fff;
+      }
+      .stat-lbl {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 4px;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .tab {
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+      }
+      .tab.active {
+        background: var(--quantum-cyan);
+        color: #000;
+        border-color: var(--quantum-cyan);
+      }
+      .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.95rem;
+        margin-top: 6px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars-bg"></div>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="nav-logo">
+          <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
+          <span class="logo-text">SENTINEL L3</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="analytics.html" class="nav-link">Analytics</a>
+          <a href="insurance.html" class="nav-link">Insurance</a>
+          <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+          <a href="liquidity.html" class="nav-link active">💧 Liquidity</a>
+          <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
+        </div>
+        <div class="nav-actions">
+          <a
+            href="https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary"
+            >View BaseScan ↗</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="lp-container">
+      <div class="lp-title">
+        <h1>💧 Aetheron Liquidity Pools</h1>
+        <p>
+          Provide liquidity to AETH trading pairs on Base and earn 0.30% fees on every swap.
+          Protocol-owned liquidity ensures deep, slippage-free markets.
+        </p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val style-1ede3f">$3,000,000</div>
+          <div class="stat-lbl">Target Liquidity Depth (Base)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">$42,500</div>
+          <div class="stat-lbl">24h Presale Volume</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val style-a9147c">0.30%</div>
+          <div class="stat-lbl">Uniswap v3 Fee Tier</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val style-1ef001">Base Mainnet</div>
+          <div class="stat-lbl">Settlement Layer</div>
+        </div>
+      </div>
+
+      <!-- Pool Table -->
+      <div class="pool-card">
+        <h2 style="font-size: 1.2rem; color: #fff; margin-bottom: 16px">
+          🌊 Canonical Liquidity Pairs
+        </h2>
+        <table class="pool-table">
+          <thead>
+            <tr>
+              <th>Pool</th>
+              <th>TVL Target</th>
+              <th>Fee Tier</th>
+              <th>Fee APY</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>AETH / WETH</strong><br /><span style="font-size: 12px; color: #a0aec0"
+                  >Base Mainnet (Chain ID 8453)</span
+                >
+              </td>
+              <td style="color: #00ffcc; font-weight: 700">$3,000,000</td>
+              <td>0.30%</td>
+              <td><span class="apy-badge">38.2% APY</span></td>
+              <td>
+                <button
+                  class="btn-primary"
+                  style="padding: 6px 14px; font-size: 12px"
+                  onclick="openModal('AETH/WETH')"
+                >
+                  Add Liquidity
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>AETH / USDC</strong><br /><span style="font-size: 12px; color: #a0aec0"
+                  >Base Mainnet (Chain ID 8453)</span
+                >
+              </td>
+              <td style="color: #00ffcc; font-weight: 700">$1,500,000</td>
+              <td>0.30%</td>
+              <td><span class="apy-badge">22.4% APY</span></td>
+              <td>
+                <button
+                  class="btn-primary"
+                  style="padding: 6px 14px; font-size: 12px"
+                  onclick="openModal('AETH/USDC')"
+                >
+                  Add Liquidity
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add Liquidity Panel -->
+      <div class="pool-card" id="addLiqPanel" style="display: none">
+        <h2 style="font-size: 1.2rem; color: #00ffcc; margin-bottom: 8px">
+          ⚡ Add Liquidity — <span id="addLiqPair"></span>
+        </h2>
+        <p style="color: #a0aec0; font-size: 13px; margin-bottom: 16px">
+          Deposit both assets proportionally into the Uniswap v3 pool position.
+        </p>
+        <div class="tabs">
+          <div class="tab active" id="tab-add" onclick="switchTab('add')">Add Liquidity</div>
+          <div class="tab" id="tab-remove" onclick="switchTab('remove')">Remove Liquidity</div>
+        </div>
+        <div id="addPanel">
+          <div
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px"
+          >
+            <div>
+              <label style="font-size: 12px; color: #a0aec0">AETH Amount</label>
+              <input
+                type="number"
+                id="lpSentinel"
+                class="form-input"
+                placeholder="e.g. 10000"
+                min="0"
+              />
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #a0aec0">Paired Asset Amount</label>
+              <input
+                type="number"
+                id="lpPaired"
+                class="form-input"
+                placeholder="e.g. 1.0"
+                min="0"
+              />
+            </div>
+          </div>
+          <button
+            class="btn-primary"
+            style="width: 100%; padding: 12px"
+            onclick="handleAddLiquidity()"
+          >
+            💧 Add Liquidity &amp; Earn Fees
+          </button>
+        </div>
+        <div id="removePanel" style="display: none">
+          <label style="font-size: 12px; color: #a0aec0">LP Shares to Remove</label>
+          <input
+            type="number"
+            id="lpShares"
+            class="form-input"
+            placeholder="Enter LP share amount"
+            min="0"
+          />
+          <button
+            class="btn-primary"
+            style="width: 100%; padding: 12px; margin-top: 16px; background: #ff4466"
+            onclick="handleRemoveLiquidity()"
+          >
+            🔥 Remove Liquidity
+          </button>
+        </div>
+        <div
+          id="lpMsg"
+          style="display: none; font-size: 13px; margin-top: 12px; text-align: center"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      function openModal(pair) {
+        document.getElementById('addLiqPanel').style.display = 'block';
+        document.getElementById('addLiqPair').textContent = pair;
+        document.getElementById('addLiqPanel').scrollIntoView({ behavior: 'smooth' });
+      }
+      function switchTab(t) {
+        document.getElementById('tab-add').className = 'tab' + (t === 'add' ? ' active' : '');
+        document.getElementById('tab-remove').className = 'tab' + (t === 'remove' ? ' active' : '');
+        document.getElementById('addPanel').style.display = t === 'add' ? 'block' : 'none';
+        document.getElementById('removePanel').style.display = t === 'remove' ? 'block' : 'none';
+      }
+      function showMsg(text, color) {
+        const m = document.getElementById('lpMsg');
+        m.style.display = 'block';
+        m.style.color = color;
+        m.textContent = text;
+      }
+      function handleAddLiquidity() {
+        const s = document.getElementById('lpSentinel').value;
+        if (!s || s <= 0) return;
+        showMsg(
+          '✅ Liquidity deposit submitted! Transaction will be confirmed on Base Mainnet.',
+          'var(--quantum-green)'
+        );
+        document.getElementById('lpSentinel').value = '';
+        document.getElementById('lpPaired').value = '';
+      }
+      function handleRemoveLiquidity() {
+        const shares = document.getElementById('lpShares').value;
+        if (!shares || shares <= 0) return;
+        showMsg(
+          `✅ Removal of ${parseFloat(shares).toLocaleString()} LP shares submitted!`,
+          'var(--quantum-cyan)'
+        );
+        document.getElementById('lpShares').value = '';
+      }
+    </script>
+  </body>
+</html>

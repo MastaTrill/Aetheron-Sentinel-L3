@@ -10,11 +10,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract SentinelCore is Ownable {
     bool public heartbeatActive;
-    uint256 public targetYieldBps; // Represented in basis points (500 = 5.00%)
-    uint256 public lastSyncTimestamp;
+    uint32 public targetYieldBps; // Represented in basis points (500 = 5.00%)
+    uint64 public lastSyncTimestamp;
 
     // Constant for the baseline we are overcoming (2.89% passive MAVAN)
-    uint256 public constant BASELINE_YIELD_BPS = 289;
+    uint32 public constant BASELINE_YIELD_BPS = 289;
 
     event HeartbeatReleased(uint256 newTargetYieldBps, uint256 timestamp);
     event TelemetryReset(
@@ -29,7 +29,7 @@ contract SentinelCore is Ownable {
 
         heartbeatActive = false; // Starts locked pending settlement/authorization
         targetYieldBps = BASELINE_YIELD_BPS;
-        lastSyncTimestamp = block.timestamp;
+        lastSyncTimestamp = uint64(block.timestamp);
 
     }
 
@@ -38,19 +38,19 @@ contract SentinelCore is Ownable {
      * @dev This is the exact function called by scripts/telemetry_reset.py.
      * @param _targetYieldBps The new yield target in basis points (e.g., 500).
      */
-    function releaseHeartbeat(uint256 _targetYieldBps) external onlyOwner {
+    function releaseHeartbeat(uint32 _targetYieldBps) external onlyOwner {
         require(!heartbeatActive, "SentinelCore: Heartbeat is already active");
         require(
             _targetYieldBps > BASELINE_YIELD_BPS,
             "SentinelCore: Target must exceed baseline"
         );
 
-        uint256 previousYield = targetYieldBps;
+        uint32 previousYield = targetYieldBps;
 
         // Update state
         heartbeatActive = true;
         targetYieldBps = _targetYieldBps;
-        lastSyncTimestamp = block.timestamp;
+        lastSyncTimestamp = uint64(block.timestamp);
 
         emit TelemetryReset(previousYield, targetYieldBps, block.timestamp);
         emit HeartbeatReleased(targetYieldBps, block.timestamp);
@@ -79,21 +79,24 @@ contract SentinelCore is Ownable {
     function getHeartbeatState()
         external
         view
-        returns (bool isActive, uint256 currentTarget, uint256 syncedAt)
+        returns (bool isActive, uint32 currentTarget, uint64 syncedAt)
     {
         return (heartbeatActive, targetYieldBps, lastSyncTimestamp);
     }
+
+    event HeartbeatLocked(uint256 previousYield, uint256 timestamp);
 
     /**
      * @notice Allows owner to lock heartbeat and reset to baseline.
      */
     function lockHeartbeat() external onlyOwner {
-        uint256 previousYield = targetYieldBps;
+        uint32 previousYield = targetYieldBps;
 
         heartbeatActive = false;
         targetYieldBps = BASELINE_YIELD_BPS;
-        lastSyncTimestamp = block.timestamp;
+        lastSyncTimestamp = uint64(block.timestamp);
 
         emit TelemetryReset(previousYield, BASELINE_YIELD_BPS, block.timestamp);
+        emit HeartbeatLocked(previousYield, block.timestamp);
     }
 }

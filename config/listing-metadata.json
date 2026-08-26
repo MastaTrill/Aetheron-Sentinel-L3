@@ -1,0 +1,28 @@
+{
+  "projectName": "Aetheron Sentinel L3",
+  "tokenName": "Aetheron",
+  "tokenSymbol": "AETH",
+  "network": "Base Mainnet",
+  "chainId": 8453,
+  "contractAddress": "0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e",
+  "decimals": 18,
+  "totalSupply": "1000000000",
+  "circulatingSupply": "1000000000",
+  "explorer": "https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e",
+  "website": "https://mastatrill.github.io/Aetheron-Sentinel-L3",
+  "github": "https://github.com/MastaTrill/Aetheron-Sentinel-L3",
+  "dexscreener": "https://dexscreener.com/base/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e",
+  "presaleVault": {
+    "pricingUsd": "$0.20",
+    "hardCapUsd": "$5,000,000",
+    "acceptedCurrencies": ["ETH", "USDC"],
+    "autoLiquidityLockBps": "6000",
+    "treasuryBps": "4000"
+  },
+  "security": {
+    "governance": "Gnosis Safe 2-of-3 Multisig / OpenZeppelin Timelock",
+    "auditAnchor": "On-Chain SHA-256 Cryptographic TEE Anchoring",
+    "policyEngine": "SentinelAgentPolicy Multi-Mask Access Control",
+    "verifiedSource": true
+  }
+}

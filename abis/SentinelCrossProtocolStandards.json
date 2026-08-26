@@ -1,0 +1,707 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "protocol",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CertificationRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "protocol",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "level",
+        "type": "uint8"
+      }
+    ],
+    "name": "ProtocolCertified",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum SentinelCrossProtocolStandards.StandardCategory",
+        "name": "category",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "level",
+        "type": "uint8"
+      }
+    ],
+    "name": "StandardCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "activeStandards",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "authority",
+        "type": "address"
+      }
+    ],
+    "name": "addCertifyingAuthority",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "protocolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "certifiedLevel",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "validityPeriod",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "auditReportURI",
+        "type": "string"
+      }
+    ],
+    "name": "certifyProtocol",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "certifyingAuthorities",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.StandardCategory",
+        "name": "category",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "level",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "requirements",
+        "type": "string[]"
+      }
+    ],
+    "name": "createStandard",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deactivateStandard",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getActiveStandards",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCertificationStats",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalStandards",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalCertifications",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "activeCertifications",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "protocolAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getProtocolCertifications",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "protocolAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "standardId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+            "name": "certifiedLevel",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "certificationDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "certifyingAuthority",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "auditReportURI",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct SentinelCrossProtocolStandards.ProtocolCertification[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getStandard",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "standardId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "enum SentinelCrossProtocolStandards.StandardCategory",
+            "name": "category",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+            "name": "level",
+            "type": "uint8"
+          },
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "requirements",
+            "type": "string[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "version",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "adoptionCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "certifiedProtocols",
+            "type": "address[]"
+          }
+        ],
+        "internalType": "struct SentinelCrossProtocolStandards.SecurityStandard",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.StandardCategory",
+        "name": "category",
+        "type": "uint8"
+      }
+    ],
+    "name": "getStandardsByCategory",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "authority",
+        "type": "address"
+      }
+    ],
+    "name": "isCertifyingAuthority",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "protocolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isProtocolCertified",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      },
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "protocolCertifications",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "protocolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "certifiedLevel",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "certificationDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiryDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "certifyingAuthority",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "auditReportURI",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "authority",
+        "type": "address"
+      }
+    ],
+    "name": "removeCertifyingAuthority",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "protocolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "revokeCertification",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "standardAdopters",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "standards",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.StandardCategory",
+        "name": "category",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum SentinelCrossProtocolStandards.ComplianceLevel",
+        "name": "level",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "version",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adoptionCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "standardId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string[]",
+        "name": "newRequirements",
+        "type": "string[]"
+      }
+    ],
+    "name": "updateStandardVersion",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

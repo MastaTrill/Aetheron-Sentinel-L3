@@ -58,7 +58,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
     uint256 public constant REQUEST_EXPIRY = 7 days;
 
     // ZK Identity integration
-    address public zkIdentityContract;
+    address public immutable zkIdentityContract;
 
     event RecoveryConfigured(
         address indexed account,
@@ -263,7 +263,7 @@ contract SentinelSocialRecovery is Ownable, ReentrancyGuard {
      */
     function cancelRecovery(bytes32 requestId) external {
         address account = requestToAccount[requestId];
-        require(account == msg.sender, "Not request owner");
+        require(account == msg.sender, "Not the request owner");
 
         RecoveryConfig storage config = recoveryConfigs[account];
         RecoveryRequest storage request = config.recoveryRequests[requestId];

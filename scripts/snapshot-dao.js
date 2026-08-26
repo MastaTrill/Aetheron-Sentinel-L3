@@ -35,7 +35,7 @@ function createSecurityUpdateProposal(severityThreshold, responseDelay) {
       target: '0x...', // SentinelCore address
       value: '0',
       signature: 'updateSecurityParameters(uint256,uint256)',
-      calldata: ethers.utils.defaultAbiCoder.encode(
+      calldata: ethers.AbiCoder.defaultAbiCoder.encode(
         ['uint256', 'uint256'],
         [severityThreshold, responseDelay]
       ),
@@ -58,7 +58,7 @@ function createUpgradeProposal(newContractAddress, contractName) {
       target: '0x...', // Timelock address
       value: '0',
       signature: 'upgradeContract(address,string)',
-      calldata: ethers.utils.defaultAbiCoder.encode(
+      calldata: ethers.AbiCoder.defaultAbiCoder.encode(
         ['address', 'string'],
         [newContractAddress, contractName]
       ),

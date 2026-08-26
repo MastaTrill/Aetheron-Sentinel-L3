@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-authorization",
+  "confirmation": "PENDING_EXPLICIT_BASE_MAINNET_AUTHORIZATION",
+  "chainId": 8453,
+  "limitations": {
+    "maxGasCostWei": "10000000000000000",
+    "expiresAt": null
+  },
+  "approvedManifest": {
+    "sha256": "984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404"
+  },
+  "authorization": {
+    "authorizedSender": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+    "authorizedAtUtc": null,
+    "authorizedCommit": null,
+    "reference": "https://github.com/MastaTrill/Aetheron-Sentinel-L3/pull/262",
+    "signature": null,
+    "method": null
+  },
+  "notice": "PR #262 changes deployment-bearing package.json and package-lock.json to remediate newly reported Hono and PostCSS advisories. The prior signature was bound to release commit b74466b8c3aab2a3c9c1454b2ea03a2fd111ee2b and is therefore intentionally invalidated. Base Mainnet remains fail-closed until the final merged security-patched release commit receives a fresh time-bounded wallet signature and exact-commit risk acceptance.",
+  "riskAcceptance": {
+    "proceedWithoutIndependentSecurityReview": false,
+    "acceptedBy": null,
+    "acceptedAtUtc": null,
+    "statement": "PENDING_EXPLICIT_RISK_ACCEPTANCE"
+  }
+}

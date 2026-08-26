@@ -1,0 +1,357 @@
+{
+  "$schema": "https://json.schemastore.org/forge-deploy-config",
+  "name": "Aetheron-Sentinel-L3",
+  "version": "1.0.0",
+  "description": "Aetheron Sentinel L3 — Quantum-resistant cross-chain security orchestration layer",
+
+  "deployer": {
+    "address": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+    "note": "Private key must be set via OWNER_PRIVATE_KEY env var at deploy time. Never commit."
+  },
+
+  "networks": {
+    "mainnet": {
+      "chainId": 1,
+      "rpcUrl": "${MAINNET_RPC_URL}",
+      "explorer": "https://etherscan.io",
+      "confirmations": 5,
+      "gas": {
+        "maxFeePerGas": "auto",
+        "maxPriorityFeePerGas": "auto",
+        "note": "Uses EIP-1559 dynamic fees. Override via env if needed."
+      }
+    },
+    "base": {
+      "chainId": 8453,
+      "rpcUrl": "${BASE_MAINNET_RPC_URL}",
+      "explorer": "https://basescan.org",
+      "confirmations": 3
+    },
+    "sepolia": {
+      "chainId": 11155111,
+      "rpcUrl": "${SEPOLIA_RPC_URL}",
+      "explorer": "https://sepolia.etherscan.io",
+      "confirmations": 2
+    }
+  },
+
+  "deploymentOrder": [
+    { "name": "SentinelToken", "file": "SentinelToken.sol", "constructor": ["owner"], "deps": [] },
+    {
+      "name": "SentinelTimelock",
+      "file": "SentinelTimelock.sol",
+      "constructor": ["minDelay", "proposers", "executors", "admin"],
+      "deps": []
+    },
+    {
+      "name": "SentinelGovernance",
+      "file": "SentinelGovernance.sol",
+      "constructor": ["token", "timelock"],
+      "deps": ["SentinelToken", "SentinelTimelock"]
+    },
+    { "name": "SentinelCore", "file": "SentinelCore.sol", "constructor": ["owner"], "deps": [] },
+    {
+      "name": "SentinelCoreLoop",
+      "file": "SentinelCoreLoop.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelQuantumGuard",
+      "file": "SentinelQuantumGuard.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelInterceptor",
+      "file": "SentinelInterceptor.sol",
+      "constructor": ["anomalyThreshold", "tvlThreshold", "autonomousMode", "owner"],
+      "deps": []
+    },
+    {
+      "name": "CircuitBreaker",
+      "file": "CircuitBreaker.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    { "name": "RateLimiter", "file": "RateLimiter.sol", "constructor": ["owner"], "deps": [] },
+    {
+      "name": "SentinelOracleNetwork",
+      "file": "SentinelOracleNetwork.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelSecurityAuditor",
+      "file": "SentinelSecurityAuditor.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelMonitor",
+      "file": "SentinelMonitor.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelMultiSigVault",
+      "file": "SentinelMultiSigVault.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelYieldMaximizer",
+      "file": "SentinelYieldMaximizer.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelStaking",
+      "file": "SentinelStaking.sol",
+      "constructor": ["stakingToken", "rewardToken", "owner"],
+      "deps": ["SentinelToken"]
+    },
+    {
+      "name": "SentinelReferralSystem",
+      "file": "SentinelReferralSystem.sol",
+      "constructor": ["rewardToken", "owner"],
+      "deps": ["SentinelToken"]
+    },
+    {
+      "name": "SentinelLiquidityMining",
+      "file": "SentinelLiquidityMining.sol",
+      "constructor": ["lpToken", "rewardToken", "rewardPerSecond", "owner"],
+      "deps": ["SentinelToken"]
+    },
+    {
+      "name": "SentinelRewardAggregator",
+      "file": "SentinelRewardAggregator.sol",
+      "constructor": ["staking", "liquidityMining", "governanceToken", "referralSystem"],
+      "deps": [
+        "SentinelStaking",
+        "SentinelLiquidityMining",
+        "SentinelToken",
+        "SentinelReferralSystem"
+      ]
+    },
+    {
+      "name": "AetheronBridge",
+      "file": "AetheronBridge.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    { "name": "SentinelAMM", "file": "SentinelAMM.sol", "constructor": ["owner"], "deps": [] },
+    {
+      "name": "SentinelInsuranceProtocol",
+      "file": "SentinelInsuranceProtocol.sol",
+      "constructor": ["sentinelCore", "sentinelAuditor", "owner"],
+      "deps": ["SentinelCore", "SentinelSecurityAuditor"]
+    },
+    {
+      "name": "SentinelInsuranceMarketplace",
+      "file": "SentinelInsuranceMarketplace.sol",
+      "constructor": ["paymentToken", "insurancePool"],
+      "deps": []
+    },
+    {
+      "name": "SentinelPredictiveThreatModel",
+      "file": "SentinelPredictiveThreatModel.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelHomomorphicEncryption",
+      "file": "SentinelHomomorphicEncryption.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelQuantumKeyDistribution",
+      "file": "SentinelQuantumKeyDistribution.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelQuantumNeural",
+      "file": "SentinelQuantumNeural.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelZKIdentity",
+      "file": "SentinelZKIdentity.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelSocialRecovery",
+      "file": "SentinelSocialRecovery.sol",
+      "constructor": ["zkIdentityContract", "owner"],
+      "deps": ["SentinelZKIdentity"]
+    },
+    {
+      "name": "SentinelZKOracle",
+      "file": "SentinelZKOracle.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    {
+      "name": "SentinelSecurityTokenization",
+      "file": "SentinelSecurityTokenization.sol",
+      "constructor": [],
+      "deps": []
+    },
+    {
+      "name": "SentinelChainlinkKeeper",
+      "file": "SentinelChainlinkKeeper.sol",
+      "constructor": ["sentinelCore"],
+      "deps": ["SentinelCore"]
+    },
+    {
+      "name": "SentinelLayerZeroBridge",
+      "file": "SentinelLayerZeroBridge.sol",
+      "constructor": ["owner"],
+      "deps": []
+    },
+    { "name": "LzApp", "file": "contracts/lzApp/LzApp.sol", "constructor": ["owner"], "deps": [] }
+  ],
+
+  "postDeploy": {
+    "authorize": [
+      {
+        "contract": "SentinelMonitor",
+        "method": "authorizeContract",
+        "args": ["SentinelInterceptor"]
+      },
+      { "contract": "SentinelMonitor", "method": "authorizeContract", "args": ["AetheronBridge"] },
+      { "contract": "SentinelMonitor", "method": "authorizeContract", "args": ["CircuitBreaker"] },
+      { "contract": "AetheronBridge", "method": "setRelayer", "args": ["RELAYER_ADDRESSES"] },
+      { "contract": "RateLimiter", "method": "setCaller", "args": ["CALLER_ADDRESSES"] },
+      {
+        "contract": "SentinelInterceptor",
+        "method": "grantRole",
+        "args": ["MONITOR_ROLE", "MONITOR_ADDRESSES"]
+      },
+      {
+        "contract": "SentinelInterceptor",
+        "method": "addReporter",
+        "args": ["REPORTER_ADDRESSES"]
+      },
+      {
+        "contract": "SentinelToken",
+        "method": "setSecurityReporter",
+        "args": ["SECURITY_REPORTER_ADDRESSES"]
+      },
+      {
+        "contract": "SentinelTimelock",
+        "method": "grantRole",
+        "args": ["PROPOSER_ROLE", "SentinelGovernance"]
+      },
+      {
+        "contract": "SentinelTimelock",
+        "method": "grantRole",
+        "args": ["CANCELLER_ROLE", "SentinelGovernance"]
+      },
+      {
+        "contract": "SentinelTimelock",
+        "method": "grantRole",
+        "args": ["EXECUTOR_ROLE", "SentinelGovernance"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["sentinelInterceptor", "SentinelInterceptor"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["aetheronBridge", "AetheronBridge"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["rateLimiter", "RateLimiter"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["circuitBreaker", "CircuitBreaker"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["quantumGuard", "SentinelQuantumGuard"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["yieldMaximizer", "SentinelYieldMaximizer"]
+      },
+      {
+        "contract": "SentinelCoreLoop",
+        "method": "setSystemComponent",
+        "args": ["oracleNetwork", "SentinelOracleNetwork"]
+      }
+    ],
+    "chainLimits": {
+      "format": "chainId:limitInETH",
+      "values": "1:1000,8453:500,42161:500",
+      "note": "Set on AetheronBridge and RateLimiter via setChainLimit()"
+    },
+    "trackedChains": [1, 8453, 42161]
+  },
+
+  "verification": {
+    "etherscan": {
+      "apiKey": "${ETHERSCAN_API_KEY}",
+      "apiUrl": "https://api.etherscan.io/api"
+    },
+    "basescan": {
+      "apiKey": "${BASESCAN_API_KEY}",
+      "apiUrl": "https://api.basescan.org/api"
+    }
+  },
+
+  "safety": {
+    "requirePreflight": true,
+    "minDeployerBalanceETH": 0.5,
+    "maxGasPriceGwei": 50,
+    "timelockMinDelaySeconds": 172800,
+    "recommendedConfirmations": {
+      "mainnet": 5,
+      "base": 3,
+      "sepolia": 2
+    }
+  },
+
+  "env": {
+    "required": [
+      "MAINNET_RPC_URL",
+      "OWNER_PRIVATE_KEY",
+      "SENTINEL_OWNER",
+      "RELAYER_ADDRESSES",
+      "DEPLOY_TAG"
+    ],
+    "optional": [
+      "ETHERSCAN_API_KEY",
+      "BASESCAN_API_KEY",
+      "LP_TOKEN_ADDRESS",
+      "STAKING_TOKEN_ADDRESS",
+      "REWARD_TOKEN_ADDRESS",
+      "YIELD_TOKEN_ADDRESS",
+      "BRIDGE_TOKEN_ADDRESSES",
+      "CALLER_ADDRESSES",
+      "MONITOR_ADDRESSES",
+      "REPORTER_ADDRESSES",
+      "SECURITY_REPORTER_ADDRESSES",
+      "TIMELOCK_PROPOSERS",
+      "TIMELOCK_EXECUTORS",
+      "TIMELOCK_ADMIN",
+      "ANOMALY_THRESHOLD",
+      "TVL_THRESHOLD_ETH",
+      "AUTONOMOUS_MODE",
+      "CHAIN_LIMITS",
+      "TRACKED_CHAIN_IDS"
+    ]
+  }
+}

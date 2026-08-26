@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "status": "pending",
+  "reviewerName": null,
+  "reviewerOrganization": null,
+  "reviewerContact": null,
+  "independenceStatement": null,
+  "reviewedCommit": null,
+  "reviewedAtUtc": null,
+  "decision": null,
+  "methods": [],
+  "evidenceReviewed": [],
+  "findings": [],
+  "unresolvedRisks": [],
+  "signatureReference": null,
+  "notice": "The reviewer must be independent of evidence preparation and wallet control. Only an unconditional approve decision can satisfy final-release mode."
+}

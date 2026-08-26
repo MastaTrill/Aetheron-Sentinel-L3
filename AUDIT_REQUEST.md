@@ -91,3 +91,7 @@
 ---
 
 _Prepared for mainnet deployment readiness._
+
+---
+
+_For more information on our security practices, see SECURITY.md._

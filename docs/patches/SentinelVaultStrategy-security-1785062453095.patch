@@ -1,0 +1,6 @@
+--- a/contracts/SentinelVaultStrategy.sol
++++ b/contracts/SentinelVaultStrategy.sol
+@@ Sentinel L3 Auto-Patch: 1 security issue(s) detected @@
+
+# [HIGH] Missing Reentrancy Guard
+# Fix: Add `nonReentrant` modifier from OpenZeppelin ReentrancyGuard.

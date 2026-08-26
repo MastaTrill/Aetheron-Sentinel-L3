@@ -2,7 +2,43 @@ console.log('=== DEPLOY SCRIPT START ===');
 let hre;
 let ethers;
 let deployer; // Will be set in main()
+const shellOwnerKeyCandidates = [
+  ['OWNER_PRIVATE_KEY', process.env.OWNER_PRIVATE_KEY],
+  ['DEPLOYER_PRIVATE_KEY', process.env.DEPLOYER_PRIVATE_KEY],
+  ['CI_OWNER_PRIVATE_KEY', process.env.CI_OWNER_PRIVATE_KEY],
+];
+
+function normalizePrivateKey(value) {
+  let normalized = String(value || '').trim().replace(/^\uFEFF/, '');
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+
+const shellOwnerKey = shellOwnerKeyCandidates
+  .map(([, value]) => normalizePrivateKey(value))
+  .find(value => /^0x[0-9a-fA-F]{64}$/.test(value));
+const networkArgIndex = process.argv.indexOf('--network');
+const requestedNetwork =
+  process.env.HARDHAT_NETWORK ||
+  (networkArgIndex >= 0 ? process.argv[networkArgIndex + 1] : undefined);
+if (['base', 'baseSepolia', 'mainnet'].includes(requestedNetwork)) {
+  throw new Error(
+    'The legacy full-suite deployer is quarantined on public networks. Use scripts/deploy-release-core.cjs.'
+  );
+}
 require('dotenv').config();
+if (requestedNetwork === 'mainnet') {
+  require('dotenv').config({ path: '.env.mainnet', override: true });
+  if (shellOwnerKey !== undefined) process.env.OWNER_PRIVATE_KEY = shellOwnerKey;
+  else delete process.env.OWNER_PRIVATE_KEY;
+}
 
 // In Hardhat, when running a script with `hardhat run`,
 // the hre is available globally. We'll lazy-load it in main().
@@ -77,44 +113,54 @@ async function getTxOverrides(provider) {
   return {};
 }
 
-async function main() {
-  // Load hardhat and manually import ethers v6
-  const hardhatInstance = require('hardhat');
-  hre = hardhatInstance;
+function requireOwnerPrivateKey() {
+  const privateKey =
+    shellOwnerKey || normalizePrivateKey(process.env.OWNER_PRIVATE_KEY);
+  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
+    const diagnostics = shellOwnerKeyCandidates
+      .map(([name, value]) => {
+        const normalized = normalizePrivateKey(value);
+        return `${name}:${value === undefined ? 'missing' : `invalid(length=${normalized.length})`}`;
+      })
+      .join(', ');
+    throw new Error(
+      (requestedNetwork === 'mainnet'
+        ? 'Mainnet deploy requires a valid shell private key. It is intentionally not read from .env.mainnet.'
+        : 'Deployment requires a 32-byte hexadecimal private key.') +
+        ` Candidate status: ${diagnostics}`
+    );
+  }
+  return privateKey;
+}
 
-  // Since the ethers plugin may not be fully injected in CommonJS context,
-  // import ethers directly as a module
-  const ethersModule = require('ethers');
-  ethers = ethersModule;
+async function main() {
+  // Hardhat v3 is ESM-first, so load it via dynamic import from CommonJS.
+  const hardhatModule = await import('hardhat');
+  hre = hardhatModule.default ?? hardhatModule;
+
+  // Use the active Hardhat connection instead of reading raw network config.
+  const connection = await hre.network.getOrCreate();
+  ethers = connection.ethers;
 
   console.log('ethers version:', ethers.version);
   console.log('hre.network.name:', hre.network?.name);
 
-  // Create provider from the network configured in hardhat.config.js
-  const networkConfig = hre.config.networks[hre.network?.name];
-  if (!networkConfig || !networkConfig.url) {
-    throw new Error(
-      `Network '${hre.network?.name}' not configured or URL missing. ` +
-        `Ensure BASE_RPC_URL and OWNER_PRIVATE_KEY env vars are set.`
-    );
+  const provider = ethers.provider;
+  if (!provider) {
+    throw new Error('Active Hardhat connection did not expose an ethers provider.');
   }
-
-  const provider = new ethers.JsonRpcProvider(networkConfig.url);
 
   // Get signer from private key
-  const privateKey = process.env.OWNER_PRIVATE_KEY;
-  if (!privateKey) {
-    throw new Error('OWNER_PRIVATE_KEY environment variable not set');
-  }
+  const privateKey = requireOwnerPrivateKey();
 
-  const deployer = new ethers.Wallet(privateKey, provider);
+  deployer = new ethers.Wallet(privateKey, provider);
 
   // Set up ethers.provider so the rest of the script can use it
   ethers.provider = provider;
 
   // Debug: print network and deployer info
   console.log('--- DEPLOY DEBUG INFO ---');
-  console.log('Hardhat network:', hre.network.name);
+  console.log('Hardhat network:', requestedNetwork || hre.network?.name || '<active connection>');
   const deployerAddress = await deployer.getAddress();
   if (!deployerAddress) {
     throw new Error('Could not derive deployer address from private key.');
@@ -153,11 +199,17 @@ async function main() {
 
   console.log('Deploying with account:', deployerAddress);
   console.log('Configured owner:', config.owner);
-  console.log('Network:', hre.network.name);
+  console.log('Network:', requestedNetwork || hre.network?.name || '<active connection>');
   console.log('Deployer controls owner-only setup:', deployerIsOwner ? 'yes' : 'no');
 
   const balance = await ethers.provider.getBalance(deployerAddress);
   console.log('Account balance:', ethers.formatEther(balance), 'ETH\n');
+
+  if (balance === 0n) {
+    throw new Error(
+      `Deployer ${deployerAddress} has 0 ETH on ${requestedNetwork || hre.network?.name || 'the active network'}. Fund the signer before running deployment.`
+    );
+  }
 
   const addresses = {};
   const pendingActions = [];
@@ -263,7 +315,7 @@ async function main() {
     : [deployerAddress];
   const timelockExecutors = config.timelockExecutors.length
     ? config.timelockExecutors
-    : [ethers.ZeroAddress]; // address(0) = anyone can execute
+    : [deployerAddress]; // Default to deployer; governance will be added after deployment
   const timelock = await deployContract('SentinelTimelock', [
     config.timelockMinDelay,
     timelockProposers,
@@ -289,7 +341,10 @@ async function main() {
     const TIMELOCK_ADMIN_ROLE = await timelock.TIMELOCK_ADMIN_ROLE();
     await (await timelock.grantRole(PROPOSER_ROLE, addresses.SentinelGovernance, ov)).wait();
     await (await timelock.grantRole(CANCELLER_ROLE, addresses.SentinelGovernance, ov)).wait();
-    console.log('   Granted PROPOSER + CANCELLER roles to SentinelGovernance on timelock');
+    const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
+    await (await timelock.grantRole(EXECUTOR_ROLE, addresses.SentinelGovernance, ov)).wait();
+    await (await timelock.revokeRole(EXECUTOR_ROLE, deployerAddress, ov)).wait();
+    console.log('   Granted PROPOSER + CANCELLER + EXECUTOR roles to SentinelGovernance, revoked deployer EXECUTOR');
     // Renounce deployer's TIMELOCK_ADMIN_ROLE so timelock is fully governed
     if (config.timelockAdmin.toLowerCase() !== deployerAddress.toLowerCase()) {
       await (await timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployerAddress, ov)).wait();
@@ -298,7 +353,9 @@ async function main() {
   } else {
     pendingActions.push(
       `SentinelTimelock.grantRole(PROPOSER_ROLE, ${addresses.SentinelGovernance})`,
-      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`
+      `SentinelTimelock.grantRole(CANCELLER_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.grantRole(EXECUTOR_ROLE, ${addresses.SentinelGovernance})`,
+      `SentinelTimelock.revokeRole(EXECUTOR_ROLE, <deployer>)`
     );
   }
 

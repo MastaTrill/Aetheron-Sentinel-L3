@@ -159,7 +159,6 @@ contract SentinelGovernance is
         });
 
         totalProposalsCreated++;
-        emergencyProposalsExecuted++;
         emit EmergencyProtocolActivated(
             proposalId,
             "Emergency proposal created"
@@ -242,11 +241,9 @@ contract SentinelGovernance is
 
         // Additional checks for enhanced proposals
         if (proposal.requiresQuantumValidation) {
-            // Would check quantum proof validation in production
-            require(
-                proposal.quantumProof != bytes32(0),
-                "Quantum validation required"
-            );
+            if (proposal.quantumProof == bytes32(0)) {
+                return false;
+            }
         }
 
         // Check execution grace period

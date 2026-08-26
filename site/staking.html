@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel L3 — Staking Rewards Center</title>
+    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding-bottom: 60px;
+      }
+      .stake-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .stake-title h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .stake-title p {
+        margin: 6px 0 28px;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 18px;
+      }
+      .stat-val {
+        font-size: 1.7rem;
+        font-family: monospace;
+        font-weight: bold;
+        color: var(--quantum-cyan);
+      }
+      .stat-lbl {
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .stake-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+      }
+      .tier-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .tier-card {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 18px;
+        transition: border-color 0.2s;
+        cursor: pointer;
+      }
+      .tier-card:hover {
+        border-color: var(--quantum-cyan);
+      }
+      .tier-card.selected {
+        border-color: var(--quantum-cyan);
+        background: rgba(0, 255, 255, 0.05);
+      }
+      .form-input {
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: #fff;
+        font-size: 0.9rem;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+      }
+      .reward-bar {
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, var(--quantum-cyan), var(--quantum-pink));
+        margin-top: 8px;
+      }
+    </style>
+    <link rel="stylesheet" href="/css/extracted-styles.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
+          <span class="logo-text">SENTINEL L3</span>
+        </div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="vaults.html" class="nav-link">Vaults</a>
+          <a href="governance.html" class="nav-link">Governance</a>
+          <a href="analytics.html" class="nav-link">Analytics</a>
+          <a href="threat-feed.html" class="nav-link">Threat Feed</a>
+          <a href="api-docs.html" class="nav-link">API Docs</a>
+          <a href="staking.html" class="nav-link active">🏦 Staking</a>
+          <a href="ai-assistant.html" class="nav-link">🤖 AI Copilot</a>
+          <a href="bug-bounty.html" class="nav-link">Bug Bounty</a>
+        </div>
+        <div class="nav-actions">
+          <a href="https://aetrs.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            >Connect Wallet</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="stake-container">
+      <div class="stake-title">
+        <h1>🏦 Staking Rewards Center</h1>
+        <p>
+          Lock AETH tokens and earn protocol rewards. Higher tiers unlock governance voting power
+          and fee sharing.
+        </p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val style-1ede3f">18.4% APY</div>
+          <div class="stat-lbl">Base Staking APY</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">420,000,000</div>
+          <div class="stat-lbl">Total AETH Staked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val style-1ef001">1,247</div>
+          <div class="stat-lbl">Active Stakers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">30 / 90 / 365d</div>
+          <div class="stat-lbl">Lock Periods</div>
+        </div>
+      </div>
+
+      <!-- Staking Tiers -->
+      <div class="stake-card">
+        <h2 class="style-6f05e2">🎖️ Staking Tiers</h2>
+        <p class="style-858219">
+          Select a tier to activate its APY multiplier and governance weight.
+        </p>
+        <div class="tier-grid">
+          <div class="tier-card" onclick="selectTier(this, 'Bronze', '18.4%', 30)">
+            <div class="style-06d51c">🥉</div>
+            <div class="style-38d43c">Bronze Tier</div>
+            <div class="style-503f41">Min: 10,000 AETH</div>
+            <div class="style-503f41">Lock: 30 days</div>
+            <div class="reward-bar style-ee68c2"></div>
+            <div class="style-f563d5">18.4% APY</div>
+          </div>
+          <div class="tier-card" onclick="selectTier(this, 'Silver', '24.8%', 90)">
+            <div class="style-06d51c">🥈</div>
+            <div class="style-6e0129">Silver Tier</div>
+            <div class="style-503f41">Min: 50,000 AETH</div>
+            <div class="style-503f41">Lock: 90 days</div>
+            <div class="reward-bar style-906126"></div>
+            <div class="style-f563d5">24.8% APY</div>
+          </div>
+          <div class="tier-card" onclick="selectTier(this, 'Gold', '36.2%', 365)">
+            <div class="style-06d51c">🥇</div>
+            <div class="style-992160">Gold Tier</div>
+            <div class="style-503f41">Min: 200,000 AETH</div>
+            <div class="style-503f41">Lock: 365 days</div>
+            <div class="reward-bar style-8588e4"></div>
+            <div class="style-f563d5">36.2% APY</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stake Form -->
+      <div class="stake-card">
+        <h2 class="style-a15efd">⚡ Stake AETH Tokens</h2>
+        <p id="selectedTierLabel" class="style-ce0e4d">No tier selected. Choose a tier above.</p>
+        <input
+          type="number"
+          id="stakeAmount"
+          class="form-input"
+          placeholder="Amount to stake (e.g. 50000)"
+          title="Stake Amount"
+          aria-label="Stake Amount"
+          min="0"
+        />
+        <div id="projectedReward" class="style-fcaf0d"></div>
+        <button class="btn-primary style-8588e4" onclick="handleStake()">
+          🚀 Stake &amp; Earn Rewards
+        </button>
+        <div id="stakeMsg" class="style-b2e0c9"></div>
+      </div>
+    </div>
+
+    <script>
+      let selectedApy = null;
+      let selectedLock = 30;
+
+      function selectTier(el, name, apy, lock) {
+        document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedApy = parseFloat(apy);
+        selectedLock = lock;
+        document.getElementById('selectedTierLabel').textContent =
+          `Selected: ${name} Tier — ${apy} APY over ${lock} days`;
+        updateProjection();
+      }
+
+      function updateProjection() {
+        const amount = parseFloat(document.getElementById('stakeAmount').value) || 0;
+        if (!selectedApy || !amount) return;
+        const reward = ((((amount * selectedApy) / 100) * selectedLock) / 365).toFixed(0);
+        const el = document.getElementById('projectedReward');
+        el.style.display = 'block';
+        el.textContent = `📊 Projected reward: ${parseFloat(reward).toLocaleString()} AETH after ${selectedLock} days`;
+      }
+
+      document.getElementById('stakeAmount').addEventListener('input', updateProjection);
+
+      function handleStake() {
+        const amount = document.getElementById('stakeAmount').value;
+        if (!amount || amount <= 0) return;
+        if (!selectedApy) {
+          alert('Please select a staking tier first.');
+          return;
+        }
+        const msg = document.getElementById('stakeMsg');
+        msg.style.display = 'block';
+        msg.style.color = 'var(--quantum-green)';
+        msg.textContent = `✅ Staking ${parseFloat(amount).toLocaleString()} AETH submitted! Transaction will be confirmed on Base Mainnet.`;
+        document.getElementById('stakeAmount').value = '';
+        document.getElementById('projectedReward').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

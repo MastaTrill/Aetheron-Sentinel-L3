@@ -18,12 +18,15 @@ describe('SentinelToken', function () {
   describe('Deployment', function () {
     it('has correct name and symbol', async function () {
       expect(await token.name()).to.equal('Aetheron Sentinel');
-      expect(await token.symbol()).to.equal('SENT');
+      expect(await token.symbol()).to.equal('AETH');
     });
 
     it('mints total supply to the contract itself', async function () {
-      const supply = await token.TOTAL_SUPPLY();
-      expect(await token.balanceOf(await token.getAddress())).to.equal(supply);
+      const totalSupply = await token.totalSupply();
+      expect(totalSupply).to.equal(ethers.parseEther('1000000000'));
+      expect(await token.balanceOf(await token.getAddress())).to.equal(
+        ethers.parseEther('800000000')
+      );
     });
 
     it('sets the owner correctly', async function () {

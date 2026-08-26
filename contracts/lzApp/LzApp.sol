@@ -3,10 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroReceiver.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroUserApplicationConfig.sol";
-import "@layerzerolabs/solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
-import "@layerzerolabs/solidity-examples/contracts/libraries/BytesLib.sol";
+import "solidity-examples/contracts/lzApp/interfaces/ILayerZeroReceiver.sol";
+import "solidity-examples/contracts/lzApp/interfaces/ILayerZeroUserApplicationConfig.sol";
+import "solidity-examples/contracts/lzApp/interfaces/ILayerZeroEndpoint.sol";
+import "solidity-examples/contracts/libraries/BytesLib.sol";
 
 /*
  * a generic LzReceiver implementation — patched for OZ v5 Ownable(initialOwner)

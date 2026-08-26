@@ -1,0 +1,41 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "entity",
+        "type": "address"
+      }
+    ],
+    "name": "getBehavioralProfile",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "trustScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "riskLevel",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "anomalyCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "currentState",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastActivity",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

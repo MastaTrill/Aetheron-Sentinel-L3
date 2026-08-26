@@ -1,0 +1,9 @@
+--- a/contracts/SentinelSecurityTokenization.sol
++++ b/contracts/SentinelSecurityTokenization.sol
+@@ Sentinel L3 Auto-Patch: 2 security issue(s) detected @@
+
+# [MEDIUM] Missing Zero Address Validation
+# Fix: Add `require(addr != address(0), "Zero address")` guard.
+
+# [HIGH] Unchecked ERC20 Transfer Return Value
+# Fix: Use OpenZeppelin SafeERC20 `safeTransfer` instead of raw `transfer`.

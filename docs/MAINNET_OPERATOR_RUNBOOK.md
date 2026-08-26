@@ -2,6 +2,10 @@
 
 This runbook is the single execution path for an operator performing the live mainnet deployment from this repository.
 
+**Last validated:** 2026-05-15 — all scripts pass syntax checks, compilation clean, lint clean, mainnet preflight PASS (Alchemy RPC, chainId 1, block ~25102960).
+
+**Quick checklist:** See [docs/MAINNET_QUICK_CHECKLIST.md](./MAINNET_QUICK_CHECKLIST.md) for a condensed step-by-step.
+
 ## Prerequisites
 
 - Windows PowerShell session opened at the repo root.

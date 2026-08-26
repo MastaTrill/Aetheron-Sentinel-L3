@@ -29,7 +29,7 @@ This document guides mainnet deployment using the exact same workflow validated 
 Before deploying to mainnet, confirm:
 
 1. **Owner address** (final multisig or admin EOA)
-   - Consolidated treasury: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB`
+   - Consolidated treasury: `0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2`
    - All operational addresses consolidated to this address
    - Current Sepolia: `0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB` (test EOA)
 
@@ -179,6 +179,9 @@ node scripts/audit-allowlists.cjs > /tmp/mainnet_allowlists_$(date +%s).txt
 ### Step 9: Create Release Documentation
 
 ```bash
+# Generate automated evidence report (Transaction Hashes & Addresses)
+powershell -ExecutionPolicy Bypass -File scripts/Get-DeploymentEvidence.ps1
+
 # Update the tracked mainnet draft files in-place
 npm run mainnet:finalize
 
@@ -262,5 +265,9 @@ Related stabilization commits:
 
 ---
 
-**Template created:** 2026-04-23  
+**Template created:** 2026-04-23
 **Based on:** Sepolia deployment block 10715441
+
+---
+
+_For more information on our security practices, see SECURITY.md._

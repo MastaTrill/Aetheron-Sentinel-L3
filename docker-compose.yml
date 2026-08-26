@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  sentinel-node:
+    build: .
+    image: aetheron/sentinel-l3:latest
+    entrypoint: /app/entrypoint.sh
+    secrets:
+      - deployer_private_key
+      - infura_api_key
+      - cdp_api_key_private_key
+      - openai_api_key
+      - phi4_api_key
+    environment:
+      - NETWORK=sepolia
+      - SEVERITY_THRESHOLD=8
+      - NODE_ENV=production
+
+secrets:
+  deployer_private_key:
+    external: true
+  infura_api_key:
+    external: true
+  cdp_api_key_private_key:
+    external: true
+  openai_api_key:
+    external: true
+  phi4_api_key:
+    external: true

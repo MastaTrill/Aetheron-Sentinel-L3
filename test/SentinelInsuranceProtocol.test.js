@@ -21,7 +21,9 @@ describe('SentinelInsuranceProtocol', function () {
     ({ ethers } = await network.getOrCreate());
     [owner, policyHolder, other] = await ethers.getSigners();
     const MIN_COVERAGE = ethers.parseEther('1');
-    const SentinelInsuranceProtocol = await ethers.getContractFactory('SentinelInsuranceProtocol');
+    const SentinelInsuranceProtocol = await ethers.getContractFactory(
+      'contracts/SentinelInsuranceProtocol.sol:SentinelInsuranceProtocol'
+    );
     insurance = await SentinelInsuranceProtocol.deploy(
       ethers.ZeroAddress, // sentinelCore (not called in basic flows)
       ethers.ZeroAddress, // sentinelAuditor (not called in basic flows)
@@ -49,7 +51,7 @@ describe('SentinelInsuranceProtocol', function () {
 
     it('rejects zero address owner', async function () {
       const SentinelInsuranceProtocol = await ethers.getContractFactory(
-        'SentinelInsuranceProtocol'
+        'contracts/SentinelInsuranceProtocol.sol:SentinelInsuranceProtocol'
       );
       // OZ's Ownable throws custom error when owner is zero
       await expect(
@@ -213,6 +215,41 @@ describe('SentinelInsuranceProtocol', function () {
       await expect(
         insurance.connect(other).submitClaim(policyId, ethers.ZeroHash, '0x')
       ).to.be.revertedWith('Not policy holder');
+    });
+  });
+
+  describe('processClaim', function () {
+    it('commits claim state before paying an owner-controlled claimant', async function () {
+      const ReentrantClaimant = await ethers.getContractFactory('ReentrantInsuranceClaimant');
+      const claimant = await ReentrantClaimant.deploy();
+      await claimant.waitForDeployment();
+
+      const Protocol = await ethers.getContractFactory(
+        'contracts/SentinelInsuranceProtocol.sol:SentinelInsuranceProtocol'
+      );
+      const ownerControlledProtocol = await Protocol.deploy(
+        ethers.ZeroAddress,
+        ethers.ZeroAddress,
+        await claimant.getAddress()
+      );
+      await ownerControlledProtocol.waitForDeployment();
+      await claimant.setProtocol(await ownerControlledProtocol.getAddress());
+
+      const coverage = ethers.parseEther('1');
+      const premium = ethers.parseEther('0.01');
+      await claimant.purchase(other.address, coverage, COVERAGE_PERIOD_MIN, { value: premium });
+      await ownerControlledProtocol.fundPool(HACK_COVERAGE, { value: coverage });
+      await claimant.submit(0, ethers.id('verified-incident'));
+
+      await claimant.process(0);
+
+      const claim = await ownerControlledProtocol.claims(0);
+      const policy = await ownerControlledProtocol.policies(0);
+      const pool = await ownerControlledProtocol.insurancePools(HACK_COVERAGE);
+      expect(claim.status).to.equal(4n); // PAID
+      expect(policy.totalPaid).to.equal(ethers.parseEther('0.5'));
+      expect(pool.claimReserve).to.equal(ethers.parseEther('0.5'));
+      expect(await claimant.reentrySucceeded()).to.equal(false);
     });
   });
 });

@@ -1,0 +1,140 @@
+name: Sentinel Guardrails Base Sepolia Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      broadcast:
+        description: 'Broadcast the reviewed, paused core release'
+        required: true
+        default: false
+        type: boolean
+      confirmation:
+        description: 'Type DEPLOY_BASE_SEPOLIA to authorize broadcast'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: sentinel-guardrails-base-sepolia
+  cancel-in-progress: false
+
+env:
+  RELEASE_PROFILE: sentinel-guardrails-v1
+  DEPLOY_NETWORK: base-sepolia
+  DEPLOY_ENVIRONMENT: base-sepolia
+  MIN_DEPLOYER_BALANCE_ETH: '0.01'
+  RELEASE_COMMIT: ${{ github.sha }}
+  DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Initialize readiness evidence
+        run: |
+          mkdir -p artifacts/base-sepolia-readiness
+          : > artifacts/base-sepolia-readiness/base-sepolia-readiness.log
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
+        with:
+          version: v1.7.1
+      - run: npm ci --legacy-peer-deps
+      - name: Validate deployment environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUIRE_DEPLOYMENT_REVIEWERS: ${{ inputs.broadcast }}
+        run: npm run security:deployment-environment
+      - name: Validate frozen release scope
+        run: npm run security:release-scope
+      - name: Audit release and build dependencies
+        run: |
+          npm run security:audit
+          npm run security:audit:toolchain
+      - name: Compile exact deployment artifacts
+        run: npm run compile
+      - name: Run release regression tests
+        run: npm run test:release
+      - name: Run Foundry tests with aligned compiler settings
+        run: |
+          forge build --sizes
+          forge test -vvv
+      - name: Validate RPC, signer, owner, balance policy, and monitors
+        shell: bash
+        env:
+          REQUIRE_MINIMUM_BALANCE: ${{ inputs.broadcast }}
+        run: |
+          set -euo pipefail
+          npm run preflight:base-sepolia | tee artifacts/base-sepolia-readiness/base-sepolia-readiness.log
+      - name: Simulate the exact deployment script
+        run: npm run mainnet:simulate
+      - name: Collect simulation evidence
+        if: always()
+        run: |
+          if [ -f /tmp/sentinel-guardrails-simulation.json ]; then
+            cp /tmp/sentinel-guardrails-simulation.json artifacts/base-sepolia-readiness/
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: base-sepolia-readiness-${{ github.run_id }}
+          path: artifacts/base-sepolia-readiness
+          if-no-files-found: warn
+
+  deploy:
+    needs: readiness
+    if: ${{ inputs.broadcast && inputs.confirmation == 'DEPLOY_BASE_SEPOLIA' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+      DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
+      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run compile
+      - name: Deploy the paused non-custodial core
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run deploy:base-sepolia | tee base-sepolia-deployment.log
+      - name: Verify runtime bytecode, pause state, ownership, and roles
+        run: npm run verify:release:base-sepolia
+      - name: Verify source on BaseScan
+        run: npm run verify:source:base-sepolia
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: base-sepolia-deployment-${{ github.run_id }}
+          path: |
+            base-sepolia-deployment.log
+            deployments/baseSepolia-sentinel-guardrails-v1.json
+          if-no-files-found: error

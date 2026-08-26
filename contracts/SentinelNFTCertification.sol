@@ -48,7 +48,9 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
 
     uint256 public nextCertificateId = 1;
     uint256 public constant CERTIFICATE_DURATION = 365 days;
-    uint256 public constant CERTIFICATION_FEE = 0.1 ether;
+    uint256 public CERTIFICATION_FEE = 0.1 ether;
+
+    event CertificationFeeUpdated(uint256 oldFee, uint256 newFee);
 
     event CertificateIssued(
         uint256 indexed certificateId,
@@ -112,6 +114,8 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
         string memory auditReportURI
     ) external payable nonReentrant onlyOwner {
         require(msg.value >= CERTIFICATION_FEE * 10, "Insufficient collection certification fee");
+        require(averageSecurityScore <= 100, "Invalid security score");
+        require(bytes(auditReportURI).length > 0, "Audit report URI required");
 
         collectionAudits[collectionAddress] = CollectionAudit({
             collectionAddress: collectionAddress,
@@ -200,6 +204,8 @@ contract SentinelNFTCertification is ERC721, Ownable, ReentrancyGuard {
      * @notice Update certification fee
      */
     function setCertificationFee(uint256 newFee) external onlyOwner {
-        // Implementation for fee updates
+        uint256 oldFee = CERTIFICATION_FEE;
+        CERTIFICATION_FEE = newFee;
+        emit CertificationFeeUpdated(oldFee, newFee);
     }
 }

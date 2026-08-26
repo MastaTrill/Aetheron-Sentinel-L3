@@ -6,7 +6,6 @@
  */
 
 const axios = require('axios');
-const crypto = require('crypto');
 
 // Chainalysis API configuration
 const CHAINALYSIS_API_URL = process.env.CHAINALYSIS_API_URL || 'https://api.chainalysis.com/v1';

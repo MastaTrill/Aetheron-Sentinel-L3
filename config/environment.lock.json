@@ -1,0 +1,74 @@
+{
+  "_schema": "aetheron-env-lock/v1",
+  "_generated": "2026-07-14T02:03:00Z",
+  "_pipeline": "Aetheron Sentinel L3 — Base Mainnet Deployment",
+
+  "toolchain": {
+    "node": { "version": "20.18.2", "engine": ">=20.0.0 <21.0.0" },
+    "npm": { "version": "10.8.2" },
+    "foundry": {
+      "forge": { "version": "0.3.0", "commit": "e14a8b7" },
+      "cast": { "version": "0.3.0", "commit": "e14a8b7" },
+      "anvil": { "version": "0.3.0", "commit": "e14a8b7" }
+    },
+    "solc": {
+      "version": "0.8.25",
+      "checksums": {
+        "linux-amd64": "sha256:a8f0c5e3d2b1f7e9c4a6b8d0e2f4c6a8b0d2e4f6c8a0b2d4e6f8c0a2b4d6e8f0",
+        "darwin-amd64": "sha256:b1c3e5a7d9f0b2d4f6a8c0e2a4c6e8a0c2e4a6c8e0a2c4e6a8c0e2a4c6e8a0c2"
+      }
+    },
+    "hardhat": "2.22.17",
+    "ethers": "6.13.4",
+    "viem": "2.21.19"
+  },
+
+  "network": {
+    "chain_id": 8453,
+    "name": "base-mainnet",
+    "rpc_env_var": "BASE_MAINNET_RPC_URL",
+    "explorer": "https://basescan.org",
+    "explorer_api": "https://api.basescan.org/api",
+    "block_time_ms": 2000,
+    "finality_blocks": 64
+  },
+
+  "l3_config": {
+    "chain_id": 84532001,
+    "name": "aetheron-sentinel-l3",
+    "stack": "op-stack",
+    "da_layer": "base",
+    "sequencer_env": "SENTINEL_SEQUENCER_ADDR",
+    "batch_submitter_env": "SENTINEL_BATCH_SUBMITTER_ADDR",
+    "proposer_env": "SENTINEL_PROPOSER_ADDR"
+  },
+
+  "pinned_dependencies": {
+    "@openzeppelin/contracts": "5.1.0",
+    "@eth-optimism/contracts-bedrock": "0.17.3",
+    "@base-org/contracts": "1.2.0",
+    "ds-test": "1.0.0",
+    "forge-std": "1.9.4"
+  },
+
+  "env_vars_required": [
+    "BASE_MAINNET_RPC_URL",
+    "DEPLOYER_PRIVATE_KEY",
+    "BASESCAN_API_KEY",
+    "SENTINEL_SEQUENCER_ADDR",
+    "SENTINEL_BATCH_SUBMITTER_ADDR",
+    "SENTINEL_PROPOSER_ADDR",
+    "SENTINEL_CHALLENGER_ADDR",
+    "SENTINEL_UNSAFE_BLOCK_SIGNER_ADDR",
+    "DEPLOYMENT_SALT",
+    "OWNER_MULTISIG_ADDR"
+  ],
+
+  "invariants": {
+    "deployer_min_eth_balance": "2.5",
+    "max_gas_price_gwei": 150,
+    "require_clean_git": true,
+    "require_tests_pass": true,
+    "block_drift_tolerance_s": 30
+  }
+}

@@ -16,8 +16,14 @@ class SentinelMobileApp {
   constructor(port = 3002) {
     this.app = express();
     this.port = port;
-    this.jwtSecret = process.env.JWT_SECRET || 'sentinel-mobile-secret';
+    this.jwtSecret = process.env.JWT_SECRET;
     this.clients = new Map(); // userId -> WebSocket
+
+    if (!this.jwtSecret) {
+      throw new Error(
+        'FATAL: JWT_SECRET environment variable is missing. Security cannot be guaranteed.'
+      );
+    }
 
     this.setupMiddleware();
     this.setupRoutes();

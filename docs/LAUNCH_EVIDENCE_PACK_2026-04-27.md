@@ -132,3 +132,7 @@ Create `logs/verification/YYYY-MM-DD/DAILY_NOTES.md` with this content for each 
 - Live wallet/RPC/dashboard access is required to complete validation transactions and telemetry capture.
 - Third-party or hosted dashboard access is required to prove subgraph/dashboard visibility.
 - Governance/multisig execution access is required to transfer/revoke roles and remove break-glass privileges.
+
+---
+
+_For more information on our security practices, see SECURITY.md._

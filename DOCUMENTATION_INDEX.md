@@ -5,6 +5,24 @@
 
 ---
 
+## Customer-Facing Guides (How-To Documentation)
+
+**Getting started with Aetheron Sentinel's services?** Start here:
+
+- **[HOW_TO_REQUEST_AUDIT.md](./docs/HOW_TO_REQUEST_AUDIT.md)** - Request a professional smart contract audit
+- **[HOW_TO_SECURE_NETWORKING.md](./docs/HOW_TO_SECURE_NETWORKING.md)** - Set up zero-knowledge encrypted cross-chain messaging
+- **[HOW_TO_CODE_ANALYSIS.md](./docs/HOW_TO_CODE_ANALYSIS.md)** - Scan your contracts for vulnerabilities
+- **[HOW_TO_ENHANCE_APY.md](./docs/HOW_TO_ENHANCE_APY.md)** - Optimize your yield farming returns
+- **[HOW_TO_BUG_BOUNTY.md](./docs/HOW_TO_BUG_BOUNTY.md)** - Participate in our bug bounty program
+
+**Legal & Safety:**
+
+- **[TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md)** - Service terms and limitations
+- **[PRIVACY_POLICY.md](./PRIVACY_POLICY.md)** - Data collection and retention
+- **[DISCLAIMERS.md](./DISCLAIMERS.md)** - Risk acknowledgments and audit status
+
+---
+
 ## Quick Navigation
 
 ### For Stakeholders & Decision-Makers
@@ -93,8 +111,10 @@
 ### Security, Audit, and Incident Response
 
 - [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Incident response plan
-- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Audit status
+- [SECURITY_AUDIT_CERTIFICATION.md](./SECURITY_AUDIT_CERTIFICATION.md): Audit status
 - [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program
+- **[SECURITY_ADVISORY_TEMPLATE.md](./docs/SECURITY_ADVISORY_TEMPLATE.md)**: Template for vulnerability disclosures
+- **[Vulnerability Disclosure Process](./docs/VULNERABILITY_DISCLOSURE_PROCESS.md)**: Formal process for handling security bugs
 
 - **README.md**: See 'Artifact Publishing & Monitoring' for ABI export, publishing, and monitoring integration notes
 
@@ -105,6 +125,21 @@ Design & security documentation:
 - **[SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md)** - System design overview
 - **[SECURITY_AUDIT_CERTIFICATION.md](./SECURITY_AUDIT_CERTIFICATION.md)** - Security decisions
 - **[SECURITY.md](./SECURITY.md)** - General security guidelines
+
+---
+
+## AI / DeFAI Security Layer (NEW)
+
+**For AI-integrated autonomous agents, TEE verifiability, and governance of DeFAI features (SentinelL3App + core L3 agents):**
+
+- **[AI_TEE_INTEGRATION.md](./docs/AI_TEE_INTEGRATION.md)** - Trusted Execution Environment integration for secure AI inference, attestation flows, verifier contracts, and fallback to rule-based L3 mode. Mitigates prompt injection, model tampering, and ensures verifiable decisions.
+- **[AGENT_GOVERNANCE_POLICY.md](./docs/AGENT_GOVERNANCE_POLICY.md)** - Autonomy levels (0-3), least-privilege policies, human-in-the-loop, behavioral monitoring, drift detection, and enforcement mechanisms for safe AI agent operation.
+- **Expanded Deployment Checklist**: See updated [DEPLOYMENT_READINESS_CHECKLIST.md](./DEPLOYMENT_READINESS_CHECKLIST.md) with dedicated "AI / DeFAI Security Layer" section covering pre-deployment verification, mainnet AI-specific items, and post-deployment monitoring.
+- **CI Workflow**: New [.github/workflows/ai-security-test.yml](./.github/workflows/ai-security-test.yml) for adversarial testing (prompt injection, poisoning, attestation forgery, policy bypass) and TEE/policy simulation.
+
+These additions harden the hybrid rule-based + AI DeFAI system while preserving core L3 security (SentinelInterceptor, CircuitBreaker, quantum guards, governance/timelock).
+
+Cross-references: Update INCIDENT_RESPONSE.md, LAUNCH_ROADMAP.md, and ADVANCED_SECURITY_YIELD_SYSTEM.md for AI-specific paths. Track implementation in Linear AET tasks or new GitHub issues.
 
 ---
 
@@ -122,12 +157,12 @@ Design & security documentation:
 
 ### Verification Scripts
 
-| Script                                                                                 | Command                                                                 | Purpose                       |
-| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- |
-| [scripts/section7-final-sweep.cjs](./scripts/section7-final-sweep.cjs)                 | `node scripts/section7-final-sweep.cjs`                                 | Verify ownership + governance |
-| [scripts/audit-allowlists.cjs](./scripts/audit-allowlists.cjs)                         | `node scripts/audit-allowlists.cjs`                                     | Verify role allowlists        |
-| [scripts/verify-bridge-relayers.cjs](./scripts/verify-bridge-relayers.cjs)             | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.cjs`       | Verify bridge relayer         |
-| [scripts/generate-bridge-relayer-safe.cjs](./scripts/generate-bridge-relayer-safe.cjs) | `RELAYER_ADDRESSES=0x... node scripts/generate-bridge-relayer-safe.cjs` | Generate Safe payload         |
+| Script                                                                               | Command                                                                | Purpose                       |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------- |
+| [scripts/section7-final-sweep.cjs](./scripts/section7-final-sweep.cjs)               | `node scripts/section7-final-sweep.cjs`                                | Verify ownership + governance |
+| [scripts/audit-allowlists.cjs](./scripts/audit-allowlists.cjs)                       | `node scripts/audit-allowlists.cjs`                                    | Verify role allowlists        |
+| [scripts/verify-bridge-relayers.cjs](./scripts/verify-bridge-relayers.cjs)           | `RELAYER_ADDRESSES=0x... node scripts/verify-bridge-relayers.cjs`      | Verify bridge relayer         |
+| [scripts/generate-bridge-relayer-safe.js](./scripts/generate-bridge-relayer-safe.js) | `RELAYER_ADDRESSES=0x... node scripts/generate-bridge-relayer-safe.js` | Generate Safe payload         |
 
 ### Executed Transactions (Already Mined)
 
@@ -203,7 +238,7 @@ RELAYER_ADDRESSES=0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa node scripts/verify
 
 ### "I need to enable a new bridge relayer"
 
-→ Use [scripts/generate-bridge-relayer-safe.cjs](./scripts/generate-bridge-relayer-safe.cjs) to create Safe payload, or see [MAINNET_PREPARATION_TEMPLATE.md §4](./MAINNET_PREPARATION_TEMPLATE.md) for manual execution.
+→ Use [scripts/generate-bridge-relayer-safe.js](./scripts/generate-bridge-relayer-safe.js) to create Safe payload, or see [MAINNET_PREPARATION_TEMPLATE.md §4](./MAINNET_PREPARATION_TEMPLATE.md) for manual execution.
 
 ### "I need to understand the production decisions"
 
@@ -239,6 +274,7 @@ Before considering deployment "fully complete":
 - [ ] All stakeholders have reviewed documentation
 - [ ] Security audit completed (see SECURITY_AUDIT_CERTIFICATION.md)
 - [ ] Mainnet preparation checklist reviewed (MAINNET_PREPARATION_TEMPLATE.md)
+- [ ] AI/DeFAI layer verified (new TEE integration, governance policy, adversarial tests)
 
 ---
 
@@ -251,6 +287,7 @@ Before considering deployment "fully complete":
 | **"How do we deploy to mainnet?"**       | Use template workflow                   | [MAINNET_PREPARATION_TEMPLATE.md](./MAINNET_PREPARATION_TEMPLATE.md)         |
 | **"Is this secure?"**                    | Review audit doc                        | [SECURITY_AUDIT_CERTIFICATION.md](./SECURITY_AUDIT_CERTIFICATION.md)         |
 | **"Who controls what?"**                 | Check checklist section 11              | [DEPLOYMENT_OWNERSHIP_CHECKLIST.md §11](./DEPLOYMENT_OWNERSHIP_CHECKLIST.md) |
+| **"AI agent security or TEE setup?"**    | Review new DeFAI docs                   | AI / DeFAI Security Layer section above                                      |
 
 ---
 
@@ -264,6 +301,6 @@ Before considering deployment "fully complete":
 
 ---
 
-**Last Updated:** April 23, 2026  
+**Last Updated:** July 12, 2026 (added AI/DeFAI Security Layer section)  
 **Deployment Block:** 10715441  
-**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending
+**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending | 🆕 DeFAI AI layer docs & workflow integrated

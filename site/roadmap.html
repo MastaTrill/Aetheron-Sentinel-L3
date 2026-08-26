@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aetheron Sentinel L3 — Protocol Roadmap</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .road-container {
+        max-width: 960px;
+        margin: 80px auto 40px;
+        padding: 0 20px;
+      }
+      .road-title {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+      .road-title h1 {
+        font-size: 2.4rem;
+        color: #fff;
+        margin-bottom: 8px;
+      }
+      .road-title p {
+        color: var(--text-secondary);
+      }
+      .timeline {
+        position: relative;
+        padding-left: 32px;
+        border-left: 2px solid rgba(0, 255, 204, 0.3);
+      }
+      .phase {
+        position: relative;
+        margin-bottom: 48px;
+      }
+      .phase-dot {
+        position: absolute;
+        left: -41px;
+        top: 4px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--bg-dark);
+        border: 2px solid var(--text-secondary);
+      }
+      .phase-dot.done {
+        border-color: var(--quantum-green);
+        background: var(--quantum-green);
+        box-shadow: 0 0 8px var(--quantum-green);
+      }
+      .phase-dot.active {
+        border-color: var(--quantum-cyan);
+        background: var(--quantum-cyan);
+        box-shadow: 0 0 12px var(--quantum-cyan);
+      }
+      .phase-card {
+        background: rgba(13, 27, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 24px;
+      }
+      .phase-card.done {
+        border-color: rgba(0, 255, 136, 0.3);
+      }
+      .phase-card.active {
+        border-color: rgba(0, 255, 204, 0.5);
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+      }
+      .phase-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .phase-tag {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+      .phase-tag.done {
+        background: rgba(0, 255, 136, 0.15);
+        color: var(--quantum-green);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+      }
+      .phase-tag.active {
+        background: rgba(0, 255, 204, 0.15);
+        color: var(--quantum-cyan);
+        border: 1px solid rgba(0, 255, 204, 0.4);
+      }
+      .milestone-list {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+      }
+      .milestone {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.95rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .progress-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars-bg"></div>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="nav-logo">
+          <img src="assets/sentinel-logo.svg" alt="Sentinel L3" class="logo" />
+          <span class="logo-text">SENTINEL L3</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="analytics.html" class="nav-link">Analytics</a>
+          <a href="roadmap.html" class="nav-link active">Roadmap</a>
+          <a href="staking.html" class="nav-link">Staking</a>
+          <a href="vaults.html" class="nav-link">Vaults</a>
+        </div>
+        <div class="nav-actions">
+          <a
+            href="https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary"
+            >View BaseScan ↗</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="road-container">
+      <div class="road-title">
+        <h1>🗺️ Protocol Development Roadmap</h1>
+        <p>
+          Aetheron Sentinel L3's journey from launch to full cross-chain autonomous security
+          infrastructure.
+        </p>
+      </div>
+
+      <div class="timeline">
+        <!-- Phase 1 -->
+        <div class="phase">
+          <div class="phase-dot done"></div>
+          <div class="phase-card done">
+            <div class="phase-header">
+              <div>
+                <strong style="font-size: 1.1rem; color: #fff"
+                  >Phase 1 — Token Launch & Core Interceptors</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Base Mainnet
+                </div>
+              </div>
+              <span class="phase-tag done">✅ Complete</span>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 100%; background: var(--quantum-green)"
+              ></div>
+            </div>
+            <div class="milestone-list">
+              <div class="milestone">✅ AETH (Aetheron) ERC-20 token deployed to Base Mainnet</div>
+              <div class="milestone">✅ SentinelCore autonomous interceptor activated</div>
+              <div class="milestone">✅ Circuit breaker & TWAP oracle protection live</div>
+              <div class="milestone">
+                ✅ Community presale & auto-liquidity reservation vault built
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase">
+          <div class="phase-dot done"></div>
+          <div class="phase-card done">
+            <div class="phase-header">
+              <div>
+                <strong style="font-size: 1.1rem; color: #fff"
+                  >Phase 2 — Cryptographic Security Infrastructure</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Base Mainnet
+                </div>
+              </div>
+              <span class="phase-tag done">✅ Complete</span>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 100%; background: var(--quantum-green)"
+              ></div>
+            </div>
+            <div class="milestone-list">
+              <div class="milestone">
+                ✅ Post-quantum cryptography (CRYSTALS-Kyber & Dilithium) integration
+              </div>
+              <div class="milestone">✅ SentinelAMM flash loan protection deployed</div>
+              <div class="milestone">✅ AuditAnchor on-chain TEE cryptographic proof ledger</div>
+              <div class="milestone">
+                ✅ SentinelAgentPolicy multi-action governance timelock live
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase">
+          <div class="phase-dot active"></div>
+          <div class="phase-card active">
+            <div class="phase-header">
+              <div>
+                <strong style="font-size: 1.1rem; color: var(--quantum-cyan)"
+                  >Phase 3 — DeFAI Autonomous Execution & DEX Launch</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Base Mainnet
+                </div>
+              </div>
+              <span class="phase-tag active">⚡ In Progress</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 75%; background: var(--quantum-cyan)"></div>
+            </div>
+            <div class="milestone-list">
+              <div class="milestone">
+                ✅ Autonomous DeFAI Swap Agent with Universal Router & TEE attestation
+              </div>
+              <div class="milestone">
+                ✅ Automated Uniswap v3 full-range liquidity provisioning engine
+              </div>
+              <div class="milestone">⚡ Community Web3 Presale live on Base Mainnet</div>
+              <div class="milestone">⬜ Gnosis Safe 2-of-3 institutional ownership migration</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase">
+          <div class="phase-dot"></div>
+          <div class="phase-card">
+            <div class="phase-header">
+              <div>
+                <strong style="font-size: 1.1rem; color: #fff"
+                  >Phase 4 — Cross-Chain Oracle & Institutional Expansion</strong
+                >
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px">
+                  Multi-Chain
+                </div>
+              </div>
+              <span
+                class="phase-tag"
+                style="background: rgba(255, 255, 255, 0.1); color: var(--text-secondary)"
+                >Planned</span
+              >
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 15%; background: #a855f7"></div>
+            </div>
+            <div class="milestone-list">
+              <div class="milestone">⬜ Sentinel decentralized oracle network (SON)</div>
+              <div class="milestone">⬜ Tier-1 CEX Listings (Coinbase, Binance, OKX)</div>
+              <div class="milestone">⬜ Enterprise SOC2 institutional security integration</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

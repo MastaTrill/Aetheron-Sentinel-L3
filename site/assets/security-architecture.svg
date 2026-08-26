@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" style="background:#0a0a0a;border-radius:16px">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00ffff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ff00ff" stop-opacity="0.8"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- Layer labels -->
+  <text x="40" y="30" fill="#b8c5d6" font-size="11" font-family="monospace">SECURITY ARCHITECTURE — SENTINEL L3</text>
+
+  <!-- Layer 1: Application -->
+  <rect x="40" y="50" width="720" height="70" rx="10" fill="rgba(0,255,255,0.05)" stroke="#00ffff" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="60" y="80" fill="#00ffff" font-size="12" font-weight="700" font-family="sans-serif">🖥️  Application Layer</text>
+  <text x="60" y="100" fill="#b8c5d6" font-size="10" font-family="monospace">DeFi Protocols · Bridges · Wallets · DEX Aggregators</text>
+  <rect x="340" y="62" width="100" height="46" rx="6" fill="rgba(0,255,255,0.1)" stroke="#00ffff" stroke-width="1"/>
+  <text x="390" y="87" text-anchor="middle" fill="#00ffff" font-size="10" font-family="monospace">User TX</text>
+  <rect x="460" y="62" width="100" height="46" rx="6" fill="rgba(0,255,255,0.1)" stroke="#00ffff" stroke-width="1"/>
+  <text x="510" y="87" text-anchor="middle" fill="#00ffff" font-size="10" font-family="monospace">Smart Contract</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="120" x2="400" y2="148" stroke="#00ffff" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)" opacity="0.6"/>
+
+  <!-- Layer 2: Sentinel AI -->
+  <rect x="40" y="150" width="720" height="80" rx="10" fill="rgba(255,0,255,0.06)" stroke="#ff00ff" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="60" y="180" fill="#ff00ff" font-size="12" font-weight="700" font-family="sans-serif">🛡️  Sentinel AI Intercept Layer</text>
+  <text x="60" y="200" fill="#b8c5d6" font-size="10" font-family="monospace">Autonomous Threat Detection · Pattern Matching · ZK Proof Validation · MEV Shield</text>
+  <rect x="600" y="162" width="140" height="56" rx="6" fill="rgba(255,0,255,0.12)" stroke="#ff00ff" stroke-width="1"/>
+  <text x="670" y="187" text-anchor="middle" fill="#ff00ff" font-size="10" font-weight="700" font-family="monospace">INTERCEPT</text>
+  <text x="670" y="205" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="monospace">99.97% accuracy</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="230" x2="400" y2="258" stroke="#ff00ff" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+
+  <!-- Layer 3: Quantum Crypto -->
+  <rect x="40" y="260" width="720" height="70" rx="10" fill="rgba(0,255,136,0.05)" stroke="#00ff88" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="60" y="290" fill="#00ff88" font-size="12" font-weight="700" font-family="sans-serif">🔐  Quantum Cryptography Layer</text>
+  <text x="60" y="310" fill="#b8c5d6" font-size="10" font-family="monospace">CRYSTALS-Kyber · BLAKE3 Hashing · Dilithium Signatures · QKD Channels</text>
+
+  <!-- Layer 4: Network -->
+  <rect x="40" y="345" width="720" height="40" rx="8" fill="rgba(168,85,247,0.06)" stroke="#a855f7" stroke-width="1"/>
+  <text x="400" y="370" text-anchor="middle" fill="#a855f7" font-size="11" font-family="monospace">⛓️  Multi-Chain Network  ·  Ethereum  ·  Base  ·  Arbitrum  ·  Optimism</text>
+
+  <!-- Marker def -->
+  <defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#00ffff" opacity="0.7"/>
+    </marker>
+  </defs>
+</svg>

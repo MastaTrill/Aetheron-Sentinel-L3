@@ -1,0 +1,17 @@
+{
+  "name": "Sentinel L3 Mobile Guardian",
+  "short_name": "Sentinel Mobile",
+  "start_url": "/site/mobile-app.html",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#00ffff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/sentinel-logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

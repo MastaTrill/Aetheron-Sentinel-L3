@@ -1,0 +1,76 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Decide whether this PR is safe to auto-merge
+        id: decide
+        env:
+          UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
+          DEPENDENCY_NAMES: ${{ steps.meta.outputs.dependency-names }}
+          PACKAGE_ECOSYSTEM: ${{ steps.meta.outputs.package-ecosystem }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if echo "$PR_TITLE" | grep -Eiq '(rc[0-9]|-rc\.|beta|alpha|preview|nightly)'; then
+            echo "safe=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BLOCK_LIST='torch|mlflow|@openzeppelin/contracts|openzeppelin-contracts|protobuf|azure-functions|typescript'
+          if echo "$DEPENDENCY_NAMES" | grep -Eiq "$BLOCK_LIST" &&
+             [ "$UPDATE_TYPE" != "version-update:semver-patch" ]; then
+            echo "safe=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$PACKAGE_ECOSYSTEM" = "github_actions" ] || [ "$PACKAGE_ECOSYSTEM" = "github-actions" ]; then
+            echo "safe=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          case "$UPDATE_TYPE" in
+            version-update:semver-patch|version-update:semver-minor)
+              echo "safe=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "safe=false" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Enable squash auto-merge
+        if: steps.decide.outputs.safe == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"
+
+      - name: Require manual review
+        if: steps.decide.outputs.safe != 'true'
+        run: echo "Dependabot update requires manual review."

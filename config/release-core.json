@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "profile": "sentinel-guardrails-v1",
+  "description": "Non-custodial, paused production guardrails. Custody, bridge, yield, insurance, and simulated cryptography are excluded.",
+  "contracts": ["SentinelInterceptor", "CircuitBreaker", "RateLimiter"],
+  "networks": {
+    "baseSepolia": 84532,
+    "base": 8453
+  },
+  "defaults": {
+    "anomalyThreshold": 80,
+    "tvlThresholdEth": "1000",
+    "autonomousMode": false,
+    "baseSepoliaMinDeployerBalanceEth": "0.05",
+    "baseMinDeployerBalanceEth": "0.5"
+  },
+  "excludedCapabilities": [
+    "asset custody",
+    "cross-chain settlement",
+    "insurance payouts",
+    "yield execution",
+    "simulated ZK or quantum cryptography"
+  ]
+}

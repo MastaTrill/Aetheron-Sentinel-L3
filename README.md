@@ -1,444 +1,105 @@
-# Aetheron Sentinel L3
+# <p align="center"><img src="assets/logo.svg" alt="Aetheron Sentinel Logo" width="150"></p>
 
-**Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/)
+# <p align="center">🛡️ Aetheron Sentinel L3</p>
 
-Sentinel L3 is a cross-chain security and verification repository built around Solidity contracts, Hardhat automation, Sepolia verification gates, subgraph generation, and Python telemetry modules. Features advanced AI-powered yield optimization, quantum-resistant security, and comprehensive governance.
+**Professional Smart Contract Security, AMM Liquidity Management, & Verifiable DeFAI AI Agents.**
 
-## Repository Scope
+<p align="center">
+  <a href="docs/HOW_TO_REQUEST_AUDIT.md">![Audit Request](https://img.shields.io/badge/Request-Audit-blue?style=for-the-badge&logo=shield)</a>
+  <a href="docs/HOW_TO_BUG_BOUNTY.md">![Bug Bounty](https://img.shields.io/badge/Bug_Bounty-Active-orange?style=for-the-badge&logo=hacken)</a>
+  <a href="docs/HOW_TO_CODE_ANALYSIS.md">![Code Analysis](https://img.shields.io/badge/Code_Analysis-Available-brightgreen?style=for-the-badge)</a>
+  <a href="docs/AI_TEE_INTEGRATION.md">![DeFAI AI](https://img.shields.io/badge/DeFAI%20AI-TEE%20Verifiable-purple?style=for-the-badge)</a>
+</p>
 
-This repository includes:
+## 📌 Table of Contents
 
-- Solidity contracts under `contracts/` for bridge controls, governance, staking, monitoring, and automated response flows
-- Hardhat-based scripts under `scripts/` for deployment, verification, ownership checks, exports, and audits
-- A Python package under `src/aetheron_sentinel_l3/` with unit tests in `tests/`
-- The Graph subgraph sources in `schema.graphql`, `subgraph.yaml`, and `generated/`
-- Remix-related workspaces in `apps/remix-dashboard/` and `imports/remix_-aetheron-sentinel-l3/`
-- CI and nightly verification workflows under `.github/workflows/`
+- [Overview](#overview)
+- [SENTINEL Deployment Status](#sentinel-deployment-status)
+- [🚀 Getting Started](#-getting-started)
+- [🛠 Development](#-development)
+- [🛡️ Security](#-security)
+- [🤖 DeFAI AI Agents & Governance](#-defai-ai-agents--governance)
+- [🌐 Community & Support](#-community--support)
 
-## Requirements
+## Overview
 
-- Node.js 20+
-- npm 10+
-- Python 3.11+
-- Git
+Aetheron Sentinel L3 is a comprehensive security and automation suite for the SENTINEL ecosystem. It provides automated liquidity management for concentrated liquidity pools, advanced code analysis for smart contracts, a robust security infrastructure, **and verifiable AI agents for DeFAI (Decentralized Finance + AI) with TEE-protected inference and clear autonomy governance**.
 
-## Public Dashboard
+### Key Features
 
-- **Live Dashboard:** [https://mastatrill.github.io/Aetheron-Sentinel-L3/](https://mastatrill.github.io/Aetheron-Sentinel-L3/) - Real-time monitoring, security metrics, and system status.
-- **Token Utility:** Hold 1000+ $AETH for premium dashboard access and enhanced staking APY (up to 5.0% with governance/security bonuses).
-- **Liquidity:** Run `npm run add-liquidity` to create Uniswap V3 pool and add initial liquidity for $AETH/ETH trading.
-- **Multi-Chain Deployments:** Available on Ethereum, Polygon, Base, and Arbitrum networks
-- **Advanced Integrations:** Compound/Aave lending security, Hivemind AI training, Chainalysis AML/KYC, Helium IoT monitoring, Axie Infinity gaming security
-- **Cross-Chain Security:** LayerZero, Hyperlane, and ENS name resolution
-- **Decentralized Storage:** IPFS/Filecoin for security logs and AI models
-- **Governance Tools:** Snapshot DAO proposals and Uniswap V4 automated liquidity
-- The [Remix Dashboard](./apps/remix-dashboard/) is also available for development. Monitoring, bug bounty stats, and live metrics are available.
+- **AMM Strategy Engine**: Dynamic rebalancing with circuit breakers for extreme volatility.
+- **Automated Code Analysis**: ML-powered vulnerability scanning and gas optimization.
+- **Security Audits**: Professional manual review of smart contract logic and architecture.
+- **Bug Bounty Program**: Incentivized community-led security research.
+- **Verifiable DeFAI AI Agents**: TEE-secured inference (Phala/Oasis/Intel TDX), attestation flows, policy-enforced autonomy levels (0-3), human-in-the-loop, drift monitoring, and seamless fallback to rule-based L3 security (SentinelInterceptor, CircuitBreaker, quantum guards).
 
-## Mainnet Deployment & Onboarding
+## AETH Token Deployment Status
+- **Live Base Mainnet Token (AETH):** [`0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e`](https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e)
+- **Token Specifications:** 1,000,000,000 Total Supply, 18 Decimals, Source-Verified on BaseScan.
+- **Legacy pool ID:** `0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d`
+- **Current legacy 57% beneficiary:** `0x7e3D11f70084D667295710E6b7FF50C3b0487a45`
+- **Intended replacement 57% treasury:** `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`
+- **Corrected Base Sepolia rehearsal token:** [`0x3555976fecf045833D6E148C42035170bA1337Ab`](https://sepolia.basescan.org/address/0x3555976fecf045833D6E148C42035170bA1337Ab)
+- **Release decision:** [controlled beneficiary redeployment ADR](docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md)
+- **Machine-readable status:** [redeployment closure](release-evidence/sentinel-mainnet/redeployment-closure.json)
+- **Legacy deployment manifest:** [`deployments/base-mainnet.json`](deployments/base-mainnet.json)
+- **Legacy verification:** `BASE_RPC_URL=https://mainnet.base.org bash scripts/verify-canonical-token.sh`
 
-**Mainnet is the next deployment target. The current objective deployment evidence in this repo is still Sepolia.**
+> **Release status:** Replacement preparation only. The corrected Base Sepolia rehearsal is
+> complete, but no corrected replacement Base Mainnet token, pool, or deployment
+> transaction is recorded. Do not represent the legacy deployment as canonical unless
+> the release decision and closure evidence are updated through the required process.
 
-- See [DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md](DEPLOYMENT_COMPLETE_SUMMARY_MAINNET.md) for the mainnet readiness summary and remaining evidence gates.
-- See [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) for mainnet verification and handoff steps.
-- See [RELEASE_NOTES_MAINNET_2026-04-27.md](RELEASE_NOTES_MAINNET_2026-04-27.md) for the draft mainnet release packet that still needs tx hashes and explorer links.
-- For mainnet deployment workflow, use [MAINNET_PREPARATION_TEMPLATE.md](MAINNET_PREPARATION_TEMPLATE.md).
-- For the live execution order, use [docs/MAINNET_OPERATOR_RUNBOOK.md](docs/MAINNET_OPERATOR_RUNBOOK.md).
-- For the release PR evidence packet, use [docs/MAINNET_RELEASE_PR_CHECKLIST.md](docs/MAINNET_RELEASE_PR_CHECKLIST.md).
+## 🚀 Getting Started
 
-## Announcements & Audits
+### AMM Liquidity Management
 
-- See [AUDIT_REQUEST.md](AUDIT_REQUEST.md) for third-party security audit request template.
+Explore the strategy logic and backtesting tools:
 
-## Secret Management & Environment Variables
+- `amm_strategy.py`: Core liquidity management logic.
+- `backtest_amm.py`: Simulation environment for strategy verification.
 
-**Never commit real secrets or private keys to the repository.**
+### Security Services
 
-- All sensitive values (private keys, API tokens, credentials) must be provided via environment variables.
-- Use the provided `.env.example` as a template—copy it to `.env` or `.env.mainnet` and fill in your own values locally.
-- For deployment and ownership automation, set `OWNER_PRIVATE_KEY` and other secrets in your environment, not in code or scripts.
-- For mainnet, use `.env.mainnet` and review all values before deployment.
-- See [DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md](DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md) for secure deployment and handoff instructions.
-- For frontend/API keys, use `.env.local` or similar, never commit real keys.
+Detailed guides for our security offerings:
 
-**Warning:** Commits containing secrets will be rejected by push protection and secret scanning.
+- How to Request an Audit
+- How to use Code Analysis
+- Bug Bounty Participation
 
-## Quick Start (Mainnet)
+### DeFAI AI Layer
 
-## Security, Audit, and Incident Response
+- [AI_TEE_INTEGRATION.md](./docs/AI_TEE_INTEGRATION.md) - TEE integration for secure, verifiable AI decisions.
+- [AGENT_GOVERNANCE_POLICY.md](./docs/AGENT_GOVERNANCE_POLICY.md) - Autonomy levels, policies, and enforcement.
+- Expanded deployment checklist with AI security section.
 
-- [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md): Formal incident response plan
-- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md): Third-party audit status
-- [BUG_BOUNTY.md](./BUG_BOUNTY.md): Bug bounty program details
+## 🛠 Development
 
-## (Recommended) Use a Python virtual environment
-
-```bash
-git clone https://github.com/MastaTrill/Aetheron-Sentinel-L3.git
-cd Aetheron-Sentinel-L3
-npm ci
-cp .env.example .env.mainnet
-# Edit .env.mainnet with your mainnet values
-```
-
-Compile contracts:
+The project includes a backtesting utility to simulate market conditions:
 
 ```bash
-npm run compile
+python backtest_amm.py
 ```
 
-If `npm run compile` fails with Hardhat `HH502` in a constrained/proxy environment, use the fail-fast guidance printed by `scripts/compile-contracts.cjs` (pre-warm/reuse Hardhat compiler cache or allow access to Solidity compiler metadata endpoints).
+## 🤖 DeFAI AI Agents & Governance
 
-For CI runners, pre-warm compiler cache in a network-enabled job:
+Sentinel L3 now includes a hybrid security model: **core rule-based L3 interceptor + AI-augmented decision layer** protected by Trusted Execution Environments.
 
-```bash
-node scripts/bootstrap-hardhat-cache.cjs
-```
+- AI agents run in TEEs for tamper-proof inference.
+- Cryptographic attestations + optional ZK proofs validated on-chain before actions.
+- Clear autonomy tiers with least-privilege, HITL for high-value/novel cases, behavioral monitoring, and immutable audit logs.
+- Full fallback to pure L3 mode on any AI/TEE failure.
+- New CI workflow for adversarial testing (prompt injection, poisoning, policy bypass).
 
-Run the Solidity test suite:
+See the dedicated docs in the Documentation Index for implementation details, integration steps, and mainnet readiness.
 
-```bash
-npm test
-```
+## 🌐 Community & Support
 
-PowerShell:
-
-```powershell
-$env:PYTHONPATH="src"
-python -m unittest discover -s tests -p "test_*.py" -v
-```
-
-Bash:
-
-```bash
-PYTHONPATH=src python -m unittest discover -s tests -p "test_*.py" -v
-```
-
-Build the subgraph artifacts:
-
-```bash
-npm run codegen
-npm run build
-```
-
-Build the root dashboard workspace:
-
-```bash
-npm run dashboard:build
-```
-
-## Artifact Publishing & Monitoring
-
-### ABI Publishing
-
-ABIs are exported to the `abis/` directory via `npm run export:all-abis` and uploaded as a GitHub Actions artifact in CI. You can publish these to npm, a CDN, or other destinations as needed.
-
-### Advanced Monitoring
-
-For advanced monitoring and alerting, consider integrating with OpenZeppelin Defender or Forta. See their documentation for setup and best practices.
+- **Dashboard**: Sentinel L3 Dashboard (with new AI health & governance sections)
+- **Discussions**: GitHub Discussions
+- **Twitter**: @AetherionSentinel
 
 ---
 
-## Fuzz Testing (Echidna)
-
-Fuzz testing for Solidity contracts is supported via [Echidna](https://github.com/crytic/echidna). Install Echidna (requires Docker or native build), then run:
-
-```bash
-echidna-test ./contracts --config echidna.yaml
-```
-
-See `echidna.yaml` for configuration and contract selection. Write Solidity property-based tests using `assert` or `echidna_*` functions. See the Echidna documentation for advanced usage.
-
-## Common Commands
-
-### Deploy and Verify
-
-```bash
-npm run deploy:local
-npm run deploy:sepolia
-npm run deploy:mainnet
-npm run redeploy:coreloop
-npm run verify:testnet
-npm run verify:mainnet
-npm run setup:ownership
-```
-
-### Verification and Audit Scripts
-
-```bash
-node scripts/section7-final-sweep.cjs
-node scripts/audit-allowlists.cjs
-node scripts/verify-bridge-relayers.cjs
-npm audit
-```
-
-### Exports and Subgraph
-
-```bash
-npm run export:abis
-npm run export:site-config
-npm run update:subgraph
-npm run codegen
-npm run build
-```
-
-### Dashboard Workspace
-
-```bash
-npm run dashboard:dev
-npm run dashboard:lint
-npm run dashboard:build
-```
-
-The separate Remix dashboard workspace under [apps/remix-dashboard](apps/remix-dashboard) uses its own package.json and should be run from that directory.
-
-## CI and Automation
-
-The main CI workflow in `.github/workflows/ci.yml` runs:
-
-- Hardhat compile and test on Node 22
-- Python unit tests on Python 3.11
-- Sepolia verification gate scripts
-- subgraph code generation and build
-- Remix import workspace lint and build
-
-The nightly and manual verification workflow in `.github/workflows/post-deploy-nightly-verification.yml` runs:
-
-- Sepolia ownership sweep
-- allowlist audit
-- bridge relayer verification
-- npm dependency audits for the root workspace and both Remix workspaces
-
-## Project Layout
-
-```text
-contracts/                            Solidity contracts
-scripts/                              Deploy, verify, export, and audit scripts
-src/aetheron_sentinel_l3/             Python telemetry package
-tests/                                Python unit tests
-test/                                 Hardhat test suite
-apps/remix-dashboard/                 Dashboard workspace
-imports/remix_-aetheron-sentinel-l3/  Remix import workspace
-generated/                            Generated subgraph files
-logs/verification/                    Verification logs and audit evidence
-```
-
-## Badges
-
-![Coverage](https://img.shields.io/badge/tests-343_passing-brightgreen)
-![Docs](https://img.shields.io/badge/docs-coverage-100%25-brightgreen)
-![Build](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/lint.yml/badge.svg)
-![Audit](https://github.com/MastaTrill/Aetheron-Sentinel-L3/actions/workflows/audit.yml/badge.svg)
-
-Test and coverage details: see [TEST_COVERAGE_SUMMARY.md](./TEST_COVERAGE_SUMMARY.md). Solidity line coverage is pending an official Hardhat 3-compatible coverage plugin; CI currently enforces 343 Solidity tests plus Python unit tests on every push and PR.
-
-## CI/CD Pipeline
-
-This repository features a comprehensive CI/CD pipeline with automated quality gates, security scanning, and deployment verification.
-
-### Pipeline Stages
-
-#### 🔧 **Core Testing** (All PRs & Pushes)
-
-- **Hardhat Compilation**: Solidity contract compilation
-- **Unit Tests**: 343+ test cases across all contracts
-- **Remix Import Build**: Frontend build verification
-
-#### 🔒 **Security Analysis** (Push to main only)
-
-- **Slither Static Analysis**: Automated vulnerability detection
-- **SARIF Security Reports**: GitHub Security tab integration
-- **Dependency Audit**: npm audit for vulnerability scanning
-- **Contract Size Monitoring**: Ethereum deployment limits checking
-
-#### 📊 **Quality Assurance**
-
-- **ESLint**: Code quality and security linting
-- **Prettier**: Code formatting consistency
-- **TypeScript Strict Mode**: Type safety verification
-- **Gas Usage Analysis**: Deployment cost estimation
-
-#### 🚀 **Deployment Preview** (PRs only)
-
-- **Contract Size Analysis**: Deployment feasibility check
-- **Gas Cost Estimation**: Economic deployment analysis
-- **Risk Assessment**: Automated deployment risk evaluation
-- **PR Comments**: Deployment preview posted to pull requests
-
-#### 📈 **Performance Monitoring**
-
-- **Test Execution Benchmarks**: Performance regression detection
-- **Gas Usage Reports**: Contract efficiency tracking
-- **Coverage Reports**: Test coverage analysis (when enabled)
-
-### Available Commands
-
-```bash
-# Development
-npm run compile          # Compile contracts
-npm run test            # Run all tests
-npm test -- --grep "Sentinel"  # Run specific contract tests
-
-# Code Quality
-npm run lint            # Run ESLint
-npm run lint:fix        # Auto-fix ESLint issues
-npm run format          # Format code with Prettier
-npm run format:check    # Check code formatting
-
-# Security & Analysis
-npm run test:gas        # Gas usage analysis
-npm run test:coverage   # Test coverage report
-npm run security:audit  # Dependency vulnerability check
-
-# Deployment
-npm run deploy:verify   # Deployment verification
-```
-
-### CI/CD Features
-
-#### Security Scanning
-
-- **Slither Integration**: Automated static analysis for Solidity vulnerabilities
-- **SARIF Uploads**: Security findings uploaded to GitHub Security tab
-- **Dependency Scanning**: Automated npm audit with configurable severity levels
-
-#### Gas Optimization
-
-- **Deployment Cost Estimation**: Calculate gas costs for all contracts
-- **Contract Size Monitoring**: Alert when contracts approach Ethereum's 24KB limit
-- **Gas Usage Reports**: Track gas consumption across test scenarios
-
-#### Code Quality Gates
-
-- **ESLint Configuration**: TypeScript and security-focused linting rules
-- **Prettier Integration**: Consistent code formatting across the project
-- **TypeScript Strict Mode**: Enhanced type safety checks
-
-#### Performance Benchmarking
-
-- **Test Execution Timing**: Monitor test suite performance
-- **Slow Test Detection**: Identify performance bottlenecks
-- **Historical Tracking**: Compare performance across commits
-
-#### Deployment Automation
-
-- **Multi-Network Support**: Configure deployments for testnet/mainnet
-- **Contract Verification**: Automated block explorer verification
-- **Ownership Verification**: Post-deployment security checks
-
-### Workflow Triggers
-
-- **Push to main**: Full pipeline including security scans and deployment verification
-- **Pull Requests**: Core testing, quality checks, and deployment preview
-- **Manual Dispatch**: Custom environment deployments and testing
-- **Scheduled**: Nightly security and performance monitoring
-
-### Artifact Generation
-
-The CI/CD pipeline generates several artifacts for each run:
-
-- **Gas Usage Reports**: Deployment cost analysis
-- **Contract Size Reports**: Deployment feasibility data
-- **Performance Benchmarks**: Test execution metrics
-- **Coverage Reports**: Test coverage data (when enabled)
-- **Security SARIF Files**: Vulnerability findings for GitHub Security tab
-
-### Configuration Files
-
-- `.github/workflows/ci.yml`: Main CI/CD pipeline definition
-- `.eslintrc.json`: ESLint configuration for code quality
-- `.prettierrc`: Code formatting rules
-- `.slither.json`: Security scanning configuration
-- `scripts/gas-analysis.js`: Gas usage analysis utilities
-- `scripts/deployment-verification.js`: Deployment verification tools
-
-## Documentation
-
-These top-level documents are present in the repository and are the best starting points for deeper context:
-
-- `DOCUMENTATION_INDEX.md`
-- `SYSTEM_ARCHITECTURE.md`
-- `SECURITY.md`
-- `TEST_COVERAGE_SUMMARY.md`
-- `DEPLOYMENT_OWNERSHIP_CHECKLIST.md`
-- `HARDENING_CERTIFICATION.md`
-- `RELEASE_SUMMARY_2026-04-23.md`
-
-## Sentinel Gateway (FastAPI Python Service)
-
-The `sentinel_gateway_prototype.py` provides an intent-filtering gateway for agent prompts and transaction signing. It exposes a FastAPI web API for integration with DeFi and agentic services.
-
-### Usage
-
-```bash
-# (Recommended) Use a Python virtual environment
-python -m venv .venv
-.venv/Scripts/activate  # Windows
-source .venv/bin/activate  # Linux/macOS
-pip install -r requirements.txt  # Or install fastapi, uvicorn, pydantic, requests
-
-# Run the gateway
-
-python sentinel_gateway_prototype.py
-```
-
-The gateway will be available at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-
-### API Endpoints
-
-- `POST /analyze` — Analyze an agent prompt and transaction payload
-  - Requires header: `x-api-key: supersecretapikey` (change in code for production)
-  - Request body:
-
-```json
-{
-  "agent_prompt": "...",
-  "transaction_payload": "..."
-}
-```
-
-- Response:
-
-```json
-{ "result": "SIGNED_TX: ..." }
-```
-
-- `POST /update-config` — Update gateway config (rate limits, blacklist, etc)
-
-### Configuration
-
-- Config file: `sentinel_gateway_config.json` (auto-created on first run)
-- Audit log: `audit_log.jsonl` (JSON lines)
-- Webhook: Set `webhook_url` in code or config for alerting
-
-### Extending
-
-- Add new intent heuristics in `analyze_intent()`
-- Integrate with other chains/services via the webhook or by extending `execute_gateway()`
-
-### Release Info
-
-- Latest release: `v0.2.0` (see [Releases](https://github.com/MastaTrill/Aetheron-Sentinel-L3/releases))
-- See [SECURITY_POLICY.md](SECURITY_POLICY.md) for coordinated disclosure
-
----
-
-## Security
-
-Security reporting guidance lives in `SECURITY.md`.
-
-For routine local verification, run:
-
-```bash
-npm test
-npm audit
-```
-
-For Python validation, run the unit tests with `PYTHONPATH=src` set as shown above.
-
-## Contributing
-
-Open an issue or pull request in this repository for proposed changes. If the change affects deployment, verification, security posture, or ownership state, include the relevant command output or workflow evidence in the pull request description.
-
-## License
-
-This project is marked `UNLICENSED` in `package.json`.
+**Document Version:** 1.2 (canonical token release controls)  
+**Last Updated:** July 26, 2026

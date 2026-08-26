@@ -42,3 +42,7 @@ Formalize the process for identifying, responding to, and recovering from securi
 ---
 
 ### Last updated: 2026-04-30
+
+---
+
+_For more information on our security practices, see SECURITY.md._

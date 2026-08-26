@@ -116,7 +116,7 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
         address actor,
         uint256 severity,
         string calldata details
-    ) external returns (uint256) {
+    ) external onlyOwner returns (uint256) {
         require(severity >= 1 && severity <= 10, "Invalid severity");
 
         uint256 logId = logCount++;
@@ -460,7 +460,8 @@ contract SentinelSecurityAuditor is Ownable, ReentrancyGuard {
         uint256 severity,
         string memory message
     ) internal {
-        for (uint256 i = 0; i < alertRecipients.length; i++) {
+        uint256 recipientCount = alertRecipients.length;
+        for (uint256 i = 0; i < recipientCount; i++) {
             // In production, this would integrate with notification systems
             emit AlertSent(alertRecipients[i], severity, message);
         }

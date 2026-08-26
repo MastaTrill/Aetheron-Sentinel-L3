@@ -1,0 +1,76 @@
+SENTINEL authority reachability simulation
+==========================================
+capturedAtUtc:       2026-07-26T21:39:06Z
+observedStartBlock:  49156299
+blockTag:            latest
+chainId:             8453
+token:               0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+airlock:             0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12
+airlockOwner:        0x21E2ce70511e4FE542a97708e89520471DAa7A66
+
+NOTICE: cast call is an eth_call simulation. It never signs or broadcasts a transaction.
+NOTICE: a simulated call with --from the Airlock tests DERC20 authorization only; it does not prove the Airlock exposes a path that can originate that call.
+
+probe: direct Safe updateMintRate
+expected: reverted
+from: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: updateMintRate(uint256)
+result: reverted
+output: Error: server returned an error response: error code 3: execution reverted, data: "0x118cdaa700000000000000000000000021e2ce70511e4fe542a97708e89520471daa7a66"
+
+probe: direct Safe updateTokenURI
+expected: reverted
+from: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: updateTokenURI(string)
+result: reverted
+output: Error: server returned an error response: error code 3: execution reverted, data: "0x118cdaa700000000000000000000000021e2ce70511e4fe542a97708e89520471daa7a66"
+
+probe: direct Safe unlockPool
+expected: reverted
+from: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: unlockPool()
+result: reverted
+output: Error: server returned an error response: error code 3: execution reverted, data: "0x118cdaa700000000000000000000000021e2ce70511e4fe542a97708e89520471daa7a66"
+
+probe: direct Safe transferOwnership
+expected: reverted
+from: 0x21E2ce70511e4FE542a97708e89520471DAa7A66
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: transferOwnership(address)
+result: reverted
+output: Error: server returned an error response: error code 3: execution reverted, data: "0x118cdaa700000000000000000000000021e2ce70511e4fe542a97708e89520471daa7a66"
+
+probe: public mintInflation while minting dormant
+expected: reverted
+from: 0x0000000000000000000000000000000000000001
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: mintInflation()
+result: reverted
+output: Error: server returned an error response: error code 3: execution reverted, data: "0x6c03e4fa"
+
+probe: authorization-only Airlock unlockPool simulation
+expected: simulated-success
+from: 0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: unlockPool()
+result: simulated-success
+output: 0x
+
+probe: authorization-only Airlock updateMintRate simulation
+expected: simulated-success
+from: 0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12
+target: 0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+signature: updateMintRate(uint256)
+result: simulated-success
+output: 0x
+
+probe: current asset migration simulation
+expected: reverted
+from: 0x0000000000000000000000000000000000000001
+target: 0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12
+signature: migrate(address)
+result: reverted
+output: Error: server returned an error response: error code 3: execution reverted, data: "0xf5e2202a"

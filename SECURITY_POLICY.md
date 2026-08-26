@@ -2,40 +2,52 @@
 
 ## Supported Versions
 
-| Version | Supported         |
-| ------- | ----------------- |
-| 1.x     | ✅ Active support |
+We actively provide security updates for the following versions of Aetheron Sentinel:
 
-## Known Security Issues
-
-### NPM Dependencies
-
-This project contains known vulnerabilities in development dependencies due to outdated transitive dependencies:
-
-| Package                                                         | Severity | Status                        |
-| --------------------------------------------------------------- | -------- | ----------------------------- |
-| `@openzeppelin/contracts` (transitive from LayerZero/Chainlink) | High     | Non-exploitable in production |
-| `elliptic`                                                      | Critical | Development tooling only      |
-| `axios`                                                         | High     | Build tooling only            |
-| `form-data`                                                     | Critical | Build tooling only            |
-
-### Mitigations
-
-1. **Development-only dependencies**: All vulnerable packages are dev/build dependencies, not deployed to production
-2. **No runtime exposure**: These dependencies are not included in contract deployments
-3. **Isolated environment**: Vulnerabilities cannot be exploited through smart contract interactions
-
-### Exception Handling
-
-The `@ensdomains/ens-contracts` package (malware vulnerability GHSA-58x9-4xmp-8mg5) has been removed from dependencies. The `SentinelENSManager` contract has been stubbed and is marked explicitly as disabled.
+| Version | Supported          |
+| ------- | ------------------ |
+| v1.0.x  | :white_check_mark: |
+| < v1.0  | :x:                |
 
 ## Reporting a Vulnerability
 
-Report security vulnerabilities to security@aetheron.io
+We take the security of our smart contracts and infrastructure seriously. If you believe you have found a security vulnerability, please report it to us as soon as possible.
 
-## CI/CD Security
+**Do not open a public GitHub issue for security vulnerabilities.**
 
-- ESLint runs with zero errors
-- TypeScript strict mode enabled
-- Prettier formatting enforced
-- Weekly security audit workflow scheduled
+### Reporting Channels
+
+- **Primary Email:** aetheron.solana@gmail.com
+- **Subject Line:** `SECURITY VULNERABILITY: [Brief Description]`
+
+### Information to Include
+
+Please provide a detailed report including:
+
+- Description of the vulnerability.
+- Potential impact (e.g., loss of funds, unauthorized access).
+- Steps to reproduce or a Proof of Concept (PoC) script (Foundry or Hardhat).
+- Any suggested remediation.
+
+## Our Process
+
+1. **Acknowledgment:** We will acknowledge receipt of your report within 24–48 hours.
+2. **Investigation:** Our team will investigate the issue and determine the severity.
+3. **Remediation:** If verified, we will develop and test a fix.
+4. **Disclosure:** We follow a coordinated disclosure policy. We will coordinate a public announcement after a fix has been deployed to mainnet.
+
+## Bug Bounty Program
+
+Critical vulnerabilities may be eligible for rewards under our bug bounty program. See BUG_BOUNTY.md for details on reward tiers and eligibility.
+
+## Incident Response
+
+In the event of an active exploit, please refer to our INCIDENT_RESPONSE.md for emergency procedures, including circuit breaker triggers and pause mechanisms.
+
+---
+
+_Last Updated: May 13, 2026_
+
+---
+
+_For more information on our security practices, see SECURITY.md._

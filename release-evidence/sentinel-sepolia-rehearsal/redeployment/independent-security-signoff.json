@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "status": "retired",
+  "retiredOn": "2026-08-02",
+  "reason": "Independent security review is no longer a required gate in the project-owner-authorized SENTINEL release process.",
+  "replacementControl": "The exact, expiring Base Mainnet authorization must record project-owner acceptance of the risk of proceeding without independent security review.",
+  "historicalNotice": "This path is retained only to preserve repository history. It is not required evidence and cannot complete or block the active closure validator."
+}

@@ -23,7 +23,7 @@ describe('CircuitBreaker', function () {
   describe('Initial state', function () {
     it('starts in CLOSED state for any chain', async function () {
       const [state] = await circuitBreaker.getCircuitStats(CHAIN_ID);
-      expect(state).to.equal(0); // State.CLOSED = 0
+      expect(state).to.equal(0n); // State.CLOSED = 0
     });
   });
 
@@ -33,13 +33,13 @@ describe('CircuitBreaker', function () {
         await circuitBreaker.connect(monitor).recordFailure(CHAIN_ID, 3);
       }
       const [state] = await circuitBreaker.getCircuitStats(CHAIN_ID);
-      expect(state).to.equal(1); // State.OPEN = 1
+      expect(state).to.equal(1n); // State.OPEN = 1
     });
 
     it('opens circuit immediately on high severity failure (>= 8)', async function () {
       await circuitBreaker.connect(monitor).recordFailure(CHAIN_ID, 8);
       const [state] = await circuitBreaker.getCircuitStats(CHAIN_ID);
-      expect(state).to.equal(1);
+      expect(state).to.equal(1n);
     });
 
     it('rejects invalid chain ID', async function () {
@@ -66,7 +66,7 @@ describe('CircuitBreaker', function () {
       await circuitBreaker.connect(monitor).recordFailure(CHAIN_ID, 3);
       await circuitBreaker.connect(monitor).recordFailure(CHAIN_ID, 3);
       const [, failures] = await circuitBreaker.getCircuitStats(CHAIN_ID);
-      expect(failures).to.equal(2);
+      expect(failures).to.equal(2n);
     });
   });
 });

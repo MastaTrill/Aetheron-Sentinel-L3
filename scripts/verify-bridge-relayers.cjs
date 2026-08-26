@@ -3,11 +3,20 @@ const fs = require('fs');
 const vm = require('vm');
 
 function resolveRpcUrl() {
-  const fallback = 'https://ethereum-sepolia-rpc.publicnode.com';
+  const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
+  const mainnetFallback = 'https://ethereum-rpc.publicnode.com';
+  const sepoliaFallback = 'https://ethereum-sepolia-rpc.publicnode.com';
+
+  if (network === 'mainnet') {
+    const raw = (process.env.MAINNET_RPC_URL || '').trim();
+    if (raw && !raw.includes('YOUR_') && !raw.includes('your_')) return raw;
+    return mainnetFallback;
+  }
+
+  const fallback = sepoliaFallback;
   const raw = (process.env.SEPOLIA_RPC_URL || '').trim();
   if (!raw) return fallback;
 
-  // Ignore template placeholders from .env.example and use a known-good public RPC.
   const lower = raw.toLowerCase();
   if (
     lower.includes('your_sepolia_rpc_url') ||
