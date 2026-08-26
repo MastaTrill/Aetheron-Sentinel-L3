@@ -1,25 +1,25 @@
 name: Dependabot Auto-Merge
 
-# Auto-enable squash merge for safe Dependabot updates once required checks pass.
-# Majors, pre-releases (rc/beta/alpha), and known high-risk packages stay manual.
-
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, labeled]
+    types: [opened, reopened, synchronize, ready_for_review]
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   auto-merge:
-    if: >
-      github.event.pull_request.user.login == 'dependabot[bot]'
-      && github.event.pull_request.draft == false
-      && github.event.pull_request.base.ref == 'main'
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
       - name: Fetch Dependabot metadata
         id: meta
@@ -32,66 +32,45 @@ jobs:
         env:
           UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
           DEPENDENCY_NAMES: ${{ steps.meta.outputs.dependency-names }}
-          DEPENDENCY_TYPE: ${{ steps.meta.outputs.dependency-type }}
           PACKAGE_ECOSYSTEM: ${{ steps.meta.outputs.package-ecosystem }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+        shell: bash
         run: |
           set -euo pipefail
 
-          echo "update-type=$UPDATE_TYPE"
-          echo "dependency-names=$DEPENDENCY_NAMES"
-          echo "ecosystem=$PACKAGE_ECOSYSTEM"
-          echo "title=$PR_TITLE"
-
-          # Block pre-releases in title or dependency version hints
           if echo "$PR_TITLE" | grep -Eiq '(rc[0-9]|-rc\.|beta|alpha|preview|nightly)'; then
-            echo "Blocked: pre-release detected in title"
             echo "safe=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # High-risk packages — always require human review (majors especially)
-          # Matching is case-insensitive substring on dependency-names CSV.
           BLOCK_LIST='torch|mlflow|@openzeppelin/contracts|openzeppelin-contracts|protobuf|azure-functions|typescript'
-          if echo "$DEPENDENCY_NAMES" | grep -Eiq "$BLOCK_LIST"; then
-            # Still allow patch-only on block list; block minor/major for these
-            if [ "$UPDATE_TYPE" != "version-update:semver-patch" ]; then
-              echo "Blocked: high-risk dependency needs human review ($DEPENDENCY_NAMES / $UPDATE_TYPE)"
-              echo "safe=false" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
+          if echo "$DEPENDENCY_NAMES" | grep -Eiq "$BLOCK_LIST" &&
+             [ "$UPDATE_TYPE" != "version-update:semver-patch" ]; then
+            echo "safe=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-          # GitHub Actions: allow patch, minor, and major (Actions majors are usually additive)
           if [ "$PACKAGE_ECOSYSTEM" = "github_actions" ] || [ "$PACKAGE_ECOSYSTEM" = "github-actions" ]; then
-            echo "Safe: github-actions update ($UPDATE_TYPE)"
             echo "safe=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # npm / pip / gitsubmodule: patch + minor only
           case "$UPDATE_TYPE" in
             version-update:semver-patch|version-update:semver-minor)
-              echo "Safe: $UPDATE_TYPE"
               echo "safe=true" >> "$GITHUB_OUTPUT"
               ;;
             *)
-              echo "Blocked: $UPDATE_TYPE requires manual review"
               echo "safe=false" >> "$GITHUB_OUTPUT"
               ;;
           esac
 
-      - name: Enable auto-merge (squash)
+      - name: Enable squash auto-merge
         if: steps.decide.outputs.safe == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-        run: |
-          set -euo pipefail
-          # Enables GitHub auto-merge; PR merges when all required status checks pass.
-          gh pr merge --auto --squash "$PR_URL"
-          echo "Auto-merge enabled for $PR_URL"
+        run: gh pr merge --auto --squash "$PR_URL"
 
-      - name: Skip note
+      - name: Require manual review
         if: steps.decide.outputs.safe != 'true'
-        run: echo "Skipping auto-merge — major, pre-release, or high-risk dependency."
+        run: echo "Dependabot update requires manual review."
