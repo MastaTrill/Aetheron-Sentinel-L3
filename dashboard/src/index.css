@@ -194,6 +194,76 @@ input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:foc
   animation: neon-pulse-green 2s infinite ease-in-out;
 }
 
+.sentinel-pro-billing {
+  margin: 16px 20px 0;
+  padding: 16px;
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0, 245, 255, 0.06), rgba(0, 255, 170, 0.06));
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+.sentinel-pro-billing > div:first-child {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.sentinel-pro-billing strong {
+  color: #fff;
+}
+
+.sentinel-pro-price {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.sentinel-pro-actions,
+.sentinel-key-reveal {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.sentinel-pro-actions form {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.sentinel-pro-actions input,
+.sentinel-key-reveal code {
+  flex: 1;
+  min-width: 220px;
+}
+
+.sentinel-pro-billing button {
+  border: 1px solid #00f5ff;
+  border-radius: 6px;
+  background: #071324;
+  color: #00f5ff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.sentinel-pro-billing button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.sentinel-pro-status {
+  margin-top: 10px;
+  color: #d7e5f5;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
 /* Responsive adjustments for mobile/tablets */
 @media (max-width: 1024px) {
   #root {
@@ -222,5 +292,3 @@ input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:foc
     text-align: center !important;
   }
 }
-
-
