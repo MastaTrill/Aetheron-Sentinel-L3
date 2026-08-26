@@ -69,11 +69,42 @@ jobs:
 
           printf '%s\n' "$changed"
 
-          if printf '%s\n' "$changed" | grep -Eq '^(contracts/|test/|script/|scripts/|deploy/|config/|lib/|src/|public/|app/|pages/|foundry\.toml$|remappings\.txt$|hardhat\.config\.|next\.config\.|tsconfig[^/]*\.json$|package(-lock)?\.json$|\.eslintrc\.json$|\.github/workflows/ci\.yml$)'; then
+          if printf '%s\n' "$changed" | grep -Eq '^(contracts/|test/|script/|scripts/|sentinel/|sentinel_gateway_prototype\.py$|supabase/|deploy/|config/|lib/|src/|public/|app/|pages/|requirements(-gateway)?\.txt$|pytest\.ini$|foundry\.toml$|remappings\.txt$|hardhat\.config\.|next\.config\.|tsconfig[^/]*\.json$|package(-lock)?\.json$|\.eslintrc\.json$|\.github/workflows/ci\.yml$)'; then
             echo "code_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "code_changed=false" >> "$GITHUB_OUTPUT"
           fi
+
+  gateway-tests:
+    name: Sentinel gateway billing tests
+    needs: safety
+    if: needs.safety.outputs.code_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-gateway.txt
+
+      - name: Install gateway dependencies
+        run: pip install -r requirements-gateway.txt
+
+      - name: Run focused gateway billing tests
+        run: >-
+          python -m pytest
+          test/test_sentinel_gateway.py
+          test/test_billing_store.py
+          test/test_entitlements.py
+          test/test_billing_api.py
+          -q
 
   validate:
     name: Build, test and release policy
