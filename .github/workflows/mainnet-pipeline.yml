@@ -38,12 +38,6 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base
   DEPLOY_ENVIRONMENT: base-mainnet
-  BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
-  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-  SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-  MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
-  AUDIT_REPORT_SHA256: ${{ secrets.AUDIT_REPORT_SHA256 }}
-  BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
   MIN_DEPLOYER_BALANCE_ETH: '0.5'
   RELEASE_COMMIT: ${{ inputs.release_commit }}
   RELEASE_TAG: ${{ inputs.release_tag }}
@@ -57,6 +51,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-mainnet
+    env:
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+      AUDIT_REPORT_SHA256: ${{ secrets.AUDIT_REPORT_SHA256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -145,6 +145,11 @@ jobs:
     timeout-minutes: 60
     environment: base-mainnet
     env:
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
+      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
       BASE_SEPOLIA_MANIFEST_SHA256: ${{ needs.readiness.outputs.rehearsal_manifest_sha256 }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
     steps:

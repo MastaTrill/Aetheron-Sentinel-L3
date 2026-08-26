@@ -25,10 +25,6 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
-  BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-  SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
-  MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
   MIN_DEPLOYER_BALANCE_ETH: '0.01'
   RELEASE_COMMIT: ${{ github.sha }}
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
@@ -38,6 +34,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -103,6 +104,10 @@ jobs:
     timeout-minutes: 60
     environment: base-sepolia
     env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
+      MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
       BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
     steps:
