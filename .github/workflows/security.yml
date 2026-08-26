@@ -129,12 +129,24 @@ jobs:
           --config-file slither.config.json
           --fail-high
           --sarif results-RateLimiter.sarif
-      - name: Upload Slither SARIF
+      - name: Upload SentinelInterceptor SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: .
-          category: slither-release-guardrails
+          sarif_file: results-SentinelInterceptor.sarif
+          category: slither-sentinel-interceptor
+      - name: Upload CircuitBreaker SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results-CircuitBreaker.sarif
+          category: slither-circuit-breaker
+      - name: Upload RateLimiter SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results-RateLimiter.sarif
+          category: slither-rate-limiter
 
   semgrep:
     name: Semgrep SAST
