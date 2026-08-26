@@ -164,3 +164,22 @@ def test_billing_migration_has_atomic_claim_key_rpc_and_rls():
     assert "grant execute on function" in sql.lower()
     assert "to service_role" in sql.lower()
     assert "from public, anon, authenticated" in sql.lower()
+
+
+def test_create_api_key_persists_only_prefix_hash_and_subscription():
+    fake = FakeSupabase()
+    store = BillingStore(client=fake)
+
+    row = store.create_api_key(
+        subscription_id="00000000-0000-0000-0000-000000000001",
+        key_prefix="sentinel_live_prefix",
+        key_hash="digest-only",
+    )
+
+    assert fake.last_table == "sentinel_api_keys"
+    assert fake.last_query.payload == {
+        "subscription_id": "00000000-0000-0000-0000-000000000001",
+        "key_prefix": "sentinel_live_prefix",
+        "key_hash": "digest-only",
+    }
+    assert row["key_hash"] == "digest-only"
