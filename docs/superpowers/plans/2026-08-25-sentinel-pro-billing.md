@@ -4,7 +4,7 @@
 
 **Goal:** Ship the first production revenue path for Aetheron Sentinel L3: a $99/month Stripe-hosted Sentinel Pro subscription that issues a customer-specific API key and gates protected Sentinel API/dashboard capabilities by Stripe subscription state.
 
-**Architecture:** Keep Stripe and Supabase service credentials entirely in the FastAPI gateway. Stripe Checkout creates subscriptions, verified webhooks synchronize entitlement state to backend-only Supabase tables, and one-time Checkout claims issue hashed-at-rest Sentinel API keys. The Vite dashboard uses a small API client and session-only credential storage; Base Sepolia/Base Mainnet deployment pipelines remain independent and unchanged.
+**Architecture:** Stripe and Supabase service credentials stay entirely inside the FastAPI gateway. Stripe Checkout creates subscriptions, verified webhooks synchronize entitlement state to backend-only Supabase tables, and an atomic Postgres RPC consumes a one-time Checkout claim while inserting the hashed API key so a paid customer cannot be stranded between writes. The Vite dashboard uses a small API client and session-only credential storage; Base Sepolia/Base Mainnet deployment pipelines remain independent and unchanged.
 
 **Tech Stack:** Python 3.11, FastAPI 0.136.0, Pydantic 2.13.2, Stripe Python 15.5.1, Supabase Python 2.28.3, structlog 26.1.0, pytest 9.1.1, React 19/Vite 8/TypeScript 6, GitHub Actions, Vercel.
 
@@ -13,42 +13,35 @@
 ## Global Constraints
 
 - Product: `Aetheron Sentinel Pro`, exactly `$99.00 USD/month`, flat-rate, pay up front, no trial.
-- Checkout: Stripe-hosted Checkout; no custom card handling in Sentinel code.
+- Checkout: Stripe-hosted Checkout; Sentinel never handles raw card data.
 - Service entitlement: only Stripe subscription status `active` on `STRIPE_SENTINEL_PRO_PRICE_ID` grants protected Sentinel service access.
 - Customer Portal: a recognized, non-revoked API key may open the portal even when service entitlement is inactive.
-- API keys: prefix `sentinel_live_` plus at least 32 bytes of cryptographically secure URL-safe randomness; persist SHA-256 hash only; plaintext is returned once.
-- Checkout claim secret: hashed at rest, 60-minute expiry, single-use.
-- Production secrets remain backend-only: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, API-key hashes, and claim hashes must never use `VITE_` variables or enter browser code.
-- Production CORS allows only the exact configured `SENTINEL_DASHBOARD_URL` origin; no wildcard.
-- `POST /billing/checkout` and `POST /billing/claim` are limited to 10 attempts per 10 minutes per client IP for the first release.
-- Production must never authorize `fallback-dev-key-do-not-use-in-prod`.
-- Base Sepolia/Base Mainnet deployment workflows and Solidity release scope are not modified by this plan.
-- Existing `CI`, `Security`, and `Dashboard` workflows must end green; the tracked-secret scanner must pass.
+- API keys: `sentinel_live_` + at least 32 bytes of CSPRNG URL-safe randomness; persist SHA-256 hash only; plaintext returned once.
+- Checkout claim: random, hashed at rest, 60-minute expiry, single-use.
+- Production secrets stay backend-only: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, key hashes, and claim hashes never enter `VITE_` variables or browser code.
+- Production CORS allows exactly `SENTINEL_DASHBOARD_URL`; never `*`.
+- `POST /billing/checkout` and `POST /billing/claim`: 10 attempts per 10 minutes per client IP for v1.
+- Production never authorizes `fallback-dev-key-do-not-use-in-prod`.
+- Base Sepolia/Base Mainnet workflows and Solidity contracts are untouched.
+- Existing `CI`, `Security`, and `Dashboard` workflows finish green; tracked-secret scanning passes.
 
-## File Structure
+## File Map
 
-- Create `requirements-gateway.txt` — minimal, pinned Python runtime/test dependencies for the gateway so CI does not install the repository's large ML/tooling requirements set.
-- Create `supabase/migrations/20260825230300_sentinel_pro_billing.sql` — billing tables, indexes, RLS, and atomic checkout-claim consume RPC.
-- Create `sentinel/billing_store.py` — backend-only Supabase persistence adapter and typed records.
-- Create `sentinel/entitlements.py` — key generation/hashing plus recognized-key and active-subscription authorization dependencies.
-- Create `sentinel/billing.py` — Stripe Checkout, claim, webhook, Customer Portal, key rotation, and IP rate-limit routes.
-- Modify `sentinel/api.py` — replace mixed shared-key/public protection with one environment-aware Sentinel access dependency.
-- Modify `sentinel_gateway_prototype.py` — include billing router, exact-origin CORS, and production configuration validation.
-- Create `test/test_billing_store.py` — deterministic persistence-adapter tests with fake Supabase client.
-- Create `test/test_entitlements.py` — cryptographic key and authorization tests.
-- Create `test/test_billing_api.py` — FastAPI/Stripe-mocked billing integration tests.
-- Modify `test/test_sentinel_gateway.py` only if app-level production-auth coverage belongs there after router wiring.
-- Create `dashboard/src/api/sentinelClient.ts` — base URL resolution, session API-key access, authenticated/public request helpers.
-- Create `dashboard/src/components/SentinelProBilling.tsx` — upgrade, claim, key-entry, rotate, and portal UI.
-- Modify `dashboard/src/App.tsx` — mount billing component and route existing Sentinel API calls through `sentinelClient` instead of literal fallback credentials.
-- Modify `dashboard/src/App.css` — minimal styles for billing/access card consistent with the existing dashboard.
-- Modify `.github/workflows/ci.yml` — treat gateway/Python/Supabase files as code and run gateway pytest suite.
-- Modify `.github/workflows/security.yml` — include Python gateway, billing, Supabase migration, and requirements paths in security triggers.
-- Modify `DEPLOYMENT_GATEWAY.md` — production environment variables, billing endpoints, Stripe webhook, CORS, and no-fallback-key rules.
+- Create `requirements-gateway.txt`: focused gateway/test dependency set.
+- Create `supabase/migrations/20260825230300_sentinel_pro_billing.sql`: four billing tables, indexes, RLS, atomic claim+key RPC.
+- Create `sentinel/billing_store.py`: backend-only Supabase adapter.
+- Create `sentinel/entitlements.py`: key generation/hashing and authorization dependencies.
+- Create `sentinel/billing.py`: Checkout, claim, webhook, portal, rotation, and rate limiting.
+- Modify `sentinel/api.py`: one environment-aware access dependency on all Sentinel application routes.
+- Modify `sentinel_gateway_prototype.py`: include billing router, CORS, production config validation.
+- Create `test/test_billing_store.py`, `test/test_entitlements.py`, `test/test_billing_api.py`; extend `test/test_sentinel_gateway.py` with app-level auth/CORS cases.
+- Create `dashboard/src/api/sentinelClient.ts` and `dashboard/src/components/SentinelProBilling.tsx`; modify `dashboard/src/App.tsx` and `dashboard/src/App.css`.
+- Modify `.github/workflows/ci.yml` and `.github/workflows/security.yml` so Python billing is a required code/security surface.
+- Modify `DEPLOYMENT_GATEWAY.md` with exact production configuration and rollout notes.
 
 ---
 
-### Task 1: Add the backend billing schema and persistence adapter
+### Task 1: Billing database schema and store
 
 **Files:**
 - Create: `supabase/migrations/20260825230300_sentinel_pro_billing.sql`
@@ -56,33 +49,32 @@
 - Create: `test/test_billing_store.py`
 
 **Interfaces:**
-- Produces `BillingStore` with methods used by Tasks 2-3:
-  - `create_claim(claim_id: str, claim_secret_hash: str, expires_at: datetime) -> None`
-  - `bind_claim_session(claim_id: str, checkout_session_id: str) -> None`
-  - `consume_claim(checkout_session_id: str, claim_secret_hash: str) -> dict | None`
-  - `upsert_subscription(record: SubscriptionRecord) -> dict`
-  - `get_subscription_by_stripe_id(stripe_subscription_id: str) -> dict | None`
-  - `get_subscription_by_id(subscription_id: str) -> dict | None`
-  - `get_api_key_by_hash(key_hash: str) -> dict | None`
-  - `create_api_key(subscription_id: str, key_prefix: str, key_hash: str) -> dict`
-  - `revoke_api_key(key_id: str) -> None`
-  - `touch_api_key(key_id: str) -> None`
-  - `event_processed(stripe_event_id: str) -> bool`
-  - `record_event(stripe_event_id: str, event_type: str) -> None`
+- `SubscriptionRecord(stripe_customer_id, stripe_subscription_id, stripe_price_id, customer_email, status, current_period_end, cancel_at_period_end)`
+- `get_billing_store() -> BillingStore`
+- `BillingStore.create_claim(claim_id, claim_secret_hash, expires_at) -> None`
+- `BillingStore.bind_claim_session(claim_id, checkout_session_id) -> None`
+- `BillingStore.upsert_subscription(record) -> dict`
+- `BillingStore.get_subscription_by_id(subscription_id) -> dict | None`
+- `BillingStore.get_subscription_by_stripe_id(stripe_subscription_id) -> dict | None`
+- `BillingStore.get_api_key_by_hash(key_hash) -> dict | None`
+- `BillingStore.claim_and_create_api_key(checkout_session_id, claim_secret_hash, subscription_id, key_prefix, key_hash) -> dict | None`
+- `BillingStore.revoke_api_key(key_id) -> None`
+- `BillingStore.touch_api_key(key_id) -> None`
+- `BillingStore.event_processed(event_id) -> bool`
+- `BillingStore.record_event(event_id, event_type) -> None`
 
-- [ ] **Step 1: Write failing store tests around the exact adapter contract**
+- [ ] **Step 1: Write failing store tests**
 
-Create `test/test_billing_store.py` with a fake Supabase client and tests equivalent to:
+Create a tiny fake Supabase query builder and test deterministic table/RPC usage:
 
 ```python
 from datetime import datetime, timezone
-
 from sentinel.billing_store import BillingStore, SubscriptionRecord
 
 
-def test_upsert_subscription_uses_stripe_subscription_id(fake_supabase):
+def test_upsert_subscription_conflicts_on_stripe_subscription_id(fake_supabase):
     store = BillingStore(client=fake_supabase)
-    record = SubscriptionRecord(
+    store.upsert_subscription(SubscriptionRecord(
         stripe_customer_id="cus_test",
         stripe_subscription_id="sub_test",
         stripe_price_id="price_pro",
@@ -90,213 +82,170 @@ def test_upsert_subscription_uses_stripe_subscription_id(fake_supabase):
         status="active",
         current_period_end=datetime(2026, 9, 25, tzinfo=timezone.utc),
         cancel_at_period_end=False,
-    )
-    store.upsert_subscription(record)
+    ))
     assert fake_supabase.last_table == "sentinel_subscriptions"
     assert fake_supabase.last_on_conflict == "stripe_subscription_id"
 
 
-def test_consume_claim_returns_none_for_invalid_or_used_claim(fake_supabase):
+def test_atomic_claim_and_key_returns_none_when_claim_is_invalid(fake_supabase):
     fake_supabase.rpc_result = []
     store = BillingStore(client=fake_supabase)
-    assert store.consume_claim("cs_test", "deadbeef") is None
+    assert store.claim_and_create_api_key(
+        "cs_test", "claimhash", "00000000-0000-0000-0000-000000000001",
+        "sentinel_live_prefix", "keyhash"
+    ) is None
 ```
 
-The fake client needs only the table/query/RPC calls exercised by this file; do not mock the entire Supabase package.
-
-- [ ] **Step 2: Run the new test file and verify import failure**
-
-Run:
+- [ ] **Step 2: Run the tests and confirm RED**
 
 ```bash
 python -m pytest test/test_billing_store.py -q
 ```
 
-Expected: FAIL because `sentinel.billing_store` does not exist.
+Expected: import failure for `sentinel.billing_store`.
 
-- [ ] **Step 3: Create the SQL migration with backend-only RLS**
+- [ ] **Step 3: Create four backend-only billing tables**
 
-The migration must create `pgcrypto` if needed and these four tables exactly: `sentinel_subscriptions`, `sentinel_api_keys`, `sentinel_checkout_claims`, `sentinel_billing_events`. Use UUID primary keys via `gen_random_uuid()`, unique constraints on Stripe customer/subscription IDs and key hashes, and foreign key `sentinel_api_keys.subscription_id -> sentinel_subscriptions.id ON DELETE CASCADE`.
+Migration creates `pgcrypto` if needed and tables exactly matching the spec: `sentinel_subscriptions`, `sentinel_api_keys`, `sentinel_checkout_claims`, `sentinel_billing_events`. Use `gen_random_uuid()` IDs, unique Stripe customer/subscription IDs, unique `key_hash`, FK `sentinel_api_keys.subscription_id -> sentinel_subscriptions.id ON DELETE CASCADE`, timestamps, and indexes on key hash/subscription/customer/checkout-session lookup fields.
 
-Add indexes on `sentinel_api_keys(key_hash)`, `sentinel_api_keys(subscription_id)`, `sentinel_subscriptions(stripe_customer_id)`, and `sentinel_checkout_claims(stripe_checkout_session_id)`.
+Enable RLS on all four tables. Create no `anon` or `authenticated` allow policy.
 
-Enable RLS on all four tables and do **not** create any `anon` or `authenticated` allow policy. The server's service-role key bypasses RLS; browser clients get no direct billing-table access.
+- [ ] **Step 4: Add one atomic claim+API-key RPC**
 
-Add atomic RPC:
+Use one database function, not separate claim/key writes:
 
 ```sql
-create or replace function consume_sentinel_checkout_claim(
+create or replace function claim_sentinel_checkout_and_create_key(
   p_checkout_session_id text,
-  p_claim_secret_hash text
+  p_claim_secret_hash text,
+  p_subscription_id uuid,
+  p_key_prefix text,
+  p_key_hash text
 )
-returns setof sentinel_checkout_claims
-language sql
+returns table(api_key_id uuid)
+language plpgsql
 security definer
 set search_path = public
 as $$
+begin
   update sentinel_checkout_claims
-  set claimed_at = now()
-  where stripe_checkout_session_id = p_checkout_session_id
-    and claim_secret_hash = p_claim_secret_hash
-    and claimed_at is null
-    and expires_at > now()
-  returning *;
+     set claimed_at = now()
+   where stripe_checkout_session_id = p_checkout_session_id
+     and claim_secret_hash = p_claim_secret_hash
+     and claimed_at is null
+     and expires_at > now();
+
+  if not found then
+    return;
+  end if;
+
+  return query
+    insert into sentinel_api_keys(subscription_id, key_prefix, key_hash)
+    values (p_subscription_id, p_key_prefix, p_key_hash)
+    returning id;
+end;
 $$;
 
-revoke all on function consume_sentinel_checkout_claim(text, text) from public, anon, authenticated;
-grant execute on function consume_sentinel_checkout_claim(text, text) to service_role;
+revoke all on function claim_sentinel_checkout_and_create_key(text,text,uuid,text,text)
+  from public, anon, authenticated;
+grant execute on function claim_sentinel_checkout_and_create_key(text,text,uuid,text,text)
+  to service_role;
 ```
 
-- [ ] **Step 4: Implement the minimal typed persistence adapter**
+Because the update and insert occur inside one function invocation, an insert error rolls back claim consumption.
 
-Use a dataclass for subscription writes:
+- [ ] **Step 5: Implement `BillingStore`**
 
-```python
-@dataclass(frozen=True)
-class SubscriptionRecord:
-    stripe_customer_id: str
-    stripe_subscription_id: str
-    stripe_price_id: str
-    customer_email: str | None
-    status: str
-    current_period_end: datetime | None
-    cancel_at_period_end: bool
-```
+Use `@dataclass(frozen=True)` for `SubscriptionRecord`. `BillingStore(client=None)` accepts an injected fake; otherwise it constructs `create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)`. Missing server credentials raise `BillingStoreUnavailable`; never substitute the anon key. Read Supabase response `.data`.
 
-`BillingStore.__init__` accepts an injected client for tests; otherwise lazily constructs `create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)`. If either backend environment variable is missing, raise `BillingStoreUnavailable` rather than falling back to the anon key.
-
-Use Supabase response `.data`, not dictionary-style `.get("status_code")` assumptions.
-
-- [ ] **Step 5: Run store tests**
+- [ ] **Step 6: Run GREEN and commit**
 
 ```bash
 python -m pytest test/test_billing_store.py -q
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit the schema/store slice**
-
-```bash
 git add supabase/migrations/20260825230300_sentinel_pro_billing.sql sentinel/billing_store.py test/test_billing_store.py
 git commit -m "feat: add Sentinel billing persistence"
 ```
 
-### Task 2: Add customer API keys and entitlement dependencies
+### Task 2: API keys and entitlement policy
 
 **Files:**
 - Create: `sentinel/entitlements.py`
 - Create: `test/test_entitlements.py`
 
 **Interfaces:**
-- Consumes: `BillingStore` from Task 1 and `STRIPE_SENTINEL_PRO_PRICE_ID`.
-- Produces:
-  - `hash_secret(value: str) -> str`
-  - `generate_api_key() -> tuple[str, str, str]` returning `(plaintext, prefix, hash)`
-  - `ResolvedCustomer` dataclass containing API-key row + subscription row
-  - `resolve_customer_api_key(x_api_key: str = Header(...)) -> ResolvedCustomer`
-  - `require_active_subscription(customer: ResolvedCustomer = Depends(resolve_customer_api_key)) -> ResolvedCustomer`
-  - `require_sentinel_access(...)` that uses paid entitlement in production and explicit legacy dev-key compatibility outside production.
+- `hash_secret(value: str) -> str`
+- `generate_api_key() -> tuple[str, str, str]` = plaintext, prefix, digest
+- `ResolvedCustomer(api_key: dict, subscription: dict)`
+- Pure `resolve_customer_api_key_value(api_key: str | None, store: BillingStore) -> ResolvedCustomer`
+- Pure `assert_active_subscription(customer: ResolvedCustomer) -> ResolvedCustomer`
+- FastAPI dependencies `resolve_customer_api_key(...)`, `require_active_subscription(...)`, `require_sentinel_access(...)`
 
-- [ ] **Step 1: Write failing cryptographic and entitlement tests**
+- [ ] **Step 1: Write failing security-policy tests**
 
-Cover key prefix/length, stable SHA-256 hashing, revoked-key rejection, inactive-subscription distinction, wrong-price rejection, and production fallback rejection:
+Cover CSPRNG format/hash, missing/unknown/revoked key -> 401, store outage -> 503, recognized `past_due` key resolves for portal, `past_due` service entitlement -> 403, wrong price -> 403, and production fallback key -> 401.
 
 ```python
-def test_generate_api_key_is_live_prefixed_and_not_stored_plaintext():
+def test_generate_key_is_hashed_only():
     plaintext, prefix, digest = generate_api_key()
     assert plaintext.startswith("sentinel_live_")
     assert prefix == plaintext[:24]
     assert digest == hash_secret(plaintext)
     assert plaintext not in digest
-
-
-def test_active_entitlement_requires_active_status_and_expected_price(monkeypatch, fake_store):
-    monkeypatch.setenv("STRIPE_SENTINEL_PRO_PRICE_ID", "price_pro")
-    customer = resolved_customer(status="past_due", stripe_price_id="price_pro")
-    with pytest.raises(HTTPException) as exc:
-        require_active_subscription(customer)
-    assert exc.value.status_code == 403
 ```
 
-- [ ] **Step 2: Run tests and verify failure**
+- [ ] **Step 2: Run RED**
 
 ```bash
 python -m pytest test/test_entitlements.py -q
 ```
 
-Expected: FAIL because `sentinel.entitlements` does not exist.
-
-- [ ] **Step 3: Implement key generation and recognized-key resolution**
-
-Generate with `secrets.token_urlsafe(32)` and SHA-256:
+- [ ] **Step 3: Implement crypto + pure authorization functions**
 
 ```python
+def hash_secret(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
 def generate_api_key() -> tuple[str, str, str]:
     plaintext = f"sentinel_live_{secrets.token_urlsafe(32)}"
     return plaintext, plaintext[:24], hash_secret(plaintext)
 ```
 
-`resolve_customer_api_key` must return HTTP 401 for missing/unknown/revoked keys and HTTP 503 when persistence is unavailable. On success, call `touch_api_key` best-effort after authorization; a telemetry update failure must not convert a valid request into success if the underlying lookup itself failed.
+`resolve_customer_api_key_value` hashes the presented key, finds the non-revoked row and subscription, and returns `ResolvedCustomer`. `assert_active_subscription` requires `status == "active"` and exact `STRIPE_SENTINEL_PRO_PRICE_ID`.
 
-- [ ] **Step 4: Implement strict active entitlement and dev compatibility**
+- [ ] **Step 4: Implement FastAPI wrappers without dependency-call ambiguity**
 
-`require_active_subscription` must require both `subscription["status"] == "active"` and `subscription["stripe_price_id"] == os.environ["STRIPE_SENTINEL_PRO_PRICE_ID"]`.
+`resolve_customer_api_key` injects `X-API-Key` and `get_billing_store()`, then calls the pure resolver. `require_active_subscription` receives `ResolvedCustomer = Depends(resolve_customer_api_key)` and calls the pure assertion.
 
-`require_sentinel_access` behavior:
+`require_sentinel_access` injects `X-API-Key` + store directly. In production it calls the two pure functions; outside production it compares against `SENTINEL_API_KEY` with existing fallback behavior. There is no direct manual call from one FastAPI dependency function into another dependency function.
 
-```python
-if os.getenv("SENTINEL_ENV", "development").lower() == "production":
-    return await require_active_subscription(...)
-
-expected = os.getenv("SENTINEL_API_KEY", "fallback-dev-key-do-not-use-in-prod")
-if x_api_key != expected:
-    raise HTTPException(status_code=401, detail="Invalid or missing API Key")
-return x_api_key
-```
-
-Do not permit the fallback branch when `SENTINEL_ENV=production`.
-
-- [ ] **Step 5: Run entitlement tests**
+- [ ] **Step 5: Run GREEN and commit**
 
 ```bash
 python -m pytest test/test_entitlements.py -q
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
 git add sentinel/entitlements.py test/test_entitlements.py
 git commit -m "feat: enforce Sentinel Pro entitlements"
 ```
 
-### Task 3: Implement Stripe Checkout, claim, webhook, portal, and key rotation
+### Task 3: Stripe billing API
 
 **Files:**
+- Create: `requirements-gateway.txt`
 - Create: `sentinel/billing.py`
 - Create: `test/test_billing_api.py`
-- Create: `requirements-gateway.txt`
 
 **Interfaces:**
-- Consumes: `BillingStore`, `SubscriptionRecord`, `generate_api_key`, `hash_secret`, `resolve_customer_api_key`, `require_active_subscription`.
-- Produces FastAPI router with:
-  - `POST /billing/checkout`
-  - `POST /billing/claim`
-  - `POST /billing/webhook`
-  - `POST /billing/portal`
-  - `POST /billing/api-key/rotate`
+- Router endpoints: `/billing/checkout`, `/billing/claim`, `/billing/webhook`, `/billing/portal`, `/billing/api-key/rotate`.
+- Consumes Task 1 store + Task 2 authorization.
 
-- [ ] **Step 1: Pin the minimal gateway dependency set**
-
-Create `requirements-gateway.txt`:
+- [ ] **Step 1: Pin focused gateway dependencies**
 
 ```text
 fastapi==0.136.0
 httpx==0.28.1
 pydantic==2.13.2
 pytest==9.1.1
+PyYAML==6.0.3
 requests==2.33.1
 stripe==15.5.1
 structlog==26.1.0
@@ -304,70 +253,22 @@ supabase==2.28.3
 uvicorn==0.44.0
 ```
 
-Do not add billing secrets or live IDs to this file.
+- [ ] **Step 2: Write failing FastAPI tests with fake Stripe/store**
 
-- [ ] **Step 2: Write failing FastAPI billing tests with dependency/network fakes**
+Required tests: Checkout returns Stripe URL + one claim secret; no secret key leaks; claim works before webhook by retrieving/upserting subscription synchronously; replay returns 409; incomplete checkout returns 400; wrong product/price returns 403; invalid webhook signature returns 400; duplicate webhook is 200 without second mutation; inactive recognized key can open portal; inactive key cannot rotate; 11th checkout/claim attempt in one window returns 429.
 
-Use `TestClient` against a small test FastAPI app that includes `billing.router`. Monkeypatch the billing store and Stripe calls. Required cases:
-
-```python
-def test_checkout_returns_url_and_one_time_claim_secret(client):
-    response = client.post("/billing/checkout")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["checkout_url"].startswith("https://checkout.stripe.com/")
-    assert body["claim_secret"]
-    assert "sk_" not in response.text
-
-
-def test_claim_succeeds_before_webhook_by_syncing_subscription(client, fake_stripe):
-    response = client.post("/billing/claim", json={
-        "checkout_session_id": "cs_complete",
-        "claim_secret": "claim-secret",
-    })
-    assert response.status_code == 200
-    assert response.json()["api_key"].startswith("sentinel_live_")
-    assert fake_stripe.subscription_retrieved == "sub_live"
-
-
-def test_duplicate_webhook_is_success_without_second_mutation(client, signed_event):
-    first = client.post("/billing/webhook", data=signed_event.body, headers=signed_event.headers)
-    second = client.post("/billing/webhook", data=signed_event.body, headers=signed_event.headers)
-    assert first.status_code == 200
-    assert second.status_code == 200
-```
-
-Also test invalid signature -> 400; claim replay -> 409; incomplete Checkout -> 400; unsupported price -> 403; recognized inactive key can open portal; inactive key cannot rotate; and 11th checkout/claim request in one 10-minute window -> 429.
-
-- [ ] **Step 3: Run tests and verify failure**
+- [ ] **Step 3: Run RED**
 
 ```bash
 python -m pytest test/test_billing_api.py -q
 ```
 
-Expected: FAIL because `sentinel.billing` does not exist.
+- [ ] **Step 4: Implement Checkout creation**
 
-- [ ] **Step 4: Implement environment validation and Stripe helpers**
-
-At request time, require:
+Server chooses the price ID; client never supplies it:
 
 ```python
-STRIPE_SECRET_KEY
-STRIPE_WEBHOOK_SECRET
-STRIPE_SENTINEL_PRO_PRICE_ID
-SENTINEL_DASHBOARD_URL
-```
-
-Create a helper `subscription_record_from_stripe(subscription, customer_email=None) -> SubscriptionRecord` that extracts the first subscription item price ID and converts `current_period_end` Unix seconds to UTC datetime.
-
-Use Stripe's server SDK only; never accept a client-supplied price ID.
-
-- [ ] **Step 5: Implement Checkout creation and one-time claim**
-
-Checkout session creation must use:
-
-```python
-stripe.checkout.Session.create(
+session = stripe.checkout.Session.create(
     mode="subscription",
     line_items=[{"price": price_id, "quantity": 1}],
     success_url=f"{dashboard_url}/?checkout=success&session_id={{CHECKOUT_SESSION_ID}}",
@@ -378,65 +279,40 @@ stripe.checkout.Session.create(
 )
 ```
 
-Generate/store claim before returning. Bind `session.id` to the claim after Stripe creates it. If Stripe creation fails, return HTTP 503 with generic `Billing temporarily unavailable` and do not log the claim secret.
+Create claim before Stripe request, bind session ID afterward, return only `checkout_url` + plaintext claim secret. Generic 503 on Stripe failure; never log claim secret.
 
-Claim processing order must be:
-1. Retrieve Stripe Checkout Session by `checkout_session_id`.
-2. Require `status == "complete"` and a subscription ID.
-3. Require `client_reference_id`/metadata claim ID.
-4. Retrieve Stripe subscription and verify its actual price ID equals `STRIPE_SENTINEL_PRO_PRICE_ID`.
-5. Synchronously upsert subscription into Supabase.
-6. Atomically consume the claim with session ID + SHA-256 of submitted secret.
-7. Require resulting subscription status active.
-8. Generate one API key, persist only hash/prefix, return plaintext once.
+- [ ] **Step 5: Implement claim flow with atomic key issuance**
 
-This ordering guarantees browser return does not depend on webhook timing while still preventing claim replay.
+Order is fixed:
+1. Retrieve Checkout Session.
+2. Require `status == "complete"`, subscription ID, and expected claim ID metadata/reference.
+3. Retrieve Stripe subscription.
+4. Extract actual subscription price; require exact `STRIPE_SENTINEL_PRO_PRICE_ID`.
+5. Upsert subscription synchronously; require resulting status active.
+6. Generate plaintext/prefix/hash in memory.
+7. Call `claim_and_create_api_key(...)`; this single RPC both consumes claim and persists hash.
+8. If RPC returns no row, return 409/invalid-expired claim and discard plaintext.
+9. Return plaintext key once only after RPC success.
 
-- [ ] **Step 6: Implement webhook lifecycle synchronization**
+- [ ] **Step 6: Implement signed webhook synchronization**
 
-Read the raw body:
+Use raw body + `stripe-signature` + `STRIPE_WEBHOOK_SECRET` via `stripe.Webhook.construct_event`. For `customer.subscription.created|updated|deleted`, deterministic subscription upsert is authoritative. For `checkout.session.completed`, retrieve/upsert referenced subscription. For `invoice.paid|invoice.payment_failed`, retrieve referenced subscription and refresh it. Check `event_processed` before work; call `record_event` only after successful state persistence so transient failures remain retryable.
 
-```python
-payload = await request.body()
-signature = request.headers.get("stripe-signature", "")
-event = stripe.Webhook.construct_event(payload, signature, webhook_secret)
-```
+- [ ] **Step 7: Implement portal, rotation, and v1 rate limiter**
 
-For `customer.subscription.created|updated|deleted`, upsert the subscription deterministically then `record_event` only after persistence succeeds. For `checkout.session.completed`, retrieve/upsert the referenced subscription if present. For `invoice.paid` and `invoice.payment_failed`, retrieve the referenced subscription and refresh its state. If `event_processed(event.id)` is true, return `{"received": True, "duplicate": True}` immediately.
+Portal uses `Depends(resolve_customer_api_key)`, creates a Stripe Billing Portal session with that subscription's customer ID, and works for inactive subscriptions. Rotation uses `Depends(require_active_subscription)`: generate/persist replacement first, revoke old key second, return plaintext replacement once.
 
-- [ ] **Step 7: Implement portal and key rotation**
+IP limiter: lock + `dict[str, deque[float]]`, key `route:client_ip`, 600-second window, max 10. Return 429 on request 11. Document that this must become shared Redis/storage before multi-replica gateway scaling.
 
-Portal uses `Depends(resolve_customer_api_key)`, not active entitlement:
-
-```python
-session = stripe.billing_portal.Session.create(
-    customer=resolved.subscription["stripe_customer_id"],
-    return_url=os.environ["SENTINEL_DASHBOARD_URL"],
-)
-```
-
-Rotation uses `Depends(require_active_subscription)`: create new key, persist it, then revoke the old presented key. If persistence of the replacement fails, do not revoke the old key.
-
-- [ ] **Step 8: Implement a small in-memory IP limiter for checkout/claim**
-
-Use a lock + `dict[str, deque[float]]` keyed by `route:client_ip`, evict timestamps older than 600 seconds, allow 10, then 429. This is explicitly version-1 single-process protection; document that a Redis/shared limiter is required before horizontally scaling the gateway.
-
-- [ ] **Step 9: Run billing tests**
+- [ ] **Step 8: Run GREEN and commit**
 
 ```bash
-python -m pytest test/test_billing_api.py test/test_billing_store.py test/test_entitlements.py -q
-```
-
-Expected: PASS.
-
-- [ ] **Step 10: Commit**
-
-```bash
+python -m pytest test/test_billing_store.py test/test_entitlements.py test/test_billing_api.py -q
 git add requirements-gateway.txt sentinel/billing.py test/test_billing_api.py
 git commit -m "feat: add Stripe Sentinel Pro billing API"
 ```
 
-### Task 4: Secure the existing Sentinel API and wire billing into the gateway
+### Task 4: Secure and compose the production gateway
 
 **Files:**
 - Modify: `sentinel/api.py`
@@ -445,36 +321,19 @@ git commit -m "feat: add Stripe Sentinel Pro billing API"
 - Extend: `test/test_billing_api.py`
 
 **Interfaces:**
-- Consumes `require_sentinel_access` and `billing.router`.
-- Produces one FastAPI app where `/health`, `/billing/checkout`, `/billing/claim`, and `/billing/webhook` are public; `/billing/portal` is recognized-key protected; billing rotation + Sentinel service endpoints are active-entitlement protected in production.
+- Public: `GET /health`, `POST /billing/checkout`, `POST /billing/claim`, `POST /billing/webhook`.
+- Recognized-key: `POST /billing/portal`.
+- Active paid entitlement in production: rotation and all Sentinel app routes `/sync`, `/analyze`, `/reset`, `/chat`, `/honeypot`, `/logs`.
 
-- [ ] **Step 1: Write app-level failing tests**
+- [ ] **Step 1: Write failing production-auth/CORS tests**
 
-Build the production app under `SENTINEL_ENV=production` and assert:
+Assert fallback key gets 401 on `/analyze`, `/health` remains public, allowed dashboard origin receives ACAO header, unconfigured origin does not, and missing production billing config fails startup validation.
 
-```python
-def test_production_analyze_rejects_legacy_fallback(client):
-    response = client.post(
-        "/analyze",
-        json={"prompt": "safe"},
-        headers={"X-API-Key": "fallback-dev-key-do-not-use-in-prod"},
-    )
-    assert response.status_code == 401
+- [ ] **Step 2: Replace mixed route auth in `sentinel/api.py`**
 
+Remove `get_api_key_dep`. Put `dependencies=[Depends(require_sentinel_access)]` on all six Sentinel application routes, including routes currently public (`reset`, `chat`, `honeypot`).
 
-def test_health_remains_public(client):
-    assert client.get("/health").status_code == 200
-```
-
-Add CORS test with allowed dashboard origin receiving `access-control-allow-origin` and a different origin not receiving it.
-
-- [ ] **Step 2: Replace per-route mixed protection in `sentinel/api.py`**
-
-Import `require_sentinel_access` and apply `dependencies=[Depends(require_sentinel_access)]` to `/sync`, `/analyze`, `/reset`, `/chat`, `/honeypot`, `/logs`. Remove `get_api_key_dep` so there is one policy definition instead of a second fallback-key implementation.
-
-- [ ] **Step 3: Wire billing router and exact CORS into the gateway**
-
-In `sentinel_gateway_prototype.py`:
+- [ ] **Step 3: Include billing router and exact-origin CORS**
 
 ```python
 from fastapi.middleware.cors import CORSMiddleware
@@ -484,30 +343,21 @@ app.include_router(sentinel_router)
 app.include_router(billing_router)
 ```
 
-When `SENTINEL_ENV=production`, require a parseable `https://` `SENTINEL_DASHBOARD_URL` and configure CORS with exactly that origin, `allow_credentials=False`, methods `GET,POST,OPTIONS`, and headers `Content-Type,X-API-Key,Stripe-Signature`. Development may allow local Vite origins explicitly, never `*` in production.
+Production CORS uses only parsed `SENTINEL_DASHBOARD_URL`, `allow_credentials=False`, methods `GET,POST,OPTIONS`, headers `Content-Type,X-API-Key,Stripe-Signature`. Development may explicitly allow local Vite origins; production never uses wildcard.
 
-- [ ] **Step 4: Add production config fail-closed validation**
+- [ ] **Step 4: Add fail-closed production configuration validation**
 
-A helper `validate_production_configuration()` must raise `RuntimeError` during app startup in production when any of these are absent: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SENTINEL_PRO_PRICE_ID`, `SENTINEL_DASHBOARD_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
+`validate_production_configuration()` requires exactly: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SENTINEL_PRO_PRICE_ID`, `SENTINEL_DASHBOARD_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Production does not require or use `SENTINEL_API_KEY`.
 
-Do not require `SENTINEL_API_KEY` in production.
-
-- [ ] **Step 5: Run app tests**
+- [ ] **Step 5: Run GREEN and commit**
 
 ```bash
-python -m pytest test/test_sentinel_gateway.py test/test_billing_api.py test/test_entitlements.py -q
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
+python -m pytest test/test_sentinel_gateway.py test/test_billing_store.py test/test_entitlements.py test/test_billing_api.py -q
 git add sentinel/api.py sentinel_gateway_prototype.py test/test_sentinel_gateway.py test/test_billing_api.py
 git commit -m "feat: protect Sentinel API with paid entitlements"
 ```
 
-### Task 5: Add the dashboard billing client and customer flow
+### Task 5: Dashboard Checkout and access UX
 
 **Files:**
 - Create: `dashboard/src/api/sentinelClient.ts`
@@ -516,30 +366,21 @@ git commit -m "feat: protect Sentinel API with paid entitlements"
 - Modify: `dashboard/src/App.css`
 
 **Interfaces:**
-- `getStoredApiKey() -> string | null`
-- `setStoredApiKey(key: string) -> void`
-- `clearStoredApiKey() -> void`
-- `sentinelFetch(path: string, init?: RequestInit, requireKey?: boolean) -> Promise<Response>`
-- Billing component consumes public checkout/claim endpoints and authenticated portal/rotate endpoints.
+- `getStoredApiKey()`, `setStoredApiKey(key)`, `clearStoredApiKey()` use only `sessionStorage`.
+- `sentinelFetch(path, init={}, requireKey=true)` uses `VITE_SENTINEL_API_URL` or `/api/sentinel` dev proxy.
 
-- [ ] **Step 1: Create the API client abstraction**
-
-Use:
+- [ ] **Step 1: Create the API client**
 
 ```ts
-const configuredBase = import.meta.env.VITE_SENTINEL_API_URL?.trim();
-const API_BASE = configuredBase ? configuredBase.replace(/\/$/, '') : '/api/sentinel';
-const API_KEY_STORAGE = 'sentinel_api_key';
+const configured = import.meta.env.VITE_SENTINEL_API_URL?.trim();
+const API_BASE = configured ? configured.replace(/\/$/, '') : '/api/sentinel';
+const STORAGE_KEY = 'sentinel_api_key';
 
 export function getStoredApiKey(): string | null {
-  return sessionStorage.getItem(API_KEY_STORAGE);
+  return sessionStorage.getItem(STORAGE_KEY);
 }
 
-export async function sentinelFetch(
-  path: string,
-  init: RequestInit = {},
-  requireKey = true,
-): Promise<Response> {
+export async function sentinelFetch(path: string, init: RequestInit = {}, requireKey = true) {
   const headers = new Headers(init.headers);
   if (requireKey) {
     const key = getStoredApiKey();
@@ -550,172 +391,98 @@ export async function sentinelFetch(
 }
 ```
 
-Do not export or embed any fallback production key.
+- [ ] **Step 2: Build `SentinelProBilling` component**
 
-- [ ] **Step 2: Create `SentinelProBilling` component**
+No key state: show `$99/month`, `Upgrade to Pro`, and existing-key input. Checkout stores only `sentinel_claim_secret` in sessionStorage then redirects. Success return reads `session_id` + claim secret, calls `/billing/claim`, clears claim secret, displays new API key once, and stores it only after `Use this key`. Cancel return clears stale claim secret. Key-present state exposes portal, rotate, and forget-for-session actions.
 
-Required UI states:
-- no key: `$99/month`, `Upgrade to Pro`, existing-key input;
-- Checkout return with `session_id`: retrieve `sentinel_claim_secret` from sessionStorage, call `/billing/claim`, clear claim secret, show returned API key once, persist it to sessionStorage only after the user clicks `Use this key`;
-- key present: `Manage subscription`, `Rotate API key`, `Forget key for this session`;
-- cancelled Checkout: show non-error cancellation message and remove stale claim secret.
+- [ ] **Step 3: Replace every direct Sentinel fetch/fallback literal in `App.tsx`**
 
-Checkout handler:
+Route existing `/api/sentinel/*` calls through `sentinelFetch`; remove all hard-coded `fallback-dev-key-do-not-use-in-prod` headers. Mount the billing component near existing API access controls; do not expand the already-large `App.tsx` with billing internals.
 
-```ts
-const response = await sentinelFetch('/billing/checkout', { method: 'POST' }, false);
-const { checkout_url, claim_secret } = await response.json();
-sessionStorage.setItem('sentinel_claim_secret', claim_secret);
-window.location.assign(checkout_url);
-```
-
-Portal handler POSTs `/billing/portal` and redirects to returned `url`.
-
-- [ ] **Step 3: Route all current Sentinel API calls through the client**
-
-In `dashboard/src/App.tsx`, replace direct `fetch('/api/sentinel/...')` calls and every `X-API-Key: 'fallback-dev-key-do-not-use-in-prod'` literal with `sentinelFetch`. Protected dashboard actions without a stored key should surface `Sentinel Pro API key required` rather than silently using the shared dev key.
-
-Mount `<SentinelProBilling />` near the existing API access/control area instead of scattering billing state through the 80KB `App.tsx`.
-
-- [ ] **Step 4: Add minimal dashboard styles**
-
-Use existing dashboard CSS tokens/classes where possible. Add only component-specific layout/status styles; do not redesign unrelated Sentinel surfaces.
-
-- [ ] **Step 5: Verify the forbidden literal is gone from dashboard source**
+- [ ] **Step 4: Add only component-specific styles and verify**
 
 ```bash
 ! grep -R "fallback-dev-key-do-not-use-in-prod" dashboard/src
-```
-
-Expected exit status: 0.
-
-- [ ] **Step 6: Lint and build dashboard**
-
-```bash
 npm --prefix dashboard ci
 npm --prefix dashboard run lint
 npm --prefix dashboard run build
 ```
 
-Expected: all PASS.
+Expected: grep exits 0; lint/build pass.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add dashboard/src/api/sentinelClient.ts dashboard/src/components/SentinelProBilling.tsx dashboard/src/App.tsx dashboard/src/App.css
 git commit -m "feat: add Sentinel Pro checkout dashboard"
 ```
 
-### Task 6: Make Python billing a required CI/security surface
+### Task 6: Require billing tests in CI/security
 
 **Files:**
 - Modify: `.github/workflows/ci.yml`
 - Modify: `.github/workflows/security.yml`
 
-**Interfaces:**
-- Consumes `requirements-gateway.txt` and `test/test_*billing*.py`/gateway tests.
-- Produces a PR check that cannot skip Python billing changes simply because Solidity/Node files did not change.
+- [ ] **Step 1: Expand CI code detection**
 
-- [ ] **Step 1: Extend CI code-change detection**
+Add `sentinel/`, `sentinel_gateway_prototype.py`, `supabase/`, `requirements-gateway.txt`, `requirements.txt`, and `pytest.ini` to the existing code-relevant regex.
 
-Add these roots to the `grep -Eq` code-relevant expression in `.github/workflows/ci.yml`:
+- [ ] **Step 2: Add `gateway-tests` CI job**
 
-```text
-sentinel/
-sentinel_gateway_prototype.py
-supabase/
-requirements-gateway.txt
-requirements.txt
-pytest.ini
-```
-
-Keep `test/**` and existing release paths.
-
-- [ ] **Step 2: Add a focused Python gateway test job**
-
-Add a `gateway-tests` job that needs `safety`, runs when `code_changed == 'true'`, checks out code, pins Python 3.11 using the existing immutable `actions/setup-python` SHA, installs `requirements-gateway.txt`, and runs:
+Use pinned `actions/setup-python` SHA already used by repository security workflow, Python 3.11, `pip install -r requirements-gateway.txt`, then:
 
 ```bash
 python -m pytest \
   test/test_sentinel_gateway.py \
   test/test_billing_store.py \
   test/test_entitlements.py \
-  test/test_billing_api.py \
-  -q
+  test/test_billing_api.py -q
 ```
 
-Do not install root `requirements.txt` in this job because it includes unrelated ML/audio/security toolchains and makes billing CI slow and fragile.
+Do not install root `requirements.txt` in this job.
 
-- [ ] **Step 3: Expand Security workflow path triggers**
+- [ ] **Step 3: Expand Security PR/push paths**
 
-Add the same Python/backend paths plus `dashboard/**` to PR/push `paths` in `security.yml` so Semgrep/dependency review runs for the new billing attack surface.
+Add `sentinel/**`, `sentinel_gateway_prototype.py`, `supabase/**`, `requirements-gateway.txt`, `requirements.txt`, and `dashboard/**`. This ensures Semgrep/dependency review sees billing changes.
 
-- [ ] **Step 4: Parse workflow YAML locally**
+- [ ] **Step 4: Validate YAML and secret gates**
 
 ```bash
 python - <<'PY'
 from pathlib import Path
 import yaml
-for path in [Path('.github/workflows/ci.yml'), Path('.github/workflows/security.yml')]:
-    yaml.safe_load(path.read_text())
-    print(path, 'OK')
+for p in [Path('.github/workflows/ci.yml'), Path('.github/workflows/security.yml')]:
+    yaml.safe_load(p.read_text())
+    print(p, 'OK')
 PY
-```
-
-Expected: both print `OK`.
-
-- [ ] **Step 5: Run tracked-secret scan**
-
-```bash
 node scripts/scan-tracked-secrets.mjs
 ```
 
-Expected: PASS with no Stripe secret, webhook secret, service-role key, live customer API key, or claim secret tracked.
+Expected: both YAML files parse and secret scan passes.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add .github/workflows/ci.yml .github/workflows/security.yml
 git commit -m "ci: test Sentinel billing backend"
 ```
 
-### Task 7: Document production gateway/billing configuration
+### Task 7: Production deployment documentation
 
 **Files:**
 - Modify: `DEPLOYMENT_GATEWAY.md`
 
-**Interfaces:**
-- Produces the deployment contract used when configuring gateway/Vercel/Stripe after code review.
+- [ ] **Step 1: Document exact backend/public environment contract**
 
-- [ ] **Step 1: Add the exact production environment matrix**
+Backend-only: `SENTINEL_ENV=production`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SENTINEL_PRO_PRICE_ID`, `SENTINEL_DASHBOARD_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Dashboard-only public variable: `VITE_SENTINEL_API_URL`. Show placeholders, never values.
 
-Document backend-only variables:
+- [ ] **Step 2: Document Stripe configuration**
 
-```text
-SENTINEL_ENV=production
-STRIPE_SECRET_KEY=<deployment secret>
-STRIPE_WEBHOOK_SECRET=<deployment secret>
-STRIPE_SENTINEL_PRO_PRICE_ID=<live price id>
-SENTINEL_DASHBOARD_URL=https://<dashboard-host>
-SUPABASE_URL=https://<project>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<deployment secret>
-```
+Webhook endpoint `<gateway>/billing/webhook` subscribes to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`. Portal permits payment method updates and cancel-at-period-end.
 
-Document dashboard public variable only:
+- [ ] **Step 3: Document limitations and separation**
 
-```text
-VITE_SENTINEL_API_URL=https://<gateway-host>
-```
-
-State explicitly that the secret values themselves must not be committed.
-
-- [ ] **Step 2: Document Stripe webhook and portal expectations**
-
-Webhook destination is `<gateway>/billing/webhook`; minimum subscribed events are `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, and `invoice.payment_failed`. Customer Portal must allow payment-method update and cancel-at-period-end behavior.
-
-- [ ] **Step 3: Document operational limitations**
-
-State that the first checkout/claim rate limiter is process-local and must move to Redis/shared storage before multiple gateway replicas are used. State that Base deployment is not part of billing launch.
+Process-local checkout/claim limiter must move to shared storage before horizontal gateway scaling. Billing launch does not alter or complete Base Sepolia/Base Mainnet release status.
 
 - [ ] **Step 4: Commit**
 
@@ -724,71 +491,29 @@ git add DEPLOYMENT_GATEWAY.md
 git commit -m "docs: document Sentinel Pro billing deployment"
 ```
 
-### Task 8: Create the live Stripe product/price only after code is green
+### Task 8: Create live Stripe product/price after code is green
 
-**External state:** connected live Stripe account named `Aetheron`.
+**External state:** connected live Stripe account `Aetheron`.
 
-**Interfaces:**
-- Produces live Stripe product ID and recurring price ID; only the price ID goes into the gateway's deployment secret `STRIPE_SENTINEL_PRO_PRICE_ID`.
+- [ ] **Step 1: Verify target account and deduplicate**
 
-- [ ] **Step 1: Re-read the connected live Aetheron Stripe account**
+Confirm live `Aetheron`, not Emvori test mode. List active products/prices first. Reuse only an exact existing `Aetheron Sentinel Pro` `$99/month` product/price with matching metadata.
 
-Verify the target account is live mode and named `Aetheron`. Do not create the product on the separate Emvori test-mode account.
+- [ ] **Step 2: If absent, create the approved live resources**
 
-- [ ] **Step 2: Check for an existing active `Aetheron Sentinel Pro` product/price**
+Product: `Aetheron Sentinel Pro`, service description, metadata `app=sentinel-l3`, `plan=pro`, `environment=live`. Price: `usd`, `unit_amount=9900`, recurring `month`, same metadata. Complete Stripe's human confirmation step for the live mutation.
 
-List/search products first to avoid duplicates. Reuse only if product name, metadata, currency, amount, and monthly recurring interval exactly match the approved spec.
+- [ ] **Step 3: Read the price back**
 
-- [ ] **Step 3: If absent, create the live product and price**
+Require `active=true`, `livemode=true`, `unit_amount=9900`, `currency=usd`, interval `month`. Put only the resulting price ID into deployment secret/config; never source code.
 
-Product:
+### Task 9: Full verification, review, and PR
 
-```text
-name=Aetheron Sentinel Pro
-description=Paid access to Aetheron Sentinel Pro security API and dashboard capabilities
-metadata[app]=sentinel-l3
-metadata[plan]=pro
-metadata[environment]=live
-```
-
-Price:
-
-```text
-currency=usd
-unit_amount=9900
-recurring[interval]=month
-product=<product id>
-metadata[app]=sentinel-l3
-metadata[plan]=pro
-metadata[environment]=live
-```
-
-This is a live Stripe mutation; complete the platform's human approval step when requested.
-
-- [ ] **Step 4: Verify the resulting price**
-
-Read it back and confirm `active=true`, `livemode=true`, `unit_amount=9900`, `currency=usd`, and recurring interval `month` before using its ID.
-
-### Task 9: Full verification, code review, and PR
-
-**Files:**
-- Review every file changed by Tasks 1-7 plus the spec/plan documents.
-
-**Interfaces:**
-- Produces a reviewable PR against `main`, green Actions, and a code-ready billing release. It does not claim production revenue until production infrastructure/webhook/secrets and a controlled live Checkout are verified.
-
-- [ ] **Step 1: Run all focused Python tests**
+- [ ] **Step 1: Run focused backend tests**
 
 ```bash
-python -m pytest \
-  test/test_sentinel_gateway.py \
-  test/test_billing_store.py \
-  test/test_entitlements.py \
-  test/test_billing_api.py \
-  -q
+python -m pytest test/test_sentinel_gateway.py test/test_billing_store.py test/test_entitlements.py test/test_billing_api.py -q
 ```
-
-Expected: PASS.
 
 - [ ] **Step 2: Run dashboard validation**
 
@@ -798,43 +523,35 @@ npm --prefix dashboard run lint
 npm --prefix dashboard run build
 ```
 
-Expected: PASS.
-
-- [ ] **Step 3: Run repository safety gates**
+- [ ] **Step 3: Run repository safety checks**
 
 ```bash
 node scripts/scan-tracked-secrets.mjs
 node scripts/validate-canonical-release-scope.mjs
 ```
 
-Expected: PASS.
+- [ ] **Step 4: Inspect secret-like strings**
 
-- [ ] **Step 4: Verify no production-secret literals are tracked**
+Search `sk_live_`, `whsec_`, `sentinel_live_`, and service-role references. Only variable names, docs placeholders, and unmistakably fake test fixtures are allowed; realistic credentials block release.
 
-Search for patterns `sk_live_`, `whsec_`, `service_role`, and `sentinel_live_`; the only allowed matches for the latter two are variable names/documentation/test fixtures that are clearly non-secret. Any realistic live-looking credential is a release blocker.
+- [ ] **Step 5: Compare branch to `main`**
 
-- [ ] **Step 5: Compare branch to main**
+Expected scope is billing docs, Python billing/auth/store/tests, Supabase migration, dashboard billing/client, CI/security coverage, deployment docs. No Solidity contract or Base deployment workflow change.
 
-Expected changed scope: billing design/plan, FastAPI billing/auth modules, Supabase billing migration, focused Python tests/dependencies, dashboard billing/client code, CI/security path/test updates, and deployment documentation. No Solidity contracts or Base deployment workflows changed.
+- [ ] **Step 6: Run Superpowers code review workflow and fix blockers**
 
-- [ ] **Step 6: Request code review before opening/merging**
+After any fix, rerun Steps 1-3.
 
-Run the Superpowers requesting-code-review workflow, address blocking findings, and repeat focused verification after fixes.
+- [ ] **Step 7: Open PR**
 
-- [ ] **Step 7: Open the PR**
+Title: `[L3] feat: add Sentinel Pro Stripe billing and paid API access`.
 
-Title:
+PR body states architecture/security properties, exact tests, live Stripe resource status, and that Base release controls are unchanged.
 
-```text
-[L3] feat: add Sentinel Pro Stripe billing and paid API access
-```
+- [ ] **Step 8: Verify PR Actions head**
 
-PR body must summarize architecture, security properties, tests run, live Stripe resource status, and explicitly state that Base Sepolia/Base Mainnet release controls are unchanged.
+Expected applicable automatic workflows: `CI`, `Security`, `Dashboard`. Confirm `gateway-tests` actually runs and no workflow fan-out returns.
 
-- [ ] **Step 8: Verify GitHub Actions on the PR head**
+- [ ] **Step 9: Merge only on green**
 
-Expected automatic checks: `CI`, `Security`, and `Dashboard` where their paths apply. Confirm Python gateway tests execute inside CI and no workflow fan-out regression returns.
-
-- [ ] **Step 9: Do not merge on red**
-
-Merge only after required checks pass and review is clean. Production deployment/secrets/webhook setup and a controlled live Checkout smoke test are a separate post-merge release action; do not represent the feature as collecting revenue until those live checks succeed.
+Production gateway secrets, webhook configuration, dashboard API URL, Supabase migration application, and a controlled live Checkout smoke test are post-merge release actions. Do not report Sentinel as collecting live subscription revenue until those live checks succeed.
