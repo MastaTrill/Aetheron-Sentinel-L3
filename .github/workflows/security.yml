@@ -205,7 +205,9 @@ jobs:
         run: |
           curl -L https://github.com/crytic/echidna/releases/download/v2.2.6/echidna-2.2.6-x86_64-linux.tar.gz \
             | tar -xz -C /usr/local/bin
+          python3 -m pip install --disable-pip-version-check crytic-compile==0.3.11
           echidna --version
+          crytic-compile --version
       - name: Build contracts
         run: forge build
       - name: Run Echidna
