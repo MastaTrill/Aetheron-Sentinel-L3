@@ -1,15 +1,10 @@
 import os
 import json
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+from .entitlements import require_sentinel_access
 from .utils import calculate_threat_score
-
-async def get_api_key_dep(api_key: str = Header(None, alias="X-API-Key")):
-    expected_api_key = os.getenv("SENTINEL_API_KEY", "fallback-dev-key-do-not-use-in-prod")
-    if api_key != expected_api_key:
-        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
-    return api_key
 
 router = APIRouter()
 
@@ -18,7 +13,7 @@ class SyncRequest(BaseModel):
     table_name: str = "sentinel_data"
 
 
-@router.post("/sync", dependencies=[Depends(get_api_key_dep)])
+@router.post("/sync", dependencies=[Depends(require_sentinel_access)])
 async def sync(request: SyncRequest):
     try:
         from supabase.sync import sync_sentinel_data
@@ -34,7 +29,7 @@ class AnalyzeResponse(BaseModel):
     score: float
     reasons: list[str]
 
-@router.post("/analyze", response_model=AnalyzeResponse, dependencies=[Depends(get_api_key_dep)])
+@router.post("/analyze", response_model=AnalyzeResponse, dependencies=[Depends(require_sentinel_access)])
 async def analyze(request: AnalyzeRequest, fastapi_request: Request):
     score, reasons = calculate_threat_score(request.prompt)
     if score >= 0.8:
@@ -43,7 +38,7 @@ async def analyze(request: AnalyzeRequest, fastapi_request: Request):
         subprocess.Popen(["npx", "hardhat", "run", "scripts/trigger-alert.js", "--network", "localhost"])
     return AnalyzeResponse(score=score, reasons=reasons)
 
-@router.post("/reset")
+@router.post("/reset", dependencies=[Depends(require_sentinel_access)])
 async def reset_system():
     try:
         import subprocess
@@ -55,7 +50,7 @@ async def reset_system():
 class CopilotRequest(BaseModel):
     message: str
 
-@router.post("/chat")
+@router.post("/chat", dependencies=[Depends(require_sentinel_access)])
 async def copilot_chat(request: CopilotRequest):
     try:
         logs = []
@@ -66,7 +61,7 @@ async def copilot_chat(request: CopilotRequest):
                 for line in lines[-5:]:
                     if line.strip():
                         logs.append(json.loads(line))
-        
+
         msg = request.message.upper()
         if "APY" in msg or "YIELD" in msg:
             response_text = "Staking APY is dynamically controlled by the Sentinel Security Auditor. If the auditor score falls below 800 (due to reported exploits/anomalies), yields are scaled down automatically to conserve reward pool reserves."
@@ -80,12 +75,12 @@ async def copilot_chat(request: CopilotRequest):
                 response_text = "No threats currently logged. The system is in an optimal operating state."
         else:
             response_text = "Aetheron Security Copilot v1.0 active. I can analyze recent threat logs, explain APY yield status, or detail the on-chain Circuit Breaker lockdown state. What would you like to check?"
-            
+
         return {"response": response_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/honeypot")
+@router.post("/honeypot", dependencies=[Depends(require_sentinel_access)])
 async def trigger_honeypot():
     try:
         import subprocess
@@ -93,7 +88,8 @@ async def trigger_honeypot():
         return {"status": "triggered"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-@router.get("/logs", dependencies=[Depends(get_api_key_dep)])
+
+@router.get("/logs", dependencies=[Depends(require_sentinel_access)])
 async def get_logs(limit: int = 50):
     logs = []
     try:
