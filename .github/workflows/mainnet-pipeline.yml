@@ -150,6 +150,7 @@ jobs:
       SENTINEL_OWNER: ${{ secrets.OWNER_ADDRESS }}
       MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
       BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+      AUDIT_REPORT_SHA256: ${{ secrets.AUDIT_REPORT_SHA256 }}
       BASE_SEPOLIA_MANIFEST_SHA256: ${{ needs.readiness.outputs.rehearsal_manifest_sha256 }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
     steps:
