@@ -5,3 +5,6 @@ allowBuilds:
   node-hid: set this to true or false
   secp256k1: set this to true or false
   usb: set this to true or false
+
+overrides:
+  decompress: npm:@xhmikosr/decompress@11.1.3
