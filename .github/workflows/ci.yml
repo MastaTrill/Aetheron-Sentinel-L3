@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [main]
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -18,6 +18,7 @@ env:
   FOUNDRY_PROFILE: ci
 
 jobs:
+  # ── 1. Repository safety & secret scan ──────────────────────────────────────
   safety:
     name: Repository safety
     runs-on: ubuntu-latest
@@ -26,13 +27,13 @@ jobs:
       code_changed: ${{ steps.changes.outputs.code_changed }}
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4
         with:
           node-version: '24'
 
@@ -69,28 +70,81 @@ jobs:
 
           printf '%s\n' "$changed"
 
-          if printf '%s\n' "$changed" | grep -Eq '^(contracts/|test/|script/|scripts/|deploy/|config/|lib/|src/|public/|app/|pages/|foundry\.toml$|remappings\.txt$|hardhat\.config\.|next\.config\.|tsconfig[^/]*\.json$|package(-lock)?\.json$|\.eslintrc\.json$|\.github/workflows/ci\.yml$)'; then
+          if printf '%s\n' "$changed" | grep -Eq '^(contracts/|test/|script/|scripts/|deploy/|config/|lib/|src/|public/|app/|pages/|sentinel/|tests/|foundry\.toml$|remappings\.txt$|hardhat\.config\.|next\.config\.|tsconfig[^/]*\.json$|package(-lock)?\.json$|requirements\.txt$|\.eslintrc\.json$|\.github/workflows/ci\.yml$)'; then
             echo "code_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "code_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
+  # ── 2. Python API: lint + test + Docker build ───────────────────────────────
+  python-api:
+    name: Python API (lint · test · Docker)
+    needs: safety
+    if: needs.safety.outputs.code_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: |
+          pip install ruff
+          ruff check sentinel/ tests/ --output-format=github
+
+      - name: Run tests
+        env:
+          SENTINEL_API_KEY: testkey
+        run: |
+          pytest tests/ -q --tb=short
+
+      - name: Build Docker image
+        run: docker build -t aetheron-sentinel:l3 .
+
+      - name: Login to Docker Hub
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker image
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && github.ref == 'refs/heads/main' }}
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/aetheron-sentinel:l3
+          docker tag aetheron-sentinel:l3 $IMAGE_NAME
+          docker push $IMAGE_NAME
+
+  # ── 3. Solidity: compile · test · gas snapshot ──────────────────────────────
   validate:
-    name: Build, test and release policy
+    name: Solidity (build · test · gas)
     needs: safety
     if: needs.safety.outputs.code_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
         with:
           fetch-depth: 0
           submodules: recursive
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4
         with:
           node-version: '24'
           cache: npm
@@ -102,7 +156,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
+      - name: Install JS dependencies
         run: npm ci --legacy-peer-deps
 
       - name: Validate frozen release scope

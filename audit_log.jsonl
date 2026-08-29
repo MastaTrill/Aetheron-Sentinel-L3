@@ -12,3 +12,8 @@
 {"detail": "Invalid or missing API Key", "path": "http://testserver/analyze"}
 {"detail": "Invalid or missing API Key", "path": "http://testserver/logs"}
 {"timestamp": "2026-08-29T17:45:46.031389+00:00Z", "endpoint": "sync", "status": "synced", "table_name": "sentinel_data", "data": {"example": "value"}}
+{"timestamp": "2026-08-29T20:25:19.480457Z", "endpoint": "sync", "status": "synced", "table_name": "sentinel_data", "data": {"example": "value"}, "event": "sync", "level": "info", "logger": "sentinel.audit"}
+{"timestamp": "2026-08-29T20:25:52.753810Z", "endpoint": "sync", "status": "synced", "table_name": "sentinel_data", "data": {"example": "value"}, "event": "sync", "level": "info", "logger": "sentinel.audit"}
+{"detail": "Invalid or missing API Key", "path": "http://testserver/v1/analyze", "event": "http_exception", "level": "error", "logger": "sentinel.audit", "timestamp": "2026-08-29T20:25:52.824533Z"}
+{"detail": "Invalid or missing API Key", "path": "http://testserver/v1/logs", "event": "http_exception", "level": "error", "logger": "sentinel.audit", "timestamp": "2026-08-29T20:25:52.880073Z"}
+{"timestamp": "2026-08-29T20:59:43.624286Z", "endpoint": "sync", "status": "synced", "table_name": "test_table", "data": {"id": 1, "threat_score": 0.5}, "event": "sync", "level": "info", "logger": "sentinel.audit"}

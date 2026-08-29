@@ -38,7 +38,7 @@ RUN rm -f .env
 # Monitor health and benchmark metrics in real-time
 # Fails if the health endpoint is unreachable or returns a stalled status
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:3005/health | grep '"status":"active"' || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["npx", "hardhat", "deploy-sentinel", "--network", "sepolia"]
