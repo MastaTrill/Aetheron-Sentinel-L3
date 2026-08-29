@@ -44,6 +44,7 @@ const config = {
     cache: './cache',
     artifacts: './artifacts',
   },
+  // contracts/research/ holds duplicates of canonical contracts and causes
   solidity: {
     version: '0.8.28',
     path: LOCAL_SOLC_PATH,
