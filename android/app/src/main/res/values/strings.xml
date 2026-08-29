@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Aetheron Sentinel</string>
+    <string name="title_activity_main">Aetheron Sentinel</string>
+    <string name="package_name">com.aetheron.sentinel</string>
+    <string name="custom_url_scheme">com.aetheron.sentinel</string>
+</resources>
