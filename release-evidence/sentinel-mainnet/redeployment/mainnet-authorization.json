@@ -5,24 +5,24 @@
   "chainId": 8453,
   "limitations": {
     "maxGasCostWei": "10000000000000000",
-    "expiresAt": "2026-08-21T05:18:07.464Z"
+    "expiresAt": "2026-09-05T12:32:05.023Z"
   },
   "approvedManifest": {
     "sha256": "984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404"
   },
   "authorization": {
-    "authorizedSender": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
-    "authorizedAtUtc": "2026-08-14T05:20:30.364Z",
-    "authorizedCommit": "397f304e617739cbf52b5e9431c8a441afb73d6d",
+    "authorizedSender": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+    "authorizedAtUtc": "2026-08-29T12:32:06.039Z",
+    "authorizedCommit": "c6e76d21d51532b003f2468dd50647979fa9ab59",
     "reference": "https://github.com/MastaTrill/Aetheron-Sentinel-L3/pull/262",
-    "signature": "0x89f0140b4ba8f94c535333e10f53a28196ac9210cb13afbb9013ee56bb4b1e970b3f891d06ba85d2cf9a29ddccc9e1a171ba3b812b6e15e92d76250c0f35777e1c",
+    "signature": "0x85517c065b743ab0d25eaf58b862a649c32b1975e20aedd9f0bfc198ae909a7d57970575ccc0c94371140c91723fb3b3b6a2b08fe0e6d7532b3b9abd13bffa101b",
     "method": "cryptographic-signature"
   },
   "notice": "Base Mainnet broadcast authorization validated with active cryptographic wallet signature.",
   "riskAcceptance": {
     "proceedWithoutIndependentSecurityReview": true,
-    "acceptedBy": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
-    "acceptedAtUtc": "2026-08-14T05:20:30.368Z",
+    "acceptedBy": "0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB",
+    "acceptedAtUtc": "2026-08-29T12:32:06.042Z",
     "statement": "I accept the risk of proceeding without an independent security review for this exact commit and manifest."
   }
 }
