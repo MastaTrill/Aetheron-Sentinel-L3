@@ -11,3 +11,4 @@
 {"timestamp": "2026-08-29T17:39:09.844712+00:00Z", "endpoint": "sync", "status": "synced", "table_name": "sentinel_data", "data": {"example": "value"}}
 {"detail": "Invalid or missing API Key", "path": "http://testserver/analyze"}
 {"detail": "Invalid or missing API Key", "path": "http://testserver/logs"}
+{"timestamp": "2026-08-29T17:45:46.031389+00:00Z", "endpoint": "sync", "status": "synced", "table_name": "sentinel_data", "data": {"example": "value"}}

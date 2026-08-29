@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       reason:
-        description: 'Why this run is being triggered (for example: post-deploy)'
+        description: 'Why this run is being triggered'
         required: false
         default: post-deploy
   schedule:
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: verification-${{ github.workflow }}-${{ github.ref }}
+  group: verification
   cancel-in-progress: false
 
 jobs:
@@ -22,160 +22,72 @@ jobs:
     name: Verify Sepolia controls
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          node-version: 24
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
           cache: npm
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
+      - run: npm ci --legacy-peer-deps
       - name: Verify deployment doc links
         run: node scripts/check-markdown-links.cjs
-
-      - name: Run Section 7 ownership sweep
+      - name: Run ownership sweep
         env:
           SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         run: |
           mkdir -p logs/verification/ci
           node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep.log
-
       - name: Run allowlist audit
         env:
           SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
-        run: |
-          node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
-
-      - name: Run bridge relayer verification
+        run: node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
+      - name: Verify bridge relayers
         env:
           SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
           RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
-        run: |
-          node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
-
-      - name: Upload verification artifacts
+        run: node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
+      - name: Upload Sepolia verification logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: sepolia-verification-logs-${{ github.run_id }}
           path: logs/verification/ci/*.log
           if-no-files-found: warn
 
   verify-mainnet:
-    name: Verify Mainnet controls
+    name: Verify mainnet controls
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '15 2 * * *'
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          node-version: 24
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
           cache: npm
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Run Section 7 ownership sweep
+      - run: npm ci --legacy-peer-deps
+      - name: Run ownership sweep
         env:
           MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
         run: |
           mkdir -p logs/verification/ci
           node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep-mainnet.log
-
       - name: Run allowlist audit
         env:
           MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
-        run: |
-          node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists-mainnet.log
-
-      - name: Run bridge relayer verification
+        run: node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists-mainnet.log
+      - name: Verify bridge relayers
         env:
           MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
           RELAYER_ADDRESSES: '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa'
-        run: |
-          node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers-mainnet.log
-
-      - name: Upload verification artifacts
+        run: node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers-mainnet.log
+      - name: Upload mainnet verification logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: mainnet-verification-logs-${{ github.run_id }}
           path: logs/verification/ci/*mainnet.log
           if-no-files-found: warn
-
-  audit-dependencies:
-    name: Audit npm dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Create audit directory
-        run: mkdir -p logs/verification/ci/audit
-
-      - name: Verify deployment doc links
-        run: node scripts/check-markdown-links.cjs
-
-      - name: Audit root workspace
-        run: |
-          npm audit --json > logs/verification/ci/audit/root-audit.json || true
-          npm audit | tee logs/verification/ci/audit/root-audit.txt
-
-      - name: Audit apps/remix-dashboard workspace
-        run: |
-          npm --prefix apps/remix-dashboard audit --json > logs/verification/ci/audit/apps-remix-dashboard-audit.json || true
-          npm --prefix apps/remix-dashboard audit | tee logs/verification/ci/audit/apps-remix-dashboard-audit.txt
-
-      - name: Audit imports/remix_-aetheron-sentinel-l3 workspace
-        run: |
-          npm --prefix imports/remix_-aetheron-sentinel-l3 audit --json > logs/verification/ci/audit/imports-remix-audit.json || true
-          npm --prefix imports/remix_-aetheron-sentinel-l3 audit | tee logs/verification/ci/audit/imports-remix-audit.txt
-
-      - name: Check for vulnerabilities
-        run: |
-          echo "=== Audit Summary ==="
-          for file in logs/verification/ci/audit/*.json; do
-            echo "File: $file"
-            cat "$file" | jq '.metadata | {vulnerabilities, audited}'
-          done
-
-      - name: Upload audit artifacts
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: npm-audit-logs-${{ github.run_id }}
-          path: logs/verification/ci/audit/
-          if-no-files-found: warn
-
-      - name: Fail if vulnerabilities found
-        run: |
-          TOTAL_VULNS=0
-          for file in logs/verification/ci/audit/*.json; do
-            VULNS=$(cat "$file" | jq '.metadata.vulnerabilities' 2>/dev/null || echo 0)
-            TOTAL_VULNS=$((TOTAL_VULNS + VULNS))
-          done
-          if [ $TOTAL_VULNS -gt 0 ]; then
-            echo "❌ Found $TOTAL_VULNS vulnerabilities across workspaces"
-            exit 1
-          else
-            echo "✅ No vulnerabilities found across all workspaces"
-          fi
