@@ -1,105 +1,79 @@
-# <p align="center"><img src="assets/logo.svg" alt="Aetheron Sentinel Logo" width="150"></p>
-
-# <p align="center">🛡️ Aetheron Sentinel L3</p>
-
-**Professional Smart Contract Security, AMM Liquidity Management, & Verifiable DeFAI AI Agents.**
-
-<p align="center">
-  <a href="docs/HOW_TO_REQUEST_AUDIT.md">![Audit Request](https://img.shields.io/badge/Request-Audit-blue?style=for-the-badge&logo=shield)</a>
-  <a href="docs/HOW_TO_BUG_BOUNTY.md">![Bug Bounty](https://img.shields.io/badge/Bug_Bounty-Active-orange?style=for-the-badge&logo=hacken)</a>
-  <a href="docs/HOW_TO_CODE_ANALYSIS.md">![Code Analysis](https://img.shields.io/badge/Code_Analysis-Available-brightgreen?style=for-the-badge)</a>
-  <a href="docs/AI_TEE_INTEGRATION.md">![DeFAI AI](https://img.shields.io/badge/DeFAI%20AI-TEE%20Verifiable-purple?style=for-the-badge)</a>
-</p>
-
-## 📌 Table of Contents
-
-- [Overview](#overview)
-- [SENTINEL Deployment Status](#sentinel-deployment-status)
-- [🚀 Getting Started](#-getting-started)
-- [🛠 Development](#-development)
-- [🛡️ Security](#-security)
-- [🤖 DeFAI AI Agents & Governance](#-defai-ai-agents--governance)
-- [🌐 Community & Support](#-community--support)
+# Aetheron Sentinel L3
 
 ## Overview
+Aetheron Sentinel L3 is a lightweight FastAPI service that provides security monitoring and threat analysis for blockchain‑based applications. It offers endpoints to:
 
-Aetheron Sentinel L3 is a comprehensive security and automation suite for the SENTINEL ecosystem. It provides automated liquidity management for concentrated liquidity pools, advanced code analysis for smart contracts, a robust security infrastructure, **and verifiable AI agents for DeFAI (Decentralized Finance + AI) with TEE-protected inference and clear autonomy governance**.
+- **Synchronize** data with Supabase (or fallback to a local JSON file)
+- **Analyze** prompts and calculate threat scores
+- **Interact** with a Copilot‑style chat that surfaces recent audit logs
+- **Trigger** on‑chain actions such as lockdowns, honeypots, and circuit resets
 
-### Key Features
+The service now includes:
+- **Log rotation** for `audit_log.jsonl` (10 MiB max, 5 backups)
+- **Externalized configuration** via a `.env` file (API key, log path, fallback sync path)
 
-- **AMM Strategy Engine**: Dynamic rebalancing with circuit breakers for extreme volatility.
-- **Automated Code Analysis**: ML-powered vulnerability scanning and gas optimization.
-- **Security Audits**: Professional manual review of smart contract logic and architecture.
-- **Bug Bounty Program**: Incentivized community-led security research.
-- **Verifiable DeFAI AI Agents**: TEE-secured inference (Phala/Oasis/Intel TDX), attestation flows, policy-enforced autonomy levels (0-3), human-in-the-loop, drift monitoring, and seamless fallback to rule-based L3 security (SentinelInterceptor, CircuitBreaker, quantum guards).
+## Prerequisites
+- Python 3.10+ (recommended via `pyenv` or virtualenv)
+- `pip` (or `uv` if preferred)
+- Optional: Supabase credentials if you want real DB sync
 
-## AETH Token Deployment Status
-- **Live Base Mainnet Token (AETH):** [`0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e`](https://basescan.org/token/0xecf7e17fae148c01e1b5008a31dfd2d1b6608e4e)
-- **Token Specifications:** 1,000,000,000 Total Supply, 18 Decimals, Source-Verified on BaseScan.
-- **Legacy pool ID:** `0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d`
-- **Current legacy 57% beneficiary:** `0x7e3D11f70084D667295710E6b7FF50C3b0487a45`
-- **Intended replacement 57% treasury:** `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`
-- **Corrected Base Sepolia rehearsal token:** [`0x3555976fecf045833D6E148C42035170bA1337Ab`](https://sepolia.basescan.org/address/0x3555976fecf045833D6E148C42035170bA1337Ab)
-- **Release decision:** [controlled beneficiary redeployment ADR](docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md)
-- **Machine-readable status:** [redeployment closure](release-evidence/sentinel-mainnet/redeployment-closure.json)
-- **Legacy deployment manifest:** [`deployments/base-mainnet.json`](deployments/base-mainnet.json)
-- **Legacy verification:** `BASE_RPC_URL=https://mainnet.base.org bash scripts/verify-canonical-token.sh`
+## Quick Start
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/Aetheron-Sentinel-L3.git
+   cd Aetheron-Sentinel-L3
+   ```
+2. **Create a virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # on Windows: .venv\Scripts\activate
+   ```
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Configure environment variables**
+   ```bash
+   cp .env.example .env   # edit the file as needed
+   ```
+   The following variables are recognized:
+   - `SENTINEL_API_KEY` – API key required for protected endpoints (default: `testkey`)
+   - `AUDIT_LOG_PATH` – Path to the audit log file (default: `audit_log.jsonl`)
+   - `FALLBACK_SYNC_PATH` – Path for the local fallback sync file (default: `fallback_sync.json`)
+5. **Run the server**
+   ```bash
+   uvicorn sentinel.api:router --host 0.0.0.0 --port 8000
+   ```
+   The API documentation is available at `http://localhost:8000/docs`.
 
-> **Release status:** Replacement preparation only. The corrected Base Sepolia rehearsal is
-> complete, but no corrected replacement Base Mainnet token, pool, or deployment
-> transaction is recorded. Do not represent the legacy deployment as canonical unless
-> the release decision and closure evidence are updated through the required process.
+## API Endpoints
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/sync` | Sync data to Supabase or fallback JSON. Logs the operation. |
+| `POST` | `/analyze` | Compute a threat score for a prompt. Triggers an on‑chain lockdown if score ≥ 0.8. |
+| `POST` | `/chat` | Simple Copilot chat that can reference recent audit logs. |
+| `POST` | `/reset` | Initiates a circuit‑breaker reset via Hardhat script. |
+| `POST` | `/honeypot` | Triggers a honeypot script via Hardhat. |
+| `GET`  | `/health` | Health check – returns `{"status": "ok"}`. |
+| `GET`  | `/logs` | Retrieve the most recent audit log entries (default 50). |
 
-## 🚀 Getting Started
+## Configuration Details
+- **Environment variables** are loaded with `python‑dotenv`. Modify `.env` to suit your deployment.
+- **Logging**: The audit logger rotates automatically. Old logs are kept as `audit_log.jsonl.1`, `.2`, etc.
+- **Error handling**: API key validation returns `401`; unexpected server errors return `500` with minimal details to avoid leaking secrets.
 
-### AMM Liquidity Management
+## Development
+- Run the test suite (if present) with:
+  ```bash
+  pytest
+  ```
+- To add new endpoints, follow the existing pattern: implement a Pydantic request model, add the route to `router`, and log actions via `audit_logger`.
 
-Explore the strategy logic and backtesting tools:
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Ensure code passes linting (`ruff` or `flake8`) and tests
+4. Open a Pull Request with a clear description
 
-- `amm_strategy.py`: Core liquidity management logic.
-- `backtest_amm.py`: Simulation environment for strategy verification.
-
-### Security Services
-
-Detailed guides for our security offerings:
-
-- How to Request an Audit
-- How to use Code Analysis
-- Bug Bounty Participation
-
-### DeFAI AI Layer
-
-- [AI_TEE_INTEGRATION.md](./docs/AI_TEE_INTEGRATION.md) - TEE integration for secure, verifiable AI decisions.
-- [AGENT_GOVERNANCE_POLICY.md](./docs/AGENT_GOVERNANCE_POLICY.md) - Autonomy levels, policies, and enforcement.
-- Expanded deployment checklist with AI security section.
-
-## 🛠 Development
-
-The project includes a backtesting utility to simulate market conditions:
-
-```bash
-python backtest_amm.py
-```
-
-## 🤖 DeFAI AI Agents & Governance
-
-Sentinel L3 now includes a hybrid security model: **core rule-based L3 interceptor + AI-augmented decision layer** protected by Trusted Execution Environments.
-
-- AI agents run in TEEs for tamper-proof inference.
-- Cryptographic attestations + optional ZK proofs validated on-chain before actions.
-- Clear autonomy tiers with least-privilege, HITL for high-value/novel cases, behavioral monitoring, and immutable audit logs.
-- Full fallback to pure L3 mode on any AI/TEE failure.
-- New CI workflow for adversarial testing (prompt injection, poisoning, policy bypass).
-
-See the dedicated docs in the Documentation Index for implementation details, integration steps, and mainnet readiness.
-
-## 🌐 Community & Support
-
-- **Dashboard**: Sentinel L3 Dashboard (with new AI health & governance sections)
-- **Discussions**: GitHub Discussions
-- **Twitter**: @AetherionSentinel
-
----
-
-**Document Version:** 1.2 (canonical token release controls)  
-**Last Updated:** July 26, 2026
+## License
+MIT License – see `LICENSE` for details.
