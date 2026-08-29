@@ -50,3 +50,6 @@ sentinel-l3-v1.0/typechain-types/
 sentinel-l3-v1.0/typechain/
 node_modules/
 deployer_private_key.txt
+
+# Scratch / local signing helpers (may contain keys)
+scratch/

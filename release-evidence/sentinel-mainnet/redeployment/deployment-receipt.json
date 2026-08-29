@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared",
+  "chainId": 8453,
+  "manifestSha256": "984bffc7e27654ccf17d557e1994b633a1d591ac17874f14dadf160ebea6b404",
+  "releaseCommit": "dc4950094278beae815fa113e47fc94e98ce9994",
+  "authorizationReference": "https://github.com/MastaTrill/Aetheron-Sentinel-L3/pull/262",
+  "signer": "0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2",
+  "airlockCall": {
+    "to": "0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12",
+    "valueWei": "0",
+    "calldataHash": "0xb9b42bf3c08424708c80c20274a5f549b0af45400bcc8e9d11fa1c2a80cf6533",
+    "estimatedGas": "3705954",
+    "gasLimit": "4447145",
+    "maximumFeePerGasWei": "11000000",
+    "estimatedMaxGasCostWei": "48918595000000",
+    "authorizedMaxGasCostWei": "10000000000000000"
+  },
+  "predicted": {
+    "token": "0x7C7528F49BdB879e5E10C93503E6590665c13FC8",
+    "pool": "0x7C7528F49BdB879e5E10C93503E6590665c13FC8",
+    "governance": "0x000000000000000000000000000000000000dEaD",
+    "timelock": "0x000000000000000000000000000000000000dEaD",
+    "migrationPool": "0xdeaDDeADDEaDdeaDdEAddEADDEAdDeadDEADDEaD",
+    "poolId": "0xdf95d21c1eadc1bc33d410eb89babe8b88a7b16fc27080b4cf158d77e083609a"
+  },
+  "safety": {
+    "authorizationVerified": true,
+    "signerMatchesAuthorization": true,
+    "manifestDigestVerified": true,
+    "runtimeHashesVerified": true,
+    "gasCeilingVerified": true,
+    "privateKeyRecorded": false
+  },
+  "balanceBeforeWei": "6943012641111"
+}
