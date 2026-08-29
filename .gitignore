@@ -108,3 +108,8 @@ upload-keystore.jks
 
 # Scratch / local signing helpers (may contain keys)
 scratch/
+
+# Runtime audit logs & sync fallbacks
+audit_log.jsonl
+fallback_sync.json
+
