@@ -230,3 +230,14 @@ async def get_logs(limit: int = 50):
         return {"logs": logs[::-1]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── App instance ───────────────────────────────────────────────────────────────
+
+from fastapi import FastAPI
+
+app = FastAPI(title="Aetheron Sentinel AI Gateway", version="1.0.0")
+app.include_router(router)
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
