@@ -1,0 +1,70 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="60%" stop-color="#050814"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+
+    <!-- Glowing Cyan/Violet Shield Gradient -->
+    <linearGradient id="shieldBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="50%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+
+    <!-- Inner Core Gradient -->
+    <linearGradient id="coreGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect width="508" height="508" x="2" y="2" rx="110" fill="none" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Outer Holographic Orbital Ring -->
+  <circle cx="256" cy="256" r="170" stroke="url(#shieldBorderGrad)" stroke-width="2.5" stroke-dasharray="8 6" opacity="0.4" />
+  <circle cx="256" cy="256" r="195" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 12" opacity="0.3" />
+
+  <!-- Outer Cyber Security Shield -->
+  <path d="M256 90 L375 140 V245 C375 330 256 395 256 395 C256 395 137 330 137 245 V140 L256 90 Z" 
+        fill="#0b1329" 
+        fill-opacity="0.8" 
+        stroke="url(#shieldBorderGrad)" 
+        stroke-width="7" 
+        filter="url(#glow)"/>
+
+  <!-- Inner Circuit Grid Lines -->
+  <path d="M256 125 V215 M185 185 L256 225 L327 185 M195 260 L256 295 L317 260 M256 295 V360" 
+        stroke="#38bdf8" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        opacity="0.75"/>
+
+  <!-- Orbital Cyber Nodes -->
+  <circle cx="256" cy="125" r="5" fill="#00f2fe" filter="url(#glow)"/>
+  <circle cx="185" cy="185" r="5" fill="#38bdf8" filter="url(#glow)"/>
+  <circle cx="327" cy="185" r="5" fill="#8b5cf6" filter="url(#glow)"/>
+  <circle cx="195" cy="260" r="5" fill="#38bdf8" filter="url(#glow)"/>
+  <circle cx="317" cy="260" r="5" fill="#a855f7" filter="url(#glow)"/>
+  <circle cx="256" cy="360" r="5" fill="#00f2fe" filter="url(#glow)"/>
+
+  <!-- Central Sentinel L3 Core Crystal -->
+  <polygon points="256,180 295,256 256,332 217,256" 
+           fill="url(#coreGrad)" 
+           stroke="#ffffff" 
+           stroke-width="2.5" 
+           filter="url(#glow)"/>
+
+  <!-- Core Pulse Center -->
+  <circle cx="256" cy="256" r="14" fill="#ffffff" filter="url(#glow)"/>
+</svg>
