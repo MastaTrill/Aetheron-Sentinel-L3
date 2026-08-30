@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.aetheron.sentinel"
+    namespace = "com.mastatrill.aetheronsentinell3"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.aetheron.sentinel"
+        applicationId "com.mastatrill.aetheronsentinell3"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

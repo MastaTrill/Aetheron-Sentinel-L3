@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.aetheron.sentinel',
-  appName: 'Aetheron Sentinel',
+  appId: 'com.mastatrill.aetheronsentinell3',
+  appName: 'Aetheron Sentinel L3',
   webDir: 'out'
 };
 
