@@ -198,7 +198,7 @@ opentelemetry-instrumentation==0.65b0
 opentelemetry-instrumentation-asgi==0.62b0
 opentelemetry-instrumentation-fastapi==0.62b0
 opentelemetry-proto==1.41.0
-opentelemetry-sdk==1.41.0
+opentelemetry-sdk==1.44.0
 opentelemetry-semantic-conventions==0.62b0
 opentelemetry-util-http==0.62b0
 openwakeword==0.6.0
