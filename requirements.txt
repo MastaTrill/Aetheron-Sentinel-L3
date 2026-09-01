@@ -318,7 +318,7 @@ toolz==1.1.0
 torch==2.11.0+cpu
 torchaudio==2.11.0+cpu
 torchvision==0.26.0+cpu
-tornado==6.5.7
+tornado==6.5.8
 tqdm==4.67.3
 traitlets==5.14.3
 transformers==5.5.4
