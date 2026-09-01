@@ -94,7 +94,7 @@
     "@supabase/supabase-js": "^2.112.3",
     "@uniswap/v4-core": "^1.0.2",
     "fp-ts": "^2.16.11",
-    "hono": "4.13.1",
+    "hono": "4.13.5",
     "io-ts": "^2.2.22",
     "next": "16.3.1",
     "react": "^18.3.1",
