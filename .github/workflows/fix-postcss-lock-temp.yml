@@ -1,0 +1,48 @@
+name: Temporary PostCSS lock alignment
+
+on:
+  push:
+    branches:
+      - fix/deployment-truth-2026-09-02
+    paths:
+      - .github/workflows/fix-postcss-lock-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/deployment-truth-2026-09-02
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Align direct PostCSS pin with security override
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.devDependencies.postcss = '8.5.23';
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          NODE
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Prove production install and web build
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npm run build:web
+      - name: Commit aligned dependency metadata
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json package-lock.json
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'No dependency changes to commit.'
+            exit 0
+          fi
+          git commit -m 'fix: align PostCSS dependency override'
+          git push origin HEAD:fix/deployment-truth-2026-09-02
