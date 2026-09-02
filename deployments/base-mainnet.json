@@ -21,6 +21,29 @@
       "notes": [
         "Live source-verified AETH token contract on Base Mainnet (1B total supply, 18 decimals)."
       ]
+    },
+    "sentinelLegacy": {
+      "canonical": false,
+      "address": "0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+      "name": "SENTINEL",
+      "symbol": "SENTINEL",
+      "decimals": 18,
+      "displayedTotalSupply": "100000000000000000000000000000",
+      "implementationName": "DERC20",
+      "proxy": false,
+      "sourceVerified": true,
+      "explorerUrl": "https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3",
+      "creationTransaction": "0x0733e1e5700ed354298511dd09d3966c8c02093700074cf97d6d231b4544a776",
+      "owner": "0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12",
+      "poolId": "0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d",
+      "status": "legacy-non-canonical",
+      "releaseModel": "controlled-redeployment",
+      "releaseSource": "release-evidence/sentinel-mainnet/redeployment-closure.json",
+      "notes": [
+        "This is a real deployed Base Mainnet SENTINEL contract with preserved live-state, controller, and Uniswap V4 evidence.",
+        "It is retained as legacy/non-canonical under the controlled-redeployment decision and must not be promoted as the current replacement deployment.",
+        "The prepared replacement address has no recorded Base Mainnet deployment receipt yet."
+      ]
     }
   }
 }
