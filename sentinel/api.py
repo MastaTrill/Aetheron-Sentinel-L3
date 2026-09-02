@@ -57,7 +57,9 @@ audit_logger = structlog.get_logger("sentinel.audit")
 # ── Auth dependency ────────────────────────────────────────────────────────────
 
 async def get_api_key_dep(api_key: str = Header(None, alias="X-API-Key")):
-    expected_api_key = os.getenv("SENTINEL_API_KEY", "testkey")
+    expected_api_key = (os.getenv("SENTINEL_API_KEY") or "").strip()
+    if not expected_api_key:
+        raise HTTPException(status_code=503, detail="API authentication is not configured")
     if api_key != expected_api_key:
         raise HTTPException(status_code=401, detail="Invalid or missing API Key")
     return api_key
@@ -142,9 +144,9 @@ async def analyze(request: AnalyzeRequest, fastapi_request: Request):
     return AnalyzeResponse(score=score, reasons=reasons)
 
 
-@router.post("/reset")
+@router.post("/reset", dependencies=[Depends(get_api_key_dep)])
 async def reset_system():
-    """Trigger the on-chain circuit-breaker reset script."""
+    """Trigger the local circuit-breaker reset script."""
     try:
         import subprocess
         subprocess.Popen(["npx", "hardhat", "run", "scripts/reset-circuit.js", "--network", "localhost"])
@@ -153,7 +155,7 @@ async def reset_system():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/chat")
+@router.post("/chat", dependencies=[Depends(get_api_key_dep)])
 async def copilot_chat(request: CopilotRequest):
     """AI Security Copilot: answers questions about threat logs, APY, and circuit state using Gemini."""
     try:
@@ -164,7 +166,7 @@ async def copilot_chat(request: CopilotRequest):
                 for line in f.readlines()[-5:]:
                     if line.strip():
                         logs.append(json.loads(line))
-        
+
         system_instruction = (
             "You are the Sentinel AI Security Copilot. You monitor an L3 blockchain protocol for threats, "
             "explain APY yield status, and describe circuit breaker mechanisms. "
@@ -194,15 +196,15 @@ async def copilot_chat(request: CopilotRequest):
                 response_text = f"Sentinel Security Status: Nominal. {len(logs)} recent security audit log(s) analyzed."
             else:
                 response_text = f"Gemini API Error: {str(api_err)}"
-            
+
         return {"response": response_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/honeypot")
+@router.post("/honeypot", dependencies=[Depends(get_api_key_dep)])
 async def trigger_honeypot():
-    """Trigger the honeypot detection script on-chain."""
+    """Trigger the local honeypot detection script."""
     try:
         import subprocess
         subprocess.Popen(["npx", "hardhat", "run", "scripts/trigger-honeypot.js", "--network", "localhost"])
@@ -240,4 +242,3 @@ app = FastAPI(title="Aetheron Sentinel AI Gateway", version="1.0.0")
 app.include_router(router)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
-
