@@ -11,10 +11,12 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements-api.txt
 FROM python:3.12-slim
 
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system sentinel \
+    && useradd --system --gid sentinel --create-home sentinel
 
 COPY --from=builder /install /usr/local
-COPY . /app
+COPY --chown=sentinel:sentinel . /app
 
 # Ensure logs flush immediately
 ENV PYTHONUNBUFFERED=1
@@ -25,6 +27,9 @@ EXPOSE 8000
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
+
+# Drop root privileges for the application runtime.
+USER sentinel
 
 # Start the hardened Sentinel FastAPI Gateway (CORS, rate limiting, metrics).
 CMD ["uvicorn", "sentinel.main:app", "--host", "0.0.0.0", "--port", "8000"]
