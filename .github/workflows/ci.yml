@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, fix/deep-repo-audit-2026-09-02]
   pull_request:
     branches: [main]
   workflow_dispatch:
