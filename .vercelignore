@@ -1,0 +1,4 @@
+# Vercel hosts the JavaScript web surface for this repository.
+# The root Python requirements file belongs to the standalone FastAPI/Docker runtime
+# and is intentionally excluded so Vercel does not attempt to provision that backend.
+requirements.txt
