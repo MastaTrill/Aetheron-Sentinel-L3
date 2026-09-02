@@ -18,7 +18,6 @@ class SentinelGateway:
 
     def _default_send_alert_webhook(self, log_entry: dict) -> None:
         """No-op alert hook used by the prototype."""
-        return None
 
     def _is_malicious(self, prompt: str) -> bool:
         """Detect the prototype's prompt-injection marker."""
