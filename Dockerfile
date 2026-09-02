@@ -26,5 +26,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start Sentinel FastAPI Gateway
-CMD ["uvicorn", "sentinel.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start the hardened Sentinel FastAPI Gateway (CORS, rate limiting, metrics).
+CMD ["uvicorn", "sentinel.main:app", "--host", "0.0.0.0", "--port", "8000"]
