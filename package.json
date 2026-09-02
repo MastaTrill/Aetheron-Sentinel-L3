@@ -124,7 +124,7 @@
     "ethers": "6.17.0",
     "hardhat": "3.15.0",
     "mocha": "^11.8.0",
-    "postcss": "^8.5.23",
+    "postcss": "8.5.23",
     "prettier": "^3.9.6",
     "solc": "0.8.36",
     "tailwindcss": "^3.4.17",
