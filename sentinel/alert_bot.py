@@ -1,9 +1,9 @@
-import os
-import json
 import asyncio
+import os
+from datetime import UTC, datetime
+
 import aiohttp
 from web3 import Web3
-from datetime import datetime
 
 # Load configuration
 RPC_URL = os.getenv("BASE_SEPOLIA_RPC_URL", "https://sepolia.base.org")
@@ -16,24 +16,28 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Verified Sentinel Contract on Base Sepolia
 SENTINEL_INTERCEPTOR_ADDRESS = "0xe483B6c3a9e8478DFB1744553C9A95cfb2bc6a0B"
 
-async def send_discord_alert(title: str, description: str, color: int = 0x00f2fe):
+
+async def send_discord_alert(title: str, description: str, color: int = 0x00F2FE):
     """Send formatted rich alert embed to Discord webhook."""
     if not DISCORD_WEBHOOK_URL:
         return
     payload = {
-        "embeds": [{
-            "title": f"🛡️ {title}",
-            "description": description,
-            "color": color,
-            "timestamp": datetime.utcnow().isoformat(),
-            "footer": {"text": "Aetheron Sentinel L3 • Threat Sentinel Engine"}
-        }]
+        "embeds": [
+            {
+                "title": f"🛡️ {title}",
+                "description": description,
+                "color": color,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "footer": {"text": "Aetheron Sentinel L3 • Threat Sentinel Engine"},
+            }
+        ]
     }
     async with aiohttp.ClientSession() as session:
         try:
             await session.post(DISCORD_WEBHOOK_URL, json=payload)
-        except Exception as e:
-            print(f"[Alert] Discord broadcast failed: {e}")
+        except aiohttp.ClientError as exc:
+            print(f"[Alert] Discord broadcast failed: {exc}")
+
 
 async def send_telegram_alert(message: str):
     """Send alert message to Telegram bot chat."""
@@ -43,13 +47,14 @@ async def send_telegram_alert(message: str):
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
         "text": f"🛡️ *AETHERON SENTINEL L3 ALERT*\n\n{message}",
-        "parse_mode": "Markdown"
+        "parse_mode": "Markdown",
     }
     async with aiohttp.ClientSession() as session:
         try:
             await session.post(url, json=payload)
-        except Exception as e:
-            print(f"[Alert] Telegram broadcast failed: {e}")
+        except aiohttp.ClientError as exc:
+            print(f"[Alert] Telegram broadcast failed: {exc}")
+
 
 async def monitor_network_threats():
     """Continuous background threat monitoring loop."""
@@ -68,18 +73,25 @@ async def monitor_network_threats():
                 for block_num in range(last_block + 1, current_block + 1):
                     block = w3.eth.get_block(block_num, full_transactions=True)
                     for tx in block.transactions:
-                        # Threat Pattern Detection
                         if tx.get("to") and tx["to"].lower() == SENTINEL_INTERCEPTOR_ADDRESS.lower():
-                            msg = f"⚡ *Interception Event Detected on Base Sepolia!*\n• Tx: `{tx['hash'].hex()}`\n• From: `{tx['from']}`\n• Block: `{block_num}`"
+                            msg = (
+                                "⚡ *Interception Event Detected on Base Sepolia!*\n"
+                                f"• Tx: `{tx['hash'].hex()}`\n"
+                                f"• From: `{tx['from']}`\n"
+                                f"• Block: `{block_num}`"
+                            )
                             print(f"[Alert] {msg}")
                             await send_telegram_alert(msg)
-                            await send_discord_alert("Circuit-Breaker Interception", msg, color=0xff0055)
+                            await send_discord_alert(
+                                "Circuit-Breaker Interception", msg, color=0xFF0055
+                            )
 
                 last_block = current_block
             await asyncio.sleep(4)
-        except Exception as e:
-            print(f"[Monitor] Error in threat cycle: {e}")
+        except Exception as exc:  # noqa: BLE001 - monitoring loop must survive provider failures
+            print(f"[Monitor] Error in threat cycle: {exc}")
             await asyncio.sleep(5)
+
 
 if __name__ == "__main__":
     asyncio.run(monitor_network_threats())

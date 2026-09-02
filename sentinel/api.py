@@ -1,19 +1,20 @@
-import os
-import json
 import datetime
+import json
 import logging
-import structlog
+import os
+import subprocess
 from logging.handlers import RotatingFileHandler
 
 import dotenv
-dotenv.load_dotenv()
-
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+import structlog
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from .utils import calculate_threat_score
+
+dotenv.load_dotenv()
 
 
 # ── Logging setup ──────────────────────────────────────────────────────────────
@@ -57,7 +58,9 @@ audit_logger = structlog.get_logger("sentinel.audit")
 # ── Auth dependency ────────────────────────────────────────────────────────────
 
 async def get_api_key_dep(api_key: str = Header(None, alias="X-API-Key")):
-    expected_api_key = os.getenv("SENTINEL_API_KEY", "testkey")
+    expected_api_key = (os.getenv("SENTINEL_API_KEY") or "").strip()
+    if not expected_api_key:
+        raise HTTPException(status_code=503, detail="API authentication is not configured")
     if api_key != expected_api_key:
         raise HTTPException(status_code=401, detail="Invalid or missing API Key")
     return api_key
@@ -98,117 +101,133 @@ class CopilotRequest(BaseModel):
     message: str
 
 
+# ── Helpers ────────────────────────────────────────────────────────────────────
+
+def _recent_audit_logs(limit: int) -> list[dict]:
+    """Read up to `limit` valid JSON audit records from disk."""
+    log_path = os.getenv("AUDIT_LOG_PATH", "audit_log.jsonl")
+    if not os.path.exists(log_path):
+        return []
+
+    logs: list[dict] = []
+    try:
+        with open(log_path, encoding="utf-8") as log_file:
+            for line in log_file.readlines()[-limit:]:
+                if not line.strip():
+                    continue
+                try:
+                    logs.append(json.loads(line))
+                except json.JSONDecodeError as exc:
+                    audit_logger.warning("invalid_audit_log_line", error=str(exc))
+    except OSError as exc:
+        audit_logger.warning("audit_log_read_failed", error=str(exc))
+    return logs
+
+
+def _local_automation_enabled() -> bool:
+    """Return whether local Hardhat control scripts are explicitly enabled."""
+    value = (os.getenv("SENTINEL_LOCAL_AUTOMATION_ENABLED") or "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _start_local_hardhat_script(script_path: str) -> None:
+    """Start a local-only Hardhat control script when automation is enabled."""
+    if not _local_automation_enabled():
+        raise HTTPException(status_code=503, detail="Local Sentinel automation is disabled")
+    try:
+        subprocess.Popen(["npx", "hardhat", "run", script_path, "--network", "localhost"])
+    except OSError as exc:
+        audit_logger.error("local_automation_start_failed", script=script_path, error=str(exc))
+        raise HTTPException(status_code=503, detail="Local Sentinel automation is unavailable") from exc
+
+
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
 @router.post("/sync", dependencies=[Depends(get_api_key_dep)])
-async def sync(request: SyncRequest):
+def sync(request: SyncRequest):
     """Synchronize sentinel data with Supabase (or fallback)."""
     try:
         from supabase_sync.sync import sync_sentinel_data  # type: ignore
+
         sync_sentinel_data(request.data, request.table_name)
     except (ImportError, RuntimeError):
-        # Supabase unconfigured or not installed – fall back to local file write.
         fallback_path = os.getenv("FALLBACK_SYNC_PATH", "fallback_sync.json")
         try:
-            with open(fallback_path, "w", encoding="utf-8") as f:
-                json.dump({"table": request.table_name, "data": request.data}, f)
-        except Exception:
-            pass
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+            with open(fallback_path, "w", encoding="utf-8") as fallback_file:
+                json.dump({"table": request.table_name, "data": request.data}, fallback_file)
+        except (OSError, TypeError) as exc:
+            audit_logger.error("fallback_sync_failed", error=str(exc))
+            raise HTTPException(status_code=500, detail="Fallback synchronization failed") from exc
+    except Exception as exc:
+        audit_logger.error("supabase_sync_failed", error=str(exc))
+        raise HTTPException(status_code=500, detail="Supabase synchronization failed") from exc
 
     log_entry = {
-        "timestamp": datetime.datetime.now(datetime.UTC).isoformat() + "Z",
+        "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
         "endpoint": "sync",
         "status": "synced",
         "table_name": request.table_name,
         "data": request.data,
     }
-    try:
-        audit_logger.info("sync", **log_entry)
-    except Exception:
-        pass
-
+    audit_logger.info("sync", **log_entry)
     return {"status": "synced"}
 
 
 @router.post("/analyze", response_model=AnalyzeResponse, dependencies=[Depends(get_api_key_dep)])
-async def analyze(request: AnalyzeRequest, fastapi_request: Request):
-    """Score a prompt for threat level and optionally trigger on-chain lockdown."""
+def analyze(request: AnalyzeRequest):
+    """Score a prompt for threat level and optionally trigger an explicitly enabled local alert."""
     score, reasons = calculate_threat_score(request.prompt)
-    if score >= 0.8:
-        import subprocess
-        subprocess.Popen(["npx", "hardhat", "run", "scripts/trigger-alert.js", "--network", "localhost"])
+    if score >= 0.8 and _local_automation_enabled():
+        _start_local_hardhat_script("scripts/trigger-alert.js")
     return AnalyzeResponse(score=score, reasons=reasons)
 
 
-@router.post("/reset")
-async def reset_system():
-    """Trigger the on-chain circuit-breaker reset script."""
-    try:
-        import subprocess
-        subprocess.Popen(["npx", "hardhat", "run", "scripts/reset-circuit.js", "--network", "localhost"])
-        return {"status": "resetting"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.post("/reset", dependencies=[Depends(get_api_key_dep)])
+def reset_system():
+    """Trigger the local circuit-breaker reset script when explicitly enabled."""
+    _start_local_hardhat_script("scripts/reset-circuit.js")
+    return {"status": "resetting"}
 
 
-@router.post("/chat")
-async def copilot_chat(request: CopilotRequest):
-    """AI Security Copilot: answers questions about threat logs, APY, and circuit state using Gemini."""
+@router.post("/chat", dependencies=[Depends(get_api_key_dep)])
+def copilot_chat(request: CopilotRequest):
+    """Answer security questions using Gemini when the provider is available."""
+    logs = _recent_audit_logs(5)
+    system_instruction = (
+        "You are the Sentinel AI Security Copilot. You monitor an L3 blockchain protocol for threats, "
+        "explain APY yield status, and describe circuit breaker mechanisms. "
+        "Recent threat logs are provided below for context.\n\n"
+        f"RECENT LOGS:\n{json.dumps(logs, indent=2)}\n\n"
+        "Keep your responses concise, professional, and security-focused."
+    )
+
     try:
-        logs = []
-        log_path = os.getenv("AUDIT_LOG_PATH", "audit_log.jsonl")
-        if os.path.exists(log_path):
-            with open(log_path, "r", encoding="utf-8") as f:
-                for line in f.readlines()[-5:]:
-                    if line.strip():
-                        logs.append(json.loads(line))
-        
-        system_instruction = (
-            "You are the Sentinel AI Security Copilot. You monitor an L3 blockchain protocol for threats, "
-            "explain APY yield status, and describe circuit breaker mechanisms. "
-            "Recent threat logs are provided below for context.\n\n"
-            f"RECENT LOGS:\n{json.dumps(logs, indent=2)}\n\n"
-            "Keep your responses concise, professional, and security-focused."
+        from google import genai
+
+        client = genai.Client()
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=request.message,
+            config=genai.types.GenerateContentConfig(system_instruction=system_instruction),
         )
+        response_text = response.text
+    except ImportError as exc:
+        audit_logger.error("copilot_dependency_unavailable", error=str(exc))
+        raise HTTPException(status_code=503, detail="AI copilot is unavailable") from exc
+    except Exception as exc:
+        audit_logger.error("copilot_provider_unavailable", error=str(exc))
+        raise HTTPException(status_code=503, detail="AI copilot provider is unavailable") from exc
 
-        try:
-            from google import genai
-            client = genai.Client()
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=request.message,
-                config=genai.types.GenerateContentConfig(
-                    system_instruction=system_instruction,
-                ),
-            )
-            response_text = response.text
-        except ImportError:
-            response_text = "ERROR: google-genai package is not installed."
-        except Exception as api_err:
-            lower_msg = request.message.lower()
-            if "apy" in lower_msg or "yield" in lower_msg:
-                response_text = "Sentinel L3 APY is currently optimized dynamically at 14.8% via automated rebalancing across Layer 3 liquidity pools."
-            elif "threat" in lower_msg or "status" in lower_msg or "circuit" in lower_msg:
-                response_text = f"Sentinel Security Status: Nominal. {len(logs)} recent security audit log(s) analyzed."
-            else:
-                response_text = f"Gemini API Error: {str(api_err)}"
-            
-        return {"response": response_text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    if not response_text:
+        raise HTTPException(status_code=503, detail="AI copilot returned no response")
+    return {"response": response_text}
 
 
-@router.post("/honeypot")
-async def trigger_honeypot():
-    """Trigger the honeypot detection script on-chain."""
-    try:
-        import subprocess
-        subprocess.Popen(["npx", "hardhat", "run", "scripts/trigger-honeypot.js", "--network", "localhost"])
-        return {"status": "triggered"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.post("/honeypot", dependencies=[Depends(get_api_key_dep)])
+def trigger_honeypot():
+    """Trigger the local honeypot detection script when explicitly enabled."""
+    _start_local_hardhat_script("scripts/trigger-honeypot.js")
+    return {"status": "triggered"}
 
 
 @router.get("/health")
@@ -217,27 +236,15 @@ async def health_check():
 
 
 @router.get("/logs", dependencies=[Depends(get_api_key_dep)])
-async def get_logs(limit: int = 50):
+def get_logs(limit: int = 50):
     """Return the last `limit` audit log entries, newest first."""
-    logs = []
-    try:
-        log_path = os.getenv("AUDIT_LOG_PATH", "audit_log.jsonl")
-        if os.path.exists(log_path):
-            with open(log_path, "r", encoding="utf-8") as f:
-                for line in f.readlines()[-limit:]:
-                    if line.strip():
-                        logs.append(json.loads(line))
-        return {"logs": logs[::-1]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    safe_limit = max(1, min(limit, 500))
+    return {"logs": _recent_audit_logs(safe_limit)[::-1]}
 
 
 # ── App instance ───────────────────────────────────────────────────────────────
-
-from fastapi import FastAPI
 
 app = FastAPI(title="Aetheron Sentinel AI Gateway", version="1.0.0")
 app.include_router(router)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
-

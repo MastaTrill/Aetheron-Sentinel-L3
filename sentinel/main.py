@@ -1,15 +1,27 @@
 import os
-from fastapi import FastAPI, Request, HTTPException
+
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
-import structlog
-from .api import router, http_exception_handler, validation_exception_handler
+
+from .api import http_exception_handler, router, validation_exception_handler
 from .health import router as health_router
+
+
+def _allowed_cors_origins() -> list[str]:
+    """Return the explicit browser origins allowed to call the API."""
+    raw_origins = os.getenv("SENTINEL_CORS_ORIGINS", "")
+    origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    if "*" in origins:
+        raise RuntimeError(
+            "SENTINEL_CORS_ORIGINS must list explicit origins; wildcard CORS is not allowed"
+        )
+    return origins
+
 
 def get_app() -> FastAPI:
     app = FastAPI(
@@ -20,11 +32,13 @@ def get_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # CORS middleware
+    # CORS is deny-by-default. Browser access must be enabled with an explicit,
+    # comma-separated SENTINEL_CORS_ORIGINS allowlist.
+    cors_origins = _allowed_cors_origins()
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # TODO: replace with whitelist before mainnet
-        allow_credentials=True,
+        allow_origins=cors_origins,
+        allow_credentials=bool(cors_origins),
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -37,7 +51,7 @@ def get_app() -> FastAPI:
 
     # Versioned + legacy route prefixes
     app.include_router(router, prefix="/v1")
-    app.include_router(health_router, prefix="")
+    app.include_router(health_router)
     app.include_router(router, prefix="/api", tags=["Sentinel"])  # backward compat
 
     # Custom exception handlers
