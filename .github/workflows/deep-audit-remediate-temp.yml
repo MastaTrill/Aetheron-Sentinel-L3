@@ -31,12 +31,25 @@ jobs:
               raise SystemExit('Expected pywin32 requirement not found')
           text = text.replace(old, new, 1)
 
-          # Keep the explicit CPU-pinned Torch family later in the file and remove
-          # these earlier unpinned duplicates, which make pip resolution impossible.
+          # Keep the explicit pinned Torch family later in the file and remove
+          # the earlier unpinned duplicates, which make pip resolution impossible.
           for duplicate in ('torch\n', 'torchaudio\n', 'torchvision\n'):
               if text.count(duplicate) != 1:
                   raise SystemExit(f'Unexpected duplicate count for {duplicate.strip()}')
               text = text.replace(duplicate, '', 1)
+
+          # Local `+cpu` build tags are not published on the default PyPI index.
+          # Use portable public release pins; production Docker no longer needs
+          # this workstation/ML stack once its dedicated API requirements land.
+          replacements = {
+              'torch==2.11.0+cpu\n': 'torch==2.11.0\n',
+              'torchaudio==2.11.0+cpu\n': 'torchaudio==2.11.0\n',
+              'torchvision==0.26.0+cpu\n': 'torchvision==0.26.0\n',
+          }
+          for old_pin, new_pin in replacements.items():
+              if old_pin not in text:
+                  raise SystemExit(f'Expected requirement not found: {old_pin.strip()}')
+              text = text.replace(old_pin, new_pin, 1)
 
           path.write_text(text, encoding='utf-8')
           PY
