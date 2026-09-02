@@ -1,10 +1,3 @@
-import os
-from sentinel.main import app
-
-# Provide API key for tests; fallback to a known dev key if not set
-API_KEY = os.getenv('SENTINEL_API_KEY', 'testkey')
-
-
 class SentinelGateway:
     """Mock implementation for tests."""
 
@@ -24,11 +17,11 @@ class SentinelGateway:
         self._send_alert_webhook = self._default_send_alert_webhook
 
     def _default_send_alert_webhook(self, log_entry: dict) -> None:
-        """No-op."""
-        pass
+        """No-op alert hook used by the prototype."""
+        return None
 
     def _is_malicious(self, prompt: str) -> bool:
-        """Simple heuristic: any prompt containing the phrase 'ignore all prior instructions' is malicious."""
+        """Detect the prototype's prompt-injection marker."""
         return "ignore all prior instructions" in prompt.lower()
 
     def execute_gateway(self, prompt: str, tx_data: str, source_ip: str) -> str:
