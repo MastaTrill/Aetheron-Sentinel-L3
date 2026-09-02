@@ -1,0 +1,98 @@
+name: Deep audit diagnostics (temporary)
+
+on:
+  push:
+    branches:
+      - fix/deep-repo-audit-2026-09-02
+    paths:
+      - .github/workflows/deep-audit-temp.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  repository-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+      - run: git diff --check origin/main...HEAD
+      - run: node scripts/scan-tracked-secrets.mjs
+      - run: node scripts/validate-canonical-release-scope.mjs
+      - run: npm run security:release-scope
+
+  node-web-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm audit --audit-level=low
+      - run: npm run security:audit
+      - run: npm run security:audit:toolchain
+      - run: npm run lint
+      - run: npm run build:web
+      - run: npm run compile
+      - run: npm run test:release
+
+  python-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff
+      - run: ruff check sentinel/ tests/ --output-format=github
+      - run: pytest tests/ -q --tb=short
+        env:
+          SENTINEL_API_KEY: testkey
+      - run: docker build -t aetheron-sentinel:deep-audit .
+
+  solidity-foundry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09
+        with:
+          version: v1.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm ci --legacy-peer-deps
+      - run: forge build --sizes
+      - run: forge test -vvv
+        env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+      - run: forge snapshot --check --no-match-contract AetheronRetainerVaultInvariant
