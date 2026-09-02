@@ -11,6 +11,16 @@ import structlog
 from .api import router, http_exception_handler, validation_exception_handler
 from .health import router as health_router
 
+
+def _allowed_cors_origins() -> list[str]:
+    """Return the explicit browser origins allowed to call the API."""
+    raw_origins = os.getenv("SENTINEL_CORS_ORIGINS", "")
+    origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    if "*" in origins:
+        raise RuntimeError("SENTINEL_CORS_ORIGINS must list explicit origins; wildcard CORS is not allowed")
+    return origins
+
+
 def get_app() -> FastAPI:
     app = FastAPI(
         title="Aetheron Sentinel L3 API",
@@ -20,11 +30,13 @@ def get_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # CORS middleware
+    # CORS is deny-by-default. Browser access must be enabled with an explicit,
+    # comma-separated SENTINEL_CORS_ORIGINS allowlist.
+    cors_origins = _allowed_cors_origins()
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # TODO: replace with whitelist before mainnet
-        allow_credentials=True,
+        allow_origins=cors_origins,
+        allow_credentials=bool(cors_origins),
         allow_methods=["*"],
         allow_headers=["*"],
     )
