@@ -214,7 +214,7 @@ def copilot_chat(request: CopilotRequest):
     except ImportError as exc:
         audit_logger.error("copilot_dependency_unavailable", error=str(exc))
         raise HTTPException(status_code=503, detail="AI copilot is unavailable") from exc
-    except Exception as exc:  # noqa: BLE001 - provider SDK exposes heterogeneous failures
+    except Exception as exc:
         audit_logger.error("copilot_provider_unavailable", error=str(exc))
         raise HTTPException(status_code=503, detail="AI copilot provider is unavailable") from exc
 
