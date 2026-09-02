@@ -1,4 +1,5 @@
 import unittest
+
 from sentinel_gateway_prototype import SentinelGateway
 
 
