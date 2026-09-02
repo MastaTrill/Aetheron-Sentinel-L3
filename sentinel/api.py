@@ -141,7 +141,7 @@ def sync(request: SyncRequest):
         except (OSError, TypeError) as exc:
             audit_logger.error("fallback_sync_failed", error=str(exc))
             raise HTTPException(status_code=500, detail="Fallback synchronization failed") from exc
-    except Exception as exc:  # noqa: BLE001 - Supabase SDK raises heterogeneous errors
+    except Exception as exc:
         audit_logger.error("supabase_sync_failed", error=str(exc))
         raise HTTPException(status_code=500, detail="Supabase synchronization failed") from exc
 
