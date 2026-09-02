@@ -64,5 +64,5 @@
       "evidence": []
     }
   },
-  "notice": "The exact deployment manifest and protected Base Sepolia rehearsal remain complete. PR #262 updates deployment-bearing dependency metadata to remediate newly reported Hono and PostCSS advisories, so the prior Base Mainnet authorization is intentionally reset to pending. A fresh wallet signature must bind the final merged security-patched release commit before the protected controlled-redeployment workflow can run. Post-deployment RPC reproduction, authority verification, smoke testing, and immutable evidence packaging remain pending."
+  "notice": "The exact deployment manifest and protected Base Sepolia rehearsal are complete. A cryptographic Base Mainnet authorization is recorded for exact authorized commit c6e76d21d51532b003f2468dd50647979fa9ab59 and the approved manifest digest, with expiry 2026-09-05T12:32:05.023Z; that authorization does not implicitly cover later commits. The Base Mainnet replacement deployment is still pending: the deployment receipt remains status=prepared and no replacement deployment transaction hash is recorded. Post-deployment RPC reproduction, authority verification, smoke testing, and immutable evidence packaging remain pending."
 }

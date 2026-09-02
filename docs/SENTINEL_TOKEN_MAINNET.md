@@ -1,31 +1,47 @@
-# Canonical SENTINEL Token — Base Mainnet
+# Legacy SENTINEL Token — Base Mainnet
 
-> **Superseded deployment record:** The token and pool below are legacy/non-canonical. The active release model is controlled redeployment with creator beneficiary `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`.
+> **Current release classification:** This document describes a real, live Base Mainnet SENTINEL deployment that is retained as **legacy/non-canonical** evidence. The active release model is controlled redeployment with creator beneficiary `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`. Deployment existence does not promote this token back to canonical release status.
 
-## Canonical deployment
+## Deployed legacy token
 
 | Field | Value |
 |---|---|
 | Network | Base Mainnet |
 | Chain ID | `8453` |
 | Contract | `0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3` |
+| Creation transaction | `0x0733e1e5700ed354298511dd09d3966c8c02093700074cf97d6d231b4544a776` |
 | Explorer | <https://basescan.org/token/0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3> |
 | On-chain name | `SENTINEL` |
 | On-chain symbol | `SENTINEL` |
 | Decimals | `18` |
+| Recorded total supply | `100000000000000000000000000000` (100 billion tokens) |
 | Verified implementation name | `DERC20` |
 | Proxy | No |
 | Compiler shown by BaseScan | `v0.8.26+commit.8a97fa7a` |
+| Recorded token owner/controller | `0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12` |
+| Release status | `legacy-non-canonical` |
 
-This address is the canonical Sentinel token for the Aetheron Sentinel L3 ecosystem. Integrations must load it from `deployments/base-mainnet.json`; do not duplicate the address in application code.
+The machine-readable Base inventory records this deployment under `tokens.sentinelLegacy` in `deployments/base-mainnet.json`. The current controlled-redeployment decision is recorded separately in `release-evidence/sentinel-mainnet/redeployment-closure.json`.
 
-## Important repository distinction
+## Why this is not the current replacement deployment
 
-`contracts/SentinelToken.sol` is a separate, legacy/custom token design. It has different metadata, supply, allocation logic, staking behavior, and mint authority. It is **not** the verified source for the canonical Base deployment above. Until a formal migration decision is approved, it must not be deployed or described as the canonical token.
+The repository selected a controlled replacement path after authority/beneficiary review of this deployment. The replacement evidence currently records:
 
-## Operator-captured live state
+- release model: `controlled-redeployment`;
+- replacement status: `preparation-only`;
+- creator beneficiary: `0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa`;
+- creator share: `570000000000000000` (57% WAD);
+- Base Mainnet deployment gate: `pending`;
+- deployment receipt: `status: "prepared"`;
+- no replacement deployment transaction hash in the closure record.
 
-The current operator evidence is preserved in `docs/evidence/SENTINEL_MAINNET_LIVE_STATE_2026-07-26.md`. Material observations include:
+The prepared/predicted replacement token address is `0x7C7528F49BdB879e5E10C93503E6590665c13FC8`. A read-only Base Mainnet check on 2026-09-02 returned no runtime bytecode at that address, which is consistent with the repository's prepared/not-deployed state.
+
+## Preserved live-state evidence for the legacy deployment
+
+The detailed operator capture is preserved in `docs/evidence/SENTINEL_MAINNET_LIVE_STATE_2026-07-26.md`, with second-RPC material under `release-evidence/sentinel-mainnet/second-rpc/`.
+
+Material recorded observations include:
 
 | Field | Observed value |
 |---|---|
@@ -41,22 +57,22 @@ The current operator evidence is preserved in `docs/evidence/SENTINEL_MAINNET_LI
 | Token URI | `ipfs://bafkreih43tnu76b2mrcvankahfmlgzcpgjmknzdmrclqezig4dtkpjm7wy` |
 | Runtime bytecode hash | `0xe7d4b4aa522391b024d0fb85175196809a646c069498975e7e927c77e476d672` |
 
-These values must be reproduced through a second trusted RPC provider before release approval.
+These values describe the legacy deployment and remain useful for forensics, migration analysis, and regression checks. They are not launch approval for that deployment.
 
-## Administrative capabilities of the deployed token
+## Administrative capabilities observed on the legacy token
 
-The verified ABI exposes the following security-sensitive functions:
+The verified ABI exposes security-sensitive functions including:
 
-- `owner()` and `transferOwnership(address)`
-- `renounceOwnership()`
-- `updateMintRate(uint256)`
-- `mintInflation()`
-- `lockPool(address)` and `unlockPool()`
-- `updateTokenURI(string)`
+- `owner()` and `transferOwnership(address)`;
+- `renounceOwnership()`;
+- `updateMintRate(uint256)`;
+- `mintInflation()`;
+- `lockPool(address)` and `unlockPool()`;
+- `updateTokenURI(string)`.
 
 It also exposes ERC-20 burn, ERC-2612 permit, ERC20Votes delegation/checkpoints, and vesting release functions.
 
-ABI availability does not establish that an Aetheron wallet can invoke an owner-only method. The observed token owner is a launch-controller contract, not an Aetheron Safe or externally owned wallet.
+ABI availability does not establish that an Aetheron wallet can invoke owner-only methods. The observed owner is a launch-controller contract, not the Aetheron Platform owner wallet.
 
 ## Observed controller and asset configuration
 
@@ -72,7 +88,7 @@ ABI availability does not establish that an Aetheron wallet can invoke an owner-
 | Migration-pool field | `0xdeaDDeADDEaDdeaDdEAddEADDEAdDeadDEADDEaD` |
 | Integrator | `0xF60633D02690e2A15A54AB919925F3d038Df163e` |
 
-The release must not assume a direct Safe transfer or supported migration path until the exact controller and migrator bytecode and source establish such a path.
+Do not assume a supported ownership transition, migration, or recovery path merely from these fields. Any write operation requires its own exact caller/authority proof and release authorization.
 
 ## Observed Uniswap V4 configuration
 
@@ -88,86 +104,31 @@ The release must not assume a direct Safe transfer or supported migration path u
 | Hook | `0xbB7784A4d481184283Ed89619A3e3ed143e1Adc0` |
 | Raw fee schedule | start `800000`, end `12000`, last `12000`, duration `10` seconds |
 
-Two liquidity positions and four fee beneficiaries were returned by the initializer. The identities and intended economic roles of all beneficiaries must be approved before release.
+The token's dead-address `pool()` value and `isPoolUnlocked() == false` do not by themselves prove whether the V4 market is freely tradable or disabled. Market claims require pool-specific routing, swap, fee, and liquidity evidence.
 
-The token's dead-address `pool()` value and `isPoolUnlocked() == false` must not be treated alone as proof that the associated V4 market is either freely tradable or disabled. Release claims require pool-specific swap, routing, fee, and liquidity evidence.
-
-## Production governance policy
-
-### Deployed authority model
-
-Before public promotion, listing, presale integration, or material liquidity activity:
-
-1. Verify the exact source and runtime bytecode of the controller, initializer, migrator, hook, and pool manager.
-2. Determine whether any supported ownership-transition, migration, recovery, or governance path exists.
-3. Document whether token-owner powers remain usable, externally controlled, permanently inaccessible, or transition to another controller.
-4. Decide in writing whether to accept the deployed model, perform a verified supported transition, migrate/redeploy, or reject this deployment as production.
-5. Publish every material privilege, beneficiary, and economic risk.
-
-A Safe multisig remains the preferred controller for any Aetheron-controlled production authority. However, repository documentation must not claim that the current deployment is Safe-controlled unless the on-chain owner and call path prove it.
-
-### Inflation
-
-- Publish the current `yearlyMintRate()` value and its exact interpretation from verified source.
-- Publish the contract-enforced maximum rate confirmed from verified source.
-- Determine which address or contract can invoke or alter inflation-related functions.
-- Treat every successful `mintInflation()` call as a supply event requiring release notes.
-- Never describe the token as fixed-supply while inflation capability exists or its reachability is unresolved.
-- Treasury accounting must reconcile total supply before and after each mint.
-
-### Pool controls, liquidity, and fees
-
-- Publish both the token-level `pool()` getter and the actual V4 pool key/ID.
-- Confirm the exact semantic meaning of initializer status `2` from the deployed implementation.
-- Publish pair assets, pool manager, hook, fee schedule, tick spacing, positions, beneficiaries, and fee-collection rules.
-- Preserve successful swap-event evidence and perform a separately authorized minimal buy-and-sell smoke test.
-- Determine whether cumulative fee getters represent pending, claimable, or historical accounting.
-- Do not claim liquidity is locked, burned, withdrawable, migratable, protocol-owned, or immutable without architecture-specific evidence.
-
-### Token metadata
-
-The immutable on-chain symbol is `SENTINEL`. Marketing may refer to the token as “Sentinel,” but integrations and listings must use the exact on-chain symbol. Do not advertise `$SENT` as the ticker unless the token is migrated or listing venues explicitly map that alias.
-
-## Required launch evidence
-
-The release is blocked until all rows are complete.
+## Current release evidence
 
 | Evidence | Status | Reference |
 |---|---|---|
-| Canonical deployment manifest | Partial | `deployments/base-mainnet.json` requires reproducible live values |
-| Source verified on BaseScan | Complete | Explorer contract page |
-| Operator on-chain verification | Complete | `docs/evidence/SENTINEL_MAINNET_LIVE_STATE_2026-07-26.md` |
-| Independent second-RPC reproduction | Pending | Attach reviewer output |
-| Current token owner identified | Complete | Controller address recorded |
-| Controller authority and transition paths verified | Pending | Exact source/bytecode review |
-| Governance and timelock consequences reviewed | Pending | Architecture decision |
-| Mint-rate authority documented | Pending | Exact call-path review |
-| Vesting parameters documented | Complete | Operator evidence |
-| Beneficiary identities and allocations approved | Pending | Final allocation table |
-| V4 pool key and positions documented | Complete | Operator evidence |
-| Swap and routing evidence | Pending | Event logs and smoke-test receipts |
-| Fee accounting and collection semantics | Pending | Independent review |
-| Independent security review | Pending | Review report |
-| Incident response contacts | Pending | Private runbook reference |
+| Legacy deployment inventory | Complete | `deployments/base-mainnet.json` |
+| Legacy source verification | Complete | BaseScan contract page |
+| Legacy operator live-state capture | Complete | `docs/evidence/SENTINEL_MAINNET_LIVE_STATE_2026-07-26.md` |
+| Legacy second-RPC evidence | Preserved | `release-evidence/sentinel-mainnet/second-rpc/` |
+| Controlled replacement exact manifest | Complete | `release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json` |
+| Controlled replacement Base Sepolia rehearsal | Complete | `release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json` |
+| Exact Base Mainnet authorization evidence | Recorded for its exact authorized commit and manifest | `release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json` |
+| Replacement Base Mainnet deployment | Pending | `release-evidence/sentinel-mainnet/redeployment-closure.json` |
+| Replacement deployment receipt | Prepared only | `release-evidence/sentinel-mainnet/redeployment/deployment-receipt.json` |
+| Post-deployment authority/RPC verification | Pending | closure gates |
+| Authorized replacement buy/sell smoke test | Pending | closure gates |
+| Immutable final evidence package | Pending | closure gates |
 
-## Verification
+## Integration rule
 
-Install Foundry and run:
+Do not call `0x8c1e…0ba3` the current canonical SENTINEL release token. If an integration needs to display the historical/live deployment, label it **legacy Base Mainnet SENTINEL** and source it from `deployments/base-mainnet.json`.
 
-```bash
-BASE_RPC_URL=https://mainnet.base.org bash scripts/verify-canonical-token.sh
-```
+Do not point production integrations at the prepared replacement address until a successful Base Mainnet deployment receipt, runtime bytecode, authority verification, and the remaining release evidence are recorded.
 
-Save the complete output as a release artifact. Repeat material reads through a second trusted RPC provider. Populate the manifest only from reproducible on-chain reads and transaction receipts.
+## Safety
 
-## Ownership and migration safety
-
-Read-only inspection is approved. Direct governance transactions are not.
-
-Do not generate or broadcast `transferOwnership`, `migrate`, pool-management, minting, metadata, or fee-collection calls merely because an ABI exposes them. First establish the exact authorized caller, call path, preconditions, post-state, and written release authorization.
-
-Never paste private keys into shell history, repositories, chat, CI variables visible to forks, or deployment logs.
-
-## Security verdict
-
-The deployed token is source-verified and non-proxy, and substantial live controller and V4 state has been captured. However, production approval remains blocked because the actual authority model, dead governance/timelock consequences, beneficiary identities, swap behavior, fee semantics, inflation reachability, and independent review are not complete.
+Read-only inspection is allowed. Do not generate or broadcast ownership, migration, minting, pool-management, fee-collection, liquidity, or trading transactions merely because the deployed ABI exposes those functions. Private keys, wallet seed phrases, and protected deployment secrets must never be committed or pasted into chat or logs.
