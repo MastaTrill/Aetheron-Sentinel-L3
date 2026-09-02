@@ -62,8 +62,18 @@ if (!fs.existsSync(scopePath)) {
   for (const contract of RELEASE_CORE) {
     if (!scope.includes(contract)) errors.push(`release scope omits ${contract}`);
   }
-  if (!/Base Mainnet[^\n]*(Pending|not deployed)/i.test(scope)) {
-    errors.push('PROJECT_STATUS.md must state that Base mainnet Sentinel deployment is pending/not deployed');
+
+  // Base Mainnet contains a real legacy/non-canonical SENTINEL deployment. The
+  // release gate must validate the *controlled replacement* status instead of
+  // incorrectly requiring every Base Mainnet asset to be described as absent.
+  const replacementSection = /SENTINEL controlled replacement[\s\S]{0,2500}/i.exec(scope)?.[0] ?? '';
+  const replacementPending = /prepared, not deployed|status:\s*["'`]?prepared|no replacement deployment transaction hash/i.test(
+    replacementSection,
+  );
+  if (!replacementPending) {
+    errors.push(
+      'PROJECT_STATUS.md must state that the controlled SENTINEL Base Mainnet replacement is prepared/pending and not deployed',
+    );
   }
 }
 
