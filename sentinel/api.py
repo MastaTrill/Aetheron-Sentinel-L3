@@ -124,6 +124,23 @@ def _recent_audit_logs(limit: int) -> list[dict]:
     return logs
 
 
+def _local_automation_enabled() -> bool:
+    """Return whether local Hardhat control scripts are explicitly enabled."""
+    value = (os.getenv("SENTINEL_LOCAL_AUTOMATION_ENABLED") or "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _start_local_hardhat_script(script_path: str) -> None:
+    """Start a local-only Hardhat control script when automation is enabled."""
+    if not _local_automation_enabled():
+        raise HTTPException(status_code=503, detail="Local Sentinel automation is disabled")
+    try:
+        subprocess.Popen(["npx", "hardhat", "run", script_path, "--network", "localhost"])
+    except OSError as exc:
+        audit_logger.error("local_automation_start_failed", script=script_path, error=str(exc))
+        raise HTTPException(status_code=503, detail="Local Sentinel automation is unavailable") from exc
+
+
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
 @router.post("/sync", dependencies=[Depends(get_api_key_dep)])
@@ -158,30 +175,23 @@ def sync(request: SyncRequest):
 
 @router.post("/analyze", response_model=AnalyzeResponse, dependencies=[Depends(get_api_key_dep)])
 def analyze(request: AnalyzeRequest):
-    """Score a prompt for threat level and optionally trigger a local alert script."""
+    """Score a prompt for threat level and optionally trigger an explicitly enabled local alert."""
     score, reasons = calculate_threat_score(request.prompt)
-    if score >= 0.8:
-        subprocess.Popen(
-            ["npx", "hardhat", "run", "scripts/trigger-alert.js", "--network", "localhost"]
-        )
+    if score >= 0.8 and _local_automation_enabled():
+        _start_local_hardhat_script("scripts/trigger-alert.js")
     return AnalyzeResponse(score=score, reasons=reasons)
 
 
 @router.post("/reset", dependencies=[Depends(get_api_key_dep)])
 def reset_system():
-    """Trigger the local circuit-breaker reset script."""
-    try:
-        subprocess.Popen(
-            ["npx", "hardhat", "run", "scripts/reset-circuit.js", "--network", "localhost"]
-        )
-        return {"status": "resetting"}
-    except OSError as exc:
-        raise HTTPException(status_code=500, detail="Unable to start reset script") from exc
+    """Trigger the local circuit-breaker reset script when explicitly enabled."""
+    _start_local_hardhat_script("scripts/reset-circuit.js")
+    return {"status": "resetting"}
 
 
 @router.post("/chat", dependencies=[Depends(get_api_key_dep)])
 def copilot_chat(request: CopilotRequest):
-    """Answer security questions using Gemini when configured."""
+    """Answer security questions using Gemini when the provider is available."""
     logs = _recent_audit_logs(5)
     system_instruction = (
         "You are the Sentinel AI Security Copilot. You monitor an L3 blockchain protocol for threats, "
@@ -201,35 +211,23 @@ def copilot_chat(request: CopilotRequest):
             config=genai.types.GenerateContentConfig(system_instruction=system_instruction),
         )
         response_text = response.text
-    except ImportError:
-        response_text = "ERROR: google-genai package is not installed."
-    except Exception as api_exc:  # noqa: BLE001 - external SDK exposes heterogeneous failures
-        lower_msg = request.message.lower()
-        if "apy" in lower_msg or "yield" in lower_msg:
-            response_text = (
-                "Sentinel L3 APY is currently optimized dynamically at 14.8% via automated "
-                "rebalancing across Layer 3 liquidity pools."
-            )
-        elif "threat" in lower_msg or "status" in lower_msg or "circuit" in lower_msg:
-            response_text = (
-                f"Sentinel Security Status: Nominal. {len(logs)} recent security audit log(s) analyzed."
-            )
-        else:
-            response_text = f"Gemini API Error: {api_exc!s}"
+    except ImportError as exc:
+        audit_logger.error("copilot_dependency_unavailable", error=str(exc))
+        raise HTTPException(status_code=503, detail="AI copilot is unavailable") from exc
+    except Exception as exc:  # noqa: BLE001 - provider SDK exposes heterogeneous failures
+        audit_logger.error("copilot_provider_unavailable", error=str(exc))
+        raise HTTPException(status_code=503, detail="AI copilot provider is unavailable") from exc
 
+    if not response_text:
+        raise HTTPException(status_code=503, detail="AI copilot returned no response")
     return {"response": response_text}
 
 
 @router.post("/honeypot", dependencies=[Depends(get_api_key_dep)])
 def trigger_honeypot():
-    """Trigger the local honeypot detection script."""
-    try:
-        subprocess.Popen(
-            ["npx", "hardhat", "run", "scripts/trigger-honeypot.js", "--network", "localhost"]
-        )
-        return {"status": "triggered"}
-    except OSError as exc:
-        raise HTTPException(status_code=500, detail="Unable to start honeypot script") from exc
+    """Trigger the local honeypot detection script when explicitly enabled."""
+    _start_local_hardhat_script("scripts/trigger-honeypot.js")
+    return {"status": "triggered"}
 
 
 @router.get("/health")
