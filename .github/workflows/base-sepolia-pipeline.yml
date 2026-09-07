@@ -25,8 +25,7 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
-  MIN_DEPLOYER_BALANCE_ETH: '0.01'
-  RELEASE_COMMIT: ${{ github.sha }}
+  RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 
 jobs:
@@ -42,6 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ env.RELEASE_COMMIT }}
           submodules: recursive
           persist-credentials: false
       - name: Initialize readiness evidence
@@ -61,6 +61,34 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           REQUIRE_DEPLOYMENT_REVIEWERS: ${{ inputs.broadcast }}
         run: npm run security:deployment-environment
+      - name: Validate governance owner contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { createRequire } from 'node:module';
+          import { ethers } from 'ethers';
+
+          const require = createRequire(import.meta.url);
+          const { validateGovernanceOwner } = require('./scripts/lib/release-core.cjs');
+
+          const rpcUrl = process.env.BASE_TESTNET_RPC_URL;
+          const owner = process.env.SENTINEL_OWNER;
+          if (!rpcUrl) throw new Error('BASE_TESTNET_RPC_URL is not configured');
+          if (!ethers.isAddress(owner)) throw new Error('OWNER_ADDRESS is not a valid EVM address');
+
+          const provider = new ethers.JsonRpcProvider(rpcUrl, {
+            name: 'base-sepolia',
+            chainId: 84532,
+          });
+          const network = await provider.getNetwork();
+          if (Number(network.chainId) !== 84532) {
+            throw new Error(`RPC chain ID ${network.chainId} does not match Base Sepolia (84532)`);
+          }
+
+          const result = await validateGovernanceOwner(provider, owner, ethers);
+          console.log(`Governance owner policy: PASS (${result.type})`);
+          NODE
       - name: Validate frozen release scope
         run: npm run security:release-scope
       - name: Audit release and build dependencies
@@ -113,6 +141,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ env.RELEASE_COMMIT }}
           submodules: recursive
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
