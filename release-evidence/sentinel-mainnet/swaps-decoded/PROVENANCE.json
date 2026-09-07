@@ -21,8 +21,14 @@
     "originalTransactionsCsvSha256": "f573b7a9406179fd91beab4ce7dddd0a7ca9b3480ec8b64833ee4f064fc07dde",
     "originalRoutingSummarySha256": "1a59309ec7ab63b71182e8fc66d63bb6458aca7f9ea092c95ade2864b4f433e3",
     "validationTransactions": [
-      "0x090e6f6c9e96f947ecb83b17e1c5146749e1034aa78685b1b28bf6d7d5fa0e16",
-      "0x78523d00b46679e31b7453b0ddfcd639cb1bea583c5a0da5a423588ee6d1821f"
+      {
+        "role": "first-buy",
+        "transactionHash": "0x090e6f6c9e96f947ecb83b17e1c5146749e1034aa78685b1b28bf6d7d5fa0e16"
+      },
+      {
+        "role": "first-sell",
+        "transactionHash": "0x78523d00b46679e31b7453b0ddfcd639cb1bea583c5a0da5a423588ee6d1821f"
+      }
     ]
   }
 }
