@@ -31,7 +31,7 @@ Define clear tiers for AI agents (in SentinelL3App, .agents/skills, dashboard ag
 - Update INCIDENT_RESPONSE.md with AI-specific escalation paths.
 - Cross-reference with ADVANCED_SECURITY_YIELD_SYSTEM.md, APY_ENHANCEMENT.md for yield agents.
 - Align with DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md for handing over agent control to multisig/DAO.
-- Leverage existing .github/workflows/security.yml and new ai-security-test.yml for ongoing validation.
+- Use the consolidated `.github/workflows/security.yml` for ongoing dependency, Slither, Semgrep, and property-fuzz validation.
 
 ## Edge Cases & Nuances
 

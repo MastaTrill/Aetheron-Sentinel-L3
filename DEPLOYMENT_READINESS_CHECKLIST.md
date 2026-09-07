@@ -49,7 +49,7 @@
 - [ ] TEEAttestationVerifier contract (or extension to SentinelQuantumGuard / DilithiumVerifierWrapper) deployed and tested
 - [ ] Agent autonomy levels (0-3) defined, coded, and enforced via governance/policy engine (see AGENT_GOVERNANCE_POLICY.md)
 - [ ] All .agents/skills and SentinelL3App AI components reviewed for prompt injection resistance, policy compliance, and adversarial robustness
-- [ ] New adversarial test suite passed (ai-security-test.yml workflow green; prompt injection, poisoning, attestation forgery, policy bypass tests)
+- [ ] Consolidated Security workflow green for applicable SAST, fuzz, and dependency gates; AI-specific prompt-injection, poisoning, attestation-forgery, and policy-bypass tests integrated and green before promotion
 - [ ] Model versions pinned with cryptographic attestations; model update/governance process documented
 - [ ] Fallback mechanisms fully tested (AI/TEE failure → pure rule-based L3 mode via SentinelCoreLoop / CircuitBreaker)
 - [ ] Reasoning traces, confidence scores, attestation quotes, and decision logs integrated with dashboard (Sentinel Gateway) and on-chain events
@@ -175,7 +175,7 @@ If critical issue detected post-deployment:
 
 ---
 
-**Status:** Ready for Phase 1 (testnet) and mainnet preflight once real environment values are supplied. AI/DeFAI layer docs and workflow added; full TEE integration and adversarial testing in active development.
+**Status:** Ready for Phase 1 (testnet) and mainnet preflight once real environment values are supplied. AI/DeFAI layer docs are present; dedicated adversarial tests still require integration into the consolidated Security workflow before promotion.
 **Blockers:** Missing `.env` / `.env.mainnet` deployment values, especially `MAINNET_RPC_URL`. AI layer requires TEE SDK prototyping and verifier contract.
 **Next Action:** Fill real deployment env values → rerun `npm run mainnet:preflight` → deploy to Sepolia or mainnet per checklist. Track AI security tasks in Linear (AET project).
 

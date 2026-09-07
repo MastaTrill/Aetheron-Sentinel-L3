@@ -319,3 +319,49 @@ test('rejects changes that rewrite the preserved legacy beneficiary evidence', (
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /legacy beneficiary evidence changed/);
 });
+
+test('locks the Base Sepolia pipeline to the audited Guardrails release safety policy', () => {
+  const workflow = readFileSync(
+    path.join(REPOSITORY_ROOT, '.github/workflows/base-sepolia-pipeline.yml'),
+    'utf8'
+  );
+  const releaseConfig = JSON.parse(
+    readFileSync(path.join(REPOSITORY_ROOT, 'config/release-core.json'), 'utf8')
+  );
+
+  assert.equal(releaseConfig.defaults.baseSepoliaMinDeployerBalanceEth, '0.05');
+  assert.doesNotMatch(
+    workflow,
+    /^\s*MIN_DEPLOYER_BALANCE_ETH:/m,
+    'workflow must inherit the audited 0.05 ETH threshold from release-core.json'
+  );
+  assert.match(
+    workflow,
+    /^\s*RELEASE_COMMIT:\s*f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\s*$/m,
+    'workflow must pin the audited Guardrails commit'
+  );
+
+  const pinnedCheckouts = workflow.match(/ref:\s*\$\{\{\s*env\.RELEASE_COMMIT\s*\}\}/g) || [];
+  assert.equal(pinnedCheckouts.length, 2, 'readiness and deploy jobs must checkout the audited commit');
+  assert.match(workflow, /name:\s*Validate governance owner contract/);
+  assert.match(workflow, /validateGovernanceOwner/);
+});
+
+test('current release documentation does not reference retired AI or readiness workflows', () => {
+  const documents = [
+    'DOCUMENTATION_INDEX.md',
+    'DEPLOYMENT_READINESS_CHECKLIST.md',
+    'docs/DEPLOYMENT_READINESS_CHECKLIST_AI_EXPANSION.md',
+    'docs/AGENT_GOVERNANCE_POLICY.md',
+    'docs/SENTINEL_GUARDRAILS_V1_AUDIT_HANDOFF.md',
+  ];
+
+  for (const relativePath of documents) {
+    const content = readFileSync(path.join(REPOSITORY_ROOT, relativePath), 'utf8');
+    assert.doesNotMatch(
+      content,
+      /\.github\/workflows\/ai-security-test\.yml|\.github\/workflows\/sentinel-readiness-current-release\.yml/,
+      `${relativePath} references a retired workflow`
+    );
+  }
+});
