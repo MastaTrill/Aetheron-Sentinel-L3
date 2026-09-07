@@ -193,3 +193,30 @@ test('executor enforces signer balance reserve before broadcast', () => {
     'executor must fail closed when signer balance cannot cover the authorized reserve'
   );
 });
+test('read-only signer validator normalizes protected key formatting safely', async () => {
+  const fixture = await makeFixture();
+  const rawKey = fixture.wallet.privateKey.slice(2);
+  const variants = [rawKey, ` ${rawKey} `, `\"${rawKey}\"`, `\uFEFF'${rawKey}'`];
+
+  for (const protectedKey of variants) {
+    const result = spawnSync(process.execPath, [SIGNER_VALIDATOR], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        DEPLOYER_PRIVATE_KEY: protectedKey,
+        SENTINEL_MAINNET_AUTHORIZATION: fixture.authorizationPath,
+      },
+    });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /Protected SENTINEL deployer signer: PASS/);
+  }
+});
+test('executor normalizes protected deployment key formatting before validation', () => {
+  const executor = readFileSync(EXECUTOR, 'utf8');
+  assert.match(executor, /function normalizePrivateKey\(value\)/);
+  assert.match(
+    executor,
+    /const protectedDeploymentKey = normalizePrivateKey\(process\.env\.DEPLOYER_PRIVATE_KEY\);/
+  );
+});

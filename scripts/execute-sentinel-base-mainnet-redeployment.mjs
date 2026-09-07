@@ -23,11 +23,19 @@ const outputPath =
   process.env.SENTINEL_MAINNET_DEPLOYMENT_OUTPUT ??
   '/tmp/sentinel-redeployment/deployment-receipt.json';
 const rpcUrl = process.env.BASE_MAINNET_RPC_URL;
-const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
+function normalizePrivateKey(value) {
+  let normalized = String(value ?? '').trim().replace(/^\uFEFF/, '');
+  while (normalized.length >= 2 && ((normalized.startsWith('\"') && normalized.endsWith('\"')) || (normalized.startsWith("'") && normalized.endsWith("'")))) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+const protectedDeploymentKey = normalizePrivateKey(process.env.DEPLOYER_PRIVATE_KEY);
 const releaseCommit = process.env.SENTINEL_RELEASE_COMMIT;
 
 if (!rpcUrl) throw new Error('BASE_MAINNET_RPC_URL is required from the protected environment');
-if (!/^0x[0-9a-f]{64}$/i.test(privateKey ?? '')) {
+if (!/^0x[0-9a-f]{64}$/i.test(protectedDeploymentKey ?? '')) {
   throw new Error('DEPLOYER_PRIVATE_KEY is missing or malformed in the protected environment');
 }
 if (!/^[0-9a-f]{40}$/i.test(releaseCommit ?? '')) {
@@ -239,7 +247,7 @@ const calldata = airlock.encodeFunctionData('create', [createData]);
 const calldataHash = keccak256(calldata);
 
 const provider = new JsonRpcProvider(rpcUrl, network.chainId, { staticNetwork: true });
-const signer = new Wallet(privateKey, provider);
+const signer = new Wallet(protectedDeploymentKey, provider);
 const signerAddress = getAddress(await signer.getAddress());
 if (signerAddress !== authorizedSender) {
   throw new Error(`Protected deployment signer ${signerAddress} does not match authorized sender ${authorizedSender}`);
