@@ -44,6 +44,10 @@ test('existing Base Sepolia deployment source verification is isolated and non-b
   assert.match(workflow, new RegExp(`RELEASE_COMMIT:\\s*${AUDITED_RELEASE}`));
   assert.match(workflow, /EXPECTED_SOLC_VERSION:\s*'0\.8\.36'/);
   assert.match(workflow, /environment:\s*base-sepolia/);
+  assert.match(
+    workflow,
+    /BASESCAN_API_KEY:\s*\$\{\{\s*secrets\.ETHERSCAN_API_KEY\s*\|\|\s*secrets\.BASESCAN_API_KEY\s*\}\}/
+  );
   assert.match(workflow, /base-sepolia-deployment-\$\{\{\s*inputs\.deployment_run_id\s*\}\}/);
   assert.match(
     workflow,

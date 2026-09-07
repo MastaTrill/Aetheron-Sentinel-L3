@@ -28,7 +28,7 @@ jobs:
     environment: base-sepolia
     env:
       BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
-      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+      BASESCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY || secrets.BASESCAN_API_KEY }}
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
