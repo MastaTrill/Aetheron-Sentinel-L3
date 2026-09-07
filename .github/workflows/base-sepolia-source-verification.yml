@@ -1,0 +1,193 @@
+name: Sentinel Guardrails Base Sepolia Source Verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_run_id:
+        description: 'Successful Base Sepolia Guardrails deployment run to source-verify'
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sentinel-guardrails-base-sepolia-source-${{ inputs.deployment_run_id }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
+  EXPECTED_SOLC_VERSION: '0.8.36'
+  DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1-${{ inputs.deployment_run_id }}.json
+
+jobs:
+  verify-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: base-sepolia
+    env:
+      BASE_TESTNET_RPC_URL: ${{ secrets.BASE_TESTNET_RPC_URL }}
+      BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.RELEASE_COMMIT }}
+          submodules: recursive
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Align pinned release compiler declaration
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { createRequire } from 'node:module';
+          const require = createRequire(import.meta.url);
+          const solc = require('solc');
+          const expected = process.env.EXPECTED_SOLC_VERSION;
+          const actual = String(solc.version()).match(/^\d+\.\d+\.\d+/)?.[0];
+          if (actual !== expected) {
+            throw new Error(`Locked solc ${actual || 'unknown'} does not match expected ${expected}`);
+          }
+          const configPath = 'hardhat.config.js';
+          const source = fs.readFileSync(configPath, 'utf8');
+          const declaration = source.match(/version:\s*'([^']+)'/);
+          if (!declaration) throw new Error('Hardhat Solidity version declaration not found');
+          if (declaration[1] !== expected) {
+            fs.writeFileSync(
+              configPath,
+              source.replace(`version: '${declaration[1]}'`, `version: '${expected}'`)
+            );
+          }
+          console.log(`Source verification compiler: solc ${actual}`);
+          NODE
+
+      - name: Validate deployment run identity
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          const runId = process.env.INPUT_RUN_ID;
+          if (!/^[1-9][0-9]{0,19}$/.test(runId || '')) throw new Error('Invalid deployment run ID');
+          const response = await fetch(
+            `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${runId}`,
+            { headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json' } }
+          );
+          if (!response.ok) throw new Error(`Cannot load deployment run: HTTP ${response.status}`);
+          const run = await response.json();
+          if (String(run.path || '').split('@')[0] !== '.github/workflows/base-sepolia-pipeline.yml') {
+            throw new Error('Deployment run came from the wrong workflow');
+          }
+          if (run.event !== 'workflow_dispatch' || run.status !== 'completed' || run.conclusion !== 'success') {
+            throw new Error('Deployment run is not a successful explicit Base Sepolia run');
+          }
+          console.log(`Deployment run identity: PASS (${run.html_url})`);
+          NODE
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.deployment_run_id }}
+
+      - name: Download exact deployment evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: base-sepolia-deployment-${{ inputs.deployment_run_id }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.deployment_run_id }}
+          path: /tmp/base-sepolia-deployment
+
+      - name: Validate and stage exact deployment manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_manifest="/tmp/base-sepolia-deployment/deployments/baseSepolia-sentinel-guardrails-v1-${{ inputs.deployment_run_id }}.json"
+          test -f "$source_manifest"
+          mkdir -p deployments
+          cp "$source_manifest" "$DEPLOYMENT_MANIFEST_PATH"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const manifest = JSON.parse(fs.readFileSync(process.env.DEPLOYMENT_MANIFEST_PATH, 'utf8'));
+          const expectedContracts = ['CircuitBreaker', 'RateLimiter', 'SentinelInterceptor'];
+          const actualContracts = Object.keys(manifest.contracts || {}).sort();
+          if (manifest.releaseProfile !== 'sentinel-guardrails-v1') throw new Error('Wrong release profile');
+          if (manifest.releaseCommit !== process.env.RELEASE_COMMIT) throw new Error('Wrong release commit');
+          if (manifest.status !== 'verified-paused') throw new Error('Deployment is not verified-paused');
+          if (manifest.network !== 'baseSepolia' || manifest.chainId !== 84532) throw new Error('Wrong network');
+          if (JSON.stringify(actualContracts) !== JSON.stringify(expectedContracts)) throw new Error('Wrong contract scope');
+          if (manifest.safety?.paused !== true || manifest.safety?.custodyEnabled !== false) {
+            throw new Error('Unsafe deployment state');
+          }
+          console.log('Deployment manifest identity and safety: PASS');
+          NODE
+
+      - name: Compile exact deployed artifacts
+        run: npm run compile
+
+      - name: Verify exact deployed sources on BaseScan
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > verify-existing-source.ts <<'TS'
+          import fs from 'node:fs';
+          import hre from 'hardhat';
+          import { verifyContract } from '@nomicfoundation/hardhat-verify/verify';
+
+          const manifest = JSON.parse(fs.readFileSync(process.env.DEPLOYMENT_MANIFEST_PATH!, 'utf8'));
+          const names = ['SentinelInterceptor', 'CircuitBreaker', 'RateLimiter'];
+
+          for (const name of names) {
+            const record = manifest.contracts[name];
+            console.log(`Verifying ${name} at ${record.address}`);
+            try {
+              await verifyContract(
+                {
+                  address: record.address,
+                  constructorArgs: record.constructorArguments,
+                  contract: `contracts/${name}.sol:${name}`,
+                  provider: 'etherscan',
+                },
+                hre
+              );
+              console.log(`${name}: BaseScan verification PASS`);
+            } catch (error: any) {
+              const message = String(error?.message || error);
+              if (/already verified/i.test(message)) {
+                console.log(`${name}: already verified`);
+                continue;
+              }
+              throw error;
+            }
+          }
+          TS
+          npx hardhat run verify-existing-source.ts --network baseSepolia | tee base-sepolia-source-verification.log
+          rm verify-existing-source.ts
+
+      - name: Preserve source verification evidence digest
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f "$DEPLOYMENT_MANIFEST_PATH"; then
+            sha256sum "$DEPLOYMENT_MANIFEST_PATH" | tee base-sepolia-source-verification-manifest.sha256
+          fi
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: base-sepolia-source-verification-${{ inputs.deployment_run_id }}-${{ github.run_id }}
+          path: |
+            base-sepolia-source-verification.log
+            base-sepolia-source-verification-manifest.sha256
+            ${{ env.DEPLOYMENT_MANIFEST_PATH }}
+          if-no-files-found: warn
