@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
 import { Wallet, getAddress, isAddress } from 'ethers';
 
