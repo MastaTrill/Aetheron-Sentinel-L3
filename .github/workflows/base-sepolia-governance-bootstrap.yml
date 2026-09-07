@@ -77,89 +77,95 @@ jobs:
           const EXPECTED_CHAIN_ID = 84532n;
           const MIN_DELAY = 172800n;
           const MIN_DEPLOY_BALANCE = ethers.parseEther('0.01');
-          const rpcUrl = process.env.BASE_TESTNET_RPC_URL;
-          if (!rpcUrl) throw new Error('BASE_TESTNET_RPC_URL is not configured');
 
-          const privateKey = normalizePrivateKey(process.env.DEPLOYER_PRIVATE_KEY);
-          const provider = new ethers.JsonRpcProvider(rpcUrl, {
-            name: 'base-sepolia',
-            chainId: Number(EXPECTED_CHAIN_ID),
+          (async () => {
+            const rpcUrl = process.env.BASE_TESTNET_RPC_URL;
+            if (!rpcUrl) throw new Error('BASE_TESTNET_RPC_URL is not configured');
+
+            const privateKey = normalizePrivateKey(process.env.DEPLOYER_PRIVATE_KEY);
+            const provider = new ethers.JsonRpcProvider(rpcUrl, {
+              name: 'base-sepolia',
+              chainId: Number(EXPECTED_CHAIN_ID),
+            });
+            const network = await provider.getNetwork();
+            if (network.chainId !== EXPECTED_CHAIN_ID) {
+              throw new Error(`Refusing governance deployment on chain ${network.chainId}; expected ${EXPECTED_CHAIN_ID}`);
+            }
+
+            const signer = new ethers.Wallet(privateKey, provider);
+            const balance = await provider.getBalance(signer.address);
+            if (balance < MIN_DEPLOY_BALANCE) {
+              throw new Error(`Base Sepolia deployer balance is below ${ethers.formatEther(MIN_DEPLOY_BALANCE)} ETH`);
+            }
+
+            const artifactPath = path.resolve(
+              'artifacts/contracts/SentinelTimelock.sol/SentinelTimelock.json'
+            );
+            const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+            if (!artifact.bytecode || artifact.bytecode === '0x') {
+              throw new Error('SentinelTimelock artifact has no deployable bytecode');
+            }
+
+            const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, signer);
+            const timelock = await factory.deploy(
+              MIN_DELAY,
+              [signer.address],
+              [signer.address],
+              ethers.ZeroAddress
+            );
+            const deploymentTx = timelock.deploymentTransaction();
+            if (!deploymentTx) throw new Error('Deployment transaction was not created');
+            const receipt = await deploymentTx.wait(2);
+            if (!receipt || receipt.status !== 1) throw new Error('Governance timelock deployment failed');
+
+            const address = await timelock.getAddress();
+            const code = await provider.getCode(address);
+            if (code === '0x') throw new Error('Deployed timelock has no runtime bytecode');
+
+            const policy = await validateGovernanceOwner(provider, address, ethers);
+            if (policy.type !== 'timelock' || BigInt(policy.minimumDelaySeconds) < MIN_DELAY) {
+              throw new Error('Deployed governance contract does not satisfy the Guardrails policy');
+            }
+
+            const proposerRole = await timelock.PROPOSER_ROLE();
+            const executorRole = await timelock.EXECUTOR_ROLE();
+            const defaultAdminRole = await timelock.DEFAULT_ADMIN_ROLE();
+            const proposerOk = await timelock.hasRole(proposerRole, signer.address);
+            const executorOk = await timelock.hasRole(executorRole, signer.address);
+            const selfAdminOk = await timelock.hasRole(defaultAdminRole, address);
+            if (!proposerOk || !executorOk || !selfAdminOk) {
+              throw new Error('Timelock roles were not initialized as expected');
+            }
+
+            const evidence = {
+              schemaVersion: 1,
+              network: 'baseSepolia',
+              chainId: Number(EXPECTED_CHAIN_ID),
+              auditedReleaseCommit: process.env.AUDITED_RELEASE_COMMIT,
+              auditedTimelockBlob: process.env.AUDITED_TIMELOCK_BLOB,
+              contract: 'SentinelTimelock',
+              address,
+              deploymentTransactionHash: receipt.hash,
+              deploymentBlock: receipt.blockNumber,
+              deployer: signer.address,
+              minimumDelaySeconds: MIN_DELAY.toString(),
+              proposer: signer.address,
+              executor: signer.address,
+              externalAdmin: ethers.ZeroAddress,
+              selfAdministered: true,
+              governancePolicyResult: policy,
+            };
+            fs.writeFileSync(
+              'artifacts/base-sepolia-governance/timelock.json',
+              `${JSON.stringify(evidence, null, 2)}\n`
+            );
+            console.log(`GOVERNANCE_TIMELOCK_ADDRESS=${address}`);
+            console.log(`GOVERNANCE_DEPLOY_TX=${receipt.hash}`);
+            console.log(`GOVERNANCE_DELAY_SECONDS=${MIN_DELAY}`);
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
           });
-          const network = await provider.getNetwork();
-          if (network.chainId !== EXPECTED_CHAIN_ID) {
-            throw new Error(`Refusing governance deployment on chain ${network.chainId}; expected ${EXPECTED_CHAIN_ID}`);
-          }
-
-          const signer = new ethers.Wallet(privateKey, provider);
-          const balance = await provider.getBalance(signer.address);
-          if (balance < MIN_DEPLOY_BALANCE) {
-            throw new Error(`Base Sepolia deployer balance is below ${ethers.formatEther(MIN_DEPLOY_BALANCE)} ETH`);
-          }
-
-          const artifactPath = path.resolve(
-            'artifacts/contracts/SentinelTimelock.sol/SentinelTimelock.json'
-          );
-          const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
-          if (!artifact.bytecode || artifact.bytecode === '0x') {
-            throw new Error('SentinelTimelock artifact has no deployable bytecode');
-          }
-
-          const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, signer);
-          const timelock = await factory.deploy(
-            MIN_DELAY,
-            [signer.address],
-            [signer.address],
-            ethers.ZeroAddress
-          );
-          const deploymentTx = timelock.deploymentTransaction();
-          if (!deploymentTx) throw new Error('Deployment transaction was not created');
-          const receipt = await deploymentTx.wait(2);
-          if (!receipt || receipt.status !== 1) throw new Error('Governance timelock deployment failed');
-
-          const address = await timelock.getAddress();
-          const code = await provider.getCode(address);
-          if (code === '0x') throw new Error('Deployed timelock has no runtime bytecode');
-
-          const policy = await validateGovernanceOwner(provider, address, ethers);
-          if (policy.type !== 'timelock' || BigInt(policy.minimumDelaySeconds) < MIN_DELAY) {
-            throw new Error('Deployed governance contract does not satisfy the Guardrails policy');
-          }
-
-          const proposerRole = await timelock.PROPOSER_ROLE();
-          const executorRole = await timelock.EXECUTOR_ROLE();
-          const defaultAdminRole = await timelock.DEFAULT_ADMIN_ROLE();
-          const proposerOk = await timelock.hasRole(proposerRole, signer.address);
-          const executorOk = await timelock.hasRole(executorRole, signer.address);
-          const selfAdminOk = await timelock.hasRole(defaultAdminRole, address);
-          if (!proposerOk || !executorOk || !selfAdminOk) {
-            throw new Error('Timelock roles were not initialized as expected');
-          }
-
-          const evidence = {
-            schemaVersion: 1,
-            network: 'baseSepolia',
-            chainId: Number(EXPECTED_CHAIN_ID),
-            auditedReleaseCommit: process.env.AUDITED_RELEASE_COMMIT,
-            auditedTimelockBlob: process.env.AUDITED_TIMELOCK_BLOB,
-            contract: 'SentinelTimelock',
-            address,
-            deploymentTransactionHash: receipt.hash,
-            deploymentBlock: receipt.blockNumber,
-            deployer: signer.address,
-            minimumDelaySeconds: MIN_DELAY.toString(),
-            proposer: signer.address,
-            executor: signer.address,
-            externalAdmin: ethers.ZeroAddress,
-            selfAdministered: true,
-            governancePolicyResult: policy,
-          };
-          fs.writeFileSync(
-            'artifacts/base-sepolia-governance/timelock.json',
-            `${JSON.stringify(evidence, null, 2)}\n`
-          );
-          console.log(`GOVERNANCE_TIMELOCK_ADDRESS=${address}`);
-          console.log(`GOVERNANCE_DEPLOY_TX=${receipt.hash}`);
-          console.log(`GOVERNANCE_DELAY_SECONDS=${MIN_DELAY}`);
           NODE
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
