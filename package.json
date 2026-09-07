@@ -66,7 +66,7 @@
     "preflight:local": "dotenv -e .env.basesepolia -- node scripts/mainnet-preflight.js",
     "test:release": "npm run test:release:contracts && npm run test:release:policy",
     "test:release:contracts": "hardhat test test/ReleaseDeploymentSafety.test.js test/SentinelInsuranceProtocol.test.js",
-    "test:release:policy": "node --test test/github-environment.test.cjs test/release-evidence.test.cjs",
+    "test:release:policy": "node --test test/github-environment.test.cjs test/release-evidence.test.cjs test/sentinel-mainnet-workflow.test.cjs",
     "verify:release:base-sepolia": "hardhat run scripts/verify-release-core.cjs --network baseSepolia",
     "verify:release:base": "hardhat run scripts/verify-release-core.cjs --network base",
     "verify:source:base-sepolia": "hardhat run deploy/verify-mainnet.ts --network baseSepolia",
