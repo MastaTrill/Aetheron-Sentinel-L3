@@ -4,7 +4,7 @@ const { createHash } = require('node:crypto');
 const { mkdtempSync, readFileSync, writeFileSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { spawn, spawnSync } = require('node:child_process');
 const { Wallet } = require('ethers');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -12,6 +12,7 @@ const WORKFLOW = path.join(ROOT, '.github/workflows/mainnet-pipeline.yml');
 const VALIDATOR = path.join(ROOT, 'scripts/validate-sentinel-mainnet-authorization.mjs');
 const SIGNER_VALIDATOR = path.join(ROOT, 'scripts/validate-sentinel-mainnet-signer.mjs');
 const EXECUTOR = path.join(ROOT, 'scripts/execute-sentinel-base-mainnet-redeployment.mjs');
+const RPC_VALIDATOR = path.join(ROOT, 'scripts/validate-sentinel-mainnet-rpc.mjs');
 const RELEASE_COMMIT = 'a'.repeat(40);
 
 function authorizationMessage(auth) {
@@ -219,4 +220,29 @@ test('executor normalizes protected deployment key formatting before validation'
     executor,
     /const protectedDeploymentKey = normalizePrivateKey\(process\.env\.DEPLOYER_PRIVATE_KEY\);/
   );
+});
+
+
+test('signer validator accepts historical JSON and assignment key wrappers', async () => {
+  const fixture = await makeFixture();
+  const rawKey = fixture.wallet.privateKey.slice(2);
+  const variants = [
+    JSON.stringify({ DEPLOYER_PRIVATE_KEY: rawKey }),
+    JSON.stringify({ privateKey: rawKey }),
+    `DEPLOYER_PRIVATE_KEY=${rawKey}`,
+    `export PRIVATE_KEY='${rawKey}'`,
+  ];
+  for (const protectedKey of variants) {
+    const result = spawnSync(process.execPath, [SIGNER_VALIDATOR], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, DEPLOYER_PRIVATE_KEY: protectedKey, SENTINEL_MAINNET_AUTHORIZATION: fixture.authorizationPath } });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+  }
+});
+
+test('SENTINEL mainnet workflow falls back to RPC_URL and validates Base chain id before authorization', () => {
+  const workflow = readFileSync(WORKFLOW, 'utf8');
+  assert.match(workflow, /BASE_MAINNET_RPC_URL: \$\{\{ secrets\.BASE_MAINNET_RPC_URL \|\| secrets\.RPC_URL \}\}/);
+  const rpcIndex = workflow.indexOf('validate-sentinel-mainnet-rpc.mjs');
+  const authIndex = workflow.indexOf('validate-sentinel-mainnet-authorization.mjs');
+  assert.ok(rpcIndex >= 0 && authIndex > rpcIndex);
+  assert.ok(readFileSync(RPC_VALIDATOR, 'utf8').includes('8453'));
 });

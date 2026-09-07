@@ -205,6 +205,7 @@ jobs:
     environment: base-mainnet
     env:
       SENTINEL_RELEASE_COMMIT: ${{ inputs.release_commit }}
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL || secrets.RPC_URL }}
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -228,6 +229,8 @@ jobs:
         run: node scripts/validate-sentinel-redeployment-closure.mjs --mode=readiness
       - name: Validate protected SENTINEL deployment signer identity
         run: node scripts/validate-sentinel-mainnet-signer.mjs
+      - name: Validate Base Mainnet RPC chain
+        run: node scripts/validate-sentinel-mainnet-rpc.mjs
       - name: Validate exact unexpired SENTINEL Mainnet authorization
         run: node scripts/validate-sentinel-mainnet-authorization.mjs
 
@@ -238,7 +241,7 @@ jobs:
     timeout-minutes: 60
     environment: base-mainnet
     env:
-      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL || secrets.RPC_URL }}
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
       SENTINEL_RELEASE_COMMIT: ${{ inputs.release_commit }}
       SENTINEL_MAINNET_DEPLOYMENT_OUTPUT: ${{ github.workspace }}/sentinel-mainnet-deployment/deployment-receipt.json

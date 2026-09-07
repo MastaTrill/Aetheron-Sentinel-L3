@@ -25,9 +25,18 @@ const outputPath =
 const rpcUrl = process.env.BASE_MAINNET_RPC_URL;
 function normalizePrivateKey(value) {
   let normalized = String(value ?? '').trim().replace(/^\uFEFF/, '');
+  try {
+    const parsed = JSON.parse(normalized);
+    if (parsed && typeof parsed === 'object') {
+      normalized = String(parsed.DEPLOYER_PRIVATE_KEY || parsed.deployerPrivateKey || parsed.privateKey || parsed.PRIVATE_KEY || '').trim();
+    }
+  } catch {}
   while (normalized.length >= 2 && ((normalized.startsWith('\"') && normalized.endsWith('\"')) || (normalized.startsWith("'") && normalized.endsWith("'")))) {
     normalized = normalized.slice(1, -1).trim();
   }
+  normalized = normalized.replace(/^(?:export\s+)?(?:DEPLOYER_PRIVATE_KEY|PRIVATE_KEY)\s*=\s*/i, '').trim();
+  while (normalized.length >= 2 && ((normalized.startsWith('\"') && normalized.endsWith('\"')) || (normalized.startsWith("'") && normalized.endsWith("'")))) normalized = normalized.slice(1, -1).trim();
+  normalized = normalized.replace(/\s+/g, '');
   if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
   return normalized;
 }
