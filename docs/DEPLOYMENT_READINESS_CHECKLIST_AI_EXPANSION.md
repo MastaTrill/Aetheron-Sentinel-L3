@@ -8,7 +8,7 @@
 - [ ] TEEAttestationVerifier contract deployed/tested on target chain
 - [ ] Agent autonomy levels defined and enforced in code/governance (see AGENT_GOVERNANCE_POLICY.md)
 - [ ] All AI skills in .agents/ reviewed for prompt injection resistance and policy compliance
-- [ ] Adversarial test suite passed (new ai-security-test.yml workflow green)
+- [ ] Consolidated Security workflow green for applicable dependency, Slither, Semgrep, and property-fuzz gates; AI-specific adversarial tests are integrated before promotion
 - [ ] Model versions pinned with attestations; update process via governance documented
 - [ ] Fallback mechanisms tested (AI failure -> pure L3 rule-based mode)
 - [ ] Reasoning traces, confidence scores, and attestation logs integrated with dashboard and on-chain events
@@ -37,4 +37,4 @@
 - Cross-link from DEPLOYMENT_OWNERSHIP_CHECKLIST_MAINNET.md and LAUNCH_ROADMAP.md.
 - Track implementation as Linear AET task or GitHub issue.
 
-**Status**: Recommendations implemented via docs and workflow; full integration and testing in progress.
+**Status**: Recommendations documented; consolidated security validation is active and AI-specific integration/testing remains in progress.
