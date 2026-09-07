@@ -2,7 +2,16 @@
 import { readFile } from 'node:fs/promises';
 import { Wallet, getAddress, isAddress } from 'ethers';
 
-const protectedSignerSecret = process.env.DEPLOYER_PRIVATE_KEY;
+function normalizePrivateKey(value) {
+  let normalized = String(value ?? '').trim().replace(/^\uFEFF/, '');
+  while (normalized.length >= 2 && ((normalized.startsWith('\"') && normalized.endsWith('\"')) || (normalized.startsWith("'") && normalized.endsWith("'")))) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
+  return normalized;
+}
+
+const protectedSignerSecret = normalizePrivateKey(process.env.DEPLOYER_PRIVATE_KEY);
 const authorizationPath =
   process.env.SENTINEL_MAINNET_AUTHORIZATION ??
   'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
