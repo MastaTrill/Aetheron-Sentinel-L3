@@ -97,7 +97,7 @@ jobs:
         id: rehearsal
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          BASE_SEPOLIA_MANIFEST_PATH: /tmp/base-sepolia-rehearsal/deployments/baseSepolia-sentinel-guardrails-v1.json
+          BASE_SEPOLIA_MANIFEST_PATH: /tmp/base-sepolia-rehearsal/deployments/baseSepolia-sentinel-guardrails-v1-${{ inputs.base_sepolia_run_id }}.json
         run: npm run security:base-sepolia-rehearsal
       - name: Validate frozen release scope
         run: npm run security:release-scope
