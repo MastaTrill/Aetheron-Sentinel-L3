@@ -138,6 +138,7 @@ jobs:
       MONITOR_ADDRESSES: ${{ secrets.MONITOR_ADDRESSES }}
       DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
       BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+      DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1-${{ github.run_id }}.json
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -165,5 +166,5 @@ jobs:
           name: base-sepolia-deployment-${{ github.run_id }}
           path: |
             base-sepolia-deployment.log
-            deployments/baseSepolia-sentinel-guardrails-v1.json
+            ${{ env.DEPLOYMENT_MANIFEST_PATH }}
           if-no-files-found: error
