@@ -72,9 +72,10 @@ jobs:
           NODE
 
       - name: Validate deployment run identity
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        shell: bash
+          INPUT_RUN_ID: ${{ inputs.deployment_run_id }}
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
@@ -94,9 +95,6 @@ jobs:
           }
           console.log(`Deployment run identity: PASS (${run.html_url})`);
           NODE
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          INPUT_RUN_ID: ${{ inputs.deployment_run_id }}
 
       - name: Download exact deployment evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
