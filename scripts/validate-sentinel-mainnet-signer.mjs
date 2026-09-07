@@ -3,14 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { Wallet, getAddress, isAddress } from 'ethers';
 
 function normalizePrivateKey(value) {
-  let normalized = String(value ?? '')
-    .trim()
-    .replace(/^\uFEFF/, '');
-  while (
-    normalized.length >= 2 &&
-    ((normalized.startsWith('\"') && normalized.endsWith('\"')) ||
-      (normalized.startsWith("'") && normalized.endsWith("'")))
-  ) {
+  let normalized = String(value ?? '').trim().replace(/^\uFEFF/, '');
+  while (normalized.length >= 2 && ((normalized.startsWith('\"') && normalized.endsWith('\"')) || (normalized.startsWith("'") && normalized.endsWith("'")))) {
     normalized = normalized.slice(1, -1).trim();
   }
   if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;

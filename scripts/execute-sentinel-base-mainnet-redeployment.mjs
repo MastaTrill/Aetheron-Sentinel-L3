@@ -24,14 +24,8 @@ const outputPath =
   '/tmp/sentinel-redeployment/deployment-receipt.json';
 const rpcUrl = process.env.BASE_MAINNET_RPC_URL;
 function normalizePrivateKey(value) {
-  let normalized = String(value ?? '')
-    .trim()
-    .replace(/^\uFEFF/, '');
-  while (
-    normalized.length >= 2 &&
-    ((normalized.startsWith('\"') && normalized.endsWith('\"')) ||
-      (normalized.startsWith("'") && normalized.endsWith("'")))
-  ) {
+  let normalized = String(value ?? '').trim().replace(/^\uFEFF/, '');
+  while (normalized.length >= 2 && ((normalized.startsWith('\"') && normalized.endsWith('\"')) || (normalized.startsWith("'") && normalized.endsWith("'")))) {
     normalized = normalized.slice(1, -1).trim();
   }
   if (/^[0-9a-fA-F]{64}$/.test(normalized)) normalized = `0x${normalized}`;
@@ -117,7 +111,7 @@ const maxGasCostWei = BigInt(authorization.limitations.maxGasCostWei);
 if (maxGasCostWei <= 0n) throw new Error('Authorization maxGasCostWei must be positive');
 
 const recovered = getAddress(
-  verifyMessage(authorizationMessage(authorization), authorization.authorization.signature)
+  verifyMessage(authorizationMessage(authorization), authorization.authorization.signature),
 );
 const authorizedSender = getAddress(authorization.authorization.authorizedSender);
 if (recovered !== authorizedSender) {
@@ -129,9 +123,7 @@ if (
   manifest.releaseModel !== 'controlled-redeployment' ||
   manifest.status !== 'preparation-only'
 ) {
-  throw new Error(
-    'Deployment manifest must remain the frozen controlled-redeployment preparation manifest'
-  );
+  throw new Error('Deployment manifest must remain the frozen controlled-redeployment preparation manifest');
 }
 if (
   manifest.safety?.signingEnabled !== false ||
@@ -143,8 +135,7 @@ if (
 }
 
 const network = manifest.networks?.baseMainnet;
-if (!network || network.chainId !== 8453)
-  throw new Error('Base Mainnet network manifest is invalid');
+if (!network || network.chainId !== 8453) throw new Error('Base Mainnet network manifest is invalid');
 const token = manifest.token;
 const pool = manifest.pool;
 const execution = manifest.execution;
@@ -223,25 +214,20 @@ const tokenFactoryData = coder.encode(manifest.abi.tokenFactoryDataTypes, [
   token.vestingAmounts,
   token.tokenURI,
 ]);
-const poolInitializerData = coder.encode(
-  [manifest.abi.poolInitializerDataType],
-  [
-    [
-      pool.startFee,
-      pool.fee,
-      pool.durationSeconds,
-      pool.tickSpacing,
-      pool.curves.map(curve => [
-        curve.tickLower,
-        curve.tickUpper,
-        curve.numPositions,
-        curve.shares,
-      ]),
-      normalizedBeneficiaries.map(item => [item.beneficiary, item.shares]),
-      pool.startingTime,
-    ],
-  ]
-);
+const poolInitializerData = coder.encode([manifest.abi.poolInitializerDataType], [[
+  pool.startFee,
+  pool.fee,
+  pool.durationSeconds,
+  pool.tickSpacing,
+  pool.curves.map(curve => [
+    curve.tickLower,
+    curve.tickUpper,
+    curve.numPositions,
+    curve.shares,
+  ]),
+  normalizedBeneficiaries.map(item => [item.beneficiary, item.shares]),
+  pool.startingTime,
+]]);
 const createData = [
   token.initialSupply,
   token.numTokensToSell,
@@ -264,9 +250,7 @@ const provider = new JsonRpcProvider(rpcUrl, network.chainId, { staticNetwork: t
 const signer = new Wallet(protectedDeploymentKey, provider);
 const signerAddress = getAddress(await signer.getAddress());
 if (signerAddress !== authorizedSender) {
-  throw new Error(
-    `Protected deployment signer ${signerAddress} does not match authorized sender ${authorizedSender}`
-  );
+  throw new Error(`Protected deployment signer ${signerAddress} does not match authorized sender ${authorizedSender}`);
 }
 const actualNetwork = await provider.getNetwork();
 if (Number(actualNetwork.chainId) !== 8453) {
@@ -276,11 +260,7 @@ if (Number(actualNetwork.chainId) !== 8453) {
 const expectedHashes = manifest.expectedRuntimeHashes ?? {};
 const runtimeChecks = [
   ['Airlock', manifestAddresses.airlock, expectedHashes.baseMainnetAirlockRuntimeHash],
-  [
-    'Pool initializer',
-    manifestAddresses.poolInitializer,
-    expectedHashes.baseMainnetPoolInitializerRuntimeHash,
-  ],
+  ['Pool initializer', manifestAddresses.poolInitializer, expectedHashes.baseMainnetPoolInitializerRuntimeHash],
   ['Hook', manifestAddresses.hook, expectedHashes.baseMainnetHookRuntimeHash],
   ['Pool manager', manifestAddresses.poolManager, expectedHashes.baseMainnetPoolManagerRuntimeHash],
 ];
@@ -309,12 +289,10 @@ const [currency0, currency1] =
   BigInt(manifestAddresses.weth) < BigInt(predictedToken)
     ? [manifestAddresses.weth, predictedToken]
     : [predictedToken, manifestAddresses.weth];
-const poolId = keccak256(
-  coder.encode(
-    ['address', 'address', 'uint24', 'int24', 'address'],
-    [currency0, currency1, pool.dynamicFeeFlag, pool.tickSpacing, manifestAddresses.hook]
-  )
-);
+const poolId = keccak256(coder.encode(
+  ['address', 'address', 'uint24', 'int24', 'address'],
+  [currency0, currency1, pool.dynamicFeeFlag, pool.tickSpacing, manifestAddresses.hook],
+));
 if (lower(predictedToken) === lower(manifest.legacyProvenance?.token)) {
   throw new Error('Predicted replacement token unexpectedly equals the legacy token');
 }
@@ -333,13 +311,13 @@ if (!maximumFeePerGas) throw new Error('Unable to determine Base Mainnet gas pri
 const estimatedMaxGasCostWei = gasLimit * maximumFeePerGas;
 if (estimatedMaxGasCostWei > maxGasCostWei) {
   throw new Error(
-    `Estimated maximum gas cost ${estimatedMaxGasCostWei} exceeds authorized ceiling ${maxGasCostWei}`
+    `Estimated maximum gas cost ${estimatedMaxGasCostWei} exceeds authorized ceiling ${maxGasCostWei}`,
   );
 }
 const balanceBefore = await provider.getBalance(signerAddress);
 if (balanceBefore < estimatedMaxGasCostWei + BigInt(execution.valueWei)) {
   throw new Error(
-    `Protected signer balance is below the authorized transaction reserve; required ${estimatedMaxGasCostWei}, available ${balanceBefore}`
+    `Protected signer balance is below the authorized transaction reserve; required ${estimatedMaxGasCostWei}, available ${balanceBefore}`,
   );
 }
 
@@ -457,10 +435,7 @@ const [name, symbol, totalSupply, owner] = await Promise.all([
 const beneficiaryShares = [];
 for (const item of normalizedBeneficiaries) {
   const data = initializer.encodeFunctionData('getShares', [poolId, item.beneficiary]);
-  const response = await provider.call(
-    { to: manifestAddresses.poolInitializer, data },
-    receipt.blockNumber
-  );
+  const response = await provider.call({ to: manifestAddresses.poolInitializer, data }, receipt.blockNumber);
   const shares = initializer.decodeFunctionResult('getShares', response)[0].toString();
   if (shares !== item.shares) throw new Error(`Beneficiary share mismatch for ${item.beneficiary}`);
   beneficiaryShares.push({ ...item, verifiedShares: shares });
@@ -468,9 +443,7 @@ for (const item of normalizedBeneficiaries) {
 
 const actualGasCostWei = receipt.gasUsed * receipt.gasPrice;
 if (actualGasCostWei > maxGasCostWei) {
-  throw new Error(
-    `Confirmed gas cost ${actualGasCostWei} exceeded authorized ceiling ${maxGasCostWei}`
-  );
+  throw new Error(`Confirmed gas cost ${actualGasCostWei} exceeded authorized ceiling ${maxGasCostWei}`);
 }
 const balanceAfter = await provider.getBalance(signerAddress, receipt.blockNumber);
 const finalEvidence = {
