@@ -1,15 +1,23 @@
-name: Sentinel Guardrails Base Mainnet Pipeline
+name: Sentinel Base Mainnet Pipeline
 
 on:
   workflow_dispatch:
     inputs:
+      deployment_target:
+        description: 'Choose the isolated Base Mainnet deployment path'
+        required: true
+        default: guardrails
+        type: choice
+        options:
+          - guardrails
+          - sentinel-redeployment
       broadcast:
-        description: 'Broadcast the reviewed, paused core release'
+        description: 'Broadcast the selected reviewed release path'
         required: true
         default: false
         type: boolean
       confirmation:
-        description: 'Type DEPLOY_BASE_MAINNET to authorize broadcast'
+        description: 'Exact target-specific deployment confirmation'
         required: false
         type: string
       release_commit:
@@ -17,12 +25,12 @@ on:
         required: true
         type: string
       release_tag:
-        description: 'Published immutable GitHub release tag for release_commit'
-        required: true
+        description: 'Guardrails only: immutable GitHub release tag for release_commit'
+        required: false
         type: string
       base_sepolia_run_id:
-        description: 'Successful Base Sepolia broadcast workflow run for release_commit'
-        required: true
+        description: 'Guardrails only: successful Base Sepolia broadcast workflow run'
+        required: false
         type: string
 
 permissions:
@@ -31,7 +39,7 @@ permissions:
   deployments: read
 
 concurrency:
-  group: sentinel-guardrails-base-mainnet
+  group: sentinel-base-mainnet
   cancel-in-progress: false
 
 env:
@@ -46,6 +54,7 @@ env:
 
 jobs:
   readiness:
+    if: ${{ inputs.deployment_target == 'guardrails' }}
     outputs:
       rehearsal_manifest_sha256: ${{ steps.rehearsal.outputs.manifest_sha256 }}
     runs-on: ubuntu-latest
@@ -69,6 +78,12 @@ jobs:
           set -euo pipefail
           test "${RELEASE_COMMIT}" = "${GITHUB_SHA}"
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Require Guardrails-only dispatch inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${RELEASE_TAG}"
+          test -n "${BASE_SEPOLIA_RUN_ID}"
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
@@ -140,7 +155,7 @@ jobs:
 
   deploy:
     needs: readiness
-    if: ${{ inputs.broadcast && inputs.confirmation == 'DEPLOY_BASE_MAINNET' && inputs.release_commit == github.sha }}
+    if: ${{ inputs.deployment_target == 'guardrails' && inputs.broadcast && inputs.confirmation == 'DEPLOY_BASE_MAINNET' && inputs.release_commit == github.sha }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: base-mainnet
@@ -181,4 +196,78 @@ jobs:
           path: |
             base-mainnet-deployment.log
             deployments/base-sentinel-guardrails-v1.json
+          if-no-files-found: error
+
+  sentinel_redeployment_readiness:
+    if: ${{ inputs.deployment_target == 'sentinel-redeployment' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: base-mainnet
+    env:
+      SENTINEL_RELEASE_COMMIT: ${{ inputs.release_commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require the checked-out commit to equal the authorized commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${SENTINEL_RELEASE_COMMIT}" = "${GITHUB_SHA}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Validate exact controlled-redeployment manifest
+        run: node scripts/validate-sentinel-deployment-manifest.mjs
+      - name: Validate current redeployment readiness structure
+        run: node scripts/validate-sentinel-redeployment-closure.mjs --mode=readiness
+      - name: Validate exact unexpired SENTINEL Mainnet authorization
+        run: node scripts/validate-sentinel-mainnet-authorization.mjs
+
+  sentinel_redeployment_deploy:
+    needs: sentinel_redeployment_readiness
+    if: ${{ inputs.deployment_target == 'sentinel-redeployment' && inputs.broadcast && inputs.confirmation == 'DEPLOY_SENTINEL_BASE_MAINNET' && inputs.release_commit == github.sha }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: base-mainnet
+    env:
+      BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      SENTINEL_RELEASE_COMMIT: ${{ inputs.release_commit }}
+      SENTINEL_MAINNET_DEPLOYMENT_OUTPUT: ${{ github.workspace }}/sentinel-mainnet-deployment/deployment-receipt.json
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require the checked-out commit to equal the authorized commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${SENTINEL_RELEASE_COMMIT}" = "${GITHUB_SHA}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Revalidate exact unexpired SENTINEL Mainnet authorization
+        run: node scripts/validate-sentinel-mainnet-authorization.mjs
+      - name: Execute controlled SENTINEL Base Mainnet redeployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sentinel-mainnet-deployment
+          node scripts/execute-sentinel-base-mainnet-redeployment.mjs | tee sentinel-mainnet-deployment/deployment.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: sentinel-mainnet-redeployment-${{ github.run_id }}
+          path: |
+            sentinel-mainnet-deployment/deployment.log
+            sentinel-mainnet-deployment/deployment-receipt.json
           if-no-files-found: error
