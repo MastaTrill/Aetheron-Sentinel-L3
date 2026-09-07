@@ -135,7 +135,7 @@ Design & security documentation:
 - **[AI_TEE_INTEGRATION.md](./docs/AI_TEE_INTEGRATION.md)** - Trusted Execution Environment integration for secure AI inference, attestation flows, verifier contracts, and fallback to rule-based L3 mode. Mitigates prompt injection, model tampering, and ensures verifiable decisions.
 - **[AGENT_GOVERNANCE_POLICY.md](./docs/AGENT_GOVERNANCE_POLICY.md)** - Autonomy levels (0-3), least-privilege policies, human-in-the-loop, behavioral monitoring, drift detection, and enforcement mechanisms for safe AI agent operation.
 - **Expanded Deployment Checklist**: See updated [DEPLOYMENT_READINESS_CHECKLIST.md](./DEPLOYMENT_READINESS_CHECKLIST.md) with dedicated "AI / DeFAI Security Layer" section covering pre-deployment verification, mainnet AI-specific items, and post-deployment monitoring.
-- **CI Workflow**: New [.github/workflows/ai-security-test.yml](./.github/workflows/ai-security-test.yml) for adversarial testing (prompt injection, poisoning, attestation forgery, policy bypass) and TEE/policy simulation.
+- **CI Workflow**: The consolidated [.github/workflows/security.yml](./.github/workflows/security.yml) runs the active dependency, Slither, Semgrep, and property-fuzz security gates. AI-specific adversarial coverage should be integrated there before promotion.
 
 These additions harden the hybrid rule-based + AI DeFAI system while preserving core L3 security (SentinelInterceptor, CircuitBreaker, quantum guards, governance/timelock).
 
@@ -274,7 +274,7 @@ Before considering deployment "fully complete":
 - [ ] All stakeholders have reviewed documentation
 - [ ] Security audit completed (see SECURITY_AUDIT_CERTIFICATION.md)
 - [ ] Mainnet preparation checklist reviewed (MAINNET_PREPARATION_TEMPLATE.md)
-- [ ] AI/DeFAI layer verified (new TEE integration, governance policy, adversarial tests)
+- [ ] AI/DeFAI layer verified (TEE integration, governance policy, adversarial tests)
 
 ---
 
@@ -301,6 +301,6 @@ Before considering deployment "fully complete":
 
 ---
 
-**Last Updated:** July 12, 2026 (added AI/DeFAI Security Layer section)  
+**Last Updated:** September 7, 2026 (aligned security workflow references after Actions consolidation)  
 **Deployment Block:** 10715441  
-**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending | 🆕 DeFAI AI layer docs & workflow integrated
+**Status:** ✅ Production Ready for Testnet | ⏳ Mainnet evidence pending | 🆕 DeFAI AI layer docs integrated; adversarial coverage pending consolidation
