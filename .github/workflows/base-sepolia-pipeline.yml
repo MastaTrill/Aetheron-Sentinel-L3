@@ -26,6 +26,7 @@ env:
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
   RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
+  EXPECTED_SOLC_VERSION: '0.8.36'
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 
 jobs:
@@ -56,6 +57,33 @@ jobs:
         with:
           version: v1.7.1
       - run: npm ci --legacy-peer-deps
+      - name: Align pinned release compiler declaration
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { createRequire } from 'node:module';
+          const require = createRequire(import.meta.url);
+          const solc = require('solc');
+          const expected = process.env.EXPECTED_SOLC_VERSION;
+          const actual = String(solc.version()).match(/^\d+\.\d+\.\d+/)?.[0];
+          if (actual !== expected) {
+            throw new Error(`Locked solc ${actual || 'unknown'} does not match expected ${expected}`);
+          }
+          const configPath = 'hardhat.config.js';
+          const source = fs.readFileSync(configPath, 'utf8');
+          const declaration = source.match(/version:\s*'([^']+)'/);
+          if (!declaration) throw new Error('Hardhat Solidity version declaration not found');
+          if (declaration[1] !== expected) {
+            fs.writeFileSync(
+              configPath,
+              source.replace(`version: '${declaration[1]}'`, `version: '${expected}'`)
+            );
+            console.log(`Aligned Hardhat compiler declaration ${declaration[1]} -> ${expected}`);
+          }
+          console.log(`Pinned deploy compiler: solc ${actual}`);
+          NODE
       - name: Validate deployment environment
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -150,6 +178,33 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --legacy-peer-deps
+      - name: Align pinned release compiler declaration
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { createRequire } from 'node:module';
+          const require = createRequire(import.meta.url);
+          const solc = require('solc');
+          const expected = process.env.EXPECTED_SOLC_VERSION;
+          const actual = String(solc.version()).match(/^\d+\.\d+\.\d+/)?.[0];
+          if (actual !== expected) {
+            throw new Error(`Locked solc ${actual || 'unknown'} does not match expected ${expected}`);
+          }
+          const configPath = 'hardhat.config.js';
+          const source = fs.readFileSync(configPath, 'utf8');
+          const declaration = source.match(/version:\s*'([^']+)'/);
+          if (!declaration) throw new Error('Hardhat Solidity version declaration not found');
+          if (declaration[1] !== expected) {
+            fs.writeFileSync(
+              configPath,
+              source.replace(`version: '${declaration[1]}'`, `version: '${expected}'`)
+            );
+            console.log(`Aligned Hardhat compiler declaration ${declaration[1]} -> ${expected}`);
+          }
+          console.log(`Pinned deploy compiler: solc ${actual}`);
+          NODE
       - run: npm run compile
       - name: Deploy the paused non-custodial core
         shell: bash
