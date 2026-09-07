@@ -205,6 +205,7 @@ jobs:
     environment: base-mainnet
     env:
       SENTINEL_RELEASE_COMMIT: ${{ inputs.release_commit }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -225,6 +226,8 @@ jobs:
         run: node scripts/validate-sentinel-deployment-manifest.mjs
       - name: Validate current redeployment readiness structure
         run: node scripts/validate-sentinel-redeployment-closure.mjs --mode=readiness
+      - name: Validate protected SENTINEL deployment signer identity
+        run: node scripts/validate-sentinel-mainnet-signer.mjs
       - name: Validate exact unexpired SENTINEL Mainnet authorization
         run: node scripts/validate-sentinel-mainnet-authorization.mjs
 

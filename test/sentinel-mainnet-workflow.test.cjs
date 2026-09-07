@@ -10,6 +10,8 @@ const { Wallet } = require('ethers');
 const ROOT = path.resolve(__dirname, '..');
 const WORKFLOW = path.join(ROOT, '.github/workflows/mainnet-pipeline.yml');
 const VALIDATOR = path.join(ROOT, 'scripts/validate-sentinel-mainnet-authorization.mjs');
+const SIGNER_VALIDATOR = path.join(ROOT, 'scripts/validate-sentinel-mainnet-signer.mjs');
+const EXECUTOR = path.join(ROOT, 'scripts/execute-sentinel-base-mainnet-redeployment.mjs');
 const RELEASE_COMMIT = 'a'.repeat(40);
 
 function authorizationMessage(auth) {
@@ -58,7 +60,7 @@ async function makeFixture(overrides = {}) {
   Object.assign(auth, overrides.auth ?? {});
   auth.authorization.signature = await wallet.signMessage(authorizationMessage(auth));
   writeFileSync(authorizationPath, JSON.stringify(auth, null, 2) + '\n');
-  return { directory, manifestPath, authorizationPath, auth };
+  return { directory, manifestPath, authorizationPath, auth, wallet };
 }
 
 function runValidator(fixture, releaseCommit = RELEASE_COMMIT) {
@@ -134,5 +136,60 @@ test('release policy suite includes the SENTINEL mainnet workflow regressions', 
     packageJson.scripts['test:release:policy'],
     /test\/sentinel-mainnet-workflow\.test\.cjs/,
     'npm run test:release:policy must execute the SENTINEL mainnet workflow regressions'
+  );
+});
+
+test('SENTINEL readiness validates the protected deployment signer before authorization', () => {
+  const workflow = readFileSync(WORKFLOW, 'utf8');
+  const signerIndex = workflow.indexOf('validate-sentinel-mainnet-signer.mjs');
+  const authIndex = workflow.indexOf('validate-sentinel-mainnet-authorization.mjs');
+  assert.match(
+    workflow,
+    /sentinel_redeployment_readiness:[\s\S]*DEPLOYER_PRIVATE_KEY: \$\{\{ secrets\.DEPLOYER_PRIVATE_KEY \}\}/
+  );
+  assert.ok(signerIndex >= 0, 'workflow must validate the protected deployment signer');
+  assert.ok(
+    authIndex > signerIndex,
+    'signer identity must be checked before authorization validity'
+  );
+});
+
+test('read-only signer validator accepts a protected key matching the authorized sender', async () => {
+  const fixture = await makeFixture();
+  const result = spawnSync(process.execPath, [SIGNER_VALIDATOR], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      DEPLOYER_PRIVATE_KEY: fixture.wallet.privateKey,
+      SENTINEL_MAINNET_AUTHORIZATION: fixture.authorizationPath,
+    },
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /Protected SENTINEL deployer signer: PASS/);
+});
+
+test('read-only signer validator rejects a protected key for a different sender', async () => {
+  const fixture = await makeFixture();
+  const other = Wallet.createRandom();
+  const result = spawnSync(process.execPath, [SIGNER_VALIDATOR], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      DEPLOYER_PRIVATE_KEY: other.privateKey,
+      SENTINEL_MAINNET_AUTHORIZATION: fixture.authorizationPath,
+    },
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /does not match authorized sender/);
+});
+
+test('executor enforces signer balance reserve before broadcast', () => {
+  const executor = readFileSync(EXECUTOR, 'utf8');
+  assert.match(
+    executor,
+    /^\s*if \(balanceBefore < estimatedMaxGasCostWei \+ BigInt\(execution\.valueWei\)\) \{/m,
+    'executor must fail closed when signer balance cannot cover the authorized reserve'
   );
 });
