@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const { assertSuccessfulRehearsalRun } = require('../scripts/lib/base-sepolia-rehearsal.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const AUDITED_RELEASE = 'f165e345f6909ffb8c3d9eab1f152aa5bd23e97b';
@@ -58,4 +59,25 @@ test('mainnet readiness consumes the run-specific Base Sepolia manifest', () => 
     workflow,
     /BASE_SEPOLIA_MANIFEST_PATH:\s*\/tmp\/base-sepolia-rehearsal\/deployments\/baseSepolia-sentinel-guardrails-v1-\$\{\{\s*inputs\.base_sepolia_run_id\s*\}\}\.json/
   );
+});
+
+test('mainnet rehearsal validation trusts the verified manifest for release identity', () => {
+  const run = {
+    id: 34138747671,
+    path: '.github/workflows/base-sepolia-pipeline.yml',
+    event: 'workflow_dispatch',
+    status: 'completed',
+    conclusion: 'success',
+    head_sha: 'f74439ebd16cabef08f9a7eeddc064400374156d',
+  };
+
+  assert.doesNotThrow(() => assertSuccessfulRehearsalRun(run, '34138747671'));
+  assert.throws(
+    () => assertSuccessfulRehearsalRun({ ...run, head_sha: 'not-a-commit' }, '34138747671'),
+    /head SHA is invalid/
+  );
+
+  const validator = read('scripts/validate-base-sepolia-rehearsal.cjs');
+  assert.match(validator, /assertSuccessfulRehearsalRun\(run, runId\);/);
+  assert.doesNotMatch(validator, /assertSuccessfulRehearsalRun\(run, runId, releaseCommit\)/);
 });
