@@ -181,6 +181,9 @@ jobs:
       - name: Run release regression tests
         run: npm run test:release
 
+      - name: Run source verification policy tests
+        run: node --test test/source-verification-policy.test.cjs
+
       - name: Foundry build
         run: forge build --sizes
 

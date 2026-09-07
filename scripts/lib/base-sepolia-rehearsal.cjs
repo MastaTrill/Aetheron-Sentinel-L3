@@ -15,7 +15,7 @@ function assertRunId(runId) {
 
 function assertSuccessfulRehearsalRun(run, expectedRunId, expectedCommit) {
   assertRunId(expectedRunId);
-  if (!COMMIT_PATTERN.test(expectedCommit || '')) {
+  if (expectedCommit && !COMMIT_PATTERN.test(expectedCommit)) {
     throw new Error('RELEASE_COMMIT must be a 40-character Git commit');
   }
   if (String(run?.id) !== String(expectedRunId)) {
@@ -30,7 +30,18 @@ function assertSuccessfulRehearsalRun(run, expectedRunId, expectedCommit) {
   if (run.status !== 'completed' || run.conclusion !== 'success') {
     throw new Error('Base Sepolia rehearsal workflow did not complete successfully');
   }
-  if (String(run.head_sha || '').toLowerCase() !== expectedCommit.toLowerCase()) {
+  if (!COMMIT_PATTERN.test(String(run.head_sha || ''))) {
+    throw new Error('Base Sepolia workflow run head SHA is invalid');
+  }
+  // Older callers may explicitly require the workflow run itself to be launched
+  // at the release commit. The current protected pipeline runs from main and
+  // checks out the audited release inside both jobs, so the mainnet handoff
+  // intentionally omits expectedCommit here and relies on the downloaded,
+  // verified manifest below to bind evidence to the exact release commit.
+  if (
+    expectedCommit &&
+    String(run.head_sha || '').toLowerCase() !== String(expectedCommit).toLowerCase()
+  ) {
     throw new Error('Base Sepolia rehearsal workflow did not run the release commit');
   }
   return run;

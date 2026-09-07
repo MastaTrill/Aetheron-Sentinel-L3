@@ -49,10 +49,14 @@ async function main() {
         },
         hre
       );
+      console.log(`${name}: explorer verification PASS`);
     } catch (verifyError: any) {
-      console.warn(
-        `[WARN] Explorer verification for ${name} at ${record.address} did not complete: ${verifyError?.message || verifyError}`
-      );
+      const message = String(verifyError?.message || verifyError);
+      if (/already verified/i.test(message)) {
+        console.log(`${name}: already verified`);
+        continue;
+      }
+      throw verifyError;
     }
   }
 

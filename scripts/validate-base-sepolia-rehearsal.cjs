@@ -23,7 +23,7 @@ async function main() {
     `/actions/runs/${encodeURIComponent(runId || '')}`,
     'Cannot load the Base Sepolia workflow run'
   );
-  assertSuccessfulRehearsalRun(run, runId, releaseCommit);
+  assertSuccessfulRehearsalRun(run, runId);
 
   if (!manifestPath || !fs.existsSync(manifestPath)) {
     throw new Error('Downloaded Base Sepolia deployment manifest is missing');
