@@ -46,9 +46,11 @@ const config = {
     cache: './cache',
     artifacts: './artifacts',
   },
-  // contracts/research/ holds duplicates of canonical contracts and causes
+  // The deploy toolchain uses the locally pinned solc package. Keep this
+  // declaration identical to package.json so compiler metadata and BaseScan
+  // verification cannot diverge from the bytecode actually produced.
   solidity: {
-    version: '0.8.28',
+    version: '0.8.36',
     path: LOCAL_SOLC_PATH,
     isolated: true,
     settings: {
