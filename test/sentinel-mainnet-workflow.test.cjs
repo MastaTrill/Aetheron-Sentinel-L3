@@ -217,6 +217,6 @@ test('executor normalizes protected deployment key formatting before validation'
   assert.match(executor, /function normalizePrivateKey\(value\)/);
   assert.match(
     executor,
-    /const privateKey = normalizePrivateKey\(process\.env\.DEPLOYER_PRIVATE_KEY\);/
+    /const protectedDeploymentKey = normalizePrivateKey\(process\.env\.DEPLOYER_PRIVATE_KEY\);/
   );
 });
