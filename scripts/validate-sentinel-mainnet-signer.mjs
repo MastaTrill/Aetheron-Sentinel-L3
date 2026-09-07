@@ -20,13 +20,19 @@ function normalizePrivateKey(value) {
   return normalized;
 }
 
-const protectedSignerSecret = normalizePrivateKey(process.env.DEPLOYER_PRIVATE_KEY);
+const rawProtectedSignerSecret = process.env.DEPLOYER_PRIVATE_KEY;
+const protectedSignerSecret = normalizePrivateKey(rawProtectedSignerSecret);
 const authorizationPath =
   process.env.SENTINEL_MAINNET_AUTHORIZATION ??
   'release-evidence/sentinel-mainnet/redeployment/mainnet-authorization.json';
 
 if (!/^0x[0-9a-f]{64}$/i.test(protectedSignerSecret ?? '')) {
-  throw new Error('DEPLOYER_PRIVATE_KEY is missing or malformed in the protected environment');
+  const raw = String(rawProtectedSignerSecret ?? '');
+  const trimmed = raw.trim().replace(/^\uFEFF/, '');
+  let jsonObject = false;
+  try { const parsed = JSON.parse(trimmed); jsonObject = Boolean(parsed && typeof parsed === 'object' && !Array.isArray(parsed)); } catch {}
+  const assignmentPrefix = /^(?:export\s+)?(?:DEPLOYER_PRIVATE_KEY|PRIVATE_KEY)\s*=/i.test(trimmed);
+  throw new Error(`DEPLOYER_PRIVATE_KEY is missing or malformed in the protected environment (rawLength=${raw.length} normalizedLength=${protectedSignerSecret.length} jsonObject=${jsonObject} assignmentPrefix=${assignmentPrefix})`);
 }
 
 const authorization = JSON.parse(await readFile(authorizationPath, 'utf8'));

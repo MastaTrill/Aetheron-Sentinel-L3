@@ -246,3 +246,23 @@ test('SENTINEL mainnet workflow falls back to RPC_URL and validates Base chain i
   assert.ok(rpcIndex >= 0 && authIndex > rpcIndex);
   assert.ok(readFileSync(RPC_VALIDATOR, 'utf8').includes('8453'));
 });
+
+test('signer validator reports only non-secret shape diagnostics for malformed protected keys', async () => {
+  const fixture = await makeFixture();
+  const secret = 'not-a-private-key';
+  const result = spawnSync(process.execPath, [SIGNER_VALIDATOR], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      DEPLOYER_PRIVATE_KEY: secret,
+      SENTINEL_MAINNET_AUTHORIZATION: fixture.authorizationPath,
+    },
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /rawLength=17/);
+  assert.match(result.stderr, /normalizedLength=17/);
+  assert.match(result.stderr, /jsonObject=false/);
+  assert.match(result.stderr, /assignmentPrefix=false/);
+  assert.doesNotMatch(result.stderr, /not-a-private-key/);
+});
