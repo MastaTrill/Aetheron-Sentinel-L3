@@ -85,7 +85,7 @@
     "tee:stub:test": "node -e \"const s=require('./scripts/tee-attestation-stub.cjs'); const a=s.createAttestation({test:true}); console.log(JSON.stringify(s.finalizeAttestation(a,{status:'confirmed',txHash:'0xtest'}),null,2))\""
   },
   "dependencies": {
-    "@apollo/client": "^4.2.12",
+    "@apollo/client": "^4.3.0",
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.4.2",
