@@ -39,7 +39,7 @@
     "@types/react-dom": "^19.2.5",
     "autoprefixer": "^10.5.5",
     "tailwindcss": "^4.3.3",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.13",
     "typescript": "~5.8.2",
     "vite": "^8.2.2"
   }
