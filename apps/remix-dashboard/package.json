@@ -23,7 +23,7 @@
     "express": "^4.22.2",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
-    "react": "^19.0.0",
+    "react": "^19.3.0",
     "react-dom": "^19.2.8",
     "recharts": "^3.10.1",
     "shadcn": "^4.19.0",
