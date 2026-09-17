@@ -16,7 +16,7 @@ asttokens==3.0.1
 async-lru==2.3.0
 attrs==26.1.0
 Authlib==1.6.11
-av==17.0.0
+av==18.1.0
 azure-functions==1.16.0
 babel==2.18.0
 backrefs==6.2
