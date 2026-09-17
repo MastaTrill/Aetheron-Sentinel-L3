@@ -102,7 +102,7 @@ googleapis-common-protos==1.73.1
 graphene==3.4.3
 graphql-core==3.2.8
 graphql-relay==3.2.0
-greenlet==3.3.2
+greenlet==3.5.5
 grpcio==1.83.1
 grpcio-status==1.71.2
 gunicorn==25.3.0
