@@ -1,11 +1,9 @@
 name: Site
 
+# 2026-09-19: Actions Pages deploy fails immediately (environment/source mismatch).
+# Live site is served from the gh-pages branch, which now has the closed-sale page.
+# Keep this file for a manual dispatch after Pages source is confirmed.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'site/**'
-      - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
 permissions:
