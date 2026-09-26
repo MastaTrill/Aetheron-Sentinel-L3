@@ -5,7 +5,7 @@ const test = require('node:test');
 const { assertSuccessfulRehearsalRun } = require('../scripts/lib/base-sepolia-rehearsal.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
-const AUDITED_RELEASE = 'f165e345f6909ffb8c3d9eab1f152aa5bd23e97b';
+const AUDITED_RELEASE = '34af194c98275a0dd15887f9e508b2fd87704cfe';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');

@@ -25,7 +25,7 @@ env:
   RELEASE_PROFILE: sentinel-guardrails-v1
   DEPLOY_NETWORK: base-sepolia
   DEPLOY_ENVIRONMENT: base-sepolia
-  RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
+  RELEASE_COMMIT: 34af194c98275a0dd15887f9e508b2fd87704cfe
   EXPECTED_SOLC_VERSION: '0.8.36'
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1.json
 

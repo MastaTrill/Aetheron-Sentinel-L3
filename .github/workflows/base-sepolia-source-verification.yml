@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RELEASE_COMMIT: f165e345f6909ffb8c3d9eab1f152aa5bd23e97b
+  RELEASE_COMMIT: 34af194c98275a0dd15887f9e508b2fd87704cfe
   EXPECTED_SOLC_VERSION: '0.8.36'
   DEPLOYMENT_MANIFEST_PATH: deployments/baseSepolia-sentinel-guardrails-v1-${{ inputs.deployment_run_id }}.json
 
