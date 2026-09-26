@@ -337,7 +337,7 @@ test('locks the Base Sepolia pipeline to the audited Guardrails release safety p
   );
   assert.match(
     workflow,
-    /^\s*RELEASE_COMMIT:\s*f165e345f6909ffb8c3d9eab1f152aa5bd23e97b\s*$/m,
+    /^\s*RELEASE_COMMIT:\s*34af194c98275a0dd15887f9e508b2fd87704cfe\s*$/m,
     'workflow must pin the audited Guardrails commit'
   );
 
