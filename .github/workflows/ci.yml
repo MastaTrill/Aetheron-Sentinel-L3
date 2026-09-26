@@ -200,3 +200,5 @@ jobs:
 
       - name: Build web surface
         run: npm run build:web
+
+# Audit trigger: 2026-09-25 exact-head mainnet-readiness validation; no behavior change.
