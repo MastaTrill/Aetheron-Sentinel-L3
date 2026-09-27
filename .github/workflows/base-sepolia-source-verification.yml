@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       deployment_run_id:
-        description: 'Successful Base Sepolia Guardrails deployment run to source-verify'
+        description: 'Base Sepolia Guardrails deployment run whose runtime deployment evidence is safe to source-verify'
         required: true
         type: string
 
@@ -90,8 +90,34 @@ jobs:
           if (String(run.path || '').split('@')[0] !== '.github/workflows/base-sepolia-pipeline.yml') {
             throw new Error('Deployment run came from the wrong workflow');
           }
-          if (run.event !== 'workflow_dispatch' || run.status !== 'completed' || run.conclusion !== 'success') {
-            throw new Error('Deployment run is not a successful explicit Base Sepolia run');
+          if (run.event !== 'workflow_dispatch' || run.status !== 'completed') {
+            throw new Error('Deployment run is not a completed explicit Base Sepolia run');
+          }
+
+          if (run.conclusion !== 'success') {
+            const jobsResponse = await fetch(
+              `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${runId}/jobs?per_page=100`,
+              { headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json' } }
+            );
+            if (!jobsResponse.ok) throw new Error(`Cannot load deployment jobs: HTTP ${jobsResponse.status}`);
+            const jobs = (await jobsResponse.json()).jobs || [];
+            const readiness = jobs.find((job) => job.name === 'readiness');
+            const deploy = jobs.find((job) => job.name === 'deploy');
+            if (readiness?.conclusion !== 'success' || deploy?.conclusion !== 'failure') {
+              throw new Error('Failed deployment run did not fail in the allowed post-deploy source-verification shape');
+            }
+            const stepConclusion = (name) => deploy.steps?.find((step) => step.name === name)?.conclusion;
+            const required = [
+              ['Deploy the paused non-custodial core', 'success'],
+              ['Verify runtime bytecode, pause state, ownership, and roles', 'success'],
+              ['Verify source on BaseScan', 'failure'],
+              ['Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02', 'success'],
+            ];
+            for (const [name, expected] of required) {
+              const actual = stepConclusion(name);
+              if (actual !== expected) throw new Error('Deployment step conclusion mismatch');
+            }
+            console.log('Deployment run failed only at BaseScan source verification after safe runtime verification; retry is allowed.');
           }
           console.log(`Deployment run identity: PASS (${run.html_url})`);
           NODE
