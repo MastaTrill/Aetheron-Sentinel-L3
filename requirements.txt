@@ -73,7 +73,7 @@ eth-keys==0.7.0
 eth-rlp==2.2.0
 eth-typing==6.0.0
 eth-utils==6.0.0
-eth_abi==5.2.0
+eth_abi==6.0.0
 executing==2.2.1
 fastapi==0.136.0
 faster-whisper==1.2.1
