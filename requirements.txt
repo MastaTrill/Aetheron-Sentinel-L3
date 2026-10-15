@@ -337,7 +337,7 @@ vine==5.1.0
 waitress==3.0.2
 watchdog==6.0.0
 watchfiles==1.1.1
-wcmatch==10.1
+wcmatch==11.0.1
 wcwidth==0.6.0
 web3==7.14.1
 webcolors==25.10.0
