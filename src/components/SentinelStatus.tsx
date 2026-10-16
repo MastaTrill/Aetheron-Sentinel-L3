@@ -65,7 +65,7 @@ export default function SentinelStatus() {
           {sentinel?.autonomousMode ? 'Hardened' : 'Manual'}
         </span>
       </div>
-      <div className="mt-4 border-t pt-4">
+      <div className="mt-4 border-t border-gray-200 pt-4">
         <div className="text-xs text-gray-400">Security Pulse: Nominal</div>
         <div className="text-[10px] font-mono text-blue-400 mt-1">
           Block: {sentinel?.lastAnomalyBlock}

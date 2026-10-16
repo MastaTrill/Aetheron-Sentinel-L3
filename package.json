@@ -29,8 +29,8 @@
     "verify:testnet": "node node_modules/hardhat/dist/src/cli.js run scripts/verify.js --network sepolia",
     "verify:mainnet": "node node_modules/hardhat/dist/src/cli.js run scripts/verify.js --network mainnet",
     "verify:ownership": "node scripts/verify-ownership-mainnet.js",
-    "lint": "eslint hardhat.config.js scripts/ test/ --config .eslintrc.json --max-warnings 20",
-    "lint:fix": "eslint hardhat.config.js scripts/ test/ --config .eslintrc.json --fix",
+    "lint": "eslint hardhat.config.js scripts/ test/ --max-warnings 20",
+    "lint:fix": "eslint hardhat.config.js scripts/ test/ --fix",
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
     "format:check:release": "prettier --check config/release-core.json scripts/lib/release-core.cjs scripts/lib/github-api.cjs scripts/lib/github-environment.cjs scripts/lib/immutable-release.cjs scripts/lib/base-sepolia-rehearsal.cjs scripts/deploy-release-core.cjs scripts/verify-release-core.cjs scripts/validate-release-scope.cjs scripts/validate-github-environment.cjs scripts/validate-immutable-release.cjs scripts/validate-base-sepolia-rehearsal.cjs scripts/mainnet-preflight.js deploy/verify-mainnet.ts test/ReleaseDeploymentSafety.test.js test/SentinelInsuranceProtocol.test.js test/github-environment.test.cjs test/release-evidence.test.cjs",
@@ -54,7 +54,7 @@
     "dev": "next dev",
     "build:web": "next build",
     "start": "next start",
-    "lint:web": "eslint src/ --config .eslintrc.json",
+    "lint:web": "eslint src/",
     "add-liquidity": "hardhat run scripts/add-liquidity.js",
     "update:site-contracts": "node scripts/update-site-contracts.js",
     "evidence:automate": "node scripts/automate-evidence.js",
@@ -111,14 +111,13 @@
     "@types/node": "^25.6.0",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "autoprefixer": "^10.4.21",
+    "@typescript-eslint/eslint-plugin": "^8.71.2",
+    "@typescript-eslint/parser": "^8.71.2",
     "chai": "^5.2.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^15.5.18",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.3.8",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-security": "^2.1.1",
     "ethers": "6.17.0",
@@ -127,9 +126,12 @@
     "postcss": "8.5.23",
     "prettier": "^3.9.6",
     "solc": "0.8.36",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.3",
     "ts-node": "^10.0.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@eslint/js": "^9.39.0",
+    "globals": "^17.13.0"
   },
   "overrides": {
     "adm-zip": "0.6.1",
@@ -164,8 +166,9 @@
     "ethers": "6.17.0",
     "sharp": "0.35.5",
     "nanoid": "^3.3.18",
-    "postcss-selector-parser": "^7.1.6",
-    "postcss-nested": "^7.0.2"
+    "@next/eslint-plugin-next": {
+      "fast-glob": "npm:tinyglobby@^0.2.17"
+    }
   },
   "type": "module"
 }

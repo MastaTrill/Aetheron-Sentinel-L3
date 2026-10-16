@@ -474,7 +474,7 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
     if (!raw) return;
     const sums = new Map();
     for (const line of raw.split(/\r?\n/).filter(Boolean)) {
-      const match = line.match(/^([0-9a-f]{64})  (.+)$/i);
+      const match = line.match(/^([0-9a-f]{64}) {2}(.+)$/i);
       if (!match) {
         failures.push(`immutableEvidencePackage: invalid SHA256SUMS line: ${line}`);
         continue;
