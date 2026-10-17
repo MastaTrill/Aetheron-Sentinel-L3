@@ -46,7 +46,7 @@ export default function SwapWidget() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 max-w-md shadow-sm">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 max-w-md shadow-xs">
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Pay (Token Address)</label>
@@ -54,7 +54,7 @@ export default function SwapWidget() {
             type="text" 
             value={tokenIn}
             onChange={(e) => setTokenIn(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-sm focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -63,7 +63,7 @@ export default function SwapWidget() {
             type="text" 
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-sm focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -72,7 +72,7 @@ export default function SwapWidget() {
             type="text" 
             value={tokenOut}
             onChange={(e) => setTokenOut(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-sm focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         
@@ -85,7 +85,7 @@ export default function SwapWidget() {
         </button>
 
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 text-sm rounded">
+          <div className="p-3 bg-red-50 text-red-700 text-sm rounded-sm">
             Error: {error}
           </div>
         )}
