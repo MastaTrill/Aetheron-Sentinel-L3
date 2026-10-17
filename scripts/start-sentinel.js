@@ -1,8 +1,8 @@
-const { spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const { JsonRpcProvider, Wallet, formatEther, parseEther } = require('ethers');
-const dotenv = require('dotenv');
+const { spawn } = require('child_process);
+const path = require('path);
+const fs = require('fs);
+const { JsonRpcProvider, Wallet, formatEther, parseEther } = require('ethers);
+const dotenv = require('dotenv);
 
 /**
  * Runs a node script and returns a promise that resolves when the script finishes.
@@ -16,7 +16,7 @@ function runScript(scriptName, detached = false) {
     const child = spawn('npx', ['tsx', path.join(__dirname, scriptName)], {
       stdio: detached ? 'ignore' : 'inherit', // Ignore stdio for detached processes
       detached: detached,
-      shell: true,
+      shell: false,
     });
 
     if (detached) {
@@ -71,7 +71,7 @@ async function main() {
     }
 
     // 1. Run Deployment (updates .env)
-    await runScript('deploy.js');
+    await runScript('deploy.js);
 
     console.log('\n✅ Deployment successful. Verifying contract reachability...');
 
