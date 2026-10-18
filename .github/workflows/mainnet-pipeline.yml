@@ -101,7 +101,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: npm run security:immutable-release
       - name: Download exact Base Sepolia deployment artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: base-sepolia-deployment-${{ inputs.base_sepolia_run_id }}
           github-token: ${{ github.token }}
