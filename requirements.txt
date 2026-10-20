@@ -202,7 +202,7 @@ opentelemetry-sdk==1.44.0
 opentelemetry-semantic-conventions==0.62b0
 opentelemetry-util-http==0.62b0
 openwakeword==0.6.0
-optuna==4.8.0
+optuna==5.0.0
 packageurl-python==0.17.6
 packaging==26.0
 paginate==0.5.7
