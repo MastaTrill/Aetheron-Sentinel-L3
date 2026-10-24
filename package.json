@@ -160,7 +160,7 @@
     "debug": "^4.3.7",
     "diff": "^5.2.1",
     "postcss": "8.5.30",
-    "serialize-javascript": "^7.0.5",
+    "serialize-javascript": "^7.1.4",
     "uuid": "^14.0.0",
     "hardhat-gas-reporter": "^2.3.0",
     "ethers": "6.17.0",
