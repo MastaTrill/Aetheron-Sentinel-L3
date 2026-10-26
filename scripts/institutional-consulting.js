@@ -272,7 +272,7 @@ class SentinelInstitutionalConsulting {
    */
   calculateTargetDate(timeline) {
     const now = Date.now();
-    let days = 14; // Default 2 weeks
+    let days;
 
     switch (timeline) {
       case 'rush':
