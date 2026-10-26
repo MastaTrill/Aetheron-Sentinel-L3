@@ -84,7 +84,7 @@ jobs:
           set -euo pipefail
           test -n "${RELEASE_TAG}"
           test -n "${BASE_SEPOLIA_RUN_ID}"
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
           cache: npm
@@ -101,7 +101,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: npm run security:immutable-release
       - name: Download exact Base Sepolia deployment artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: base-sepolia-deployment-${{ inputs.base_sepolia_run_id }}
           github-token: ${{ github.token }}
@@ -174,7 +174,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
           cache: npm
@@ -218,7 +218,7 @@ jobs:
           set -euo pipefail
           test "${SENTINEL_RELEASE_COMMIT}" = "${GITHUB_SHA}"
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
           cache: npm
@@ -256,7 +256,7 @@ jobs:
           set -euo pipefail
           test "${SENTINEL_RELEASE_COMMIT}" = "${GITHUB_SHA}"
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
           cache: npm

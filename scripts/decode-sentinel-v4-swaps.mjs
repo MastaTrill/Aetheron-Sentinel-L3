@@ -54,7 +54,7 @@ async function fetchRange(fromBlock, endBlock, attempt = 0) {
       ]);
       return [...left, ...right];
     }
-    throw new Error(`eth_getLogs failed for ${fromBlock}-${endBlock}: ${message}`);
+    throw new Error(`eth_getLogs failed for ${fromBlock}-${endBlock}: ${message}`, { cause: error });
   }
 }
 
