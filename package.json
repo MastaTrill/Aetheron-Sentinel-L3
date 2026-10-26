@@ -128,7 +128,7 @@
     "mocha": "^12.0.3",
     "postcss": "8.5.30",
     "prettier": "^3.9.10",
-    "solc": "0.8.37",
+    "solc": "0.8.36",
     "tailwindcss": "^4.3.3",
     "ts-node": "^10.0.0",
     "typescript": "^6.0.3"
@@ -169,7 +169,7 @@
     "@next/eslint-plugin-next": {
       "fast-glob": "npm:tinyglobby@^0.2.17"
     },
-    "zod": "4.6.7"
+    "zod": "^4.6.6"
   },
   "type": "module"
 }
