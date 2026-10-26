@@ -121,7 +121,7 @@
     "eslint": "^9.39.0",
     "eslint-config-next": "^16.4.3",
     "eslint-import-resolver-typescript": "^4.4.5",
-    "eslint-plugin-security": "^2.1.1",
+    "eslint-plugin-security": "^4.2.0",
     "ethers": "6.17.0",
     "globals": "^17.13.0",
     "hardhat": "3.21.0",
