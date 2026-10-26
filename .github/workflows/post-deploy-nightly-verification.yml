@@ -36,17 +36,20 @@ jobs:
       - name: Run ownership sweep
         env:
           SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
+        shell: bash -eo pipefail {0}
         run: |
           mkdir -p logs/verification/ci
           node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep.log
       - name: Run allowlist audit
         env:
           SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
+        shell: bash -eo pipefail {0}
         run: node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
       - name: Verify bridge relayers
         env:
           SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
           RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
+        shell: bash -eo pipefail {0}
         run: node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
       - name: Upload Sepolia verification logs
         if: always()
@@ -60,6 +63,11 @@ jobs:
     name: Verify mainnet controls
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Read by section7-final-sweep.cjs, audit-allowlists.cjs and verify-bridge-relayers.cjs
+      # (HARDHAT_NETWORK || NETWORK); without it they default to sepolia.
+      NETWORK: mainnet
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -68,21 +76,37 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+      - name: Require MAINNET_RPC_URL secret on chain id 1
+        shell: bash -eo pipefail {0}
+        run: |
+          if [ -z "${MAINNET_RPC_URL}" ]; then
+            echo "::error::MAINNET_RPC_URL secret is empty or not set; refusing to fall back to a public or Sepolia RPC."
+            exit 1
+          fi
+          chain_hex=$(curl -fsS --max-time 20 -H 'Content-Type: application/json' \
+            --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
+            "${MAINNET_RPC_URL}" | jq -r '.result // empty') || {
+            echo "::error::MAINNET_RPC_URL did not answer eth_chainId."
+            exit 1
+          }
+          if [ "$((chain_hex))" != "1" ]; then
+            echo "::error::MAINNET_RPC_URL reports chain id '${chain_hex}', expected 1 (Ethereum mainnet)."
+            exit 1
+          fi
+          echo "MAINNET_RPC_URL is Ethereum mainnet (chain id 1)."
       - run: npm ci --legacy-peer-deps
       - name: Run ownership sweep
-        env:
-          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        shell: bash -eo pipefail {0}
         run: |
           mkdir -p logs/verification/ci
           node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep-mainnet.log
       - name: Run allowlist audit
-        env:
-          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        shell: bash -eo pipefail {0}
         run: node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists-mainnet.log
       - name: Verify bridge relayers
         env:
-          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
           RELAYER_ADDRESSES: '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa'
+        shell: bash -eo pipefail {0}
         run: node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers-mainnet.log
       - name: Upload mainnet verification logs
         if: always()
