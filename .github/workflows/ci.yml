@@ -97,6 +97,26 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-api.txt
 
+      - name: Validate OAuth dependency compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install \
+            "$(grep -E '^oauthlib==' requirements.txt)" \
+            "$(grep -E '^requests-oauthlib==' requirements.txt)" \
+            "$(grep -E '^google-auth-oauthlib==' requirements.txt)"
+          python -m pip check
+          python - <<'PY'
+          import oauthlib
+          from google_auth_oauthlib.flow import Flow
+          from requests_oauthlib import OAuth2Session
+
+          assert oauthlib.__version__ == "4.0.0"
+          assert OAuth2Session is not None
+          assert Flow is not None
+          PY
+
       - name: Install production and test dependencies
         run: |
           python -m pip install --upgrade pip
