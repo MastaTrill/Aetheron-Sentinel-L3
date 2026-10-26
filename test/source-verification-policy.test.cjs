@@ -15,8 +15,8 @@ test('Hardhat deploy compiler declaration matches the locked local solc package'
   const pkg = JSON.parse(read('package.json'));
   const config = read('hardhat.config.js');
 
-  assert.equal(pkg.devDependencies.solc, '0.8.36');
-  assert.match(config, /version:\s*'0\.8\.36'/);
+  assert.equal(pkg.devDependencies.solc, '0.8.37');
+  assert.match(config, /version:\s*'0\.8\.37'/);
   assert.match(config, /path:\s*LOCAL_SOLC_PATH/);
 });
 
