@@ -40,7 +40,7 @@ ckzg==2.1.8
 click==8.3.1
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
-click-repl==0.3.0
+click-repl==0.4.1
 cloudpickle==3.1.2
 colorama==0.4.6
 colorlog==6.12.0
