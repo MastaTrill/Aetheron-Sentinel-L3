@@ -320,7 +320,7 @@ traitlets==5.14.3
 transformers==5.10.1
 twilio==9.10.4
 typer==0.24.1
-types-requests==2.33.0.20260327
+types-requests==2.33.0.20261006
 typing-inspection==0.4.2
 typing_extensions==4.16.0
 tzdata==2026.5
