@@ -337,7 +337,7 @@ wcmatch==11.2
 wcwidth==0.6.0
 web3==7.15.0
 webcolors==25.10.0
-webencodings==0.5.1
+webencodings==0.6.1
 websocket-client==1.9.0
 websockets==15.0.1
 Werkzeug==3.1.9
