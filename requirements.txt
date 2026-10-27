@@ -317,7 +317,7 @@ torchvision==0.28.0+cpu
 tornado==6.5.9
 tqdm==4.67.3
 traitlets==5.14.3
-transformers==5.10.1
+transformers==5.20.2
 twilio==9.10.4
 typer==0.24.1
 types-requests==2.33.0.20260327
