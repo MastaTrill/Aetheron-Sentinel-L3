@@ -152,7 +152,7 @@ license-expression==30.4.4
 lightgbm==4.6.0
 limits==5.8.0
 Mako==1.4.2
-Markdown==3.10.2
+Markdown==3.11.2
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 marshmallow==4.2.3
