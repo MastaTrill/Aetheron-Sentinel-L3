@@ -1,7 +1,7 @@
 # Minimal production/runtime dependency set for the Sentinel FastAPI gateway.
 # Keep workstation, research, ML, and contract-analysis packages in requirements.txt.
 fastapi==0.136.0
-uvicorn==0.41.0
+uvicorn==0.54.0
 structlog==25.5.0
 python-dotenv==1.2.2
 slowapi==0.1.10
