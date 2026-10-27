@@ -88,7 +88,7 @@
     "@apollo/client": "^4.3.5",
     "@capacitor/android": "^8.5.3",
     "@capacitor/cli": "^8.5.3",
-    "@capacitor/core": "^8.4.2",
+    "@capacitor/core": "^8.5.3",
     "@capacitor/ios": "^8.5.3",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
