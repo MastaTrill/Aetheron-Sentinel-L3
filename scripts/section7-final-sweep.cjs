@@ -22,15 +22,21 @@ const RPC_MAP = {
   mainnet: process.env.MAINNET_RPC_URL,
   sepolia: process.env.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
   hoodi: process.env.HOODI_RPC_URL,
+  // site/contracts.js is exported from the Base Sepolia guardrails deployment
+  // (deployments/baseSepolia-sentinel-guardrails-v1.json).
+  basesepolia: process.env.BASE_SEPOLIA_RPC_URL || 'https://base-sepolia.gateway.tenderly.co',
 };
 const FALLBACK_RPC =
   network === 'mainnet'
     ? 'https://ethereum-rpc.publicnode.com'
-    : 'https://ethereum-sepolia-rpc.publicnode.com';
+    : network === 'basesepolia'
+      ? 'https://base-sepolia.gateway.tenderly.co'
+      : 'https://ethereum-sepolia-rpc.publicnode.com';
 const RPC =
-  [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(
-    isUsableRpcUrl
-  ) || FALLBACK_RPC;
+  (network === 'basesepolia'
+    ? [RPC_MAP[network], FALLBACK_RPC]
+    : [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC]
+  ).find(isUsableRpcUrl) || FALLBACK_RPC;
 const EXPECTED_OWNER = '0xA1B9CF0F48F815cE80ed2aB203fa7c0C8299A0fB';
 const EXPECTED_OWNER_LC = EXPECTED_OWNER.toLowerCase();
 const TREASURY_ADDRESS = '0x15b9F8ecedafD69Eb1dD93E51fE522690Bf6B7C2';
@@ -106,7 +112,8 @@ function short(addr) {
 
   let allPass = true;
 
-  const networkLabel = network === 'mainnet' ? 'Mainnet' : 'Sepolia';
+  const networkLabel =
+    network === 'mainnet' ? 'Mainnet' : network === 'basesepolia' ? 'Base Sepolia' : 'Sepolia';
   console.log(`SECTION 7 FINAL SWEEP (${networkLabel})`);
   console.log(`RPC: ${RPC}`);
   console.log(`Expected owner: ${EXPECTED_OWNER}`);
@@ -114,13 +121,16 @@ function short(addr) {
 
   // 1) Ownable alignment
   console.log('1) Ownable owner() alignment');
+  let checkedOwnable = 0;
   for (const key of OWNABLE_KEYS) {
     const addr = c[key]?.address;
     if (!addr) {
-      allPass = false;
-      console.log(`  FAIL ${key}: missing address in contracts.js`);
+      // The current deployment map may only contain a subset (e.g. the Base Sepolia
+      // guardrails release). Contracts that are not deployed are reported, not failed.
+      console.log(`  N/A ${key}: not present in current deployment map (site/contracts.js)`);
       continue;
     }
+    checkedOwnable += 1;
     console.log(`  Checking ${key} at ${addr} ...`);
     let owner = null;
     let error = null;
@@ -143,26 +153,37 @@ function short(addr) {
       console.log(`  ${status} ${key}: owner=${owner}${label}`);
     }
   }
+  if (checkedOwnable === 0) {
+    allPass = false;
+    console.log('  FAIL no Ownable contracts found in site/contracts.js');
+  }
   console.log('');
 
   // 2) Timelock roles for multisig vs owner
   console.log('2) Timelock governance role state');
-  const timelock = new ethers.Contract(c.SentinelTimelock.address, tlIface, provider);
-  const proposer = await timelock.PROPOSER_ROLE();
-  const admin = await timelock.TIMELOCK_ADMIN_ROLE();
-  const multisig = c.SentinelMultiSigVault.address;
+  const multisig = c.SentinelMultiSigVault?.address;
+  let ownerAdmin = null;
+  if (!c.SentinelTimelock?.address || !multisig) {
+    console.log(
+      '  N/A SentinelTimelock/SentinelMultiSigVault not present in current deployment map (site/contracts.js)'
+    );
+  } else {
+    const timelock = new ethers.Contract(c.SentinelTimelock.address, tlIface, provider);
+    const proposer = await timelock.PROPOSER_ROLE();
+    const admin = await timelock.TIMELOCK_ADMIN_ROLE();
 
-  const multiProp = await timelock.hasRole(proposer, multisig);
-  const multiAdmin = await timelock.hasRole(admin, multisig);
-  const ownerProp = await timelock.hasRole(proposer, EXPECTED_OWNER);
-  const ownerAdmin = await timelock.hasRole(admin, EXPECTED_OWNER);
+    const multiProp = await timelock.hasRole(proposer, multisig);
+    const multiAdmin = await timelock.hasRole(admin, multisig);
+    const ownerProp = await timelock.hasRole(proposer, EXPECTED_OWNER);
+    ownerAdmin = await timelock.hasRole(admin, EXPECTED_OWNER);
 
-  const timelockPass = multiProp && multiAdmin && !ownerAdmin;
-  if (!timelockPass) allPass = false;
+    const timelockPass = multiProp && multiAdmin && !ownerAdmin;
+    if (!timelockPass) allPass = false;
 
-  console.log(
-    `  ${timelockPass ? 'PASS' : 'FAIL'} multisig proposer=${multiProp}, multisig admin=${multiAdmin}, owner admin=${ownerAdmin}, owner proposer=${ownerProp}`
-  );
+    console.log(
+      `  ${timelockPass ? 'PASS' : 'FAIL'} multisig proposer=${multiProp}, multisig admin=${multiAdmin}, owner admin=${ownerAdmin}, owner proposer=${ownerProp}`
+    );
+  }
   console.log('');
 
   // 3) Liquidity mining roles
@@ -171,6 +192,9 @@ function short(addr) {
     console.log(
       '  N/A SentinelLiquidityMining not present in current deployment map (site/contracts.js)'
     );
+  } else if (!multisig) {
+    allPass = false;
+    console.log('  FAIL SentinelLiquidityMining present but SentinelMultiSigVault missing');
   } else {
     const lm = new ethers.Contract(c.SentinelLiquidityMining.address, lmIface, provider);
     const lmAdminRole = await lm.DEFAULT_ADMIN_ROLE();
@@ -192,15 +216,20 @@ function short(addr) {
 
   // 4) Allowlist summary (from prior audited state)
   console.log('4) Allowlists summary (live state)');
-  const bridge = new ethers.Contract(c.AetheronBridge.address, bridgeIface, provider);
-  const relayerRole = await bridge.RELAYER_ROLE();
-  const ownerIsRelayer = await bridge.hasRole(relayerRole, EXPECTED_OWNER);
-  console.log(
-    `  INFO AetheronBridge RELAYER_ROLE members: ${ownerIsRelayer ? `${short(EXPECTED_OWNER)} (ownerEOA)` : 'none'}`
-  );
-  console.log(
-    `  INFO RateLimiter CALLER_ROLE members: ${short(c.AetheronBridge.address)} (AetheronBridge)`
-  );
+  let ownerIsRelayer = 'n/a';
+  if (c.AetheronBridge?.address) {
+    const bridge = new ethers.Contract(c.AetheronBridge.address, bridgeIface, provider);
+    const relayerRole = await bridge.RELAYER_ROLE();
+    ownerIsRelayer = await bridge.hasRole(relayerRole, EXPECTED_OWNER);
+    console.log(
+      `  INFO AetheronBridge RELAYER_ROLE members: ${ownerIsRelayer ? `${short(EXPECTED_OWNER)} (ownerEOA)` : 'none'}`
+    );
+    console.log(
+      `  INFO RateLimiter CALLER_ROLE members: ${short(c.AetheronBridge.address)} (AetheronBridge)`
+    );
+  } else {
+    console.log('  N/A AetheronBridge not present in current deployment map (site/contracts.js)');
+  }
   console.log(`  INFO CircuitBreaker MONITOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`);
   console.log(
     `  INFO SentinelInterceptor OPERATOR_ROLE members: ${short(EXPECTED_OWNER)} (ownerEOA)`
@@ -212,7 +241,9 @@ function short(addr) {
 
   // 5) Temporary deployer privilege check
   console.log('5) Temporary deployer privilege check');
-  if (!ownerAdmin) {
+  if (ownerAdmin === null) {
+    console.log('  N/A SentinelTimelock not present in current deployment map');
+  } else if (!ownerAdmin) {
     console.log('  PASS ownerEOA has no TIMELOCK_ADMIN_ROLE');
   } else {
     allPass = false;
