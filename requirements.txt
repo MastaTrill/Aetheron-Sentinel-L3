@@ -230,7 +230,7 @@ py-serializable==2.1.0
 pyarrow==23.0.1
 pyasn1==0.6.4
 pyasn1_modules==0.4.2
-pycparser==3.0
+pycparser==3.12
 pycryptodome==3.23.0
 pydantic==2.13.2
 pydantic_core==2.46.2
