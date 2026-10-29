@@ -22,6 +22,11 @@ jobs:
     name: Verify Sepolia controls
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # site/contracts.js is exported from deployments/baseSepolia-sentinel-guardrails-v1.json,
+      # so verify against Base Sepolia (chain 84532), not Ethereum Sepolia.
+      NETWORK: baseSepolia
+      BASE_SEPOLIA_RPC_URL: 'https://base-sepolia.gateway.tenderly.co'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -34,20 +39,14 @@ jobs:
       - name: Verify deployment doc links
         run: node scripts/check-markdown-links.cjs
       - name: Run ownership sweep
-        env:
-          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         shell: bash -eo pipefail {0}
         run: |
           mkdir -p logs/verification/ci
           node scripts/section7-final-sweep.cjs | tee logs/verification/ci/section7-final-sweep.log
       - name: Run allowlist audit
-        env:
-          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
         shell: bash -eo pipefail {0}
         run: node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
       - name: Verify bridge relayers
-        env:
-          SEPOLIA_RPC_URL: 'https://ethereum-sepolia-rpc.publicnode.com'
           RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
         shell: bash -eo pipefail {0}
         run: node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log

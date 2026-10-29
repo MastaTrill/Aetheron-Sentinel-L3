@@ -27,15 +27,19 @@ const RPC_MAP = {
   mainnet: process.env.MAINNET_RPC_URL,
   sepolia: process.env.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com',
   hoodi: process.env.HOODI_RPC_URL,
+  basesepolia: process.env.BASE_SEPOLIA_RPC_URL || 'https://base-sepolia.gateway.tenderly.co',
 };
 const FALLBACK_RPC =
   network === 'mainnet'
     ? 'https://ethereum-rpc.publicnode.com'
-    : 'https://ethereum-sepolia-rpc.publicnode.com';
+    : network === 'basesepolia'
+      ? 'https://base-sepolia.gateway.tenderly.co'
+      : 'https://ethereum-sepolia-rpc.publicnode.com';
 const RPC =
-  [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC].find(
-    isUsableRpcUrl
-  ) || FALLBACK_RPC;
+  (network === 'basesepolia'
+    ? [RPC_MAP[network], FALLBACK_RPC]
+    : [RPC_MAP[network], process.env.MAINNET_RPC_URL, process.env.SEPOLIA_RPC_URL, FALLBACK_RPC]
+  ).find(isUsableRpcUrl) || FALLBACK_RPC;
 
 function parseAddressList(value) {
   if (!value) return [];
@@ -150,28 +154,39 @@ function label(addr) {
   const TO_BLOCK = await provider.getBlockNumber();
   console.log(`Audit at block ${TO_BLOCK}\n`);
 
-  const targets = [
+  // Deployment blocks from the committed deployment record (Base Sepolia guardrails release).
+  const deploymentBlocks = {};
+  if (network === 'basesepolia') {
+    const record = JSON.parse(
+      fs.readFileSync('deployments/baseSepolia-sentinel-guardrails-v1.json', 'utf8')
+    );
+    for (const [name, entry] of Object.entries(record.contracts || {})) {
+      if (entry && entry.deploymentBlock) deploymentBlocks[name] = entry.deploymentBlock;
+    }
+  }
+
+  const allTargets = [
     {
       name: 'AetheronBridge',
-      address: c.AetheronBridge.address,
+      address: c.AetheronBridge?.address,
       fromBlock: 10707539,
       roles: [{ name: 'RELAYER_ROLE', hash: ROLES.RELAYER_ROLE }],
     },
     {
       name: 'RateLimiter',
-      address: c.RateLimiter.address,
+      address: c.RateLimiter?.address,
       fromBlock: 10707542,
       roles: [{ name: 'CALLER_ROLE', hash: ROLES.CALLER_ROLE }],
     },
     {
       name: 'CircuitBreaker',
-      address: c.CircuitBreaker.address,
+      address: c.CircuitBreaker?.address,
       fromBlock: 10707541,
       roles: [{ name: 'MONITOR_ROLE', hash: ROLES.MONITOR_ROLE }],
     },
     {
       name: 'SentinelInterceptor',
-      address: c.SentinelInterceptor.address,
+      address: c.SentinelInterceptor?.address,
       fromBlock: 10707540,
       roles: [
         { name: 'OPERATOR_ROLE', hash: ROLES.OPERATOR_ROLE },
@@ -179,6 +194,20 @@ function label(addr) {
       ],
     },
   ];
+
+  const targets = [];
+  for (const t of allTargets) {
+    if (!t.address) {
+      console.log(`N/A ${t.name}: not present in current deployment map (site/contracts.js)\n`);
+      continue;
+    }
+    if (deploymentBlocks[t.name]) t.fromBlock = deploymentBlocks[t.name];
+    targets.push(t);
+  }
+  if (targets.length === 0) {
+    console.log('RESULT: FAIL - no audit targets found in site/contracts.js.');
+    process.exit(1);
+  }
 
   let allClear = true;
 

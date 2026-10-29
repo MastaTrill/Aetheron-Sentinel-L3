@@ -2,10 +2,18 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const vm = require('vm');
 
+const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
+
 function resolveRpcUrl() {
-  const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
   const mainnetFallback = 'https://ethereum-rpc.publicnode.com';
   const sepoliaFallback = 'https://ethereum-sepolia-rpc.publicnode.com';
+
+  if (network === 'basesepolia') {
+    const raw = (process.env.BASE_SEPOLIA_RPC_URL || '').trim();
+    return raw && !raw.includes('YOUR_') && !raw.includes('your_')
+      ? raw
+      : 'https://base-sepolia.gateway.tenderly.co';
+  }
 
   if (network === 'mainnet') {
     const raw = (process.env.MAINNET_RPC_URL || '').trim();
@@ -53,6 +61,11 @@ function parseAddressList(value) {
   const bridgeAddr = contracts.AetheronBridge?.address;
 
   if (!bridgeAddr) {
+    if (network === 'basesepolia') {
+      // The Base Sepolia guardrails release does not deploy AetheronBridge.
+      console.log('N/A AetheronBridge not present in current deployment map (site/contracts.js)');
+      return;
+    }
     console.error('Missing AetheronBridge address in site/contracts.js');
     process.exit(1);
   }
