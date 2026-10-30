@@ -265,7 +265,7 @@ requests-oauthlib==2.0.0
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 rfc3987-syntax==1.1.0
-rich==14.3.3
+rich==15.0.0
 rlp==4.1.0
 rpds-py==0.30.0
 ruamel.yaml==0.19.1
