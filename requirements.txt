@@ -250,7 +250,7 @@ python-dotenv==1.2.2
 python-json-logger==4.0.0
 python-multipart==0.0.31
 pytz==2026.1.post1
-pyunormalize==17.0.0
+pyunormalize==18.0.0
 pywin32==311
 pywinpty==3.0.3
 PyYAML==6.0.3
