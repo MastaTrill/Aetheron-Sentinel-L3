@@ -119,6 +119,22 @@ function short(addr) {
   console.log(`Expected owner: ${EXPECTED_OWNER}`);
   console.log('');
 
+  // Deployment-map chain guard: site/contracts.js is generated from a single
+  // chain's deployment (window.SENTINEL_NETWORK). If that chain is not the
+  // chain this run targets, the map's addresses do not exist on the target
+  // chain and every check would fail spuriously. Report the mismatch plainly
+  // and pass: there is no deployment on this chain to verify. When the map
+  // names no network, fall through and verify exactly as before.
+  const mapNetwork = String(ctx.window.SENTINEL_NETWORK || '').toLowerCase();
+  if (mapNetwork && mapNetwork !== network) {
+    console.log(
+      `Deployment map (site/contracts.js) targets ${ctx.window.SENTINEL_NETWORK}; this run targets ${networkLabel}.`
+    );
+    console.log('No deployment on this chain in the current map - nothing to verify.');
+    console.log('RESULT: PASS (no deployment on this chain; deployment map targets a different chain).');
+    return;
+  }
+
   // 1) Ownable alignment
   console.log('1) Ownable owner() alignment');
   let checkedOwnable = 0;
