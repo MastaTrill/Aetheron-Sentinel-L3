@@ -63,7 +63,7 @@ dilithium-py==1.4.0
 distro==1.9.0
 docker==7.1.0
 dparse==0.6.4
-eth-account==0.13.7
+eth-account==0.14.0
 eth-hash==0.8.0
 eth-keyfile==0.8.1
 eth-keys==0.7.0
