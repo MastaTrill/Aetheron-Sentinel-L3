@@ -47,7 +47,8 @@ jobs:
         shell: bash -eo pipefail {0}
         run: node scripts/audit-allowlists.cjs | tee logs/verification/ci/audit-allowlists.log
       - name: Verify bridge relayers
-          RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
+        env:
+        RELAYER_ADDRESSES: '0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa'
         shell: bash -eo pipefail {0}
         run: node scripts/verify-bridge-relayers.cjs | tee logs/verification/ci/verify-bridge-relayers.log
       - name: Upload Sepolia verification logs
