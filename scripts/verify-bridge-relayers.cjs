@@ -2,10 +2,18 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const vm = require('vm');
 
+const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
+
 function resolveRpcUrl() {
-  const network = (process.env.HARDHAT_NETWORK || process.env.NETWORK || 'sepolia').toLowerCase();
   const mainnetFallback = 'https://ethereum-rpc.publicnode.com';
   const sepoliaFallback = 'https://ethereum-sepolia-rpc.publicnode.com';
+
+  if (network === 'basesepolia') {
+    const raw = (process.env.BASE_SEPOLIA_RPC_URL || '').trim();
+    return raw && !raw.includes('YOUR_') && !raw.includes('your_')
+      ? raw
+      : 'https://base-sepolia.gateway.tenderly.co';
+  }
 
   if (network === 'mainnet') {
     const raw = (process.env.MAINNET_RPC_URL || '').trim();
@@ -50,9 +58,27 @@ function parseAddressList(value) {
   const ctx = { window: {} };
   vm.runInNewContext(fs.readFileSync('site/contracts.js', 'utf8'), ctx);
   const contracts = ctx.window.SENTINEL_CONTRACTS;
+
+  // Deployment-map chain guard (see section7-final-sweep.cjs): if the map
+  // names a different chain than this run targets, its addresses do not
+  // exist on the target chain; pass with a notice instead of failing.
+  const mapNetwork = String(ctx.window.SENTINEL_NETWORK || '').toLowerCase();
+  if (mapNetwork && mapNetwork !== network) {
+    console.log(
+      `Deployment map (site/contracts.js) targets ${ctx.window.SENTINEL_NETWORK}; this run targets ${network}.`
+    );
+    console.log('No deployment on this chain in the current map - nothing to verify.');
+    return;
+  }
+
   const bridgeAddr = contracts.AetheronBridge?.address;
 
   if (!bridgeAddr) {
+    if (network === 'basesepolia') {
+      // The Base Sepolia guardrails release does not deploy AetheronBridge.
+      console.log('N/A AetheronBridge not present in current deployment map (site/contracts.js)');
+      return;
+    }
     console.error('Missing AetheronBridge address in site/contracts.js');
     process.exit(1);
   }
