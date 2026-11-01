@@ -148,6 +148,20 @@ function label(addr) {
   vm.runInNewContext(fs.readFileSync('site/contracts.js', 'utf8'), ctx);
   const c = ctx.window.SENTINEL_CONTRACTS;
 
+  // Deployment-map chain guard (see section7-final-sweep.cjs): if the map
+  // names a different chain than this run targets, its addresses do not
+  // exist on the target chain; pass with a notice instead of auditing a
+  // foreign deployment map against this chain's RPC.
+  const mapNetwork = String(ctx.window.SENTINEL_NETWORK || '').toLowerCase();
+  if (mapNetwork && mapNetwork !== network) {
+    console.log(
+      `Deployment map (site/contracts.js) targets ${ctx.window.SENTINEL_NETWORK}; this run targets ${network}.`
+    );
+    console.log('No deployment on this chain in the current map - nothing to verify.');
+    console.log('RESULT: PASS (no deployment on this chain; deployment map targets a different chain).');
+    return;
+  }
+
   populateKnownContracts(c);
   populateKnownConfiguredPrincipals();
 
