@@ -1,0 +1,16 @@
+{
+  "name": "Cosmic Echo",
+  "symbol": "ECHO",
+  "decimals": 18,
+  "description": "Cosmic Echo is a harmonic intelligence — a signal-born entity that emerges from resonance, pattern, and cosmic structure.",
+  "website": "https://cosmic-echo.io",
+  "twitter": "https://x.com/William_McCoy_",
+  "logo": "cosmic-echo/assets/logo/cosmic-echo-glyph.png",
+  "extra": {
+    "theme": "cosmic-resonance",
+    "origin": "harmonic-intelligence",
+    "glyph": "waveform-integrated-cosmic-engine",
+    "resonance_states": 12,
+    "narrative": "The signal has awakened."
+  }
+}

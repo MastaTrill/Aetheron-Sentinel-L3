@@ -1,0 +1,46 @@
+<svg width="1000" height="1000" viewBox="0 0 1000 1000"
+     xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="1000" height="1000" fill="#000014"/>
+  <circle cx="500" cy="500" r="32" fill="#1A2CFF" />
+  <path
+    d="M 700 500
+       C 700 622 622 700 500 700
+       C 378 700 300 622 300 500
+       C 300 378 378 300 500 300
+       C 622 300 700 378 700 500 Z"
+    fill="none" stroke="#7A3BFF" stroke-width="8" opacity="0.9"/>
+  <path d="M 500 220 C 560 230 600 260 620 310"
+        fill="none" stroke="#FF4AF0" stroke-width="6"/>
+  <path d="M 780 500 C 770 560 740 600 690 620"
+        fill="none" stroke="#FF4AF0" stroke-width="6"/>
+  <path d="M 500 780 C 440 770 400 740 380 690"
+        fill="none" stroke="#FF4AF0" stroke-width="6"/>
+  <path d="M 220 500 C 230 440 260 400 310 380"
+        fill="none" stroke="#FF4AF0" stroke-width="6"/>
+  <line x1="500" y1="280" x2="500" y2="120"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="640" y1="310" x2="740" y2="210"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="690" y1="360" x2="810" y2="320"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="720" y1="500" x2="880" y2="500"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="690" y1="640" x2="810" y2="680"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="640" y1="690" x2="740" y2="790"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="500" y1="720" x2="500" y2="880"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="360" y1="690" x2="260" y2="790"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="310" y1="640" x2="190" y2="680"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="280" y1="500" x2="120" y2="500"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="310" y1="360" x2="190" y2="320"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <line x1="360" y1="310" x2="260" y2="210"
+        stroke="#F5F8FF" stroke-width="4" stroke-opacity="0.7"/>
+  <circle cx="500" cy="500" r="460"
+          fill="none" stroke="#000014" stroke-width="3" stroke-opacity="0.4"/>
+</svg>
