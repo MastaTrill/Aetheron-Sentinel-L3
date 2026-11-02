@@ -273,8 +273,6 @@ rpds-py==0.30.0
 ruamel.yaml==0.19.1
 s3transfer==0.16.0
 safetensors==0.8.0
-safety==3.7.0
-safety-schemas==0.0.16
 scikit-learn==1.9.1
 scipy==1.17.1
 seaborn==0.13.2
