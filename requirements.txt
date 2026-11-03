@@ -31,7 +31,7 @@ bleach==6.4.0
 blinker==1.9.0
 boolean.py==5.0
 boto3==1.42.91
-botocore==1.42.91
+botocore==1.43.123
 bracex==3.2
 CacheControl==0.14.4
 cachetools==6.2.6
