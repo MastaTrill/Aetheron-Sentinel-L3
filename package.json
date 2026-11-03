@@ -86,7 +86,7 @@
   },
   "dependencies": {
     "@apollo/client": "^4.3.5",
-    "@capacitor/android": "^8.5.3",
+    "@capacitor/android": "^8.6.0",
     "@capacitor/cli": "^8.6.0",
     "@capacitor/core": "^8.5.3",
     "@capacitor/ios": "^8.6.0",
