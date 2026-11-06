@@ -56,7 +56,7 @@ const config = {
     settings: {
       optimizer: { enabled: true, runs: 1000 },
       metadata: { bytecodeHash: 'none' },
-      evmVersion: 'cancun',
+      evmVersion: 'osaka',
     },
   },
   mocha: {
