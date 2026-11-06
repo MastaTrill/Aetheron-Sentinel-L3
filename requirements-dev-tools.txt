@@ -1,5 +1,5 @@
 # Dev/audit tools kept out of requirements.txt (safety requires filelock<4, which conflicts with filelock==4.2.6 there).
 # Install in its own venv: python3.12 -m venv .venv-tools && .venv-tools/bin/pip install -r requirements-dev-tools.txt
 safety==3.7.0
-safety-schemas==0.0.16
+safety-schemas==0.0.21
 filelock>=3.16.1,<4.0
