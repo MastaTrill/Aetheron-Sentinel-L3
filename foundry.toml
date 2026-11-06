@@ -9,8 +9,8 @@
 #           Foundry expects an integer literal -- removed quotes so it is parsed
 #           as a TOML integer (decimal). Changed to decimal 3735928559 which
 #           equals 0xdeadbeef.
-#   CI-30   Pin solc 0.8.30 so sources/tests requiring ^0.8.28 compile under
-#           the same deterministic toolchain.
+#   CI-30   Pin solc 0.8.37 so sources/tests requiring ^0.8.31 compile under
+#           the same deterministic toolchain (aligned with Hardhat solc).
 #   CI-31   Add explicit package-style remappings for Uniswap imports.
 # =============================================================================
 
@@ -22,11 +22,11 @@ test            = "test"
 script          = "script"
 cache_path      = "cache"
 broadcast       = "broadcast"
-solc            = "0.8.30"
+solc            = "0.8.37"
 optimizer       = true
 optimizer_runs  = 999999
 via_ir          = false
-evm_version     = "cancun"
+evm_version     = "osaka"
 ffi             = false
 remappings      = [
   "forge-std/=lib/forge-std/src/",
@@ -51,7 +51,7 @@ cbor_metadata   = true
 [profile.mainnet]
 optimizer_runs  = 999999
 via_ir          = true
-evm_version     = "cancun"
+evm_version     = "osaka"
 
 [profile.test]
 # BUG-29 FIX: seed must be a TOML integer literal, not a quoted string.
