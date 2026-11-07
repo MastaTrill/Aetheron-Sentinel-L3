@@ -26,3 +26,9 @@
 ## Exact-head automated certification (2026-11-07 UTC)
 - Commit `b9423822c25424482f688bb4ef4ceb9bfa9dc78d`: GitHub CI run `42333932250` completed successfully; Security run `42333932120` completed successfully.
 - These workflow verdicts certify the tested repository head only, **not** deployment authority, an updated manifest, a fresh testnet rehearsal, or live beneficiary state.
+
+## New manifest and rehearsal preflight
+- Manifest revision prepared at commit `06cd7f29f1291c370bc9ef3c4bcd3473b7b74dcf`: owner designation metadata and owner-only review policy; signing and broadcast remain disabled.
+- **Architecture check unresolved:** historical Base Sepolia token `owner` is Airlock (`0x3411306Ce66c9469BFF1535BA955503c4Bde1C6e`), not the signer. Owner wallet's authority must be demonstrated through actual governance/roles before declaring administrative control.
+- **Fresh rehearsal status:** not executed. Previous confirmed testnet receipt applies only to its pinned historical manifest; do not rewrite it or claim a new transaction.
+- **Safe next preflight:** validate exact revised manifest digest and run a new unsigned simulation with the current deployment scripts; preserve reproducible calldata, gas estimate and beneficiary outputs. Testnet broadcast requires explicit separate approval and gas source.
