@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Wallet, keccak256 } from 'ethers';
+import { Wallet, keccak256, Interface } from 'ethers';
 import { verifyIndependentQuote, verifyPretradeAnchor } from '../scripts/lib/independent-quote-verifier.mjs';
 const types = { PretradeQuote: [
   { name: 'poolId', type: 'bytes32' }, { name: 'token', type: 'address' },
@@ -42,7 +42,7 @@ test('reject quote timestamp after execution', async () => {
 
 const digest = keccak256('0xbeef');
 const anchorHash = keccak256('0xaaaa');
-const anchorTransaction = { from: signer.address, to: other.address, data: '0x' + digest.slice(2), blockNumber: 100, hash: anchorHash };
+const anchorTransaction = { from: signer.address, to: other.address, data: new Interface(['function commit(bytes32 digest)']).encodeFunctionData('commit',[digest]), blockNumber: 100, hash: anchorHash };
 const anchorReceipt = { status: 1, blockNumber: 100, transactionHash: anchorHash };
 const anchorArgs = { quoteDigest: digest, anchorTransaction, anchorReceipt, swapBlockNumber: 101, trustedAnchor: signer.address, anchorContract: other.address };
 test('accept confirmed independent quote digest anchor mined before swap', () => assert.equal(verifyPretradeAnchor(anchorArgs),true));
@@ -53,3 +53,6 @@ test('reject untrusted anchor destination', () => assert.throws(() => verifyPret
 test('reject missing digest commitment', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,quoteDigest:keccak256('0xdead')}), /digest/));
 test('reject missing receipt', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorReceipt:null}), /Confirmed/));
 test('reject mismatched receipt hash', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorReceipt:{...anchorReceipt,transactionHash:keccak256('0x1234')}}), /mismatch/));
+
+test('reject arbitrary calldata containing the quote digest', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorTransaction:{...anchorTransaction,data:'0x' + digest.slice(2)}}), /Invalid anchor|not committed/));
+test('reject another function with embedded quote digest', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorTransaction:{...anchorTransaction,data:new Interface(['function fake(bytes32 digest)']).encodeFunctionData('fake',[digest])}}), /not committed/));
