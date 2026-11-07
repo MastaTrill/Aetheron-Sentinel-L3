@@ -1,4 +1,4 @@
-import { getAddress, verifyTypedData, TypedDataEncoder } from 'ethers';
+import { getAddress, verifyTypedData, TypedDataEncoder, Interface } from 'ethers';
 
 const TYPES = { PretradeQuote: [
   { name: 'poolId', type: 'bytes32' },
@@ -39,7 +39,11 @@ export function verifyPretradeAnchor({ quoteDigest, anchorTransaction, anchorRec
   if (!anchorTransaction || !anchorReceipt || anchorReceipt.status !== 1) throw new Error('Confirmed quote anchor missing');
   if (!Number.isSafeInteger(swapBlockNumber) || anchorReceipt.blockNumber >= swapBlockNumber || anchorReceipt.blockNumber < 1) throw new Error('Quote anchor must precede swap block');
   if (getAddress(anchorTransaction.from) !== getAddress(trustedAnchor) || getAddress(anchorTransaction.to) !== getAddress(anchorContract)) throw new Error('Untrusted quote anchor sender or destination');
-  if (!/^0x[0-9a-f]{64}$/i.test(quoteDigest) || !anchorTransaction.data?.toLowerCase().includes(quoteDigest.slice(2).toLowerCase())) throw new Error('Quote digest not committed in anchor transaction');
+  // Require exact ABI call to reviewed commit(bytes32), not arbitrary calldata containing a digest.
+  const anchorInterface = new Interface(['function commit(bytes32 digest)']);
+  let decoded;
+  try { decoded = anchorInterface.parseTransaction({ data: anchorTransaction.data, value: anchorTransaction.value ?? 0n }); } catch { throw new Error('Invalid anchor commitment calldata'); }
+  if (!decoded || decoded.name !== 'commit' || decoded.args.digest.toLowerCase() !== quoteDigest.toLowerCase()) throw new Error('Quote digest not committed in anchor transaction');
   if (anchorTransaction.blockNumber !== anchorReceipt.blockNumber || anchorTransaction.hash?.toLowerCase() !== (anchorReceipt.hash ?? anchorReceipt.transactionHash)?.toLowerCase()) throw new Error('Anchor transaction and receipt mismatch');
   return true;
 }
