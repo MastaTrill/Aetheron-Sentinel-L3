@@ -1,7 +1,7 @@
 // Replacement-only SENTINEL smoke-test policy. Pure functions; no RPC or signing.
 export const LEGACY_TOKEN = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
 // Public Uniswap V4 pool ID (not a credential). Explicitly labeled for the tracked-secret scanner.
-export const LEGACY_POOL = '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d';
+export const LEGACY_POOL_ID = '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d';
 const ADDRESS = /^0x[0-9a-f]{40}$/i;
 const POOL = /^0x[0-9a-f]{64}$/i;
 function positive(value, label, allowZero = false) {
@@ -14,7 +14,7 @@ export function validateReplacementIdentity({ token, poolId, expectedToken, expe
   if (![token, expectedToken].every(x => ADDRESS.test(x ?? ''))) throw new Error('Replacement token address is missing or malformed');
   if (![poolId, expectedPoolId].every(x => POOL.test(x ?? ''))) throw new Error('Replacement pool ID is missing or malformed');
   if ([token, expectedToken].some(x => x.toLowerCase() === LEGACY_TOKEN)) throw new Error('Legacy SENTINEL token is forbidden');
-  if ([poolId, expectedPoolId].some(x => x.toLowerCase() === LEGACY_POOL)) throw new Error('Legacy SENTINEL pool is forbidden');
+  if ([poolId, expectedPoolId].some(x => x.toLowerCase() === LEGACY_POOL_ID)) throw new Error('Legacy SENTINEL pool is forbidden');
   if (token.toLowerCase() !== expectedToken.toLowerCase() || poolId.toLowerCase() !== expectedPoolId.toLowerCase()) throw new Error('Replacement identity mismatch');
 }
 export function validateReplacementBounds(auth, observed) {
