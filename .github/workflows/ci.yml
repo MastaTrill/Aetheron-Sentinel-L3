@@ -192,6 +192,9 @@ jobs:
       - name: Audit JS dependencies
         run: npm audit --audit-level=moderate
 
+      - name: Verify Foundry lockfile against gitlink revisions
+        run: node scripts/verify-sentinel-foundry-lock.mjs
+
       - name: Validate frozen release scope
         run: npm run security:release-scope
 
