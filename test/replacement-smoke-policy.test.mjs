@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateReplacementBounds, validateReplacementIdentity, LEGACY_POOL, LEGACY_TOKEN} from '../scripts/lib/replacement-smoke-policy.mjs';
+const token='0x1111111111111111111111111111111111111111';
+const pool='0x'+'22'.repeat(32);
+const auth={status:'authorized',chainId:8453,token,poolId:pool,approvedRoute:'route-1',maxSlippageBps:'100',maxWethPrincipalWei:'1000',buyAmountWethWei:'1000',sellAmountSentinelWei:'1000',maxTotalGasCostWei:'100'};
+const quote=(actual)=>({verified:true,route:'route-1',token,poolId:pool,expectedOutputWei:'1000',actualOutputWei:String(actual)});
+const observed={token,poolId:pool,buyWethWei:'900',sellSentinelWei:'900',totalGasCostWei:'99',quotes:{buy:quote(995),sell:quote(995)}};
+test('accepts complete bounded replacement evidence',()=>assert.equal(validateReplacementBounds(auth,observed),true));
+test('rejects legacy token',()=>assert.throws(()=>validateReplacementIdentity({token:LEGACY_TOKEN,poolId:pool,expectedToken:LEGACY_TOKEN,expectedPoolId:pool}),/Legacy/));
+test('rejects legacy pool',()=>assert.throws(()=>validateReplacementIdentity({token,poolId:LEGACY_POOL,expectedToken:token,expectedPoolId:LEGACY_POOL}),/Legacy/));
+test('rejects missing replacement IDs',()=>assert.throws(()=>validateReplacementIdentity({token:'',poolId:pool,expectedToken:token,expectedPoolId:pool}),/malformed/));
+test('rejects excess principal',()=>assert.throws(()=>validateReplacementBounds(auth,{...observed,buyWethWei:'1001'}),/principal/));
+test('rejects excess gas',()=>assert.throws(()=>validateReplacementBounds(auth,{...observed,totalGasCostWei:'101'}),/Gas/));
+test('rejects excessive buy slippage',()=>assert.throws(()=>validateReplacementBounds(auth,{...observed,quotes:{...observed.quotes,buy:quote(980)}}),/slippage/));
+test('rejects missing trusted quote',()=>assert.throws(()=>validateReplacementBounds(auth,{...observed,quotes:{buy:quote(995)}}),/quote/));
+test('rejects unapproved status',()=>assert.throws(()=>validateReplacementBounds({...auth,status:'draft'},observed),/authorization/));
