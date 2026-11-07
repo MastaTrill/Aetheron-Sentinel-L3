@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Interface, JsonRpcProvider, getAddress } from 'ethers';
+import { Interface, JsonRpcProvider, getAddress, keccak256 } from 'ethers';
+import { verifyIndependentQuote } from './lib/independent-quote-verifier.mjs';
 import { validateReplacementBounds, validateReplacementIdentity } from './lib/replacement-smoke-policy.mjs';
 
 const RPC_URL = process.env.BASE_RPC_URL ?? 'https://base-rpc.publicnode.com';
@@ -103,6 +104,8 @@ async function verify(hash, expectedDirection) {
     signer: getAddress(tx.from),
     entrypoint: tx.to ? getAddress(tx.to) : null,
     inputSelector: tx.data.slice(0, 10),
+    calldataHash: keccak256(tx.data),
+    blockTimestamp: (await provider.getBlock(receipt.blockNumber)).timestamp,
     gasUsed: receipt.gasUsed.toString(),
     gasPriceWei: gasPrice.toString(),
     gasCostWei: gasCost.toString(),
@@ -129,14 +132,22 @@ try {
   if (actualSellSentinel > BigInt(authorization.sellAmountSentinelWei)) throw new Error('Actual sell SENTINEL exceeds sellAmountSentinelWei');
   if (totalGasCost > BigInt(authorization.maxTotalGasCostWei)) throw new Error('Actual total gas cost exceeds maxTotalGasCostWei');
 
-  // Require externally anchored quote evidence. No quote means no certification.
-  // A supplied JSON boolean is never sufficient proof of an independently verified quote.
-  if (!authorization.independentQuoteEvidence?.buy || !authorization.independentQuoteEvidence?.sell) {
-    throw new Error('Independent pretrade quote evidence missing; cannot certify slippage');
+  const trustedSigner = process.env.SENTINEL_INDEPENDENT_QUOTE_SIGNER;
+  const quotes = {};
+  for (const [leg, receipt, direction, actualOutputWei] of [
+    ['buy', buy, 'buy-sentinel-with-weth', buy.canonicalPoolAmounts.sentinelOutWei],
+    ['sell', sell, 'sell-sentinel-for-weth', sell.canonicalPoolAmounts.wethOutWei],
+  ]) {
+    quotes[leg] = verifyIndependentQuote({
+      quote: authorization.independentQuoteEvidence?.[leg], trustedSigner, authorization,
+      transaction: receipt, blockTimestamp: receipt.blockTimestamp, direction, actualOutputWei,
+    });
   }
-  // Do not trust claimed verified=true from authorization JSON. A separate trusted
-  // verifier must validate signatures, timestamp anchoring, and actual output.
-  throw new Error('Independent quote signature/anchoring verifier not yet implemented: fail closed');
+  validateReplacementBounds(authorization, {
+    token: REPLACEMENT_TOKEN, poolId: POOL_ID, buyWethWei: actualBuyWeth.toString(),
+    sellSentinelWei: actualSellSentinel.toString(), totalGasCostWei: totalGasCost.toString(), quotes,
+  });
+  console.log('Smoke-test receipts and independently signed quote bounds verified; no transaction submitted.');
 
 
 } finally {
