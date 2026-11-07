@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Interface, JsonRpcProvider, getAddress } from 'ethers';
 import { validateReplacementBounds, validateReplacementIdentity } from './lib/replacement-smoke-policy.mjs';
@@ -8,10 +8,8 @@ const RPC_URL = process.env.BASE_RPC_URL ?? 'https://base-rpc.publicnode.com';
 const POOL_MANAGER = getAddress(process.env.SENTINEL_POOL_MANAGER ?? '0x498581fF718922c3f8e6A244956aF099B2652b2b');
 const POOL_ID = (process.env.SENTINEL_REPLACEMENT_POOL_ID ?? '').toLowerCase();
 const REPLACEMENT_TOKEN = process.env.SENTINEL_REPLACEMENT_TOKEN ?? '';
-const OUTPUT_DIR = process.env.SENTINEL_SMOKE_OUTPUT_DIR ?? 'release-evidence/sentinel-mainnet/redeployment';
-const RECEIPTS_PATH = path.join(OUTPUT_DIR, 'smoke-test-receipts.json');
 const AUTHORIZATION_PATH = process.env.SENTINEL_SMOKE_AUTHORIZATION
-  ?? path.join(OUTPUT_DIR, 'authorization.json');
+  ?? path.join('release-evidence/sentinel-mainnet/redeployment', 'authorization.json');
 const TX_HASH_PATTERN = /^0x[0-9a-f]{64}$/i;
 
 const authorization = JSON.parse(await readFile(AUTHORIZATION_PATH, 'utf8'));
@@ -140,35 +138,7 @@ try {
   // verifier must validate signatures, timestamp anchoring, and actual output.
   throw new Error('Independent quote signature/anchoring verifier not yet implemented: fail closed');
 
-  const result = {
-    schemaVersion: 1,
-    verifiedAtUtc: new Date().toISOString(),
-    chainId: 8453,
-    poolManager: POOL_MANAGER,
-    poolId: POOL_ID,
-    expectedWallet: EXPECTED_WALLET,
-    authorization: {
-      authorizedBy: authorization.authorizedBy,
-      authorizedAtUtc: authorization.authorizedAtUtc,
-      maxWethPrincipalWei: String(authorization.maxWethPrincipalWei),
-      maxTotalGasCostWei: String(authorization.maxTotalGasCostWei),
-      maxSlippageBps: String(authorization.maxSlippageBps),
-      approvedRoute: authorization.approvedRoute,
-      buyAmountWethWei: String(authorization.buyAmountWethWei),
-      sellAmountSentinelWei: String(authorization.sellAmountSentinelWei),
-      buyTransactionHash: BUY_TX_HASH,
-      sellTransactionHash: SELL_TX_HASH,
-    },
-    observedTotalGasCostWei: totalGasCost.toString(),
-    buy,
-    sell,
-    notice: 'Receipt verification only. The verifier never signs or broadcasts transactions.',
-  };
 
-  await mkdir(OUTPUT_DIR, { recursive: true });
-  await writeFile(RECEIPTS_PATH, `${JSON.stringify(result, null, 2)}\n`);
-  await writeFile(path.join(OUTPUT_DIR, 'README.md'), `# SENTINEL minimal buy/sell smoke-test evidence\n\n- Verified: ${result.verifiedAtUtc}\n- Buy transaction: \`${BUY_TX_HASH}\`\n- Sell transaction: \`${SELL_TX_HASH}\`\n- Pool ID: \`${POOL_ID}\`\n- Signer: \`${buy.signer}\`\n- Total gas cost (wei): \`${totalGasCost}\`\n\nBoth receipts succeeded, stayed within the recorded principal/gas authorization, and emitted canonical-pool Swap events in the expected directions. Slippage approval must be checked against the signed wallet quotes and independently reviewed.\n`);
-  console.log(JSON.stringify(result, null, 2));
 } finally {
   await provider.destroy();
 }
