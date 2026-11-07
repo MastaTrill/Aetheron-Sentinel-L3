@@ -2,11 +2,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Interface, JsonRpcProvider, getAddress } from 'ethers';
+import { validateReplacementBounds, validateReplacementIdentity } from './lib/replacement-smoke-policy.mjs';
 
 const RPC_URL = process.env.BASE_RPC_URL ?? 'https://base-rpc.publicnode.com';
 const POOL_MANAGER = getAddress(process.env.SENTINEL_POOL_MANAGER ?? '0x498581fF718922c3f8e6A244956aF099B2652b2b');
-const POOL_ID = (process.env.SENTINEL_POOL_ID ?? '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d').toLowerCase();
-const OUTPUT_DIR = process.env.SENTINEL_SMOKE_OUTPUT_DIR ?? 'release-evidence/sentinel-mainnet/smoke-test';
+const POOL_ID = (process.env.SENTINEL_REPLACEMENT_POOL_ID ?? '').toLowerCase();
+const REPLACEMENT_TOKEN = process.env.SENTINEL_REPLACEMENT_TOKEN ?? '';
+const OUTPUT_DIR = process.env.SENTINEL_SMOKE_OUTPUT_DIR ?? 'release-evidence/sentinel-mainnet/redeployment';
 const RECEIPTS_PATH = path.join(OUTPUT_DIR, 'smoke-test-receipts.json');
 const AUTHORIZATION_PATH = process.env.SENTINEL_SMOKE_AUTHORIZATION
   ?? path.join(OUTPUT_DIR, 'authorization.json');
@@ -18,8 +20,8 @@ const authorizationFailures = [];
 if (authorization.schemaVersion !== 1) authorizationFailures.push('authorization schemaVersion must be 1');
 if (authorization.status !== 'authorized') authorizationFailures.push(`authorization status must be authorized, found ${authorization.status ?? 'missing'}`);
 if (authorization.chainId !== 8453) authorizationFailures.push('authorization chainId must be 8453');
-if (authorization.token?.toLowerCase() !== '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3') authorizationFailures.push('authorization token mismatch');
-if (authorization.poolId?.toLowerCase() !== POOL_ID) authorizationFailures.push('authorization poolId mismatch');
+try { validateReplacementIdentity({token: authorization.token, poolId: authorization.poolId, expectedToken: REPLACEMENT_TOKEN, expectedPoolId: POOL_ID}); } catch (error) { authorizationFailures.push(error.message); }
+
 
 for (const field of ['authorizedBy', 'authorizedAtUtc', 'testWallet', 'maxWethPrincipalWei', 'maxTotalGasCostWei', 'maxSlippageBps', 'approvedRoute', 'buyAmountWethWei', 'sellAmountSentinelWei', 'buyTransactionHash', 'sellTransactionHash']) {
   if (authorization[field] === null || authorization[field] === undefined || authorization[field] === '') {
@@ -95,6 +97,7 @@ async function verify(hash, expectedDirection) {
   const gasPrice = receipt.effectiveGasPrice ?? receipt.gasPrice ?? tx.gasPrice;
   if (gasPrice === null || gasPrice === undefined) throw new Error(`Cannot determine authoritative gas price for ${hash}`);
   const gasCost = receipt.gasUsed * gasPrice;
+  if (tx.to?.toLowerCase() !== authorization.approvedRoute?.toLowerCase()) throw new Error('Transaction entrypoint differs from approved route');
 
   return {
     transactionHash: hash,
@@ -127,6 +130,15 @@ try {
   if (actualBuyWeth > BigInt(authorization.maxWethPrincipalWei)) throw new Error('Actual buy WETH exceeds maxWethPrincipalWei');
   if (actualSellSentinel > BigInt(authorization.sellAmountSentinelWei)) throw new Error('Actual sell SENTINEL exceeds sellAmountSentinelWei');
   if (totalGasCost > BigInt(authorization.maxTotalGasCostWei)) throw new Error('Actual total gas cost exceeds maxTotalGasCostWei');
+
+  // Require externally anchored quote evidence. No quote means no certification.
+  // A supplied JSON boolean is never sufficient proof of an independently verified quote.
+  if (!authorization.independentQuoteEvidence?.buy || !authorization.independentQuoteEvidence?.sell) {
+    throw new Error('Independent pretrade quote evidence missing; cannot certify slippage');
+  }
+  // Do not trust claimed verified=true from authorization JSON. A separate trusted
+  // verifier must validate signatures, timestamp anchoring, and actual output.
+  throw new Error('Independent quote signature/anchoring verifier not yet implemented: fail closed');
 
   const result = {
     schemaVersion: 1,
