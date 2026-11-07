@@ -132,6 +132,16 @@ try {
   if (actualSellSentinel > BigInt(authorization.sellAmountSentinelWei)) throw new Error('Actual sell SENTINEL exceeds sellAmountSentinelWei');
   if (totalGasCost > BigInt(authorization.maxTotalGasCostWei)) throw new Error('Actual total gas cost exceeds maxTotalGasCostWei');
 
+  // Require an independently reviewed runtime code hash, not merely a caller-supplied address.
+  const anchorContract = process.env.SENTINEL_INDEPENDENT_ANCHOR_CONTRACT;
+  const approvedCodeHash = process.env.SENTINEL_INDEPENDENT_ANCHOR_CODE_HASH;
+  if (!anchorContract || !/^0x[0-9a-f]{64}$/i.test(approvedCodeHash ?? '')) {
+    throw new Error('Independent reviewed anchor contract and runtime code hash are required');
+  }
+  const anchorCode = await provider.getCode(getAddress(anchorContract));
+  if (anchorCode === '0x' || keccak256(anchorCode).toLowerCase() !== approvedCodeHash.toLowerCase()) {
+    throw new Error('Anchor contract bytecode does not match independently approved code hash');
+  }
   const trustedSigner = process.env.SENTINEL_INDEPENDENT_QUOTE_SIGNER;
   const quotes = {};
   for (const [leg, receipt, direction, actualOutputWei] of [
