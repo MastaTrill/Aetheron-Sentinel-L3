@@ -22,3 +22,7 @@
 6. Run exact-head CI, Security, dependency checks, quote-signature and anchor verification. Any change requires fresh checks.
 
 **No Mainnet launch or smoke trade until all applicable gates are genuinely satisfied.**
+
+## Exact-head automated certification (2026-11-07 UTC)
+- Commit `b9423822c25424482f688bb4ef4ceb9bfa9dc78d`: GitHub CI run `42333932250` completed successfully; Security run `42333932120` completed successfully.
+- These workflow verdicts certify the tested repository head only, **not** deployment authority, an updated manifest, a fresh testnet rehearsal, or live beneficiary state.
