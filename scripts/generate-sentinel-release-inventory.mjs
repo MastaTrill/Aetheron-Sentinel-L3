@@ -11,10 +11,10 @@ const evidence = {
   scope: 'read-only-offline-evidence-inventory',
   dependencies,
   gates: {
-    independentQuoteSignerApproved: 'unverified',
-    independentAnchorContractReviewed: 'unverified',
+    ownerApprovedQuoteSigner: 'unverified',
+    ownerApprovedAnchorCodeHash: 'unverified',
     pretradeQuoteAnchorReceipts: 'missing',
-    independentDeploymentReview: 'missing',
+    ownerLaunchApproval: 'not-authorized',
     beneficiaryAuthorityVerification: 'unverified',
     mainnetDeploymentAuthorization: 'not-authorized',
     mainnetSmokeTradeAuthorization: 'not-authorized',
