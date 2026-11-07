@@ -6,13 +6,10 @@
     }
   },
   "lib/forge-std": {
-    "rev": "620536fa5277db4e3fd46772d5cbc1ea0696fb43"
+    "rev": "f3dae6e6ee381f25eb6a246f7da9b85c91a68219"
   },
   "lib/openzeppelin-contracts": {
-    "tag": {
-      "name": "v5.6.1",
-      "rev": "5fd1781b1454fd1ef8e722282f86f9293cacf256"
-    }
+    "rev": "efaa6f78ab1dde05416246e801c0baaf4f900d49"
   },
   "lib/solidity-examples": {
     "rev": "cdc93994911829b1348f6ac18000000a43432ef1"
