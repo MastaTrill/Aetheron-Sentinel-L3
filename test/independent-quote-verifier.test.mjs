@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Wallet, keccak256 } from 'ethers';
-import { verifyIndependentQuote } from '../scripts/lib/independent-quote-verifier.mjs';
+import { verifyIndependentQuote, verifyPretradeAnchor } from '../scripts/lib/independent-quote-verifier.mjs';
 const types = { PretradeQuote: [
   { name: 'poolId', type: 'bytes32' }, { name: 'token', type: 'address' },
   { name: 'route', type: 'address' }, { name: 'wallet', type: 'address' },
@@ -39,3 +39,17 @@ test('reject quote timestamp after execution', async () => {
   const signature = await signer.signTypedData(domain, types, value);
   assert.throws(() => check({value,signature},{blockTimestamp:100}), /pretrade/);
 });
+
+const digest = keccak256('0xbeef');
+const anchorHash = keccak256('0xaaaa');
+const anchorTransaction = { from: signer.address, to: other.address, data: '0x' + digest.slice(2), blockNumber: 100, hash: anchorHash };
+const anchorReceipt = { status: 1, blockNumber: 100, transactionHash: anchorHash };
+const anchorArgs = { quoteDigest: digest, anchorTransaction, anchorReceipt, swapBlockNumber: 101, trustedAnchor: signer.address, anchorContract: other.address };
+test('accept confirmed independent quote digest anchor mined before swap', () => assert.equal(verifyPretradeAnchor(anchorArgs),true));
+test('reject quote anchor mined in same swap block', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,swapBlockNumber:100}), /precede/));
+test('reject quote anchor mined after swap', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,swapBlockNumber:99}), /precede/));
+test('reject forged quote anchor signer', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,trustedAnchor:other.address}), /Untrusted/));
+test('reject untrusted anchor destination', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorContract:signer.address}), /Untrusted/));
+test('reject missing digest commitment', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,quoteDigest:keccak256('0xdead')}), /digest/));
+test('reject missing receipt', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorReceipt:null}), /Confirmed/));
+test('reject mismatched receipt hash', () => assert.throws(() => verifyPretradeAnchor({...anchorArgs,anchorReceipt:{...anchorReceipt,transactionHash:keccak256('0x1234')}}), /mismatch/));
