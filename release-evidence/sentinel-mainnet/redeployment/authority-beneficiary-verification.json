@@ -9,22 +9,22 @@
   "verifications": {
     "tokenOwner": {
       "address": "REPLACE_WITH_REPLACEMENT_TOKEN_ADDRESS",
-      "expectedOwner": "0x660eAaEdEBc968f8f3694354FA8EC0b4c5Ba8D12",
+      "expectedOwner": "0xa6ea4285070A5ac5AaBbee3Cd8c0EfC90d669211",
       "actualOwner": "REPLACE_WITH_ONCHAIN_OWNER",
-      "reachabilityTestPassed": true
+      "reachabilityTestPassed": false
     },
     "poolCreatorBeneficiary": {
       "poolId": "REPLACE_WITH_REPLACEMENT_POOL_ID",
       "expectedBeneficiary": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa",
       "actualBeneficiary": "REPLACE_WITH_ONCHAIN_BENEFICIARY",
       "shareWad": "570000000000000000",
-      "reachabilityTestPassed": true
+      "reachabilityTestPassed": false
     },
     "timelockConsequences": {
       "expectedAdmin": "0xcdcd79e3336D2e5f5045Fb4ecD7b9D43395BA994",
       "actualAdmin": "REPLACE_WITH_ONCHAIN_TIMELOCK_ADMIN",
-      "consequencesApproved": true
+      "consequencesApproved": false
     }
   },
-  "notice": "Copy to authority-beneficiary-verification.json only after verification of reachability and timelock settings is complete."
+  "notice": "Owner-designated expected address only; this remains a template, not verified on-chain evidence. Populate actual values only from read-only Base Mainnet contract calls and receipts."
 }
