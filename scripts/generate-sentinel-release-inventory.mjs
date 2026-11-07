@@ -10,6 +10,8 @@ const evidence = {
   schemaVersion: 1, commit: head, generatedAtUtc: new Date().toISOString(),
   scope: 'read-only-offline-evidence-inventory',
   dependencies,
+  proposedOwnerAddress: '0xa6ea4285070A5ac5AaBbee3Cd8c0EfC90d669211',
+  proposedOwnerDeclaration: 'owner-self-attested; no cryptographic proof',
   gates: {
     ownerApprovedQuoteSigner: 'unverified',
     ownerApprovedAnchorCodeHash: 'unverified',
