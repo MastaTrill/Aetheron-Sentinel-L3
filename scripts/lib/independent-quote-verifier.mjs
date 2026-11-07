@@ -1,4 +1,4 @@
-import { getAddress, verifyTypedData } from 'ethers';
+import { getAddress, verifyTypedData, TypedDataEncoder } from 'ethers';
 
 const TYPES = { PretradeQuote: [
   { name: 'poolId', type: 'bytes32' },
@@ -28,6 +28,18 @@ export function verifyIndependentQuote({ quote, trustedSigner, authorization, tr
       getAddress(value.wallet) !== getAddress(authorization.testWallet) ||
       value.calldataHash.toLowerCase() !== transaction.calldataHash.toLowerCase() ||
       value.direction !== direction) throw new Error('Signed quote does not match transaction and authorization');
-  return { verified: true, route: authorization.approvedRoute, token: authorization.token, poolId: authorization.poolId,
+  return { verified: true, quoteDigest: TypedDataEncoder.hash(domain, TYPES, value), route: authorization.approvedRoute, token: authorization.token, poolId: authorization.poolId,
     expectedOutputWei: String(value.expectedOutputWei), actualOutputWei: String(actualOutputWei) };
+}
+
+// The timestamp inside a signature is not independent proof of when it existed.
+// A separate, previously mined transaction must commit to the signed quote digest.
+export function verifyPretradeAnchor({ quoteDigest, anchorTransaction, anchorReceipt, swapBlockNumber, trustedAnchor, anchorContract }) {
+  if (!trustedAnchor || !anchorContract) throw new Error('Independent anchor identity not configured');
+  if (!anchorTransaction || !anchorReceipt || anchorReceipt.status !== 1) throw new Error('Confirmed quote anchor missing');
+  if (!Number.isSafeInteger(swapBlockNumber) || anchorReceipt.blockNumber >= swapBlockNumber || anchorReceipt.blockNumber < 1) throw new Error('Quote anchor must precede swap block');
+  if (getAddress(anchorTransaction.from) !== getAddress(trustedAnchor) || getAddress(anchorTransaction.to) !== getAddress(anchorContract)) throw new Error('Untrusted quote anchor sender or destination');
+  if (!/^0x[0-9a-f]{64}$/i.test(quoteDigest) || !anchorTransaction.data?.toLowerCase().includes(quoteDigest.slice(2).toLowerCase())) throw new Error('Quote digest not committed in anchor transaction');
+  if (anchorTransaction.blockNumber !== anchorReceipt.blockNumber || anchorTransaction.hash?.toLowerCase() !== anchorReceipt.hash?.toLowerCase()) throw new Error('Anchor transaction and receipt mismatch');
+  return true;
 }
