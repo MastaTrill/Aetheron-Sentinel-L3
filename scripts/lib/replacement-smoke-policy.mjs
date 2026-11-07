@@ -1,5 +1,6 @@
 // Replacement-only SENTINEL smoke-test policy. Pure functions; no RPC or signing.
 export const LEGACY_TOKEN = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
+// Public Uniswap V4 pool ID (not a credential). Explicitly labeled for the tracked-secret scanner.
 export const LEGACY_POOL = '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d';
 const ADDRESS = /^0x[0-9a-f]{40}$/i;
 const POOL = /^0x[0-9a-f]{64}$/i;
