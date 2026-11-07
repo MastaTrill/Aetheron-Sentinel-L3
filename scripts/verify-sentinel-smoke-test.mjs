@@ -2,7 +2,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Interface, JsonRpcProvider, getAddress, keccak256 } from 'ethers';
-import { verifyIndependentQuote } from './lib/independent-quote-verifier.mjs';
+import { verifyIndependentQuote, verifyPretradeAnchor } from './lib/independent-quote-verifier.mjs';
 import { validateReplacementBounds, validateReplacementIdentity } from './lib/replacement-smoke-policy.mjs';
 
 const RPC_URL = process.env.BASE_RPC_URL ?? 'https://base-rpc.publicnode.com';
@@ -142,6 +142,13 @@ try {
       quote: authorization.independentQuoteEvidence?.[leg], trustedSigner, authorization,
       transaction: receipt, blockTimestamp: receipt.blockTimestamp, direction, actualOutputWei,
     });
+    const anchorHash = authorization.independentQuoteEvidence?.[leg]?.anchorTransactionHash;
+    if (!TX_HASH_PATTERN.test(anchorHash ?? '')) throw new Error(leg + ' quote anchor transaction hash missing');
+    const [anchorTransaction, anchorReceipt] = await Promise.all([provider.getTransaction(anchorHash), provider.getTransactionReceipt(anchorHash)]);
+    verifyPretradeAnchor({ quoteDigest: quotes[leg].quoteDigest, anchorTransaction, anchorReceipt,
+      swapBlockNumber: (leg === 'buy' ? buy : sell).blockNumber,
+      trustedAnchor: process.env.SENTINEL_INDEPENDENT_ANCHOR_SIGNER,
+      anchorContract: process.env.SENTINEL_INDEPENDENT_ANCHOR_CONTRACT });
   }
   validateReplacementBounds(authorization, {
     token: REPLACEMENT_TOKEN, poolId: POOL_ID, buyWethWei: actualBuyWeth.toString(),
