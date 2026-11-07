@@ -22,3 +22,6 @@ No Mainnet deployment, wallet signature, token transfer, or smoke trade is autho
 
 ## Launch authority
 The project owner is the sole human approval authority for launch. No independent reviewer or separate human sign-off is required. Automated tests, verified quote provenance, beneficiary checks, and explicit owner wallet authorization remain mandatory. Deployment and trading require distinct owner approvals. This policy change is not itself deployment authorization.
+
+## Owner wallet designation — pending complete address
+The owner supplied a wallet receive-screen image labeled `@mastatrill`, showing only `0x41f9a865…cccb49ad3d`. This is a **proposed replacement owner wallet**, not a complete address or proof of on-chain ownership. Do not use the prior expected owner as the final replacement owner without renewed owner confirmation. Do not edit deployment authorization or beneficiary evidence until the complete 42-character address is obtained and checksum-validated. This designation does not authorize any transaction or deployment.
