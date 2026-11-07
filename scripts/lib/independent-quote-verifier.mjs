@@ -40,6 +40,6 @@ export function verifyPretradeAnchor({ quoteDigest, anchorTransaction, anchorRec
   if (!Number.isSafeInteger(swapBlockNumber) || anchorReceipt.blockNumber >= swapBlockNumber || anchorReceipt.blockNumber < 1) throw new Error('Quote anchor must precede swap block');
   if (getAddress(anchorTransaction.from) !== getAddress(trustedAnchor) || getAddress(anchorTransaction.to) !== getAddress(anchorContract)) throw new Error('Untrusted quote anchor sender or destination');
   if (!/^0x[0-9a-f]{64}$/i.test(quoteDigest) || !anchorTransaction.data?.toLowerCase().includes(quoteDigest.slice(2).toLowerCase())) throw new Error('Quote digest not committed in anchor transaction');
-  if (anchorTransaction.blockNumber !== anchorReceipt.blockNumber || anchorTransaction.hash?.toLowerCase() !== anchorReceipt.hash?.toLowerCase()) throw new Error('Anchor transaction and receipt mismatch');
+  if (anchorTransaction.blockNumber !== anchorReceipt.blockNumber || anchorTransaction.hash?.toLowerCase() !== anchorReceipt.hash?.toLowerCase() ?? anchorReceipt.transactionHash?.toLowerCase()) throw new Error('Anchor transaction and receipt mismatch');
   return true;
 }
