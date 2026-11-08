@@ -1,3 +1,4 @@
+import { AbiCoder, getAddress, keccak256 } from 'ethers';
 // Replacement-only SENTINEL smoke-test policy. Pure functions; no RPC or signing.
 export const LEGACY_TOKEN = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
 // Public Uniswap V4 pool ID (not a credential). Explicitly labeled for the tracked-secret scanner.
@@ -17,6 +18,46 @@ export function validateReplacementIdentity({ token, poolId, expectedToken, expe
   if ([poolId, expectedPoolId].some(x => x.toLowerCase() === LEGACY_POOL_ID)) throw new Error('Legacy SENTINEL pool is forbidden');
   if (token.toLowerCase() !== expectedToken.toLowerCase() || poolId.toLowerCase() !== expectedPoolId.toLowerCase()) throw new Error('Replacement identity mismatch');
 }
+
+export const BASE_WETH = '0x4200000000000000000000000000000000000006';
+
+// A Uniswap V4 PoolId is the keccak256 hash of the ABI-encoded PoolKey.
+// Never infer currency ordering from the trade direction or a pool ID alone.
+export function validateCanonicalPoolKey({ poolKey, token, poolId }) {
+  if (!poolKey || !poolId) throw new Error('Verified replacement PoolKey and pool ID are required');
+  const currency0 = getAddress(poolKey.currency0);
+  const currency1 = getAddress(poolKey.currency1);
+  const replacement = getAddress(token);
+  const weth = getAddress(BASE_WETH);
+  if (currency0.toLowerCase() >= currency1.toLowerCase()) throw new Error('PoolKey currencies are not canonically sorted');
+  const pair = [currency0.toLowerCase(), currency1.toLowerCase()];
+  if (!pair.includes(weth.toLowerCase()) || !pair.includes(replacement.toLowerCase()) ||
+      currency0.toLowerCase() === currency1.toLowerCase()) throw new Error('PoolKey must contain WETH and replacement SENTINEL');
+  const fee = positive(poolKey.fee, 'PoolKey fee', true);
+  if (fee > 16777215n) throw new Error('PoolKey fee exceeds uint24');
+  if (!/^[1-9][0-9]*$/.test(String(poolKey.tickSpacing ?? ''))) throw new Error('PoolKey tick spacing invalid');
+  const tickSpacing = BigInt(poolKey.tickSpacing);
+  if (tickSpacing > 8388607n) throw new Error('PoolKey tick spacing exceeds int24');
+  const hooks = getAddress(poolKey.hooks);
+  const calculated = keccak256(AbiCoder.defaultAbiCoder().encode(
+    ['address', 'address', 'uint24', 'int24', 'address'],
+    [currency0, currency1, fee, tickSpacing, hooks],
+  ));
+  if (calculated.toLowerCase() !== poolId.toLowerCase()) throw new Error('PoolKey does not hash to authorized replacement pool ID');
+  return currency0.toLowerCase() === weth.toLowerCase();
+}
+
+// Swap deltas are denominated in currency0/currency1; positive is owed to the pool.
+export function classifyReplacementSwap(amount0, amount1, wethIsCurrency0) {
+  const weth = wethIsCurrency0 ? amount0 : amount1;
+  const sentinel = wethIsCurrency0 ? amount1 : amount0;
+  return {
+    direction: weth > 0n && sentinel < 0n ? 'buy-sentinel-with-weth'
+      : weth < 0n && sentinel > 0n ? 'sell-sentinel-for-weth' : 'other',
+    weth, sentinel,
+  };
+}
+
 export function validateReplacementBounds(auth, observed) {
   if (auth.status !== 'authorized' || auth.chainId !== 8453) throw new Error('Explicit Base Mainnet authorization required');
   validateReplacementIdentity({token: auth.token, poolId: auth.poolId, expectedToken: observed.token, expectedPoolId: observed.poolId});
