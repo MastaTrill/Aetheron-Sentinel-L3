@@ -29,6 +29,7 @@ export function validateCanonicalPoolKey({ poolKey, token, poolId }) {
   const currency1 = getAddress(poolKey.currency1);
   const replacement = getAddress(token);
   const weth = getAddress(BASE_WETH);
+  if (replacement.toLowerCase() === weth.toLowerCase()) throw new Error('Replacement SENTINEL cannot be WETH');
   if (currency0.toLowerCase() >= currency1.toLowerCase()) throw new Error('PoolKey currencies are not canonically sorted');
   const pair = [currency0.toLowerCase(), currency1.toLowerCase()];
   if (!pair.includes(weth.toLowerCase()) || !pair.includes(replacement.toLowerCase()) ||
