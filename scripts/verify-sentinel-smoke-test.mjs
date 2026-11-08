@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Interface, JsonRpcProvider, getAddress, keccak256 } from 'ethers';
 import { verifyIndependentQuote, verifyPretradeAnchor } from './lib/independent-quote-verifier.mjs';
-import { validateReplacementBounds, validateReplacementIdentity } from './lib/replacement-smoke-policy.mjs';
+import { validateReplacementBounds, validateReplacementIdentity, validateCanonicalPoolKey, classifyReplacementSwap } from './lib/replacement-smoke-policy.mjs';
 
 const RPC_URL = process.env.BASE_RPC_URL ?? 'https://base-rpc.publicnode.com';
 const POOL_MANAGER = getAddress(process.env.SENTINEL_POOL_MANAGER ?? '0x498581fF718922c3f8e6A244956aF099B2652b2b');
@@ -34,6 +34,11 @@ if (authorizationFailures.length) {
   console.error('Smoke-test authorization is incomplete or invalid:\n- ' + authorizationFailures.join('\n- '));
   process.exit(1);
 }
+
+// Require exact canonical PoolKey evidence before interpreting currency-indexed Swap deltas.
+const WETH_IS_CURRENCY0 = validateCanonicalPoolKey({
+  poolKey: authorization.poolKey, token: REPLACEMENT_TOKEN, poolId: POOL_ID,
+});
 
 const BUY_TX_HASH = authorization.buyTransactionHash;
 const SELL_TX_HASH = authorization.sellTransactionHash;
@@ -68,28 +73,24 @@ async function verify(hash, expectedDirection) {
     .filter((parsed) => parsed && parsed.args.id.toLowerCase() === POOL_ID);
   if (matching.length === 0) throw new Error(`No canonical PoolManager Swap event in ${hash}`);
 
-  const directions = matching.map((parsed) => {
-    const amount0 = parsed.args.amount0;
-    const amount1 = parsed.args.amount1;
-    if (amount0 > 0n && amount1 < 0n) return 'buy-sentinel-with-weth';
-    if (amount0 < 0n && amount1 > 0n) return 'sell-sentinel-for-weth';
-    return 'other';
-  });
-  if (!directions.includes(expectedDirection)) throw new Error(`${hash} does not contain expected direction ${expectedDirection}; found ${directions.join(', ')}`);
+  const swaps = matching.map((parsed) =>
+    classifyReplacementSwap(parsed.args.amount0, parsed.args.amount1, WETH_IS_CURRENCY0));
+  const directions = swaps.map((swap) => swap.direction);
+  if (directions.some((direction) => direction !== expectedDirection)) {
+    throw new Error(`${hash} contains unsupported or wrong-direction Swap events: ${directions.join(', ')}`);
+  }
 
   let wethIn = 0n;
   let wethOut = 0n;
   let sentinelIn = 0n;
   let sentinelOut = 0n;
-  for (const parsed of matching) {
-    const amount0 = parsed.args.amount0;
-    const amount1 = parsed.args.amount1;
-    if (amount0 > 0n && amount1 < 0n) {
-      wethIn += amount0;
-      sentinelOut += -amount1;
-    } else if (amount0 < 0n && amount1 > 0n) {
-      wethOut += -amount0;
-      sentinelIn += amount1;
+  for (const swap of swaps) {
+    if (swap.direction === 'buy-sentinel-with-weth') {
+      wethIn += swap.weth;
+      sentinelOut += -swap.sentinel;
+    } else if (swap.direction === 'sell-sentinel-for-weth') {
+      wethOut += -swap.weth;
+      sentinelIn += swap.sentinel;
     }
   }
 
