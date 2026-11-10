@@ -227,7 +227,7 @@ proto-plus==1.27.2
 protobuf==5.29.6
 psutil==7.2.2
 psycopg2-binary==2.9.11
-pure_eval==0.2.3
+pure_eval==0.2.4
 py-serializable==2.1.0
 pyarrow==23.0.1
 pyasn1==0.6.5
