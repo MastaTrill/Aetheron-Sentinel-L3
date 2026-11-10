@@ -54,7 +54,7 @@ crytic-compile==0.4.2
 ctranslate2==4.7.1
 cycler==0.12.1
 cyclonedx-python-lib==11.7.0
-cytoolz==1.1.0
+cytoolz==1.2.0
 databricks-sdk==0.102.0
 debugpy==1.8.20
 decorator==5.2.1
