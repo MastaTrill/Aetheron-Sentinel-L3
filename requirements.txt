@@ -300,7 +300,7 @@ StrEnum==0.4.15
 strictyaml==1.7.3
 supabase==2.33.0
 supabase-auth==2.33.0
-supabase-functions==2.33.0
+supabase-functions==2.34.1
 sympy==1.14.0
 tabulate==0.10.0
 tenacity==9.1.4
