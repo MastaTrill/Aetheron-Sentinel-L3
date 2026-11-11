@@ -244,7 +244,7 @@ pymdown-extensions==11.0.1
 pyparsing==3.3.2
 pyroaring==1.0.4
 pytesseract==0.3.13
-pytest==9.1.1
+pytest==9.2.0
 pytest-asyncio==1.4.0
 pytest-cov==7.1.0
 python-dateutil==2.9.0.post0
