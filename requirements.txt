@@ -169,7 +169,7 @@ mkdocs-material==9.7.7
 mkdocs-material-extensions==1.3.1
 mlflow==3.17.2
 mlflow-skinny==3.17.2
-mlflow-tracing==3.17.2
+mlflow-tracing==3.18.0
 mmh3==5.2.1
 mpmath==1.3.0
 msgpack==1.2.3
