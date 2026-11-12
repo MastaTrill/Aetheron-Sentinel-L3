@@ -50,11 +50,9 @@ jobs:
             exit 0
           fi
 
-          if [ "$PACKAGE_ECOSYSTEM" = "github_actions" ] || [ "$PACKAGE_ECOSYSTEM" = "github-actions" ]; then
-            echo "safe=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
+          # Only semver-patch and semver-minor updates may auto-merge, for every
+          # ecosystem (including GitHub Actions). Majors, unknown update types and
+          # grouped updates without a clear type stay open for manual review.
           case "$UPDATE_TYPE" in
             version-update:semver-patch|version-update:semver-minor)
               echo "safe=true" >> "$GITHUB_OUTPUT"
@@ -73,4 +71,12 @@ jobs:
 
       - name: Require manual review
         if: steps.decide.outputs.safe != 'true'
-        run: echo "Dependabot update requires manual review."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
+        run: |
+          echo "Dependabot update (${UPDATE_TYPE:-unknown}) requires manual review."
+          # If auto-merge was enabled while this PR was a patch/minor bump and
+          # Dependabot has since rebased it to a major version, turn it off.
+          gh pr merge --disable-auto "$PR_URL" || true
