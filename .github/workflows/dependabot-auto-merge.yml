@@ -62,6 +62,16 @@ jobs:
               ;;
           esac
 
+      - name: Approve safe update
+        if: steps.decide.outputs.safe == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          # main requires 1 approving review; approve only patch/minor updates
+          # that passed the checks above so they can still auto-merge.
+          gh pr review --approve --body "Auto-approved: Dependabot ${{ steps.meta.outputs.update-type }} update." "$PR_URL"
+
       - name: Enable squash auto-merge
         if: steps.decide.outputs.safe == 'true'
         env:
