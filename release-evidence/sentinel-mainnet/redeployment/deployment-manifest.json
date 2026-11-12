@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "releaseModel": "controlled-redeployment",
   "status": "preparation-only",
-  "purpose": "Exact unsigned SENTINEL replacement launch manifest. Preserve the legacy launch design while replacing only the unproven 57% creator beneficiary.",
+  "purpose": "Draft comparison candidate: fixed-supply SENTINEL with one proposed sender/treasury wallet; not authorized or validated for deployment.",
   "safety": {
     "signingEnabled": false,
     "broadcastEnabled": false,
@@ -75,7 +75,7 @@
     "decimals": 18,
     "initialSupply": "100000000000000000000000000000",
     "numTokensToSell": "100000000000000000000000000000",
-    "yearlyMintRate": "20000000000000000",
+    "yearlyMintRate": "0",
     "vestingDuration": "0",
     "vestingRecipients": [],
     "vestingAmounts": [],
@@ -134,7 +134,7 @@
     "integrator": "0xF60633D02690e2A15A54AB919925F3d038Df163e",
     "salt": "0x53454e54494e454c2d52454445504c4f592d5631000000000000000000000000",
     "valueWei": "0",
-    "authorizedBaseMainnetSender": null
+    "authorizedBaseMainnetSender": "0xA4737aa4b1E8a3C8f221BE9E55F5BDa307eCC1Fa"
   },
   "rehearsal": {
     "network": "baseSepolia",
