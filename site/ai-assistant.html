@@ -264,14 +264,44 @@
       };
       let responseIdx = 0;
 
+      // Append canned AI copy that may contain <strong>, without using innerHTML.
+      function appendTrustedStrongMarkup(parent, html) {
+        const source = String(html);
+        const strongTag = /<strong>([\s\S]*?)<\/strong>/gi;
+        let lastIndex = 0;
+        let match;
+        while ((match = strongTag.exec(source))) {
+          if (match.index > lastIndex) {
+            parent.appendChild(document.createTextNode(source.slice(lastIndex, match.index)));
+          }
+          const strong = document.createElement('strong');
+          strong.textContent = match[1];
+          parent.appendChild(strong);
+          lastIndex = match.index + match[0].length;
+        }
+        if (lastIndex < source.length) {
+          parent.appendChild(document.createTextNode(source.slice(lastIndex)));
+        }
+      }
+
       function addMessage(text, type) {
-        const window = document.getElementById('chatWindow');
+        const chatWindow = document.getElementById('chatWindow');
         const div = document.createElement('div');
         div.className = `msg ${type}`;
-        div.innerHTML =
-          type === 'ai' ? `<strong>🤖 Sentinel Security Copilot</strong>${text}` : text;
-        window.appendChild(div);
-        window.scrollTop = window.scrollHeight;
+        if (type === 'ai') {
+          const label = document.createElement('strong');
+          label.textContent = '🤖 Sentinel Security Copilot';
+          div.appendChild(label);
+          appendTrustedStrongMarkup(div, text);
+        } else if (type === 'typing') {
+          for (let i = 0; i < 3; i++) {
+            div.appendChild(document.createElement('span'));
+          }
+        } else {
+          div.textContent = text;
+        }
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
         return div;
       }
 

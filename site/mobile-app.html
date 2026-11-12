@@ -287,7 +287,14 @@
       function addFeedItem(title, text, isDanger) {
         const item = document.createElement('div');
         item.className = 'feed-item' + (isDanger ? ' danger' : '');
-        item.innerHTML = `<strong>${title}</strong><div>${text}</div><span class="feed-time">Just now • Mobile Guard</span>`;
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+        const body = document.createElement('div');
+        body.textContent = text;
+        const time = document.createElement('span');
+        time.className = 'feed-time';
+        time.textContent = 'Just now • Mobile Guard';
+        item.append(heading, body, time);
         feedList.insertBefore(item, feedList.firstChild);
       }
 
