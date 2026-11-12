@@ -187,7 +187,6 @@ numpy==2.4.4
 oauthlib==4.0.1
 onnxruntime==1.29.0
 openai==2.30.0
-opencv-python==5.0.0.93
 opentelemetry-api==1.45.1
 opentelemetry-exporter-otlp==1.45.1
 opentelemetry-exporter-otlp-proto-common==1.45.1
@@ -216,7 +215,6 @@ pip-requirements-parser==32.0.1
 pip_audit==2.10.1
 platformdirs==4.11.5
 playwright==1.58.0
-plotly==7.1.0
 pluggy==1.6.0
 postgrest==2.33.0
 prettytable==3.18.0
@@ -233,10 +231,8 @@ pyarrow==23.0.1
 pyasn1==0.6.5
 pyasn1_modules==0.4.2
 pycparser==3.12
-pycryptodome==4.3.0
 pydantic==2.13.2
 pydantic_core==2.46.2
-pyee==16.0.1
 Pygments==2.20.0
 pyiceberg==0.12.0
 PyJWT==2.15.0
