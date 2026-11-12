@@ -156,7 +156,7 @@ contract SentinelSecurityTokenization is Ownable, ReentrancyGuard {
     require(token.expiryDate > block.timestamp, 'Token expired');
 
     // Transfer ERC20 tokens
-    SecurityERC20(tokenAddress).transferFrom(msg.sender, to, amount);
+    require(SecurityERC20(tokenAddress).transferFrom(msg.sender, to, amount), 'Transfer failed');
 
     emit TokenTransferred(tokenAddress, msg.sender, to, amount);
   }

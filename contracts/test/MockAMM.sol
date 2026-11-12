@@ -10,7 +10,7 @@ contract MockAMM {
     function getETHPrice() external view returns (uint256) { return (tokenReserve * 1e6) / ethReserve; }
     function swap(uint256 amount, bool buyETH) external payable returns (uint256) {
         if (buyETH) {
-            token.transferFrom(msg.sender, address(this), amount);
+            require(token.transferFrom(msg.sender, address(this), amount), "transferFrom failed");
             uint256 out = (amount * ethReserve) / (tokenReserve + amount);
             tokenReserve += amount; ethReserve -= out;
             payable(msg.sender).transfer(out);
@@ -18,7 +18,7 @@ contract MockAMM {
         } else {
             uint256 out = (amount * tokenReserve) / (ethReserve + amount);
             ethReserve += amount; tokenReserve -= out;
-            token.transfer(msg.sender, out);
+            require(token.transfer(msg.sender, out), "transfer failed");
             return out;
         }
     }

@@ -44,6 +44,7 @@ contract SentinelHeliumMonitor is Ownable {
   event DeviceUpdate(bytes32 indexed deviceId, uint256 signalStrength, uint256 latency);
   event SecurityAlert(bytes32 indexed deviceId, string alertType, uint256 severity);
   event NetworkHealthUpdate(uint256 totalDevices, uint256 activeDevices, uint256 uptime);
+  event ReporterAuthorizationUpdated(address indexed reporter, bool authorized);
 
   constructor() Ownable(msg.sender) {}
 
@@ -194,6 +195,15 @@ contract SentinelHeliumMonitor is Ownable {
   function _verifyTelemetryProof(bytes32, bytes memory proof) internal pure returns (bool) {
     // Simplified verification - would check cryptographic proof
     return proof.length > 0;
+  }
+
+  /**
+   * @notice Grant or revoke anomaly-reporter rights (owner only)
+   */
+  function setAuthorizedReporter(address reporter, bool authorized) external onlyOwner {
+    require(reporter != address(0), 'Invalid reporter');
+    authorizedReporters[reporter] = authorized;
+    emit ReporterAuthorizationUpdated(reporter, authorized);
   }
 
   /**

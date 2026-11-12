@@ -153,6 +153,7 @@ contract SentinelYieldMaximizer is Ownable, ReentrancyGuard, Pausable {
         position.totalWithdrawn = position.totalWithdrawn + totalWithdrawal;
         position.totalDeposited = position.totalDeposited - amount;
         position.netYield = position.netYield + yield;
+        totalYieldGenerated = totalYieldGenerated + yield;
 
         totalValueLocked = totalValueLocked - amount;
 

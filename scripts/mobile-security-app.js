@@ -6,6 +6,7 @@
  */
 
 const express = require('express');
+const { createRateLimiter } = require('./rate-limit.cjs');
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 
@@ -32,6 +33,8 @@ class SentinelMobileApp {
 
   setupMiddleware() {
     this.app.use(express.json());
+    // Rate-limit every route (including auth/login) before any handler runs.
+    this.app.use(createRateLimiter({ windowMs: 60_000, max: 60 }));
 
     // JWT authentication middleware
     this.app.use('/api/protected', this.authenticateToken.bind(this));

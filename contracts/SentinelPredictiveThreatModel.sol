@@ -434,7 +434,7 @@ contract SentinelPredictiveThreatModel is Ownable, ReentrancyGuard {
 
         // Add behavioral pattern
         bytes32 patternHash = keccak256(
-            abi.encodePacked(activityType, behavioralData, block.timestamp)
+            abi.encode(activityType, behavioralData, block.timestamp)
         );
 
         profile.behavioralPatterns.push(patternHash);

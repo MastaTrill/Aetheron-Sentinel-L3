@@ -6,6 +6,7 @@
  */
 
 const express = require('express');
+const { createRateLimiter } = require('./rate-limit.cjs');
 const fs = require('fs');
 const path = require('path');
 
@@ -43,6 +44,8 @@ class SentinelEducationPlatform {
 
   setupMiddleware() {
     this.app.use(express.json());
+    // Rate-limit every route (including auth/login) before any handler runs.
+    this.app.use(createRateLimiter({ windowMs: 60_000, max: 60 }));
     this.app.use(express.static('public'));
     this.app.use('/education', express.static(this.coursesPath));
   }
