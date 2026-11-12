@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const manifest=JSON.parse(readFileSync('release-evidence/sentinel-mainnet/redeployment/deployment-manifest.json','utf8'));
+const listing=JSON.parse(readFileSync('config/sentinel-replacement-listing.draft.json','utf8'));
+const sender='0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa';
+assert.equal(manifest.token.yearlyMintRate,'0','fixed supply candidate must configure zero yearly mint');
+assert.equal(manifest.execution.authorizedBaseMainnetSender.toLowerCase(),sender);
+assert.equal(manifest.safety.signingEnabled,false);
+assert.equal(manifest.safety.broadcastEnabled,false);
+assert.equal(manifest.safety.baseMainnetAuthorized,false);
+assert.equal(listing.chainId,8453);
+assert.equal(listing.tokenName,manifest.token.name);
+assert.equal(listing.tokenSymbol,manifest.token.symbol);
+assert.equal(listing.decimals,manifest.token.decimals);
+assert.equal(listing.initialSupplyBaseUnits,manifest.token.initialSupply);
+assert.equal(listing.tokenURI,manifest.token.tokenURI);
+assert.equal(listing.yearlyMintRateWad,manifest.token.yearlyMintRate);
+assert.equal(listing.contractAddress,null,'never publish a predicted/legacy token address as deployed');
+assert.equal(listing.explorerTokenUrl,null);
+assert.equal(listing.logo.approvedByOwner,false);
+assert.equal(listing.profileSubmission.status,'not-submitted');
+assert.equal(listing.safety.mainnetAuthorized,false);
+console.log('PASS: draft fixed-supply settings and separate unpublished SENTINEL listing are consistent.');
+console.log('NOT PROVEN: immutable mint restrictions, IPFS metadata content, logo ownership, BaseScan verification or listing.');
