@@ -20,19 +20,40 @@ class DriftAlarm:
 
 
 @dataclass(frozen=True)
+class ExecutionFailureAlarm:
+    op_ids: tuple[str, ...]
+    failed_controls: tuple[str, ...]
+    rolled_back_controls: tuple[str, ...]
+    failure_count: int
+    severity: str
+
+
+@dataclass(frozen=True)
 class CryptoAgilityRule:
     minimum_scheme: str
     grace_days_remaining: int
 
 
 class GovernanceRegistry:
-    """Tracks per-chain/asset calibration records, drift alarms, and crypto posture."""
+    """Tracks per-chain/asset calibration records, drift alarms, execution verification failures, and crypto posture."""
 
-    def __init__(self, alarm_threshold: float = 0.2, alert_callback=None) -> None:
+    def __init__(
+        self,
+        alarm_threshold: float = 0.2,
+        alert_callback=None,
+        critical_alarm_threshold: float | None = None,
+        execution_failure_threshold: int = 1,
+    ) -> None:
         self.alarm_threshold = alarm_threshold
+        self.critical_alarm_threshold = (
+            critical_alarm_threshold if critical_alarm_threshold is not None else alarm_threshold * 1.5
+        )
+        self.execution_failure_threshold = max(1, execution_failure_threshold)
         self.alert_callback = alert_callback
         self.records: list[CalibrationRecord] = []
         self.alarms: list[DriftAlarm] = []
+        self.execution_alarms: list[ExecutionFailureAlarm] = []
+        self.execution_failure_count: int = 0
         self.crypto_rules: list[CryptoAgilityRule] = []
 
     def record_calibration(self, record: CalibrationRecord) -> None:
@@ -40,7 +61,7 @@ class GovernanceRegistry:
         if record.observed_drift >= self.alarm_threshold:
             severity = (
                 "critical"
-                if record.observed_drift >= self.alarm_threshold * 1.5
+                if record.observed_drift >= self.critical_alarm_threshold
                 else "warning"
             )
             alarm = DriftAlarm(
@@ -53,6 +74,31 @@ class GovernanceRegistry:
             if self.alert_callback:
                 self.alert_callback(alarm)
 
+    def record_execution_result(
+        self,
+        verified: bool,
+        failed_controls: tuple[str, ...] = (),
+        rolled_back_controls: tuple[str, ...] = (),
+        op_ids: tuple[str, ...] = (),
+    ) -> ExecutionFailureAlarm | None:
+        if verified and not failed_controls:
+            return None
+        self.execution_failure_count += 1
+        if self.execution_failure_count < self.execution_failure_threshold:
+            return None
+        severity = "critical" if self.execution_failure_count >= self.execution_failure_threshold else "warning"
+        alarm = ExecutionFailureAlarm(
+            op_ids=tuple(op_ids),
+            failed_controls=tuple(failed_controls),
+            rolled_back_controls=tuple(rolled_back_controls),
+            failure_count=self.execution_failure_count,
+            severity=severity,
+        )
+        self.execution_alarms.append(alarm)
+        if self.alert_callback:
+            self.alert_callback(alarm)
+        return alarm
+
     def register_crypto_rule(self, rule: CryptoAgilityRule) -> None:
         self.crypto_rules.append(rule)
 
@@ -61,7 +107,13 @@ class GovernanceRegistry:
             return True
         latest = self.crypto_rules[-1]
         if latest.minimum_scheme == "pq-sim-dilithium":
-            return "pq-sim-dilithium" in schemes or latest.grace_days_remaining > 0
+            return (
+                "pq-sim-dilithium" in schemes
+                or "pq-ext" in schemes
+                or latest.grace_days_remaining > 0
+            )
+        if latest.minimum_scheme == "pq-ext":
+            return "pq-ext" in schemes or latest.grace_days_remaining > 0
         return True
 
     def latest_for(self, chain_id: str, asset_symbol: str) -> CalibrationRecord | None:

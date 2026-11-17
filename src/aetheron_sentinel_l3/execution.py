@@ -76,9 +76,15 @@ class RuleBasedOnChainAdapter(OnChainAdapter):
 class ActionExecutor:
     """Execution adapter for controls with rollback safety and failure budget."""
 
-    def __init__(self, chain_adapter: OnChainAdapter | None = None, failure_budget: int = 1) -> None:
+    def __init__(
+        self,
+        chain_adapter: OnChainAdapter | None = None,
+        failure_budget: int = 1,
+        rollback_on_unverified: bool = False,
+    ) -> None:
         self.chain_adapter = chain_adapter or RuleBasedOnChainAdapter()
         self.failure_budget = failure_budget
+        self.rollback_on_unverified = rollback_on_unverified
         self._seq = count(1)
 
     def apply_controls(self, controls: tuple[str, ...]) -> ExecutionResult:
@@ -95,14 +101,25 @@ class ActionExecutor:
             except Exception:
                 failures.append(control)
                 if len(failures) > self.failure_budget:
-                    rolled_back: list[str] = []
-                    for applied_control in reversed(applied):
-                        try:
-                            self.chain_adapter.rollback(applied_control, op_id=f"rollback-{next(self._seq)}")
-                            rolled_back.append(applied_control)
-                        except Exception:
-                            failures.append(f"rollback:{applied_control}")
+                    rolled_back = self._rollback_applied(applied, failures)
                     return ExecutionResult((), tuple(rolled_back), tuple(failures), False, tuple(receipts))
 
         verified = all(self.chain_adapter.verify(r) for r in receipts)
+        if not verified and self.rollback_on_unverified:
+            for r in receipts:
+                if not self.chain_adapter.verify(r):
+                    failures.append(f"unverified:{r.control}")
+            rolled_back = self._rollback_applied(applied, failures)
+            return ExecutionResult((), tuple(rolled_back), tuple(failures), False, tuple(receipts))
+
         return ExecutionResult(tuple(applied), (), tuple(failures), verified, tuple(receipts))
+
+    def _rollback_applied(self, applied: list[str], failures: list[str]) -> list[str]:
+        rolled_back: list[str] = []
+        for applied_control in reversed(applied):
+            try:
+                self.chain_adapter.rollback(applied_control, op_id=f"rollback-{next(self._seq)}")
+                rolled_back.append(applied_control)
+            except Exception:
+                failures.append(f"rollback:{applied_control}")
+        return rolled_back

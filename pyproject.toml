@@ -4,11 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aetheron-sentinel-l3"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reference autonomous interceptor for bridge liquidity-drain defense"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "Aetheron"}]
+
+[project.optional-dependencies]
+pq = ["dilithium-py>=1.0.0"]
+
+[project.scripts]
+aetheron-sentinel-server = "aetheron_sentinel_l3.server:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

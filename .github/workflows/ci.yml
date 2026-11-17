@@ -1,0 +1,38 @@
+name: Sentinel L3 CI & Staging Readiness
+
+on:
+  push:
+    branches: ["main", "master"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  verify-sentinel-l3:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and Post-Quantum provider (dilithium-py)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ".[pq]"
+
+      - name: Run CI test matrix & two staging validation windows
+        run: |
+          chmod +x scripts/ci_matrix.sh scripts/premerge_stress.sh
+          ./scripts/ci_matrix.sh
+
+      - name: Run pre-merge hash-seed stress loop
+        run: |
+          ./scripts/premerge_stress.sh 3

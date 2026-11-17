@@ -73,6 +73,7 @@ class SentinelInterceptor:
         audit_sink: AuditSink | None = None,
         counter_ttl_seconds: int = 3600,
         idempotency_ttl_seconds: int = 3600,
+        kill_switch_active: bool = False,
     ) -> None:
         self.throttle_threshold = throttle_threshold
         self.block_threshold = block_threshold
@@ -90,6 +91,15 @@ class SentinelInterceptor:
         self.audit_sink = audit_sink
         self.counter_ttl_seconds = counter_ttl_seconds
         self.idempotency_ttl_seconds = idempotency_ttl_seconds
+        self.kill_switch_active = kill_switch_active
+        self._kill_switch_reason = "manual_kill_switch"
+
+    def engage_kill_switch(self, reason: str = "manual_kill_switch") -> None:
+        self.kill_switch_active = True
+        self._kill_switch_reason = reason
+
+    def release_kill_switch(self) -> None:
+        self.kill_switch_active = False
 
     @classmethod
     def from_profile(cls, profile_name: str) -> "SentinelInterceptor":
@@ -103,6 +113,31 @@ class SentinelInterceptor:
         )
 
     def evaluate(self, payload: LiquidityRiskInput) -> InterceptorDecision:
+        if self.kill_switch_active:
+            ks_controls = ("activate_network_guard", "pause_bridge")
+            ks_exec = self.executor.apply_controls(ks_controls) if self.executor else None
+            ks_reasons = ["kill_switch_engaged", f"kill_switch_reason:{self._kill_switch_reason}"]
+            if ks_exec is not None and not ks_exec.verified:
+                ks_reasons.append("execution_verification_failed")
+                if self.governance_registry is not None:
+                    self.governance_registry.record_execution_result(
+                        verified=False,
+                        failed_controls=ks_exec.failures,
+                        rolled_back_controls=ks_exec.rolled_back,
+                        op_ids=tuple(r.op_id for r in ks_exec.receipts),
+                    )
+            decision = InterceptorDecision(
+                "BLOCK",
+                1.0,
+                tuple(sorted(set(ks_reasons))),
+                ks_controls,
+                True,
+                (),
+                ks_exec,
+            )
+            self._audit(payload, decision)
+            return decision
+
         reasons: list[str] = []
         liquidity = max(payload.available_liquidity, 1e-9)
 
@@ -197,12 +232,21 @@ class SentinelInterceptor:
 
         controls = self._recommend_controls(reasons, action)
         execution = self.executor.apply_controls(controls) if action in {"BLOCK", "THROTTLE"} and self.executor else None
+        if execution is not None and not execution.verified:
+            reasons.append("execution_verification_failed")
+            if self.governance_registry is not None:
+                self.governance_registry.record_execution_result(
+                    verified=False,
+                    failed_controls=execution.failures,
+                    rolled_back_controls=execution.rolled_back,
+                    op_ids=tuple(r.op_id for r in execution.receipts),
+                )
         decision = InterceptorDecision(
             action,
             risk_score,
             tuple(sorted(set(reasons))),
             controls,
-            action == "BLOCK" or "high_anomaly_score" in reasons,
+            action == "BLOCK" or "high_anomaly_score" in reasons or (execution is not None and not execution.verified),
             tuple(sorted(risk_components.items())),
             execution,
         )

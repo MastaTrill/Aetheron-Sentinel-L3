@@ -1,8 +1,10 @@
 import unittest
 
+from aetheron_sentinel_l3.execution import ActionExecutor
 from aetheron_sentinel_l3.rpc_adapter import (
     JsonRpcAdapterConfig,
     JsonRpcOnChainAdapter,
+    LocalTestnetRpcServer,
     RpcResponseError,
     RpcSubmissionError,
     RpcTransportError,
@@ -124,6 +126,33 @@ class TestRpcIntegration(unittest.TestCase):
         )
         with self.assertRaises(RpcResponseError):
             adapter.apply("pause_bridge", "op-6")
+
+    def test_live_http_testnet_wiring_finality_and_rollback(self) -> None:
+        with LocalTestnetRpcServer(chain_id=84532, initial_block=14_000_000, blocks_per_poll=1) as server:
+            config = JsonRpcAdapterConfig(
+                chain_name="base-sepolia",
+                endpoint=server.endpoint,
+                confirmations_required=2,
+                poll_attempts=3,
+                expected_chain_id=84532,
+            )
+            adapter = JsonRpcOnChainAdapter(config)
+            status = adapter.probe_endpoint()
+            self.assertTrue(status.healthy)
+            self.assertEqual(status.chain_id, 84532)
+            self.assertGreaterEqual(status.block_number, 14_000_000)
+
+            executor = ActionExecutor(chain_adapter=adapter, failure_budget=0, rollback_on_unverified=True)
+            ok_result = executor.apply_controls(("pause_bridge", "enable_withdrawal_caps"))
+            self.assertTrue(ok_result.verified)
+            self.assertEqual(ok_result.applied, ("pause_bridge", "enable_withdrawal_caps"))
+
+            # Simulate on-chain revert on second control and verify compensating rollback over HTTP
+            server.revert_controls.add("enable_withdrawal_caps")
+            rev_result = executor.apply_controls(("pause_bridge", "enable_withdrawal_caps"))
+            self.assertFalse(rev_result.verified)
+            self.assertIn("pause_bridge", rev_result.rolled_back)
+            self.assertTrue(any(r["control"] == "pause_bridge" for r in server.rollbacks))
 
 
 if __name__ == "__main__":
