@@ -183,7 +183,7 @@ networkx==3.6.1
 nltk==3.10.4
 notebook==7.6.5
 notebook_shim==0.2.4
-numpy==2.4.4
+numpy==2.5.4
 oauthlib==4.0.1
 onnxruntime==1.29.0
 openai==2.30.0
