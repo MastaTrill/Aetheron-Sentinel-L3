@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PYTHONPATH=src
+
+python -m unittest -v tests.test_interceptor
+python -m unittest -v tests.test_readiness
+python -m unittest -v tests.test_rpc_integration
+python -m unittest -v tests.test_pq_backend
+python scripts/run_staging_windows.py
