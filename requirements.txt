@@ -1,7 +1,7 @@
 # torch/torchvision "+cpu" wheels are served from the PyTorch CPU index
 --extra-index-url https://download.pytorch.org/whl/cpu
 requests>=2.0.0
-aiohappyeyeballs==2.6.1
+aiohappyeyeballs==2.7.1
 aiohttp==3.14.5
 aiohttp-retry==2.9.1
 aiosignal==1.4.0
