@@ -8,3 +8,4 @@ python -m unittest -v tests.test_readiness
 python -m unittest -v tests.test_rpc_integration
 python -m unittest -v tests.test_pq_backend
 python scripts/run_staging_windows.py
+python scripts/bug_bounty_repro_harness.py
