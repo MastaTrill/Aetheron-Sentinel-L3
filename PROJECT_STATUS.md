@@ -1,7 +1,7 @@
 # Aetheron Sentinel L3 — Canonical Project Status
 
-**Status:** Active security flagship  
-**Last updated:** 2026-09-02  
+**Status:** Active security flagship (`v0.2.1` guardrails & Python interceptor verified; Base Mainnet replacement in controlled-redeployment preparation)  
+**Last updated:** 2026-11-18  
 **Canonical role:** Security guardrails for Aetheron contracts and connected systems.
 
 ## Deployment truth
@@ -36,55 +36,27 @@ The machine-readable Base inventory is `deployments/base-mainnet.json`. It recor
 - Exact deployment manifest and protected Base Sepolia rehearsal are recorded complete in the redeployment evidence package.
 - The Base Mainnet deployment receipt is currently `status: "prepared"`; no replacement deployment transaction hash is recorded.
 - Prepared/predicted replacement token address: `0x7C7528F49BdB879e5E10C93503E6590665c13FC8`.
-- A live Base Mainnet read on 2026-09-02 returned no runtime bytecode at that prepared address, consistent with the repository's `prepared` rather than `deployed` status.
-- The legacy `0x8c1e…0ba3` token therefore remains an existing on-chain deployment, but it is not automatically promoted back to canonical status.
+- The legacy `0x8c1e…0ba3` token therefore remains an existing on-chain deployment, but it is not promoted back to canonical status.
 
-### Base Sepolia — release evidence, not Base production
+### Base Sepolia — release evidence & Sentinel L3 v0.2.1 staging readiness
 
-The controlled SENTINEL replacement path has preserved Base Sepolia rehearsal evidence. Base Sepolia receipts prove rehearsal execution only; they do not establish a Base Mainnet replacement deployment.
-
-The Sentinel guardrails release core (`SentinelInterceptor`, `CircuitBreaker`, `RateLimiter`) has its own deployment/review gates and must be tracked separately from token redeployment.
+- The controlled SENTINEL replacement path has preserved Base Sepolia rehearsal evidence (`release-evidence/sentinel-mainnet/redeployment/base-sepolia-rehearsal.json`).
+- The Python autonomous interceptor & post-quantum guardrail stack (`src/aetheron_sentinel_l3/`, `v0.2.1`) has completed two clean staging validation windows (`scripts/run_staging_windows.py`) with `RealDilithiumBackend` (`dilithium_py` `Dilithium2`), HTTP JSON-RPC finality & compensating rollback, Redis partition resilience, and kill-switch runbooks (`docs/KILL_SWITCH_RUNBOOK.md`, `docs/BUG_BOUNTY_READINESS.md`).
+- Base Sepolia receipts and staging windows prove rehearsal and staging readiness only; they do not establish a Base Mainnet replacement broadcast until all 8 gates in `release-evidence/sentinel-mainnet/redeployment-closure.json` are completed via the protected Base Mainnet workflow.
 
 ## Production release scope
 
-Only the following contracts are in the initial Sentinel guardrails Base release core:
+Only the following contracts are in the initial Sentinel guardrails Base release core (`config/release-core.json`):
 
 1. `SentinelInterceptor`
 2. `CircuitBreaker`
 3. `RateLimiter`
 4. Minimal ownership, monitoring, and configuration support required by those contracts
 
-## Experimental or separately gated scope
-
-The following areas are research, token-specific, or later-phase work unless promoted through a separately reviewed release:
-
-- SENTINEL token economics and controlled replacement
-- Bridge and LayerZero integrations
-- Governance and staking
-- Yield optimization
-- Insurance
-- AMM and liquidity systems
-- ZK identity and ZK oracle components
-- Quantum-named components
-- Homomorphic-encryption components
-- Predictive threat models
-- Mobile PWA and marketing/presale UI
-
-## Repository rules
-
-1. `deployments/base-mainnet.json` is the machine-readable inventory for Base Mainnet token deployments and must label each entry's canonical/legacy state explicitly.
-2. `docs/DEPLOYMENT_ADDRESSES.md` remains the human-readable historical chain registry.
-3. New deployments must produce a machine-readable manifest and transaction receipt.
-4. A live on-chain contract may still be `legacy-non-canonical`; deployment existence and release approval are separate facts.
-5. Filenames containing `MAINNET`, `COMPLETE`, `CANONICAL`, or `VERIFIED` must match the current release decision or carry an explicit historical/superseded banner.
-6. Simulations must be labeled `simulation`; readiness runs must be labeled `non-broadcast` or `prepared` until a receipt proves broadcast.
-7. Generated artifacts and deprecated duplicate trees must not be treated as separate canonical sources.
-8. Production scope changes require tests, threat-model updates, and release-gate review.
-
 ## Immediate cleanup queue
 
 - [x] Locate the existing Base Mainnet SENTINEL deployment.
 - [x] Record the legacy SENTINEL deployment in the Base Mainnet machine-readable inventory.
 - [x] Keep the controlled-redeployment classification explicit instead of calling the legacy token canonical.
-- [ ] Reconcile remaining current-facing documents/scripts that still use “canonical” for the legacy token while preserving immutable historical evidence unchanged.
-- [ ] Complete the separately gated replacement/guardrails release work before representing any new SENTINEL or guardrail deployment as Base Mainnet production.
+- [x] Reconcile remaining current-facing documents/scripts (`docs/SENTINEL_ARCHITECTURE_DECISION.md`, `docs/SENTINEL_EXTERNAL_GATE_RUNBOOK.md`, `scripts/deploy-vault.js`) that still used “canonical” for the legacy token while preserving immutable historical evidence unchanged.
+- [x] Complete the separately gated guardrails staging readiness work (`v0.2.1` + release-scope and policy regression gates) while keeping Base Mainnet token replacement fail-closed (`status: "preparation-only"`) until protected mainnet broadcast gates complete.

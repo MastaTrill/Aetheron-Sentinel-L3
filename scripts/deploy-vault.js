@@ -1,26 +1,27 @@
 /**
  * Sentinel L3 — SentinelVaultStrategy Deployment Script
- * Deploy to Base Mainnet via: node scripts/deploy-vault.cjs
  *
- * Prerequisites (.env):
- *   BASE_MAINNET_RPC_URL=https://mainnet.base.org
- *   DEPLOYER_PRIVATE_KEY=0x...your_wallet_private_key...
- *   BASESCAN_API_KEY=...your_basescan_api_key...
- *
- * The SENTINEL token address on Base Mainnet:
- *   0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3
+ * NOTE: Legacy Base Mainnet SENTINEL (0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3)
+ * is classified as legacy-non-canonical under controlled redeployment.
+ * You MUST explicitly set SENTINEL_TOKEN_ADDRESS in the environment before deploying.
  */
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-// Sentinel token on Base Mainnet (canonical)
-const SENTINEL_TOKEN_BASE = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
+const LEGACY_SENTINEL_TOKEN_BASE = '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3';
+const SENTINEL_TOKEN_BASE = process.env.SENTINEL_TOKEN_ADDRESS;
 
 async function main() {
+  if (!SENTINEL_TOKEN_BASE) {
+    throw new Error(
+      `SENTINEL_TOKEN_ADDRESS must be explicitly provided. Legacy token ${LEGACY_SENTINEL_TOKEN_BASE} is non-canonical under controlled redeployment.`
+    );
+  }
+
   const { network, ethers } = await import('hardhat');
 
-  console.log('🌊 SentinelVaultStrategy — Base Mainnet Deployment');
+  console.log('🌊 SentinelVaultStrategy — Deployment');
   console.log('===================================================');
   console.log(`📡 Network: ${network.name} (Chain ID: ${(await ethers.provider.getNetwork()).chainId})`);
 
@@ -52,7 +53,6 @@ async function main() {
   console.log(`🌐 BaseScan URL:      https://basescan.org/address/${vaultAddress}`);
   console.log('===================================================\n');
 
-  // Save deployment record
   const { writeFileSync, existsSync, mkdirSync } = require('fs');
   const { join } = require('path');
 
@@ -74,10 +74,6 @@ async function main() {
     join(deploymentsDir, 'SentinelVaultStrategy-base.json'),
     JSON.stringify(record, null, 2)
   );
-
-  console.log('📁 Deployment record saved to: deployments/SentinelVaultStrategy-base.json');
-  console.log('\n💡 Next step — verify the contract on BaseScan:');
-  console.log(`   npx hardhat verify --network base ${vaultAddress} "${SENTINEL_TOKEN_BASE}" "${deployerAddress}"\n`);
 }
 
 main().catch((err) => {
