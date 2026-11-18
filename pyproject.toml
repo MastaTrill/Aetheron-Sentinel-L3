@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 authors = [{name = "Aetheron"}]
 
 [project.optional-dependencies]
-pq = ["dilithium-py>=1.0.0"]
+pq = ["dilithium-py>=1.0.0", "pycryptodome>=3.19.0"]
 
 [project.scripts]
 aetheron-sentinel-server = "aetheron_sentinel_l3.server:main"

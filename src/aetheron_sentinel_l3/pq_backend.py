@@ -35,7 +35,10 @@ class RealDilithiumBackend:
 
         self._dilithium = dilithium
         if seed is not None:
-            self._dilithium.Dilithium2.set_drbg_seed(seed)
+            try:
+                self._dilithium.Dilithium2.set_drbg_seed(seed)
+            except Warning:
+                pass
         first, second = self._dilithium.Dilithium2.keygen()
         if isinstance(first, (bytes, bytearray)) and isinstance(second, (bytes, bytearray)):
             self.pk = bytes(first)
