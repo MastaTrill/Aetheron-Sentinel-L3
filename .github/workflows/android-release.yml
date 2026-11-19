@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Release AAB
         working-directory: ./android
-        run: ./gradlew bundleRelease
+        run: chmod +x ./gradlew && ./gradlew bundleRelease
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
