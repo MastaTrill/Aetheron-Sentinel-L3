@@ -31,7 +31,7 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build Web App
         run: npm run build:mobile
@@ -39,11 +39,16 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Decode Keystore
+      - name: Decode Keystore (when configured)
         env:
           ENCODED_KEYSTORE: ${{ secrets.PLAY_STORE_UPLOAD_KEY }}
         run: |
-          echo $ENCODED_KEYSTORE | base64 --decode > android/app/upload-keystore.jks
+          if [ -n "$ENCODED_KEYSTORE" ]; then
+            printf '%s' "$ENCODED_KEYSTORE" | base64 --decode > android/app/upload-keystore.jks
+          else
+            rm -f android/app/upload-keystore.jks
+            echo "PLAY_STORE_UPLOAD_KEY secret not configured; building unsigned release AAB."
+          fi
 
       - name: Build Release AAB
         working-directory: ./android
@@ -58,15 +63,3 @@ jobs:
         with:
           name: app-release
           path: android/app/build/outputs/bundle/release/app-release.aab
-
-      # To enable automated Play Store upload, uncomment and configure the action below.
-      # Note: The first upload must be done manually in the Google Play Console!
-      #
-      # - name: Upload to Google Play
-      #   uses: r0adkll/upload-google-play@v1
-      #   with:
-      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
-      #     packageName: com.aetheron.sentinel
-      #     releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
-      #     track: internal
-      #     status: draft
