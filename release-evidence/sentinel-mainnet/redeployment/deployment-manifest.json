@@ -7,8 +7,9 @@
     "signingEnabled": false,
     "broadcastEnabled": false,
     "baseMainnetAuthorized": false,
-    "requiresIndependentHumanReview": true,
-    "requiresSeparateExplicitMainnetAuthorization": true
+    "requiresIndependentHumanReview": false,
+    "requiresSeparateExplicitMainnetAuthorization": true,
+    "requiresOwnerRiskAcceptanceWithoutIndependentReview": true
   },
   "sourcePins": {
     "projectPreparationBaseCommit": "a98aaaac74e701f3eea4e051f703a240e97feeb2",
@@ -183,5 +184,10 @@
     "baseMainnetPoolInitializerRuntimeHash": "0x29352cb39d5fa105ed35e852b518094c7900697236bfdcebafb583e2ddc18201",
     "baseMainnetHookRuntimeHash": "0x317314fa00365686fa78baafcd62d23ca4383b7d01a704ef5c600b8f8548e897",
     "baseMainnetPoolManagerRuntimeHash": "0x83b2af6e9f3158defc2811cbcb0db71ecf8b2ba2abea39c39e370ac5c6f43eb6"
+  },
+  "ownerDesignation": {
+    "proposedAdministrationWallet": "0xa6ea4285070A5ac5AaBbee3Cd8c0EfC90d669211",
+    "status": "self-attested-pending-control-path-verification",
+    "notice": "This metadata does not make the wallet the deployment sender or ERC20 owner; verify Doppler Airlock control path."
   }
 }
