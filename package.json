@@ -128,7 +128,7 @@
     "mocha": "^12.0.3",
     "postcss": "8.5.33",
     "prettier": "^3.10.1",
-    "solc": "0.8.37",
+    "solc": "0.8.39",
     "tailwindcss": "^4.3.5",
     "ts-node": "^10.0.0",
     "typescript": "^6.0.3"
