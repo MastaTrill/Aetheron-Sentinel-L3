@@ -198,7 +198,7 @@ opentelemetry-instrumentation-fastapi==0.66b1
 opentelemetry-proto==1.45.1
 opentelemetry-sdk==1.45.1
 opentelemetry-semantic-conventions==0.66b1
-opentelemetry-util-http==0.66b1
+opentelemetry-util-http==0.66b2
 openwakeword==0.6.0; python_version < "3.12" or sys_platform != "linux"  # needs tflite-runtime, no Linux wheels for py>=3.12
 optuna==5.0.0
 packageurl-python==0.17.6
