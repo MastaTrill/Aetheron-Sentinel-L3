@@ -276,7 +276,7 @@ Send2Trash==2.2.0
 setuptools<85
 shellingham==1.5.4
 six==1.17.0
-skops==0.14.0
+skops==0.16.0
 slack_sdk==3.44.1
 slither-analyzer==0.11.6
 slowapi==0.1.10
