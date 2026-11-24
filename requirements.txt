@@ -132,7 +132,7 @@ jiter==0.13.0
 jmespath==1.1.0
 joblib==1.5.3
 json5==0.17.3
-jsonpointer==3.1.1
+jsonpointer==3.12
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 jupyter==1.1.1
