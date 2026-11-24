@@ -89,7 +89,7 @@ ghp-import==2.1.0
 git-filter-repo==2.47.0
 gitdb==4.0.12
 GitPython==3.2.1
-google-ai-generativelanguage==0.6.15
+google-ai-generativelanguage==0.12.1
 google-api-core==2.44.0
 google-api-python-client==2.202.0
 google-auth==2.62.2
