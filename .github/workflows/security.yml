@@ -67,7 +67,7 @@ jobs:
 
   dependency-audit:
     name: Dependency audit
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * 1'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * 1' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -190,7 +190,7 @@ jobs:
 
   echidna:
     name: Echidna property fuzz
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 4 * * 3'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 4 * * 3' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

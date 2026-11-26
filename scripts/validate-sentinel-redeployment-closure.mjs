@@ -21,6 +21,16 @@ const LEGACY_POOL_ID = '0x05d37c029565268ba474749d6142f64511861910671d836460ab56
 const LEGACY_BENEFICIARY = '0x7e3d11f70084d667295710e6b7ff50c3b0487a45';
 const REQUIRED_TREASURY = '0xa4737aa4b1e8a3c8f221be9e55f5bda307ecc1fa';
 const EXPECTED_CREATOR_SHARE_WAD = '570000000000000000';
+const MAINNET_AIRLOCK = '0x660eaaedebc968f8f3694354fa8ec0b4c5ba8d12';
+const MAINNET_INITIALIZER = '0xd59ce43e53d69f190e15d9822fb4540dccc91178';
+const MAINNET_POOL_MANAGER = '0x498581ff718922c3f8e6a244956af099b2652b2b';
+const MAINNET_HOOK = '0xbb7784a4d481184283ed89619a3e3ed143e1adc0';
+const EXPECTED_POOL_BENEFICIARIES = [
+  ['doppler-protocol', '0x21e2ce70511e4fe542a97708e89520471daa7a66', '50000000000000000'],
+  ['bankr-ecosystem', '0x2cdd33d6ff2a897180c7f4e5a20f018bf0c16fd1', '19000000000000000'],
+  ['aetheron-treasury', REQUIRED_TREASURY, EXPECTED_CREATOR_SHARE_WAD],
+  ['bankr-platform-integrator', '0xf60633d02690e2a15a54ab919925f3d038df163e', '361000000000000000'],
+];
 const EXPECTED_DECISION =
   'docs/decisions/ADR-2026-07-29-SENTINEL-BENEFICIARY-REDEPLOYMENT.md';
 const REQUIRED_EVIDENCE_FILES = [EXPECTED_DECISION, 'sentinel-l3-v1.0/README_DEPRECATED.md'];
@@ -173,6 +183,47 @@ function requireVerifiedTreasuryShare(label, beneficiaries) {
   }
 }
 
+
+function requireExactBeneficiaryRoster(label, beneficiaries) {
+  if (!Array.isArray(beneficiaries) || beneficiaries.length !== EXPECTED_POOL_BENEFICIARIES.length) {
+    failures.push(`${label}: must reproduce all four manifest beneficiaries`);
+    return;
+  }
+  for (const [role, beneficiary, shares] of EXPECTED_POOL_BENEFICIARIES) {
+    const matches = beneficiaries.filter(entry => entry?.role === role);
+    if (
+      matches.length !== 1 ||
+      lower(matches[0].beneficiary) !== beneficiary ||
+      String(matches[0].shares ?? '') !== shares ||
+      String(matches[0].verifiedShares ?? '') !== shares
+    ) {
+      failures.push(`${label}: ${role} address and verified shares must match the pinned manifest`);
+    }
+  }
+}
+
+function comparableRpcState(evidence) {
+  return JSON.stringify({
+    token: lower(evidence.token?.address),
+    name: evidence.token?.name,
+    symbol: evidence.token?.symbol,
+    supply: String(evidence.token?.totalSupply ?? ''),
+    owner: lower(evidence.token?.owner),
+    runtimeCodeHash: lower(evidence.token?.runtimeCodeHash),
+    poolId: lower(evidence.pool?.poolId),
+    poolManager: lower(evidence.pool?.poolManager),
+    hook: lower(evidence.pool?.hook),
+    beneficiaries: (evidence.pool?.beneficiaries ?? [])
+      .map(entry => ({
+        role: entry.role,
+        beneficiary: lower(entry.beneficiary),
+        shares: String(entry.shares ?? ''),
+        verifiedShares: String(entry.verifiedShares ?? ''),
+      }))
+      .sort((a, b) => a.role.localeCompare(b.role)),
+  });
+}
+
 async function validateCompletedGateEvidence(name, evidenceByPath) {
   if (name === 'exactDeploymentManifest') {
     const evidence = evidenceByPath.get(DEPLOYMENT_MANIFEST_EVIDENCE)?.data;
@@ -244,6 +295,9 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
 
   if (name === 'independentRpcReproduction') {
     const rpcEvidence = RPC_EVIDENCE.map(file => evidenceByPath.get(file)?.data).filter(Boolean);
+    if (replacement.status !== 'deployed') {
+      failures.push('independentRpcReproduction: replacement must be deployed before RPC evidence is complete');
+    }
     for (const [index, evidence] of rpcEvidence.entries()) {
       const label = `independentRpcReproduction provider ${index + 1}`;
       if (evidence.schemaVersion !== 1 || evidence.status !== 'verified') {
@@ -252,11 +306,8 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       if (typeof evidence.provider !== 'string' || evidence.provider.trim() === '') {
         failures.push(`${label}: provider identity is required`);
       }
-      if (
-        Object.hasOwn(evidence, 'endpoint') &&
-        (typeof evidence.endpoint !== 'string' || evidence.endpoint.trim() === '')
-      ) {
-        failures.push(`${label}: endpoint must be a nonempty string when recorded`);
+      if (typeof evidence.endpoint !== 'string' || evidence.endpoint.trim() === '') {
+        failures.push(`${label}: provider endpoint is required`);
       }
       if (evidence.chainId !== 8453) {
         failures.push(`${label}: chainId must be 8453`);
@@ -273,17 +324,33 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
       requireHash(`${label} runtimeCodeHash`, evidence.token?.runtimeCodeHash);
       requireHash(`${label} poolId`, evidence.pool?.poolId);
       requireVerifiedTreasuryShare(label, evidence.pool?.beneficiaries);
+      requireExactBeneficiaryRoster(label, evidence.pool?.beneficiaries);
+      if (lower(evidence.token?.address) !== lower(replacement.token)) {
+        failures.push(`${label}: token must match replacement token`);
+      }
+      if (lower(evidence.pool?.poolId) !== lower(replacement.poolId)) {
+        failures.push(`${label}: poolId must match replacement poolId`);
+      }
+      if (lower(evidence.token?.owner) !== MAINNET_AIRLOCK) {
+        failures.push(`${label}: token owner must match the pinned Mainnet Airlock`);
+      }
+      if (lower(evidence.pool?.poolManager) !== MAINNET_POOL_MANAGER ||
+          lower(evidence.pool?.hook) !== MAINNET_HOOK) {
+        failures.push(`${label}: pool manager and hook must match the pinned deployment manifest`);
+      }
     }
     if (rpcEvidence.length === 2) {
-      if (rpcEvidence[0].provider === rpcEvidence[1].provider) {
-        failures.push('independentRpcReproduction: provider identities must be independent');
+      const [first, second] = rpcEvidence;
+      if (lower(first.provider?.trim()) === lower(second.provider?.trim()) ||
+          lower(first.endpoint?.trim()) === lower(second.endpoint?.trim())) {
+        failures.push('independentRpcReproduction: providers and endpoints must be independent');
       }
-      if (
-        typeof rpcEvidence[0].endpoint === 'string' &&
-        typeof rpcEvidence[1].endpoint === 'string' &&
-        rpcEvidence[0].endpoint === rpcEvidence[1].endpoint
-      ) {
-        failures.push('independentRpcReproduction: recorded endpoints must be independent');
+      if (first.blockNumber !== second.blockNumber ||
+          lower(first.blockHash) !== lower(second.blockHash)) {
+        failures.push('independentRpcReproduction: both providers must reproduce the same block');
+      }
+      if (comparableRpcState(first) !== comparableRpcState(second)) {
+        failures.push('independentRpcReproduction: providers disagree on replacement state');
       }
     }
   }
@@ -300,11 +367,19 @@ async function validateCompletedGateEvidence(name, evidenceByPath) {
     const owner = evidence.verifications?.tokenOwner;
     requireAddress('authorityAndBeneficiaryVerification token', owner?.address);
     requireAddress('authorityAndBeneficiaryVerification expectedOwner', owner?.expectedOwner);
+    if (replacement.status !== 'deployed' ||
+        lower(owner?.address) !== lower(replacement.token) ||
+        lower(owner?.expectedOwner) !== MAINNET_AIRLOCK) {
+      failures.push('authorityAndBeneficiaryVerification: token and owner must match the deployed replacement');
+    }
     if (lower(owner?.actualOwner) !== lower(owner?.expectedOwner) || owner?.reachabilityTestPassed !== true) {
       failures.push('authorityAndBeneficiaryVerification: token owner must match and be reachable');
     }
     const beneficiary = evidence.verifications?.poolCreatorBeneficiary;
     requireHash('authorityAndBeneficiaryVerification poolId', beneficiary?.poolId);
+    if (lower(beneficiary?.poolId) !== lower(replacement.poolId)) {
+      failures.push('authorityAndBeneficiaryVerification: poolId must match replacement poolId');
+    }
     if (
       lower(beneficiary?.expectedBeneficiary) !== REQUIRED_TREASURY ||
       lower(beneficiary?.actualBeneficiary) !== REQUIRED_TREASURY ||
@@ -542,6 +617,9 @@ if (replacement.status === 'preparation-only') {
 } else {
   requireAddress('replacement token', replacement.token);
   requireAddress('replacement initializer', replacement.initializer);
+  if (lower(replacement.initializer) !== MAINNET_INITIALIZER) {
+    failures.push('replacement initializer must match pinned Mainnet pool initializer');
+  }
   requireHash('replacement poolId', replacement.poolId);
   requireHash('replacement deploymentTransactionHash', replacement.deploymentTransactionHash);
   if (lower(replacement.token) === LEGACY_TOKEN) {
