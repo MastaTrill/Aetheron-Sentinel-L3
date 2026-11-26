@@ -1,15 +1,16 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Interface, JsonRpcProvider, getAddress } from 'ethers';
+import { Interface, JsonRpcProvider, getAddress, keccak256 } from 'ethers';
+import { verifyIndependentQuote, verifyPretradeAnchor } from './lib/independent-quote-verifier.mjs';
+import { validateReplacementBounds, validateReplacementIdentity, validateCanonicalPoolKey, classifyReplacementSwap } from './lib/replacement-smoke-policy.mjs';
 
 const RPC_URL = process.env.BASE_RPC_URL ?? 'https://base-rpc.publicnode.com';
 const POOL_MANAGER = getAddress(process.env.SENTINEL_POOL_MANAGER ?? '0x498581fF718922c3f8e6A244956aF099B2652b2b');
-const POOL_ID = (process.env.SENTINEL_POOL_ID ?? '0x05d37c029565268ba474749d6142f64511861910671d836460ab56ef26c7157d').toLowerCase();
-const OUTPUT_DIR = process.env.SENTINEL_SMOKE_OUTPUT_DIR ?? 'release-evidence/sentinel-mainnet/smoke-test';
-const RECEIPTS_PATH = path.join(OUTPUT_DIR, 'smoke-test-receipts.json');
+const POOL_ID = (process.env.SENTINEL_REPLACEMENT_POOL_ID ?? '').toLowerCase();
+const REPLACEMENT_TOKEN = process.env.SENTINEL_REPLACEMENT_TOKEN ?? '';
 const AUTHORIZATION_PATH = process.env.SENTINEL_SMOKE_AUTHORIZATION
-  ?? path.join(OUTPUT_DIR, 'authorization.json');
+  ?? path.join('release-evidence/sentinel-mainnet/redeployment', 'authorization.json');
 const TX_HASH_PATTERN = /^0x[0-9a-f]{64}$/i;
 
 const authorization = JSON.parse(await readFile(AUTHORIZATION_PATH, 'utf8'));
@@ -18,8 +19,8 @@ const authorizationFailures = [];
 if (authorization.schemaVersion !== 1) authorizationFailures.push('authorization schemaVersion must be 1');
 if (authorization.status !== 'authorized') authorizationFailures.push(`authorization status must be authorized, found ${authorization.status ?? 'missing'}`);
 if (authorization.chainId !== 8453) authorizationFailures.push('authorization chainId must be 8453');
-if (authorization.token?.toLowerCase() !== '0x8c1eb8db47d52a8b5e2b1eb4e5ec9491ce030ba3') authorizationFailures.push('authorization token mismatch');
-if (authorization.poolId?.toLowerCase() !== POOL_ID) authorizationFailures.push('authorization poolId mismatch');
+try { validateReplacementIdentity({token: authorization.token, poolId: authorization.poolId, expectedToken: REPLACEMENT_TOKEN, expectedPoolId: POOL_ID}); } catch (error) { authorizationFailures.push(error.message); }
+
 
 for (const field of ['authorizedBy', 'authorizedAtUtc', 'testWallet', 'maxWethPrincipalWei', 'maxTotalGasCostWei', 'maxSlippageBps', 'approvedRoute', 'buyAmountWethWei', 'sellAmountSentinelWei', 'buyTransactionHash', 'sellTransactionHash']) {
   if (authorization[field] === null || authorization[field] === undefined || authorization[field] === '') {
@@ -33,6 +34,11 @@ if (authorizationFailures.length) {
   console.error('Smoke-test authorization is incomplete or invalid:\n- ' + authorizationFailures.join('\n- '));
   process.exit(1);
 }
+
+// Require exact canonical PoolKey evidence before interpreting currency-indexed Swap deltas.
+const WETH_IS_CURRENCY0 = validateCanonicalPoolKey({
+  poolKey: authorization.poolKey, token: REPLACEMENT_TOKEN, poolId: POOL_ID,
+});
 
 const BUY_TX_HASH = authorization.buyTransactionHash;
 const SELL_TX_HASH = authorization.sellTransactionHash;
@@ -67,34 +73,31 @@ async function verify(hash, expectedDirection) {
     .filter((parsed) => parsed && parsed.args.id.toLowerCase() === POOL_ID);
   if (matching.length === 0) throw new Error(`No canonical PoolManager Swap event in ${hash}`);
 
-  const directions = matching.map((parsed) => {
-    const amount0 = parsed.args.amount0;
-    const amount1 = parsed.args.amount1;
-    if (amount0 > 0n && amount1 < 0n) return 'buy-sentinel-with-weth';
-    if (amount0 < 0n && amount1 > 0n) return 'sell-sentinel-for-weth';
-    return 'other';
-  });
-  if (!directions.includes(expectedDirection)) throw new Error(`${hash} does not contain expected direction ${expectedDirection}; found ${directions.join(', ')}`);
+  const swaps = matching.map((parsed) =>
+    classifyReplacementSwap(parsed.args.amount0, parsed.args.amount1, WETH_IS_CURRENCY0));
+  const directions = swaps.map((swap) => swap.direction);
+  if (directions.some((direction) => direction !== expectedDirection)) {
+    throw new Error(`${hash} contains unsupported or wrong-direction Swap events: ${directions.join(', ')}`);
+  }
 
   let wethIn = 0n;
   let wethOut = 0n;
   let sentinelIn = 0n;
   let sentinelOut = 0n;
-  for (const parsed of matching) {
-    const amount0 = parsed.args.amount0;
-    const amount1 = parsed.args.amount1;
-    if (amount0 > 0n && amount1 < 0n) {
-      wethIn += amount0;
-      sentinelOut += -amount1;
-    } else if (amount0 < 0n && amount1 > 0n) {
-      wethOut += -amount0;
-      sentinelIn += amount1;
+  for (const swap of swaps) {
+    if (swap.direction === 'buy-sentinel-with-weth') {
+      wethIn += swap.weth;
+      sentinelOut += -swap.sentinel;
+    } else if (swap.direction === 'sell-sentinel-for-weth') {
+      wethOut += -swap.weth;
+      sentinelIn += swap.sentinel;
     }
   }
 
   const gasPrice = receipt.effectiveGasPrice ?? receipt.gasPrice ?? tx.gasPrice;
   if (gasPrice === null || gasPrice === undefined) throw new Error(`Cannot determine authoritative gas price for ${hash}`);
   const gasCost = receipt.gasUsed * gasPrice;
+  if (tx.to?.toLowerCase() !== authorization.approvedRoute?.toLowerCase()) throw new Error('Transaction entrypoint differs from approved route');
 
   return {
     transactionHash: hash,
@@ -102,6 +105,8 @@ async function verify(hash, expectedDirection) {
     signer: getAddress(tx.from),
     entrypoint: tx.to ? getAddress(tx.to) : null,
     inputSelector: tx.data.slice(0, 10),
+    calldataHash: keccak256(tx.data),
+    blockTimestamp: (await provider.getBlock(receipt.blockNumber)).timestamp,
     gasUsed: receipt.gasUsed.toString(),
     gasPriceWei: gasPrice.toString(),
     gasCostWei: gasCost.toString(),
@@ -128,35 +133,41 @@ try {
   if (actualSellSentinel > BigInt(authorization.sellAmountSentinelWei)) throw new Error('Actual sell SENTINEL exceeds sellAmountSentinelWei');
   if (totalGasCost > BigInt(authorization.maxTotalGasCostWei)) throw new Error('Actual total gas cost exceeds maxTotalGasCostWei');
 
-  const result = {
-    schemaVersion: 1,
-    verifiedAtUtc: new Date().toISOString(),
-    chainId: 8453,
-    poolManager: POOL_MANAGER,
-    poolId: POOL_ID,
-    expectedWallet: EXPECTED_WALLET,
-    authorization: {
-      authorizedBy: authorization.authorizedBy,
-      authorizedAtUtc: authorization.authorizedAtUtc,
-      maxWethPrincipalWei: String(authorization.maxWethPrincipalWei),
-      maxTotalGasCostWei: String(authorization.maxTotalGasCostWei),
-      maxSlippageBps: String(authorization.maxSlippageBps),
-      approvedRoute: authorization.approvedRoute,
-      buyAmountWethWei: String(authorization.buyAmountWethWei),
-      sellAmountSentinelWei: String(authorization.sellAmountSentinelWei),
-      buyTransactionHash: BUY_TX_HASH,
-      sellTransactionHash: SELL_TX_HASH,
-    },
-    observedTotalGasCostWei: totalGasCost.toString(),
-    buy,
-    sell,
-    notice: 'Receipt verification only. The verifier never signs or broadcasts transactions.',
-  };
+  // Require an independently reviewed runtime code hash, not merely a caller-supplied address.
+  const anchorContract = process.env.SENTINEL_INDEPENDENT_ANCHOR_CONTRACT;
+  const approvedCodeHash = process.env.SENTINEL_INDEPENDENT_ANCHOR_CODE_HASH;
+  if (!anchorContract || !/^0x[0-9a-f]{64}$/i.test(approvedCodeHash ?? '')) {
+    throw new Error('Independent reviewed anchor contract and runtime code hash are required');
+  }
+  const anchorCode = await provider.getCode(getAddress(anchorContract));
+  if (anchorCode === '0x' || keccak256(anchorCode).toLowerCase() !== approvedCodeHash.toLowerCase()) {
+    throw new Error('Anchor contract bytecode does not match independently approved code hash');
+  }
+  const trustedSigner = process.env.SENTINEL_INDEPENDENT_QUOTE_SIGNER;
+  const quotes = {};
+  for (const [leg, receipt, direction, actualOutputWei] of [
+    ['buy', buy, 'buy-sentinel-with-weth', buy.canonicalPoolAmounts.sentinelOutWei],
+    ['sell', sell, 'sell-sentinel-for-weth', sell.canonicalPoolAmounts.wethOutWei],
+  ]) {
+    quotes[leg] = verifyIndependentQuote({
+      quote: authorization.independentQuoteEvidence?.[leg], trustedSigner, authorization,
+      transaction: receipt, blockTimestamp: receipt.blockTimestamp, direction, actualOutputWei,
+    });
+    const anchorHash = authorization.independentQuoteEvidence?.[leg]?.anchorTransactionHash;
+    if (!TX_HASH_PATTERN.test(anchorHash ?? '')) throw new Error(leg + ' quote anchor transaction hash missing');
+    const [anchorTransaction, anchorReceipt] = await Promise.all([provider.getTransaction(anchorHash), provider.getTransactionReceipt(anchorHash)]);
+    verifyPretradeAnchor({ quoteDigest: quotes[leg].quoteDigest, anchorTransaction, anchorReceipt,
+      swapBlockNumber: (leg === 'buy' ? buy : sell).blockNumber,
+      trustedAnchor: process.env.SENTINEL_INDEPENDENT_ANCHOR_SIGNER,
+      anchorContract: process.env.SENTINEL_INDEPENDENT_ANCHOR_CONTRACT });
+  }
+  validateReplacementBounds(authorization, {
+    token: REPLACEMENT_TOKEN, poolId: POOL_ID, buyWethWei: actualBuyWeth.toString(),
+    sellSentinelWei: actualSellSentinel.toString(), totalGasCostWei: totalGasCost.toString(), quotes,
+  });
+  console.log('Smoke-test receipts and independently signed quote bounds verified; no transaction submitted.');
 
-  await mkdir(OUTPUT_DIR, { recursive: true });
-  await writeFile(RECEIPTS_PATH, `${JSON.stringify(result, null, 2)}\n`);
-  await writeFile(path.join(OUTPUT_DIR, 'README.md'), `# SENTINEL minimal buy/sell smoke-test evidence\n\n- Verified: ${result.verifiedAtUtc}\n- Buy transaction: \`${BUY_TX_HASH}\`\n- Sell transaction: \`${SELL_TX_HASH}\`\n- Pool ID: \`${POOL_ID}\`\n- Signer: \`${buy.signer}\`\n- Total gas cost (wei): \`${totalGasCost}\`\n\nBoth receipts succeeded, stayed within the recorded principal/gas authorization, and emitted canonical-pool Swap events in the expected directions. Slippage approval must be checked against the signed wallet quotes and independently reviewed.\n`);
-  console.log(JSON.stringify(result, null, 2));
+
 } finally {
   await provider.destroy();
 }
