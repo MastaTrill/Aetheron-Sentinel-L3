@@ -50,7 +50,7 @@ const config = {
   // declaration identical to package.json so compiler metadata and BaseScan
   // verification cannot diverge from the bytecode actually produced.
   solidity: {
-    version: '0.8.37',
+    version: '0.8.39',
     path: LOCAL_SOLC_PATH,
     isolated: true,
     settings: {

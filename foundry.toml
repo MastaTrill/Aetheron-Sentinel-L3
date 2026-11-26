@@ -9,7 +9,7 @@
 #           Foundry expects an integer literal -- removed quotes so it is parsed
 #           as a TOML integer (decimal). Changed to decimal 3735928559 which
 #           equals 0xdeadbeef.
-#   CI-30   Pin solc 0.8.37 so sources/tests requiring ^0.8.31 compile under
+#   CI-30   Pin solc 0.8.39 so sources/tests requiring ^0.8.31 compile under
 #           the same deterministic toolchain (aligned with Hardhat solc).
 #   CI-31   Add explicit package-style remappings for Uniswap imports.
 # =============================================================================
@@ -22,7 +22,7 @@ test            = "test"
 script          = "script"
 cache_path      = "cache"
 broadcast       = "broadcast"
-solc            = "0.8.37"
+solc            = "0.8.39"
 optimizer       = true
 optimizer_runs  = 999999
 via_ir          = false
